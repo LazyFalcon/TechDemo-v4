@@ -1,0 +1,16 @@
+- Scattering
+- PlasmaProjectile
+- PlasmaFlash
+- LightSource_POINT
+- BrightPartsExtraction
+- BlurHorizontal_Anamorphic
+- BlurVertical
+- BlurHorizontal
+- ComposeWithBlurredScene
+- SSAO_WS
+- BilateralBlurVertical
+- BilateralBlurHorizontal
+- ComposeLightAndGBuffer
+- BeamVolume
+- BeamRadiation
+- Spark

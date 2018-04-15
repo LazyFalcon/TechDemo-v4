@@ -1,0 +1,23 @@
+Video:
+    Fullscreen: no
+    Size: [1600 900]
+    Gamma: 2.2
+    Camera:
+        Fov: 86
+        Inertia: 1
+Audio:
+    Volume: 100
+Controls:
+    MouseSensitivity: 50
+Keybindings:
+    Fire: RMB
+    View: RMB
+    Zoom: Scroll
+    MoveForward: W
+    MoveBackward: S
+    MoveLeft: A
+    MoveRight: D
+    MoveUp: Q
+    MoveDown: Z
+    PrevAmmo: [
+    NextAmmo: ]

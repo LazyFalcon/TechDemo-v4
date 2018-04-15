@@ -1,32 +1,95 @@
-# Prerequisites
-*.d
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+.atom-build.json
+.vscode
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Folder config file
+Desktop.ini
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+#
 *.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
+*.cache
+*.o
+*.d
 *.exe
-*.out
-*.app
+*.tmp
+*.ogg
+*.mesh
+*.obj
+*.dae
+*.mtl
+*.x
+*.tif
+*.png
+*.jpg
+*.xml
+*.dds
+*.wav
+*.txt
+*.log
+*.fnt
+*.blend
+*.blend1
+*.blend2
+*.blend3
+*.blend4
+*.old
+*.md
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+*.
+
+# Windows shortcuts
+*.lnk
+
+# =========================
+# Operating System Files
+# =========================
+
+# OSX
+# =========================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+*.pyc
+bin/script_a1.pyc
+PlayerSettings.yml
+res/
+userData/
+screenshots/
+src/InputHandler
+res/models/Garage_2.yml
+src/Utils/Camera_old.cpp
+src/Utils/Camera_old.h
+src/Utils/Camera_old.h.old
+html/
+doc/
+*.bat
+*.diff
+GPATH
+GTAGS
+GRTAGS
+logs.md
+doc/html/classarmory_1_1_weapon.html

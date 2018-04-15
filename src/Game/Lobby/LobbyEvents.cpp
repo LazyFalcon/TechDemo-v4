@@ -6,7 +6,7 @@
 bool StartGame::handle(App &app){
     info("[ Start Lobby ]");
 
-    auto lobby = std::make_shared<Lobby>();
+    auto lobby = std::make_shared<Lobby>(*app.ui, app.inputContext);
 
     app.window->show();
     app.setGameState(lobby);

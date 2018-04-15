@@ -32,8 +32,8 @@ public:
     std::unique_ptr<EventProcessor> eventProcessor;
     // std::unique_ptr<ParticleProcessor> particleProcessor;
     // std::unique_ptr<PhysicsWorld> physics;
-    // std::unique_ptr<UI::Updater> uiUpdater;
-    // std::shared_ptr<UI::IMGUI> ui;
+    std::unique_ptr<UI::Updater> uiUpdater;
+    std::shared_ptr<UI::IMGUI> ui;
     InputHandler inputHandler;
     InputContextHandler inputContext;
     std::unique_ptr<Settings> settings;

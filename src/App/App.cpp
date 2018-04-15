@@ -18,7 +18,7 @@
 // #include "PhysicsWorld.hpp"
 // #include "ParticleProcessor.hpp"
 
-// #include "UIUpdater.hpp"
+#include "UIUpdater.hpp"
 
 bool CLOG_SPECIAL_VALUE = false;
 bool CLOG_SPECIAL_VALUE_2 = false;
@@ -39,7 +39,7 @@ App::App() : inputContext(inputHandler), settings(std::make_unique<Settings>()){
     self = this;
 }
 App::~App(){
-    log("App");
+    log("~App");
 };
 
 bool App::initialize(){
@@ -54,8 +54,8 @@ bool App::initialize(){
 
     initializeInputHandler();
 
-    // uiUpdater = std::make_unique<UI::Updater>(*window);
-    // ui = uiUpdater->createUi();
+    uiUpdater = std::make_unique<UI::Updater>(*window);
+    ui = uiUpdater->createUi();
     // graphicEngine = std::make_unique<GraphicEngine>(*window, *uiUpdater);
     // debugScreen = std::make_unique<DebugScreen>();
     // debugScreen->init();
@@ -160,7 +160,6 @@ bool App::loadResources(){
     ResourceLoader loader;
     loader.loadShaders();
     loader.loadResources(resources);
-    // loader.loadFonts(Global::main.fonts, resources);
 
     return true;
 }
@@ -182,8 +181,8 @@ void App::run(){
         KeyState::mouseTranslation = glm::vec2(0);
         KeyState::mouseTranslationNormalized = glm::vec2(0);
 
-        // uiUpdater->update(dt);
-        // uiUpdater->begin();
+        uiUpdater->update(dt);
+        uiUpdater->begin();
 
         glfwPollEvents();
         inputHandler.refresh();
@@ -203,7 +202,7 @@ void App::run(){
 
         // debugScreen->show(*ui, true);
         // debugScreen->options(*ui);
-        // uiUpdater->end();
+        uiUpdater->end();
         render();
     }
 }

@@ -1,18 +1,15 @@
 #pragma once
 #include "GameState.hpp"
 #include "Scene.hpp"
-#include "LobbyUI.hpp"
 #include "InputHandler.hpp"
 #include "InputContextHandler.hpp"
 
-namespace UI{
-    class IMGUI;
-}
+class Imgui;
 
-struct LobbyView
+struct LobbyViewState
 {
-    ~LobbyView() = default;
-    virtual void render(UI::IMGUI& ui) = 0;
+    ~LobbyViewState() = default;
+    virtual void render(Imgui& ui) = 0;
 };
 
 class Lobby : public GameState
@@ -20,12 +17,12 @@ class Lobby : public GameState
 private:
     Scene m_scene;
     InputContextPtr m_input;
-    UI::IMGUI& m_ui;
+    Imgui& m_ui;
     std::unique_ptr<LobbyViewState> m_view;
 public:
-    Lobby(UI::IMGUI& ui, InputContextHandler& parentInput);
-     void update(float dt);
-     void updateWithHighPrecision(float dt);
-     Scene& getScene();
-     void renderSelf(GraphicEngine&);
+    Lobby(Imgui& ui, InputContextHandler& parentInput);
+    void update(float dt);
+    void updateWithHighPrecision(float dt);
+    Scene& getScene();
+    void renderSelf(GraphicEngine&);
 };

@@ -1,13 +1,21 @@
-#pragma once
-#include "IMGUI.hpp"
+struct Button
+{};
 
-namespace widget {
+struct EditBox
+{};
 
-template<typename T>
-void dropdown(const std::vector<std::pair<std::string, T>> &options, T &value, UI::IMGUI &ui){
-    ui.rect
-}
+struct TextBox : public Button
+{};
 
+class Text
+{
+public:
+    Text(const std::string& text) : m_text(text){}
+    Text& font();
+    Text& size();
+    // czy dało by się jakaś magią wyciągnąć rozmiar przycisku/
 
-
-}
+    iBox renderedBox;
+private:
+    const std::string& m_text;
+};

@@ -1,22 +1,23 @@
 #include "Lobby.hpp"
-#include "IMGUI.hpp"
+#include "Imgui.hpp"
 
-struct MainLobbyViewState : public LobbyView
+struct MainLobbyViewState : public LobbyViewState
 {
-    void render(UI::IMGUI& ui){
-
+    void render(Imgui& ui){
+        // ui.panel().image("Logo").position(0.f, 1.f)();
+        // auto& panel
     }
 };
 
 
 
-Lobby::Lobby(UI::IMGUI& ui, InputContextHandler &parentInput): m_ui(ui),  m_input(parentInput.derive("Lobby")), lobbyUi(m_ui){
+Lobby::Lobby(Imgui& ui, InputContextHandler &parentInput): m_ui(ui), m_input(parentInput.derive("Lobby")){
     m_view = std::make_unique<MainLobbyViewState>();
     m_input->activate();
 }
 
 void Lobby::update(float dt){
-    m_lobyUi.update();
+    // m_ui.update();
 }
 void Lobby::updateWithHighPrecision(float dt){}
 Scene&Lobby:: getScene(){

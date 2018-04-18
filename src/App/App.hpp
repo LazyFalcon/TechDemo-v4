@@ -13,10 +13,7 @@ class ParticleProcessor;
 class PhysicsWorld;
 class Settings;
 class Window;
-namespace UI{
-    class Updater;
-    class IMGUI;
-}
+class Imgui;
 
 class App
 {
@@ -32,8 +29,8 @@ public:
     std::unique_ptr<EventProcessor> eventProcessor;
     // std::unique_ptr<ParticleProcessor> particleProcessor;
     // std::unique_ptr<PhysicsWorld> physics;
-    std::unique_ptr<UI::Updater> uiUpdater;
-    std::shared_ptr<UI::IMGUI> ui;
+    // std::unique_ptr<UI::Updater> uiUpdater;
+    std::unique_ptr<Imgui> imgui;
     InputHandler inputHandler;
     InputContextHandler inputContext;
     std::unique_ptr<Settings> settings;

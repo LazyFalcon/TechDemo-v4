@@ -93,3 +93,5 @@ GTAGS
 GRTAGS
 logs.md
 doc/html/classarmory_1_1_weapon.html
+src/FontRenderer.cpp
+src/FontRenderer.hpp

@@ -65,20 +65,20 @@ void DebugScreen::init(){
     // Widget::renderOptions.emplace_back(Global::main.graphicOptions, graphic::DRAW_DEPTHBUFFER, "Draw depthbuffer");
     // Widget::renderOptions.emplace_back(Global::main.graphicOptions, graphic::DRAW_SHADOWBUFFER, "Draw shadowmap");
     // Widget::renderOptions.emplace_back(Global::main.graphicOptions, graphic::DRAW_DEBUG, "Draw debug");
-    Widget::renderOptions.emplace_back(enable2DMap, 1, "Draw 2D map");
-    Widget::renderOptions.emplace_back(enable3DMap, 1, "Draw 3D map");
+    // Widget::renderOptions.emplace_back(enable2DMap, 1, "Draw 2D map");
+    // Widget::renderOptions.emplace_back(enable3DMap, 1, "Draw 3D map");
 
 }
 
 void DebugScreen::show(UI::IMGUI &ui, bool ctrlPressed){
     // if(ctrlPressed){
-        ui.table(UI::Vertical | UI::ToLeft | UI::ToBottom ).pos(5, 30);
+        // ui.table(UI::Vertical | UI::ToLeft | UI::ToBottom ).pos(5, 30);
 
-            for(auto &fun : panels){
-                fun.second(ui);
-            }
+        //     for(auto &fun : panels){
+        //         fun.second(ui);
+        //     }
 
-        ui.endTable();
+        // ui.endTable();
     // }
 
 }

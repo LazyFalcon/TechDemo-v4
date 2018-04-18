@@ -7,7 +7,7 @@
 #include "GameState.hpp"
 #include "Settings.hpp"
 // #include "GraphicEngine.hpp"
-#include "KeyState.hpp" // TODO: Remove
+// #include "KeyState.hpp" // TODO: Remove
 #include "Logging.hpp"
 #include "PerfTimers.hpp"
 #include "ResourceLoader.hpp"
@@ -15,10 +15,11 @@
 #include "Window.hpp"
 #include "Yaml.hpp"
 #include "DebugScreen.hpp"
+#include "Imgui.hpp"
 // #include "PhysicsWorld.hpp"
 // #include "ParticleProcessor.hpp"
 
-#include "UIUpdater.hpp"
+// #include "UIUpdater.hpp"
 
 bool CLOG_SPECIAL_VALUE = false;
 bool CLOG_SPECIAL_VALUE_2 = false;
@@ -54,15 +55,15 @@ bool App::initialize(){
 
     initializeInputHandler();
 
-    uiUpdater = std::make_unique<UI::Updater>(*window);
-    ui = uiUpdater->createUi();
+    // uiUpdater = std::make_unique<UI::Updater>(*window);
+    imgui = std::make_unique<Imgui>(window->size.x, window->size.y);
     // graphicEngine = std::make_unique<GraphicEngine>(*window, *uiUpdater);
     // debugScreen = std::make_unique<DebugScreen>();
     // debugScreen->init();
 
     if(CURSOR_DISABLED){
         glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        KeyState::mouseReset = true;
+        // KeyState::mouseReset = true;
         // lastCursorPos = glm::vec2(window->size.x/2, window->size.y/2);
         // glfwSetCursorPos(window->window, window->size.x/2, window->size.y/2);
     }
@@ -75,22 +76,22 @@ bool App::initialize(){
 }
 void App::initializeInputHandler(){
     inputContext.setAction("LMB", "default LMB", []{
-            KeyState::lClicked = true;
-            KeyState::lClick = true;
+            // KeyState::lClicked = true;
+            // KeyState::lClick = true;
         }, []{
-            KeyState::lClicked = false;
+            // KeyState::lClicked = false;
         });
     inputContext.setAction("MMB", "default LMB", []{
-            KeyState::rClicked = true;
-            KeyState::rClick = true;
+            // KeyState::rClicked = true;
+            // KeyState::rClick = true;
         }, []{
-            KeyState::rClicked = false;
+            // KeyState::rClicked = false;
         });
     inputContext.setAction("RMB", "default LMB", []{
-            KeyState::mClicked = true;
-            KeyState::mClick = true;
+            // KeyState::mClicked = true;
+            // KeyState::mClick = true;
         }, []{
-            KeyState::mClicked = false;
+            // KeyState::mClicked = false;
         });
 
     inputContext.setAction("printScreen", "", []{ TAKE_SCREENSHOT = true; });
@@ -120,21 +121,21 @@ void App::initializeInputHandler(){
     inputContext.setAction("ctrl", "hide ui", [this]{
             if(CURSOR_DISABLED){
                 glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                KeyState::mouseReset = false;
+                // KeyState::mouseReset = false;
             }
         }, [this]{
             if(CURSOR_DISABLED){
                 glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                KeyState::mouseReset = true;
+                // KeyState::mouseReset = true;
             }
             });
     inputContext.setAction("f2", "hide cursor", [this]{
             if(CURSOR_DISABLED){
                 glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                KeyState::mouseReset = true;
+                // KeyState::mouseReset = true;
             } else {
                 glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                KeyState::mouseReset = false;
+                // KeyState::mouseReset = false;
             }
             CURSOR_DISABLED = !CURSOR_DISABLED;
         }, []{});
@@ -163,7 +164,7 @@ bool App::loadResources(){
 
     return true;
 }
-void App::run(){
+void App::run() try {
     log("--starting main loop");
 
     Timer<float, 1000, 1> loopDeltaTime;
@@ -178,11 +179,11 @@ void App::run(){
         auto dt = loopDeltaTime();
         auto msdt = msecLoopDeltaTime();
         CLOG_SPECIAL_VALUE = false;
-        KeyState::mouseTranslation = glm::vec2(0);
-        KeyState::mouseTranslationNormalized = glm::vec2(0);
+        // KeyState::mouseTranslation = glm::vec2(0);
+        // KeyState::mouseTranslationNormalized = glm::vec2(0);
 
-        uiUpdater->update(dt);
-        uiUpdater->begin();
+        // uiUpdater->update(dt);
+        // uiUpdater->begin();
 
         glfwPollEvents();
         inputHandler.refresh();
@@ -202,10 +203,14 @@ void App::run(){
 
         // debugScreen->show(*ui, true);
         // debugScreen->options(*ui);
-        uiUpdater->end();
+        // uiUpdater->end();
         render();
     }
 }
+catch(const std::runtime_error& err){
+    error(err.what());
+}
+
 void App::render(){
     clog("--render");
 
@@ -246,15 +251,15 @@ void App::cursorPosCallback(GLFWwindow *w, double xpos, double ypos){
     auto size = self->window->size;
 
     auto mp = lastCursorPos;
-    if(not KeyState::mouseReset) KeyState::mousePosition = glm::vec2(xpos, size.y -  ypos);
-    else KeyState::mousePosition = glm::vec2(-500);
+    // if(not KeyState::mouseReset) KeyState::mousePosition = glm::vec2(xpos, size.y -  ypos);
+    // else KeyState::mousePosition = glm::vec2(-500);
 
     lastCursorPos = glm::vec2(xpos, size.y -  ypos);
-    KeyState::mouseTranslation = lastCursorPos - mp;
-    KeyState::mouseTranslation.y *= -1;
-    KeyState::mouseTranslationNormalized = KeyState::mouseTranslation / size * 0.5f;
-    self->inputHandler.mousePosition(KeyState::mousePosition.x, KeyState::mousePosition.y);
-    self->inputHandler.mouseMovement(KeyState::mouseTranslation.x, KeyState::mouseTranslation.y);
+    // KeyState::mouseTranslation = lastCursorPos - mp;
+    // KeyState::mouseTranslation.y *= -1;
+    // KeyState::mouseTranslationNormalized = KeyState::mouseTranslation / size * 0.5f;
+    // self->inputHandler.mousePosition(KeyState::mousePosition.x, KeyState::mousePosition.y);
+    // self->inputHandler.mouseMovement(KeyState::mouseTranslation.x, KeyState::mouseTranslation.y);
 }
 void App::exitCallback(GLFWwindow *w){
     self->quit = true;

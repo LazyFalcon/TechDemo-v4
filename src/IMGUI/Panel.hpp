@@ -17,18 +17,17 @@ public:
     Panel& newFixedPanel();
 
     // control part
-    Panel& layout(Layout& sizeProvider);
+    Panel& layout(Layout&);
 
     Panel& width(float);
     Panel& width(i32);
     Panel& height(float);
     Panel& height(i32);
 
-    void finishChildWidget(iBox&);
-
 private:
     Imgui& m_imgui;
     Panel* m_parent {nullptr};
+    Layout* m_layout {nullptr};
 
     iBox m_size;
     bool m_isFixedSize {false};

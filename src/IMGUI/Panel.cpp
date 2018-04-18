@@ -1,5 +1,6 @@
 #include "Panel.hpp"
 #include "Imgui.hpp"
+#include "Layouts.hpp"
 
 void Panel::operator()(){
     // m_parent->finishChildWidget(m_size);
@@ -22,5 +23,12 @@ Panel& Panel::height(float h){
 }
 Panel& Panel::height(i32 h){
     m_size.w = h;
+    return *this;
+}
+
+Panel& Panel::layout(Layout& lt){
+    lt.setBounds(m_size);
+    lt.compile();
+    m_layout = &lt;
     return *this;
 }

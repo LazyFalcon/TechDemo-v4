@@ -1,10 +1,10 @@
 #pragma once
 #include "ImguiCore.hpp"
 #include "Panel.hpp"
+#include "Style.hpp"
 #include <vector>
 
 class Panel;
-
 
 // Main class of this miracle
 class Imgui
@@ -26,7 +26,11 @@ public:
 
     void reset();
 
+    std::vector<ImguiRenderElement>& getToRender(){
+        return m_style.renderedElements;
+    }
 private:
     std::vector<Panel> m_panelStack;
     i32 m_width, m_height;
+    Style m_style;
 };

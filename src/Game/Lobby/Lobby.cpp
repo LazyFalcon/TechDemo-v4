@@ -5,7 +5,8 @@ struct MainLobbyViewState : public LobbyViewState
 {
     void render(Imgui& ui){
         // ui.panel().image("Logo").position(0.f, 1.f)();
-        // auto& panel
+        auto& panel = ui.newFixedPanel().width(250).height(1.f);
+            panel();
     }
 };
 
@@ -18,6 +19,7 @@ Lobby::Lobby(Imgui& ui, InputContextHandler &parentInput): m_ui(ui), m_input(par
 
 void Lobby::update(float dt){
     // m_ui.update();
+    m_view->render(m_ui);
 }
 void Lobby::updateWithHighPrecision(float dt){}
 Scene&Lobby:: getScene(){

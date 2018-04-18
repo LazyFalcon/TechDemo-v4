@@ -14,3 +14,10 @@ public:
     //     return whatMsg.c_str();
     // }
 };
+
+struct ImguiRenderElement
+{
+    iBox element;
+    u32 color;
+    float depth;
+};

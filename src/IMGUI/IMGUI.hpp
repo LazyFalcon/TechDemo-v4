@@ -5,18 +5,14 @@
 #include <vector>
 
 class Panel;
+class RenderedUI;
 
 // Main class of this miracle
 class Imgui
 {
 public:
-    Imgui(u32 width, u32 height, const std::string& name = "default"):
-        m_width(width),
-        m_height(height)
-    {
-        m_panelStack.reserve(30);
-        m_panelStack.emplace_back(*this);
-    }
+    Imgui(u32 width, u32 height, const std::string& name = "default");
+    ~Imgui();
 
     Panel& panel(){ // returns active panel
         return m_panelStack.back();
@@ -26,11 +22,12 @@ public:
 
     void reset();
 
-    std::vector<ImguiRenderElement>& getToRender(){
-        return m_style.renderedElements;
+    RenderedUI& getToRender(){
+        return *m_renderedUi;
     }
 private:
     std::vector<Panel> m_panelStack;
     i32 m_width, m_height;
     Style m_style;
+    std::unique_ptr<RenderedUI> m_renderedUi;
 };

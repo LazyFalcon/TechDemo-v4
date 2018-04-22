@@ -9,7 +9,7 @@
 #include "Scene.hpp"
 #include "Sun.hpp"
 #include "Window.hpp"
-#include "GameSettings.hpp"
+// #include "GameSettings.hpp"
 #include "RenderQueue.hpp"
 #include "Color.hpp"
 
@@ -194,7 +194,7 @@ void LightRendering::compose(Camera &camera){
     shader.uniform("uViewDir", camera.at.xyz());
     shader.uniform("uPixelSize", window.pixelSize);
     shader.uniform("uLightScale", 1.f);
-    shader.uniform("uGamma", gameSettings().video.gamma);
+    shader.uniform("uGamma", 2.2f); // TODO: extract from app
 
     // shader.texture("uNormal", Textures::normalBuffer, 0);
     // shader.texture("uDepth", Textures::depthBuffer, 1);

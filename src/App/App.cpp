@@ -6,7 +6,7 @@
 #include "EventProcessor.hpp"
 #include "GameState.hpp"
 #include "Settings.hpp"
-// #include "GraphicEngine.hpp"
+#include "GraphicEngine.hpp"
 // #include "KeyState.hpp" // TODO: Remove
 #include "Logging.hpp"
 #include "PerfTimers.hpp"
@@ -57,7 +57,7 @@ bool App::initialize(){
 
     // uiUpdater = std::make_unique<UI::Updater>(*window);
     imgui = std::make_unique<Imgui>(window->size.x, window->size.y);
-    // graphicEngine = std::make_unique<GraphicEngine>(*window, *uiUpdater);
+    graphicEngine = std::make_unique<GraphicEngine>(*window);
     // debugScreen = std::make_unique<DebugScreen>();
     // debugScreen->init();
 
@@ -225,7 +225,7 @@ void App::render(){
 }
 void App::finish(){
     log("--finishing");
-    // graphicEngine.reset();
+    graphicEngine.reset();
     // game.reset();
     window.reset();
 }

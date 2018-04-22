@@ -32,3 +32,14 @@ Panel& Panel::layout(Layout& lt){
     m_layout = &lt;
     return *this;
 }
+
+
+Panel& Panel::fill(){
+    return *this;
+}
+
+Panel& Panel::color(u32 c){
+    m_background = {};
+    m_background.color = c;
+    return *this;
+}

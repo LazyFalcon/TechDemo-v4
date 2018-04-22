@@ -24,5 +24,5 @@ public:
     void update(float dt);
     void updateWithHighPrecision(float dt);
     Scene& getScene();
-    void renderSelf(GraphicEngine&);
+    void renderProcedure(GraphicEngine&);
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include "ImguiCore.hpp"
+#include "RenderedUI.hpp"
 
 class Imgui;
 class Layout;
@@ -24,6 +25,12 @@ public:
     Panel& height(float);
     Panel& height(i32);
 
+    // apperance
+    Panel& fill();
+
+    // utils
+    Panel& color(u32);
+
 private:
     Imgui& m_imgui;
     Panel* m_parent {nullptr};
@@ -31,4 +38,6 @@ private:
 
     iBox m_size;
     bool m_isFixedSize {false};
+
+    RenderedUI::Background m_background;
 };

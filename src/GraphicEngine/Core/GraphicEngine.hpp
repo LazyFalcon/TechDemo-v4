@@ -6,19 +6,18 @@ class RendererUtils;
 class SceneRenderer;
 class ShadowCaster;
 class ObjectBatchedRender;
-class UIDrawer;
+class UIRender;
 class Window;
 class Context;
 class GBufferSamplers;
 class VfxEffects;
-namespace UI {class IMGUI; class Updater;}
 
 class GraphicEngine
 {
 private:
     Window &window;
 public:
-    GraphicEngine(Window &window, UI::Updater &uiUpdater);
+    GraphicEngine(Window &window);
     ~GraphicEngine();
     void reset();
     void beginFrame();
@@ -28,7 +27,7 @@ public:
 
     std::unique_ptr<Context> context;
     std::unique_ptr<RendererUtils> utils;
-    std::unique_ptr<UIDrawer> uiDrawer;
+    std::unique_ptr<UIRender> uiRender;
     std::unique_ptr<LightRendering> lightRendering;
     std::unique_ptr<SceneRenderer> sceneRenderer;
     std::unique_ptr<ShadowCaster> shadowCaster;

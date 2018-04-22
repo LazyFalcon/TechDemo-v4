@@ -6,15 +6,15 @@
 #include "Logging.hpp"
 #include "Camera.hpp"
 #include "PerfTimers.hpp"
-#include "TrackSim.hpp"
-#include "TankDriveSystem.hpp"
+// #include "TrackSim.hpp"
+// #include "TankDriveSystem.hpp"
 #include "Scene.hpp"
 #include "Sun.hpp"
 #include "RenderQueue.hpp"
 
 void ObjectBatchedRender::renderObjects(Camera &camera){
     renderSkinned(camera);
-    renderTracks(camera);
+    // renderTracks(camera);
 }
 void ObjectBatchedRender::renderShadows(Scene &scene, Camera &camera){
     renderSkinnedShadows(scene, camera);
@@ -68,44 +68,6 @@ void ObjectBatchedRender::renderSkinned(Camera &camera){
 
     context.errors();
 
-    gl::BindVertexArray(0);
-    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-    gl::BindTexture(gl::TEXTURE_2D, 0);
-};
-void ObjectBatchedRender::renderTracks(Camera &camera){
-    auto shader = assets::getShader("TankTracks");
-    shader.bind();
-
-    auto &skinnedMeshes = RenderQueue::get<ArmoredVehicleTracks*>();
-    for(auto toRender : skinnedMeshes)
-    {
-        auto &mesh = toRender->mesh;
-        toRender->vao.bind();
-
-
-        auto &&data = toRender->track.getSim().getShoes();
-        { // upload and describe shoe data
-            auto &vbo = context.getRandomBuffer();
-            vbo.update(data);
-            vbo.attrib(4).pointer_float(3, sizeof(TrackShoeInfo), (void*)offsetof(TrackShoeInfo, position)).divisor(1);
-            vbo.attrib(5).pointer_float(1, sizeof(TrackShoeInfo), (void*)offsetof(TrackShoeInfo, angle)).divisor(1);
-            context.errors();
-        }
-
-        shader.uniform("uProjection", camera.projection);
-        shader.uniform("uView", camera.view);
-        shader.uniform("uModel", toRender->track.eq.glTrans); // FIX:
-        shader.texture("uDiffuse", assets::getImage("camoPattern").ID, 0);
-        shader.texture("uNormalMap", assets::getImage("camoPattern_n").ID, 1);
-        shader.texture("uRoughness", assets::getImage("camoPattern_r").ID, 2);
-
-        gl::DrawElementsInstanced(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, (void*)(sizeof(u32)*mesh.begin), data.size());
-    }
-
-    skinnedMeshes.clear();
-
-    gl::DisableVertexAttribArray(4);
-    gl::DisableVertexAttribArray(5);
     gl::BindVertexArray(0);
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
     gl::BindTexture(gl::TEXTURE_2D, 0);

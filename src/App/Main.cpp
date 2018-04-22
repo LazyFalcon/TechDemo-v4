@@ -7,7 +7,8 @@ void initialEvent(){
     auto startGame = event<StartGame>();
 }
 
-int main(){
+int main(int argc, char** argv){
+    log("App:", argv[0]);
     App app;
     if(not app.initialize()) return -1;
 

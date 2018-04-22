@@ -1,11 +1,15 @@
 #include "Lobby.hpp"
 #include "Imgui.hpp"
+#include "GraphicEngine.hpp"
+#include "Context.hpp"
+#include "UIRender.hpp"
 
 struct MainLobbyViewState : public LobbyViewState
 {
     void render(Imgui& ui){
         // ui.panel().image("Logo").position(0.f, 1.f)();
         auto& panel = ui.newFixedPanel().width(250).height(1.f);
+            panel.fill().color(0x0d0d0dff);
             panel();
     }
 };
@@ -25,4 +29,8 @@ void Lobby::updateWithHighPrecision(float dt){}
 Scene&Lobby:: getScene(){
     return m_scene;
 }
-void Lobby::renderSelf(GraphicEngine&){}
+void Lobby::renderProcedure(GraphicEngine& renderer){
+    renderer.context->beginFrame();
+    renderer.uiRender->render(m_ui.getToRender());
+    renderer.context->endFrame();
+}

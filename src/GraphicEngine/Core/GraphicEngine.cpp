@@ -6,12 +6,12 @@
 #include "SceneRenderer.hpp"
 #include "ShadowCaster.hpp"
 #include "ObjectBatchedRender.hpp"
-#include "UIDrawer.hpp"
+#include "UIRender.hpp"
 #include "GBufferSampler.hpp"
 #include "VfxEffects.hpp"
 #include "Window.hpp"
 
-GraphicEngine::GraphicEngine(Window &window, UI::Updater &uiUpdater) :
+GraphicEngine::GraphicEngine(Window &window) :
     window(window),
     context(std::make_unique<Context>(window)),
     utils(std::make_unique<RendererUtils>(window, *context)),
@@ -20,7 +20,7 @@ GraphicEngine::GraphicEngine(Window &window, UI::Updater &uiUpdater) :
     vfxEffects(std::make_unique<VfxEffects>(window, *context)),
     sceneRenderer(std::make_unique<SceneRenderer>(window, *context)),
     shadowCaster(std::make_unique<ShadowCaster>(window, *context)),
-    uiDrawer(std::make_unique<UIDrawer>(window, *context, uiUpdater)),
+    uiRender(std::make_unique<UIRender>(window, *context)),
     gBufferSamplers(std::make_unique<GBufferSamplers>(window, *context)),
     objectBatchedRender(std::make_unique<ObjectBatchedRender>(window, *context))
     {

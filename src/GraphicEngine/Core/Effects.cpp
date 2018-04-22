@@ -12,7 +12,6 @@
 #include "Starfield.hpp"
 #include "Sun.hpp"
 #include "DecalsAndMarkers.hpp"
-#include "GameSettings.hpp"
 
 std::vector<Decal> Decal::decalList;
 
@@ -292,7 +291,7 @@ void Effects::toneMapping(float exposure){
     shader.bind();
     shader.texture("uCombined", context.tex.gbuffer.color, 0);
     shader.uniform("uExposure", exposure);
-    shader.uniform("uGamma", gameSettings().video.gamma);
+    shader.uniform("uGamma", 2.2f); // TODO: extract from App
 
     context.drawScreen();
     context.tex.full.a.swap(context.tex.gbuffer.color);

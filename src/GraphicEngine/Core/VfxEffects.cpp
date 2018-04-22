@@ -9,9 +9,9 @@
 #include "Color.hpp"
 #include "PlasmaEffects.hpp"
 #include "PerfTimers.hpp"
-#include "Projectile.hpp"
+// #include "Projectile.hpp"
 #include "Utils.hpp"
-#include "ParticleProcessor.hpp"
+// #include "ParticleProcessor.hpp"
 
 u32 plasmaRedColor = Color(238, 239, 192, 255);
 
@@ -19,192 +19,192 @@ void VfxEffects::drawOpaque(Camera &camera){
     GPU_SCOPE_TIMER();
 }
 void VfxEffects::drawGlare(Camera &camera){
-    GPU_SCOPE_TIMER();
-    RenderQueue::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
-    /// coś z OIT by się przydało, chociażby zmiana jasności w zależności od odległości, bo jeśli jasność sumować się może w nieskończoność to słabo trochę
-    /// no tak, z kwadratem odległości maleje, ale jak to ładnie blendować żeby odległy bardzo jasny obiekt nie wpierdalał się na wierzch? za bardzo przynajmniej?
-    /// mamy dwa parametry: jasność(z koloru) i opacity(alfa), jeżu skomplikowane to będzie
-    // context.defaultVAO.bind();
-    gl::BindVertexArray(0);
-    gl::DepthMask(0);
-    gl::Disable(gl::DEPTH_TEST);
-    gl::DepthFunc(gl::LEQUAL);
-    gl::Disable(gl::CULL_FACE);
-    gl::Enable(gl::PROGRAM_POINT_SIZE);
-    gl::Enable(gl::BLEND);
-    gl::BlendFunc(gl::ONE, gl::ONE);
+    // GPU_SCOPE_TIMER();
+    // RenderQueue::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
+    // /// coś z OIT by się przydało, chociażby zmiana jasności w zależności od odległości, bo jeśli jasność sumować się może w nieskończoność to słabo trochę
+    // /// no tak, z kwadratem odległości maleje, ale jak to ładnie blendować żeby odległy bardzo jasny obiekt nie wpierdalał się na wierzch? za bardzo przynajmniej?
+    // /// mamy dwa parametry: jasność(z koloru) i opacity(alfa), jeżu skomplikowane to będzie
+    // // context.defaultVAO.bind();
+    // gl::BindVertexArray(0);
+    // gl::DepthMask(0);
+    // gl::Disable(gl::DEPTH_TEST);
+    // gl::DepthFunc(gl::LEQUAL);
+    // gl::Disable(gl::CULL_FACE);
+    // gl::Enable(gl::PROGRAM_POINT_SIZE);
+    // gl::Enable(gl::BLEND);
+    // gl::BlendFunc(gl::ONE, gl::ONE);
 
-    drawVolumetricLaserBeams(camera);
+    // drawVolumetricLaserBeams(camera);
 }
 void VfxEffects::drawTransparent(Camera &camera){
-    GPU_SCOPE_TIMER();
-    RenderQueue::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
-    /// coś z OIT by się przydało, chociażby zmiana jasności w zależności od odległości, bo jeśli jasność sumować się może w nieskończoność to słabo trochę
-    /// no tak, z kwadratem odległości maleje, ale jak to ładnie blendować żeby odległy bardzo jasny obiekt nie wpierdalał się na wierzch? za bardzo przynajmniej?
-    /// mamy dwa parametry: jasność(z koloru) i opacity(alfa), jeżu skomplikowane to będzie
-    // context.defaultVAO.bind();
-    gl::BindVertexArray(0);
-    gl::DepthMask(0);
-    gl::Disable(gl::DEPTH_TEST);
-    gl::DepthFunc(gl::LEQUAL);
-    gl::Disable(gl::CULL_FACE);
-    gl::Enable(gl::PROGRAM_POINT_SIZE);
-    gl::Enable(gl::BLEND);
-    gl::BlendFunc(gl::ONE, gl::ONE);
+    // GPU_SCOPE_TIMER();
+    // RenderQueue::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
+    // /// coś z OIT by się przydało, chociażby zmiana jasności w zależności od odległości, bo jeśli jasność sumować się może w nieskończoność to słabo trochę
+    // /// no tak, z kwadratem odległości maleje, ale jak to ładnie blendować żeby odległy bardzo jasny obiekt nie wpierdalał się na wierzch? za bardzo przynajmniej?
+    // /// mamy dwa parametry: jasność(z koloru) i opacity(alfa), jeżu skomplikowane to będzie
+    // // context.defaultVAO.bind();
+    // gl::BindVertexArray(0);
+    // gl::DepthMask(0);
+    // gl::Disable(gl::DEPTH_TEST);
+    // gl::DepthFunc(gl::LEQUAL);
+    // gl::Disable(gl::CULL_FACE);
+    // gl::Enable(gl::PROGRAM_POINT_SIZE);
+    // gl::Enable(gl::BLEND);
+    // gl::BlendFunc(gl::ONE, gl::ONE);
 
-    drawPlasmaProjeciles(camera);
-    drawPlasmaFlashes(camera);
-    drawSSDots(camera);
-    drawLines(camera);
-    drawSparks(camera);
+    // drawPlasmaProjeciles(camera);
+    // drawPlasmaFlashes(camera);
+    // drawSSDots(camera);
+    // drawLines(camera);
+    // drawSparks(camera);
 }
 void VfxEffects::drawLines(Camera &camera){
-    auto &lines = RenderQueue::get<Line>();
-    if(lines.empty()) return;
+    // auto &lines = RenderQueue::get<Line>();
+    // if(lines.empty()) return;
 
-    auto shader = assets::getShader("Line").bind();
+    // auto shader = assets::getShader("Line").bind();
 
-    shader.uniform("uPV", camera.PV);
-    shader.uniform("uColor", toVec4(0xffff00ff));
+    // shader.uniform("uPV", camera.PV);
+    // shader.uniform("uColor", toVec4(0xffff00ff));
 
-    context.getBuffer().update(lines)
-           .attrib(0).pointer_float(4).divisor(0);
+    // context.getBuffer().update(lines)
+    //        .attrib(0).pointer_float(4).divisor(0);
 
-    gl::LineWidth(2);
-    gl::Enable(gl::LINE_SMOOTH);
+    // gl::LineWidth(2);
+    // gl::Enable(gl::LINE_SMOOTH);
 
-    gl::DrawArrays(gl::LINES, 0, lines.size()*2);
+    // gl::DrawArrays(gl::LINES, 0, lines.size()*2);
 
-    lines.clear();
+    // lines.clear();
 
-    context.errors();
+    // context.errors();
 }
 
 void VfxEffects::drawVolumetricLaserBeams(Camera &camera){
-    auto &beams = RenderQueue::get<LaserBeam>();
-    if(beams.empty()) return;
+    // auto &beams = RenderQueue::get<LaserBeam>();
+    // if(beams.empty()) return;
 
-    auto shader = assets::getShader("BeamRadiation").bind();
-    shader.uniform("uEye", camera.position.xyz());
-    shader.uniform("uCamera", camera.at.xyz());
-    shader.uniform("uPixelSize", window.pixelSize);
-    shader.uniform("uScreenSize", window.size);
-    shader.uniform("uFovTan", (float)tan(camera.fov*0.5f));
-    shader.uniform("uPV", camera.PV);
-    shader.uniform("uInvPV", camera.invPV);
-    shader.uniform("uRefDir", camera.at);
-    shader.texture("uDepth", context.tex.gbuffer.depth, 0);
-    shader.texture("uNormals", context.tex.gbuffer.normals, 1);
-    shader.texture("uJitter", assets::getImage("SSAONoise").ID, 2);
-    for(auto& beam : beams){
-        auto dir = glm::normalize(beam.to - beam.from);
-        glm::vec3 perpToDir = glm::cross(camera.at.xyz(), dir.xyz());
-        float radii = beam.size*100.f;
-        shader.uniform("uBeamSize", beam.size);
-        shader.uniform("uGlareSize", radii);
-        shader.uniform("uFrom", beam.from);
-        shader.uniform("uTo", beam.to);
-        shader.uniform("uDir", dir);
-        shader.uniform("uPlane", plane( glm::cross(dir.xyz(), perpToDir), beam.from));
-        shader.uniform("uTransform", glm::translate(-dir.xyz()*radii*0.5f)*glm::inverse(glm::lookAt(beam.from.xyz(), beam.to.xyz(), glm::vec3(0,0,1)))*glm::scale(glm::vec3(radii, radii, glm::distance(beam.to, beam.from)+radii)));
-        shader.uniform("uColor", toVec4(beam.color));
+    // auto shader = assets::getShader("BeamRadiation").bind();
+    // shader.uniform("uEye", camera.position.xyz());
+    // shader.uniform("uCamera", camera.at.xyz());
+    // shader.uniform("uPixelSize", window.pixelSize);
+    // shader.uniform("uScreenSize", window.size);
+    // shader.uniform("uFovTan", (float)tan(camera.fov*0.5f));
+    // shader.uniform("uPV", camera.PV);
+    // shader.uniform("uInvPV", camera.invPV);
+    // shader.uniform("uRefDir", camera.at);
+    // shader.texture("uDepth", context.tex.gbuffer.depth, 0);
+    // shader.texture("uNormals", context.tex.gbuffer.normals, 1);
+    // shader.texture("uJitter", assets::getImage("SSAONoise").ID, 2);
+    // for(auto& beam : beams){
+    //     auto dir = glm::normalize(beam.to - beam.from);
+    //     glm::vec3 perpToDir = glm::cross(camera.at.xyz(), dir.xyz());
+    //     float radii = beam.size*100.f;
+    //     shader.uniform("uBeamSize", beam.size);
+    //     shader.uniform("uGlareSize", radii);
+    //     shader.uniform("uFrom", beam.from);
+    //     shader.uniform("uTo", beam.to);
+    //     shader.uniform("uDir", dir);
+    //     shader.uniform("uPlane", plane( glm::cross(dir.xyz(), perpToDir), beam.from));
+    //     shader.uniform("uTransform", glm::translate(-dir.xyz()*radii*0.5f)*glm::inverse(glm::lookAt(beam.from.xyz(), beam.to.xyz(), glm::vec3(0,0,1)))*glm::scale(glm::vec3(radii, radii, glm::distance(beam.to, beam.from)+radii)));
+    //     shader.uniform("uColor", toVec4(beam.color));
 
-        // mesh.render();
-        gl::DrawArrays(gl::POINTS, 0, 1);
-    }
+    //     // mesh.render();
+    //     gl::DrawArrays(gl::POINTS, 0, 1);
+    // }
 
-    beams.clear();
-    context.errors();
+    // beams.clear();
+    // context.errors();
 }
 void VfxEffects::drawPlasmaProjeciles(Camera &camera){
-    auto &projectiles = RenderQueue::get<PlasmaProjectile>();
-    if(projectiles.empty()) return;
+    // auto &projectiles = RenderQueue::get<PlasmaProjectile>();
+    // if(projectiles.empty()) return;
 
-    auto shader = assets::getShader("PlasmaProjectile").bind();
+    // auto shader = assets::getShader("PlasmaProjectile").bind();
 
-    for(auto &it : projectiles){
-        shader.uniform("uColor", toVec4(plasmaRedColor));
-        shader.uniform("uFrom", it.from);
-        shader.uniform("uTo", it.to);
-        shader.uniform("uBrightness", 2000.f);
-        shader.uniform("uEye", camera.position);
-        shader.uniform("uPV", camera.PV);
+    // for(auto &it : projectiles){
+    //     shader.uniform("uColor", toVec4(plasmaRedColor));
+    //     shader.uniform("uFrom", it.from);
+    //     shader.uniform("uTo", it.to);
+    //     shader.uniform("uBrightness", 2000.f);
+    //     shader.uniform("uEye", camera.position);
+    //     shader.uniform("uPV", camera.PV);
 
-        gl::DrawArrays(gl::POINTS, 0, 1);
-    }
+    //     gl::DrawArrays(gl::POINTS, 0, 1);
+    // }
 
-    projectiles.clear();
+    // projectiles.clear();
 
-    context.errors();
+    // context.errors();
 }
 void VfxEffects::drawPlasmaFlashes(Camera &camera){
-    auto &plasma = RenderQueue::get<PlasmaFlashEvent>();
-    if(plasma.empty()) return;
-    auto shader = assets::getShader("PlasmaFlash").bind();
+    // auto &plasma = RenderQueue::get<PlasmaFlashEvent>();
+    // if(plasma.empty()) return;
+    // auto shader = assets::getShader("PlasmaFlash").bind();
 
-    for(auto &it : plasma){
-        shader.uniform("uColor", toVec4(plasmaRedColor));
-        shader.uniform("uPosition", it.position);
-        shader.uniform("uSizeA", it.sizeA);
-        shader.uniform("uSizeB", it.sizeB);
-        shader.uniform("uBrightness", 2000.f);
-        shader.uniform("uEye", camera.position);
-        shader.uniform("uUp", camera.up);
-        shader.uniform("uRight", camera.right);
-        shader.uniform("uAt", camera.at);
-        shader.uniform("uPV", camera.PV);
-        shader.uniform("uNear", camera.nearDistance);
-        shader.uniform("uFar", camera.farDistance);
-        shader.texture("uDepth", context.tex.gbuffer.depth);
-        shader.uniform("uPixelSize", window.pixelSize);
+    // for(auto &it : plasma){
+    //     shader.uniform("uColor", toVec4(plasmaRedColor));
+    //     shader.uniform("uPosition", it.position);
+    //     shader.uniform("uSizeA", it.sizeA);
+    //     shader.uniform("uSizeB", it.sizeB);
+    //     shader.uniform("uBrightness", 2000.f);
+    //     shader.uniform("uEye", camera.position);
+    //     shader.uniform("uUp", camera.up);
+    //     shader.uniform("uRight", camera.right);
+    //     shader.uniform("uAt", camera.at);
+    //     shader.uniform("uPV", camera.PV);
+    //     shader.uniform("uNear", camera.nearDistance);
+    //     shader.uniform("uFar", camera.farDistance);
+    //     shader.texture("uDepth", context.tex.gbuffer.depth);
+    //     shader.uniform("uPixelSize", window.pixelSize);
 
-        gl::DrawArrays(gl::POINTS, 0, 1);
-    }
+    //     gl::DrawArrays(gl::POINTS, 0, 1);
+    // }
 
-    plasma.clear();
+    // plasma.clear();
 
-    context.errors();
+    // context.errors();
 }
 void VfxEffects::drawSSDots(Camera &camera){
-    auto &dots = RenderQueue::get<SSDot>();
-    if(dots.empty()) return;
-    gl::Disable(gl::DEPTH_TEST);
-    auto shader = assets::getShader("SSDot").bind();
+    // auto &dots = RenderQueue::get<SSDot>();
+    // if(dots.empty()) return;
+    // gl::Disable(gl::DEPTH_TEST);
+    // auto shader = assets::getShader("SSDot").bind();
 
-    for(auto &it : dots){
-        shader.uniform("uPosition", it.position);
-        shader.uniform("uSize", it.size);
-        shader.uniform("uPixelSize", window.pixelSize);
-        shader.uniform("uColor", toVec4(it.color));
+    // for(auto &it : dots){
+    //     shader.uniform("uPosition", it.position);
+    //     shader.uniform("uSize", it.size);
+    //     shader.uniform("uPixelSize", window.pixelSize);
+    //     shader.uniform("uColor", toVec4(it.color));
 
-        gl::DrawArrays(gl::POINTS, 0, 1);
-    }
+    //     gl::DrawArrays(gl::POINTS, 0, 1);
+    // }
 
-    dots.clear();
+    // dots.clear();
 
-    context.errors();
+    // context.errors();
 }
 /// draws external container
 void VfxEffects::drawSparks(Camera &camera){
-    auto &sparks = RenderQueue::get<ParticleProcessor*>()[0]->get<Spark>();
-    if(sparks.empty()) return;
+    // auto &sparks = RenderQueue::get<ParticleProcessor*>()[0]->get<Spark>();
+    // if(sparks.empty()) return;
 
-    gl::Enable(gl::DEPTH_TEST);
-    gl::LineWidth(1);
-    gl::Enable(gl::LINE_SMOOTH);
-    auto shader = assets::getShader("Spark").bind();
-    // shader.texture("uColor", toVec4(it.color));
-    shader.uniform("uPV", camera.PV);
-    shader.uniform("uEye", camera.position);
+    // gl::Enable(gl::DEPTH_TEST);
+    // gl::LineWidth(1);
+    // gl::Enable(gl::LINE_SMOOTH);
+    // auto shader = assets::getShader("Spark").bind();
+    // // shader.texture("uColor", toVec4(it.color));
+    // shader.uniform("uPV", camera.PV);
+    // shader.uniform("uEye", camera.position);
 
-    context.getBuffer().update(sparks)
-           .attrib(0).pointer_float(1, sizeof(Spark), (void*)offsetof(Spark, lifeLeft)).divisor(0)
-           .attrib(1).pointer_float(1, sizeof(Spark), (void*)offsetof(Spark, temperature)).divisor(0)
-           .attrib(2).pointer_float(4, sizeof(Spark), (void*)offsetof(Spark, from)).divisor(0)
-           .attrib(3).pointer_float(4, sizeof(Spark), (void*)offsetof(Spark, to)).divisor(0)
-           .attrib(4).pointer_float(4, sizeof(Spark), (void*)offsetof(Spark, velocity)).divisor(0);
+    // context.getBuffer().update(sparks)
+    //        .attrib(0).pointer_float(1, sizeof(Spark), (void*)offsetof(Spark, lifeLeft)).divisor(0)
+    //        .attrib(1).pointer_float(1, sizeof(Spark), (void*)offsetof(Spark, temperature)).divisor(0)
+    //        .attrib(2).pointer_float(4, sizeof(Spark), (void*)offsetof(Spark, from)).divisor(0)
+    //        .attrib(3).pointer_float(4, sizeof(Spark), (void*)offsetof(Spark, to)).divisor(0)
+    //        .attrib(4).pointer_float(4, sizeof(Spark), (void*)offsetof(Spark, velocity)).divisor(0);
 
-    gl::DrawArrays(gl::POINTS, 0, sparks.size());
+    // gl::DrawArrays(gl::POINTS, 0, sparks.size());
 
-    context.errors();
+    // context.errors();
 }

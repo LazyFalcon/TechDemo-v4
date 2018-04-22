@@ -24,7 +24,7 @@ private:
 public:
     std::unique_ptr<Window> window;
     // std::unique_ptr<IAudio> audio;
-    // std::unique_ptr<GraphicEngine> graphicEngine;
+    std::unique_ptr<GraphicEngine> graphicEngine;
     std::shared_ptr<GameState> gameState;
     std::unique_ptr<EventProcessor> eventProcessor;
     // std::unique_ptr<ParticleProcessor> particleProcessor;

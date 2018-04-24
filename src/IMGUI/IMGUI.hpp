@@ -11,7 +11,7 @@ class RenderedUI;
 class Imgui
 {
 public:
-    Imgui(u32 width, u32 height, const std::string& name = "default");
+    Imgui(i32 width, i32 height, const std::string& name = "default");
     ~Imgui();
 
     Panel& panel(){ // returns active panel
@@ -19,8 +19,9 @@ public:
     }
 
     Panel& newFixedPanel();
+    void finishPanel(Panel*);
 
-    void reset();
+    void restart();
 
     RenderedUI& getToRender(){
         return *m_renderedUi;

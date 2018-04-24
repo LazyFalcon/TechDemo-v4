@@ -1,6 +1,7 @@
 #pragma once
 #include "ImguiCore.hpp"
 #include "RenderedUI.hpp"
+#include "Layouts.hpp"
 
 class Imgui;
 class Layout;
@@ -16,14 +17,19 @@ public:
     void operator()();
 
     Panel& newFixedPanel();
+    Panel& newFixedPanel(int w, int h);
 
     // control part
-    Panel& layout(Layout&);
+    Layout& layout();
 
     Panel& width(float);
     Panel& width(i32);
     Panel& height(float);
     Panel& height(i32);
+    Panel& x(float);
+    Panel& x(i32);
+    Panel& y(float);
+    Panel& y(i32);
 
     // apperance
     Panel& fill();
@@ -34,9 +40,10 @@ public:
 private:
     Imgui& m_imgui;
     Panel* m_parent {nullptr};
-    Layout* m_layout {nullptr};
+    Layout m_layout;
 
     iBox m_size;
+    iBox m_bounds;
     bool m_isFixedSize {false};
 
     RenderedUI::Background m_background;

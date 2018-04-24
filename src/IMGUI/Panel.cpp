@@ -1,36 +1,63 @@
 #include "Panel.hpp"
 #include "Imgui.hpp"
 #include "Layouts.hpp"
+#include "Logging.hpp"
 
 void Panel::operator()(){
     // m_parent->finishChildWidget(m_size);
+    m_imgui.finishPanel(this);
 }
 
 
 Panel& Panel::newFixedPanel(){
-    return m_imgui.newFixedPanel();
+    auto& p = m_imgui.newFixedPanel();
+    // może niech layout ustawia tu odpowiednio, i niech ustalnaie rozmiaru odbywa się potem?
+    p.m_size = m_layout.yeld({}); // now we will receive position, size have to be filler later
+
+    return p;
+}
+
+Panel& Panel::newFixedPanel(int w, int h){
+    auto& p = m_imgui.newFixedPanel();
+    // może niech layout ustawia tu odpowiednio, i niech ustalnaie rozmiaru odbywa się potem?
+    p.m_size = m_layout.yeld({0,0,w,h}); // now we will receive position depend on provided size
+
+    return p;
 }
 
 Panel& Panel::width(float w){
-    return width(w * m_parent->m_size.z);
+    return width(i32(w * m_parent->m_size.z));
 }
 Panel& Panel::width(i32 w){
     m_size.z = w;
     return *this;
 }
 Panel& Panel::height(float h){
-    return height(h * m_parent->m_size.w);
+    return height(i32(h * m_parent->m_size.w));
 }
 Panel& Panel::height(i32 h){
     m_size.w = h;
     return *this;
 }
-
-Panel& Panel::layout(Layout& lt){
-    lt.setBounds(m_size);
-    lt.compile();
-    m_layout = &lt;
+Panel& Panel::x(float p){
+    return x(i32(p * m_parent->m_size.z));
+}
+Panel& Panel::x(i32 p){
+    m_size.x = p + m_parent->m_size.x;
     return *this;
+}
+Panel& Panel::y(float p){
+    return y(i32(p * m_parent->m_size.w));
+}
+Panel& Panel::y(i32 p){
+    m_size.y = p + m_parent->m_size.y;
+    return *this;
+}
+
+Layout& Panel::layout(){
+    m_layout.setBounds(m_size);
+    m_layout.compile();
+    return m_layout;
 }
 
 

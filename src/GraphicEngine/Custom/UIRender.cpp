@@ -5,11 +5,11 @@
 #include "PerfTimers.hpp"
 
 
-
 void UIRender::depthPrepass(RenderedUI& ui){}
 
 template<>
 void UIRender::render(std::vector<RenderedUI::Background>& backgrounds){
+    backgrounds.clear();
 }
 
 void UIRender::render(RenderedUI& ui){

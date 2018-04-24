@@ -184,7 +184,7 @@ void App::run() try {
 
         // uiUpdater->update(dt);
         // uiUpdater->begin();
-        imgui.reset();
+        imgui->restart();
 
         glfwPollEvents();
         inputHandler.refresh();

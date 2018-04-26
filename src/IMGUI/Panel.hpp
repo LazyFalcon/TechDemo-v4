@@ -42,7 +42,7 @@ private:
     Panel* m_parent {nullptr};
     Layout m_layout;
 
-    iBox m_size;
+    glm::vec4 m_size;
     iBox m_bounds;
     bool m_isFixedSize {false};
 

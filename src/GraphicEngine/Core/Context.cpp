@@ -404,7 +404,7 @@ void Context::drawScreen(){
 
 void Context::beginFrame(){
     gl::Viewport(0, 0, window.size.x, window.size.y);
-    gl::ClearColor(0.2f, 0.2f, 0.2f, 1.f);
+    gl::ClearColor(0.9, 0.88, 0.87, 1.f);
     gl::ClearDepth(1);
     gl::ClearStencil(0);
     gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
@@ -435,7 +435,6 @@ void Context::endFrame(){
     auto shader = assets::getShader("ApplyFBO");
     shader.bind();
     shader.texture("uTexture", tex.gbuffer.color, 0);
-    // shader.texture("uTexture", tex.light.specular, 0);
     drawScreen();
 
     gl::UseProgram(0);
@@ -467,7 +466,7 @@ void Context::setupFramebufferForGBufferGeneration(){
     gl::DisableVertexAttribArray(0);
     gl::BindTexture(gl::TEXTURE_2D, 0);
 
-    gl::ClearColor(0.1, 0.1, 0.1, 1.f);
+    gl::ClearColor(130/256.f, 140/256.f, 151/256.f, 1.f);
     gl::ClearDepth(1);
     gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
 

@@ -54,8 +54,11 @@ TextureArray& getRoughnessArray(const std::string &name){
 TextureArray& getCubeMap(const std::string &name){
     return cubeMaps[name].get();
 }
-Shader& getShader(const std::string &name){
+Shader& setShader(const std::string &name){
     return shaders[name];
+}
+Shader& getShader(const std::string &name){
+    return shaders.at(name);
 }
 UI::Font& getFont(int id){
     return fonts[id];

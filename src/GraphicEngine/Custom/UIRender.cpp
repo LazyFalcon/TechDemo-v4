@@ -9,13 +9,61 @@ void UIRender::depthPrepass(RenderedUI& ui){}
 
 template<>
 void UIRender::render(std::vector<RenderedUI::Background>& backgrounds){
+
+
+    auto shader = assets::getShader("PanelBackground");
+    shader.bind();
+    shader.uniform("uWidth", m_window.size.x);
+    shader.uniform("uHeight", m_window.size.y);
+
+
+    m_context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
+    m_context.getRandomBuffer().update(backgrounds)
+        .attrib(1).pointer_float(4, sizeof(RenderedUI::Background), (void*)offsetof(RenderedUI::Background, box)).divisor(1)
+        .attrib(2).pointer_float(1, sizeof(RenderedUI::Background), (void*)offsetof(RenderedUI::Background, texture)).divisor(1)
+        .attrib(3).pointer_float(1, sizeof(RenderedUI::Background), (void*)offsetof(RenderedUI::Background, depth)).divisor(1)
+        .attrib(4).pointer_color(sizeof(RenderedUI::Background), (void*)offsetof(RenderedUI::Background, color)).divisor(1);
+
+    gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, backgrounds.size()); // TODO: check if simple draw arrays wouldn't be faster
+    m_context.errors();
+
+    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+
+    gl::DisableVertexAttribArray(1);
+    gl::DisableVertexAttribArray(2);
+    gl::DisableVertexAttribArray(3);
+    gl::DisableVertexAttribArray(4);
+
     backgrounds.clear();
 }
 
 void UIRender::render(RenderedUI& ui){
     // TODO: please rename this functions
+    m_context.setupFBO_11(m_context.tex.full.a);
+    m_context.defaultVAO.bind();
+    gl::ClearColor(0.f, 0.f, 0.f, 0.f);
+    gl::Clear(gl::COLOR_BUFFER_BIT);
+
+    gl::DepthMask(gl::FALSE_);
+    gl::Disable(gl::DEPTH_TEST);
+
+    gl::Disable(gl::BLEND);
+
+
     depthPrepass(ui);
     render(ui.get<RenderedUI::Background>());
+
+
+
+    m_context.setupFBO_11(m_context.tex.gbuffer.color);
+
+    gl::Enable(gl::BLEND);
+    gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+
+    auto shader = assets::getShader("ApplyFBO");
+    shader.bind();
+    shader.texture("uTexture", m_context.tex.full.a);
+    m_context.drawScreen();
 
 }
 

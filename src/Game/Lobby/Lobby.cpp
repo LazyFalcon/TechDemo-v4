@@ -8,13 +8,12 @@ struct MainLobbyViewState : public LobbyViewState
 {
     void render(Imgui& ui){
         // ui.panel().image("Logo").position(0.f, 1.f)();
-        auto& panel = ui.newFixedPanel();
-            panel.width(250);
-            panel.height(1.f);
-            panel.x(500);
-            panel.y(0);
-            // panel.fill().color(0x0d0d0dff);
-            panel();
+        auto& panel = ui.newFixedPanel()
+            .width(350).height(1.f)
+            .x(0.7f).y(0)
+            .fill().color(0x2C4555);
+
+        panel();
     }
 };
 
@@ -36,6 +35,7 @@ Scene&Lobby:: getScene(){
 }
 void Lobby::renderProcedure(GraphicEngine& renderer){
     renderer.context->beginFrame();
-    // renderer.uiRender->render(m_ui.getToRender());
+    renderer.context->setupFramebufferForGBufferGeneration();
+    renderer.uiRender->render(m_ui.getToRender());
     renderer.context->endFrame();
 }

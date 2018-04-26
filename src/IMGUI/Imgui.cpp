@@ -30,6 +30,7 @@ Panel& Imgui::newFixedPanel(){
 }
 
 void Imgui::finishPanel(Panel* p){
+
     if(p != &m_panelStack.back()) log("wrong panel finished!");
     m_panelStack.pop_back();
 }

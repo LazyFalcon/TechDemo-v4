@@ -75,7 +75,7 @@ bool ResourceLoader::loadShaders(){
 
             auto shaderName = (*dir_it).path().stem().string();
             if((*dir_it).path().extension().string() != ".glsl") continue;
-            assets::getShader(shaderName).loadFromFile(localShaderPath, shaderName);
+            assets::setShader(shaderName).loadFromFile(localShaderPath, shaderName);
         }
     return true;
     }

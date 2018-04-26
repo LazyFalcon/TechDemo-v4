@@ -32,6 +32,7 @@ TextureArray& getNormalArray(const std::string &name);
 TextureArray& getMetalic(const std::string &name);
 TextureArray& getRoughnessArray(const std::string &name);
 TextureArray& getCubeMap(const std::string &name);
+Shader& setShader(const std::string &name);
 Shader& getShader(const std::string &name);
 UI::Font& getFont(int id);
 

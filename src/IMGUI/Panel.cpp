@@ -5,6 +5,10 @@
 
 void Panel::operator()(){
     // m_parent->finishChildWidget(m_size);
+    // tu powinien odpalić się styler, używany jako
+    m_background.box = m_size;
+    m_background.depth = 0;
+    m_imgui.getToRender().put<RenderedUI::Background>(m_background);
     m_imgui.finishPanel(this);
 }
 

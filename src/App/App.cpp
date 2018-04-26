@@ -215,7 +215,7 @@ catch(const std::runtime_error& err){
 void App::render(){
     clog("--render");
 
-    // if(game) game->render(*graphicEngine);
+    if(gameState) gameState->renderProcedure(*graphicEngine);
 
     if(TAKE_SCREENSHOT){
         // graphicEngine->takeScreenShot();

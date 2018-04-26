@@ -1,21 +1,18 @@
-struct Button
-{};
+#pragma once
+// TODO: rename this, pleaseeee
 
-struct EditBox
-{};
-
-struct TextBox : public Button
-{};
-
-class Text
+class Button
 {
 public:
-    Text(const std::string& text) : m_text(text){}
-    Text& font();
-    Text& size();
-    // czy dało by się jakaś magią wyciągnąć rozmiar przycisku/
+    Button& x();
+    Button& y();
+    Button& w();
+    Button& h();
+    Button& text();
+    Button& slider();
+    Button& checkbox();
+    Button& editbox();
 
-    iBox renderedBox;
 private:
-    const std::string& m_text;
+
 };

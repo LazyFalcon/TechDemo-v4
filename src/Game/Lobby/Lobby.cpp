@@ -10,7 +10,8 @@ struct MainLobbyViewState : public LobbyViewState
         // ui.panel().image("Logo").position(0.f, 1.f)();
         auto& panel = ui.newFixedPanel()
             .width(350).height(1.f)
-            .x(0.7f).y(0)
+            .x(-450).y(0)
+            // .x(0.7f).y(0)
             .fill().color(0x2C4555);
 
         panel();

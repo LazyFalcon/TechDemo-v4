@@ -47,14 +47,17 @@ Panel& Panel::x(float p){
     return x(i32(p * m_parent->m_size.z));
 }
 Panel& Panel::x(i32 p){
-    m_size.x = p + m_parent->m_size.x;
+    if(p < 0) m_size.x = m_parent->m_size.x + m_parent->m_size.z + p;
+    else m_size.x = p + m_parent->m_size.x;
+
     return *this;
 }
 Panel& Panel::y(float p){
     return y(i32(p * m_parent->m_size.w));
 }
 Panel& Panel::y(i32 p){
-    m_size.y = p + m_parent->m_size.y;
+    if(p < 0) m_size.y = m_parent->m_size.y + m_parent->m_size.w + p;
+    else m_size.y = p + m_parent->m_size.y;
     return *this;
 }
 

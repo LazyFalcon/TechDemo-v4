@@ -39,13 +39,14 @@ void UIRender::render(std::vector<RenderedUIItems::Background>& backgrounds){
 
 void UIRender::render(RenderedUIItems& ui){
     // TODO: please rename this functions
-    m_context.setupFBO_11(m_context.tex.full.a);
+    m_context.setupFBO_11_depth(m_context.tex.full.a);
     m_context.defaultVAO.bind();
     gl::ClearColor(0.f, 0.f, 0.f, 0.f);
-    gl::Clear(gl::COLOR_BUFFER_BIT);
+    gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
 
-    gl::DepthMask(gl::FALSE_);
-    gl::Disable(gl::DEPTH_TEST);
+    // gl::DepthMask(gl::FALSE_);
+    gl::DepthMask(gl::TRUE_);
+    gl::Enable(gl::DEPTH_TEST);
 
     gl::Disable(gl::BLEND);
 
@@ -57,6 +58,7 @@ void UIRender::render(RenderedUIItems& ui){
 
     m_context.setupFBO_11(m_context.tex.gbuffer.color);
 
+    gl::Disable(gl::DEPTH_TEST);
     gl::Enable(gl::BLEND);
     gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
 

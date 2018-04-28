@@ -26,6 +26,16 @@ public:
     Layout& toRight();
     Layout& toLeft();
 
+    /*  ______<w>_______
+        |               |
+     <x>|               | <y>
+        ------<z>-------
+    */
+    Layout& padding(const glm::vec4& p){
+        m_padding = p;
+        return *this;
+    }
+
     Layout& prepare(glm::vec4 evenSize, i32 count);
     Layout& prepare(const std::vector<glm::vec4>& requestedSizes);
 private:
@@ -38,5 +48,6 @@ private:
 
     glm::vec4 m_bounds;
     glm::vec4 m_free;
+    glm::vec4 m_padding {8,8,8,8};
     float &m_x, &m_y, &m_w, &m_h;
 };

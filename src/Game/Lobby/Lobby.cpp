@@ -13,7 +13,11 @@ struct MainLobbyViewState : public LobbyViewState
             .x(-450).y(0)
             .fill().color(0x2C4555);
         panel.layout().toDown();
-        panel.button().y(0.7f).w(0.9f).h(30).text("New Game")();
+        panel.button().y(0.6f).w(0.9f).h(30).text("New Game")();
+        panel.button().w(0.9f).h(36).text("Continue")();
+        panel.button().w(0.9f).h(36).text("Settings")();
+        panel.button().w(0.9f).h(36).text("Credits")();
+        panel.button().w(0.9f).h(36).text("Exit")();
         panel();
     }
 };

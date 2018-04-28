@@ -8,16 +8,17 @@ Layout& Layout::toUp(){
 Layout& Layout::toDown(){
     feedback = [this](glm::vec4 item){
         // clamp item width to panel width
-        item[2] = std::min(item[2], m_w);
+        item[2] = std::min(item[2], m_w-m_padding[0]-m_padding[1]);
 
         // in case when we nant to move item, check if shift isn't smaller than height
-        item[1] = m_y + m_h - std::max(item[1], item[3]);
+        // little not consistent here, x,y received from item are displacement in main direction, not from lower left corner
+        item[1] = m_y + m_h - std::max(item[1], item[3]) - m_padding[2];
 
         // center item in panel, here we have one column
-        item[0] = 0.5f * (m_w - item[2]);
+        item[0] = m_x + floor(0.5f * (m_w - item[2]));
 
         // cut free space
-        m_w -= item[0] - m_x;
+        m_h = item[1] - m_y - m_padding[3];
 
         return item;
     };
@@ -30,7 +31,7 @@ Layout& Layout::toDown(){
         item[1] = m_y + m_h - std::max(item[1], item[3]);
 
         // center item in panel, here we have one column
-        item[0] = 0.5f * (m_w - item[2]);
+        item[0] = floor(0.5f * (m_w - item[2]));
 
         return item;
     };

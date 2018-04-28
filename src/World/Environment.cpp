@@ -1,5 +1,5 @@
 #include "Environment.hpp"
-#include "Includes.hpp"
+#include "common.hpp"
 #include "Logging.hpp"
 #include "ResourceLoader.hpp"
 #include "LightSource.hpp"

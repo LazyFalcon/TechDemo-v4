@@ -1,8 +1,8 @@
 #include "Lobby.hpp"
-#include "Imgui.hpp"
+#include "ui.hpp"
 #include "GraphicEngine.hpp"
 #include "Context.hpp"
-#include "UIRender.hpp"
+#include "ui-renderer.hpp"
 
 struct MainLobbyViewState : public LobbyViewState
 {
@@ -11,9 +11,9 @@ struct MainLobbyViewState : public LobbyViewState
         auto& panel = ui.newFixedPanel()
             .width(350).height(1.f)
             .x(-450).y(0)
-            // .x(0.7f).y(0)
             .fill().color(0x2C4555);
-
+        panel.layout().toDown();
+        panel.button().y(0.7f).w(0.9f).h(30).text("New Game")();
         panel();
     }
 };

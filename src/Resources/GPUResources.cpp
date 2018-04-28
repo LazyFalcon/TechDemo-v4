@@ -354,7 +354,7 @@ namespace {
         return shader.find("GEOMETRY_SHADER") != std::string::npos;
     }
 
-    void resolveIncludes(std::string &source){
+    void resolvecommon(std::string &source){
         auto pos = source.find("#include");
 
         while(pos != std::string::npos){
@@ -387,7 +387,7 @@ void Shader::loadFromFile(const std::string pathTo, const std::string name){
     GLuint vertexS, geometryS, fragmentS;
 
     std::string shaderSource = loadFile(pathTo);
-    resolveIncludes(shaderSource);
+    resolvecommon(shaderSource);
 
     // TODO: maybe make defines global? then we can put functions there
     std::string vertexSource = "#version 420\n"s + defines(name) + "#define VERTEX_SHADER\n"s + shaderSource;

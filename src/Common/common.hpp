@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <type_traits>
 #include <memory>
+#include <optional>
 
 #include <iostream>
 #include <map>

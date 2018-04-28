@@ -1,10 +1,12 @@
 #pragma once
-#include "ImguiCore.hpp"
-#include "RenderedUI.hpp"
-#include "Layouts.hpp"
+#include "ui-core.hpp"
+#include "ui-rendered.hpp"
+#include "ui-layout.hpp"
+#include "ui-items.hpp"
 
 class Imgui;
 class Layout;
+class Styler;
 
 // For dynamic number of childs
 // i32 is in pixels, float is relative to parent, it requires parent to be fixed size
@@ -12,7 +14,7 @@ class Layout;
 class Panel
 {
 public:
-    Panel(Imgui& imgui, Panel* parentPanel=nullptr) : m_imgui(imgui), m_parent(parentPanel){}
+    Panel(Imgui& imgui, Styler* style, Panel* parentPanel=nullptr) : m_imgui(imgui), m_style(style), m_parent(parentPanel){}
     Panel& panel(); // returns active child panel
     void operator()();
 
@@ -21,6 +23,16 @@ public:
 
     // control part
     Layout& layout();
+    Layout& getLayout(){
+        return m_layout;
+    }
+
+    Imgui& getUi(){
+        return m_imgui;
+    }
+    Styler& getStyler(){
+        return *m_style;
+    }
 
     Panel& width(float);
     Panel& width(i32);
@@ -31,20 +43,28 @@ public:
     Panel& y(float);
     Panel& y(i32);
 
+    i32 getRelative(i32 idx, float rel){
+        return m_size[idx] * rel;
+    }
+
     // apperance
     Panel& fill();
 
     // utils
     Panel& color(u32);
 
+    // create items
+    Item button();
+
 private:
+    friend Styler;
     Imgui& m_imgui;
     Panel* m_parent {nullptr};
+    Styler* m_style {nullptr};
     Layout m_layout;
 
     glm::vec4 m_size;
     iBox m_bounds;
-    bool m_isFixedSize {false};
 
-    RenderedUI::Background m_background;
+    RenderedUIItems::Background m_background;
 };

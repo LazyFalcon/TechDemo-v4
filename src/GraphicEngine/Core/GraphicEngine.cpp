@@ -6,7 +6,7 @@
 #include "SceneRenderer.hpp"
 #include "ShadowCaster.hpp"
 #include "ObjectBatchedRender.hpp"
-#include "UIRender.hpp"
+#include "ui-renderer.hpp"
 #include "GBufferSampler.hpp"
 #include "VfxEffects.hpp"
 #include "Window.hpp"

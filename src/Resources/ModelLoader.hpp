@@ -2,7 +2,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "Includes.hpp"
+#include "common.hpp"
 #include "Logging.hpp"
 #include "GPUResources.hpp"
 // TODO: zaoszczedzic na includach!

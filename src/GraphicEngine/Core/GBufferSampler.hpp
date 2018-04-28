@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Includes.hpp"
+#include "common.hpp"
 
 struct GBufferSampler;
 class Context;

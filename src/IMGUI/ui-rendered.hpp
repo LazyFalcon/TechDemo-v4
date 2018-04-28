@@ -1,5 +1,5 @@
 #pragma once
-#include "Includes.hpp"
+#include "common.hpp"
 #include <vector>
 #include <tuple>
 
@@ -17,7 +17,7 @@ Button backgrounds can be more specialized, and allow custom images, images with
 
 */
 
-struct RenderedUI
+struct RenderedUIItems
 {
     struct Background
     {
@@ -74,15 +74,15 @@ struct RenderedUI
     // for better accesibility and names for containers are not needed
     std::tuple<
         // these are render as opaque elements in depth-pre pass
-        std::vector<RenderedUI::Background>, // this also needs to be sorted
-        std::vector<RenderedUI::Image>,
-        std::vector<RenderedUI::ColoredImage>,
-        std::vector<RenderedUI::ColorOnly>,
+        std::vector<RenderedUIItems::Background>, // this also needs to be sorted
+        std::vector<RenderedUIItems::Image>,
+        std::vector<RenderedUIItems::ColoredImage>,
+        std::vector<RenderedUIItems::ColorOnly>,
 
         // these not
-        std::vector<RenderedUI::Line>,
-        std::vector<RenderedUI::LineStrip>,
-        std::vector<RenderedUI::RenderedFont>
+        std::vector<RenderedUIItems::Line>,
+        std::vector<RenderedUIItems::LineStrip>,
+        std::vector<RenderedUIItems::RenderedFont>
     > prepared;
 
     template<typename T>
@@ -90,9 +90,8 @@ struct RenderedUI
         return std::get<std::vector<T>>(prepared);
     }
     template<typename T>
-    RenderedUI& put(const T& t){
+    void put(const T& t){
         std::get<std::vector<T>>(prepared).push_back(t);
-        return *this;
     }
     void reset(){
 

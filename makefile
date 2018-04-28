@@ -2,7 +2,7 @@ DIRECTORIES = $(addprefix -I./,$(shell ls -d ./src/*/))
 DIRECTORIES_2 = $(addprefix -I./,$(shell ls -d ./src/*/*/))
 TARGET_NAME = TDv4
 
-CXX_FLAGS = -isystem C:\MinGW\include -std=c++14 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) -DBT_USE_DOUBLE_PRECISION=ON -DUSE_BULLET
+CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) -DBT_USE_DOUBLE_PRECISION=ON -DUSE_BULLET
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 ADDITIONAL_FLAGS = \
 -Werror=return-type

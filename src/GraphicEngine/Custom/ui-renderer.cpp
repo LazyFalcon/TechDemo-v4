@@ -1,14 +1,14 @@
-#include "UIRender.hpp"
-#include "RenderedUI.hpp"
+#include "ui-renderer.hpp"
+#include "ui-rendered.hpp"
 #include "Context.hpp"
 #include "Assets.hpp"
 #include "PerfTimers.hpp"
 
 
-void UIRender::depthPrepass(RenderedUI& ui){}
+void UIRender::depthPrepass(RenderedUIItems& ui){}
 
 template<>
-void UIRender::render(std::vector<RenderedUI::Background>& backgrounds){
+void UIRender::render(std::vector<RenderedUIItems::Background>& backgrounds){
 
 
     auto shader = assets::getShader("PanelBackground");
@@ -19,10 +19,10 @@ void UIRender::render(std::vector<RenderedUI::Background>& backgrounds){
 
     m_context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
     m_context.getRandomBuffer().update(backgrounds)
-        .attrib(1).pointer_float(4, sizeof(RenderedUI::Background), (void*)offsetof(RenderedUI::Background, box)).divisor(1)
-        .attrib(2).pointer_float(1, sizeof(RenderedUI::Background), (void*)offsetof(RenderedUI::Background, texture)).divisor(1)
-        .attrib(3).pointer_float(1, sizeof(RenderedUI::Background), (void*)offsetof(RenderedUI::Background, depth)).divisor(1)
-        .attrib(4).pointer_color(sizeof(RenderedUI::Background), (void*)offsetof(RenderedUI::Background, color)).divisor(1);
+        .attrib(1).pointer_float(4, sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, box)).divisor(1)
+        .attrib(2).pointer_float(1, sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, texture)).divisor(1)
+        .attrib(3).pointer_float(1, sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, depth)).divisor(1)
+        .attrib(4).pointer_color(sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, color)).divisor(1);
 
     gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, backgrounds.size()); // TODO: check if simple draw arrays wouldn't be faster
     m_context.errors();
@@ -37,7 +37,7 @@ void UIRender::render(std::vector<RenderedUI::Background>& backgrounds){
     backgrounds.clear();
 }
 
-void UIRender::render(RenderedUI& ui){
+void UIRender::render(RenderedUIItems& ui){
     // TODO: please rename this functions
     m_context.setupFBO_11(m_context.tex.full.a);
     m_context.defaultVAO.bind();
@@ -51,7 +51,7 @@ void UIRender::render(RenderedUI& ui){
 
 
     depthPrepass(ui);
-    render(ui.get<RenderedUI::Background>());
+    render(ui.get<RenderedUIItems::Background>());
 
 
 

@@ -1,6 +1,6 @@
 #include "gl_core_4_5.hpp"
 #include "Camera.hpp"
-#include "Includes.hpp"
+#include "common.hpp"
 #include "Scene.hpp"
 #include "ResourceLoader.hpp"
 #include "Yaml.hpp"
@@ -25,7 +25,7 @@ Scene::~Scene(){
 
 bool Scene::load(const std::string &name, Yaml &cfg){
     CPU_SCOPE_TIMER("Scene::load");
-    
+
     log("---------------");
     if(not physics){
         error("no physics");

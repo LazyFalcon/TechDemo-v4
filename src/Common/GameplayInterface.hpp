@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "Includes.hpp"
+#include "common.hpp"
 #include "Utils.hpp"
-#include "IMGUI.hpp"
+#include "ui.hpp"
 #include "GameSettings.hpp"
 
 class Camera;

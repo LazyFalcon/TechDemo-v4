@@ -6,7 +6,7 @@ struct Image;
 struct VAO;
 struct Mesh;
 struct ImageSet;
-namespace UI { struct Font; }
+struct Font;
 
 namespace assets {
 
@@ -27,6 +27,7 @@ struct TextureArray
 };
 
 Image getImage(const std::string &name);
+TextureArray& getAtlas(const std::string &name);
 TextureArray& getAlbedoArray(const std::string &name);
 TextureArray& getNormalArray(const std::string &name);
 TextureArray& getMetalic(const std::string &name);
@@ -34,7 +35,7 @@ TextureArray& getRoughnessArray(const std::string &name);
 TextureArray& getCubeMap(const std::string &name);
 Shader& setShader(const std::string &name);
 Shader& getShader(const std::string &name);
-UI::Font& getFont(int id);
+Font& getFont(const std::string &name);
 
 std::string findArrayWithTextureName(const std::string &name);
 std::function<float(const std::string&)> layerSearch(TextureArray&);

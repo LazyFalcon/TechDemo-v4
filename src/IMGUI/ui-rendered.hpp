@@ -1,5 +1,6 @@
 #pragma once
 #include "common.hpp"
+#include "ui-text.hpp"
 #include <vector>
 #include <tuple>
 
@@ -82,7 +83,7 @@ struct RenderedUIItems
         // these not
         std::vector<RenderedUIItems::Line>,
         std::vector<RenderedUIItems::LineStrip>,
-        std::vector<RenderedUIItems::RenderedFont>
+        std::vector<Text::Rendered>
     > prepared;
 
     template<typename T>

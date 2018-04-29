@@ -9,7 +9,7 @@
 #include "LightSource.hpp"
 #include "DecalsAndMarkers.hpp"
 #include "Utils.hpp"
-#include "FontRenderer.hpp"
+#include "font.hpp"
 
 u32 ResourceLoader::s_id = 0;
 
@@ -240,7 +240,7 @@ bool ResourceLoader::loadFonts(){
     return true;
 }
 bool ResourceLoader::loadFont(const std::string &fontFileName, std::vector<std::string> &imagesToLoad){
-    UI::Font &font = assets::getFont(UI::convertFontFilenameToId(fontFileName));
+    auto &font = assets::getFont(cutExt(fontFileName));
     font.load(fontFileName, imagesToLoad);
     return true;
 }

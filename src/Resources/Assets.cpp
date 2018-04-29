@@ -2,7 +2,7 @@
 #include "GpuResources.hpp"
 #include "ResourceLoader.hpp"
 #include "BaseStructs.hpp"
-#include "FontRenderer.hpp"
+#include "font.hpp"
 
 namespace assets {
 
@@ -21,7 +21,7 @@ std::unordered_map<std::string, ImageSet> imageSets;
 std::unordered_map<std::string, UserID<Image>> images;
 
 std::unordered_map<std::string, Shader> shaders;
-std::unordered_map<int, UI::Font> fonts;
+std::unordered_map<std::string, Font> fonts;
 
 std::unordered_map<std::string, UserID<TextureArray>> albedoArrays;
 std::unordered_map<std::string, UserID<TextureArray>> normalArrays;
@@ -38,6 +38,9 @@ Image getImage(const std::string &name){
     auto it = images.find(name);
     if(it == images.end()) return {};
     return it->second.get();
+}
+TextureArray& getAtlas(const std::string &name){
+    return albedoArrays[name].get();
 }
 TextureArray& getAlbedoArray(const std::string &name){
     return albedoArrays[name].get();
@@ -60,8 +63,8 @@ Shader& setShader(const std::string &name){
 Shader& getShader(const std::string &name){
     return shaders.at(name);
 }
-UI::Font& getFont(int id){
-    return fonts[id];
+Font& getFont(const std::string &name){
+    return fonts[name];
 }
 
 std::string findArrayWithTextureName(const std::string &name){

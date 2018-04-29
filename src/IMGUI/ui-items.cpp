@@ -53,6 +53,9 @@ Item& Item::operator()(){
 
 
 Item& Item::text(const std::string& text){
+    if(not m_text) m_text.emplace();
+
+    m_panel.getStyler().renderText(*this, text);
 
     return *this;
 }

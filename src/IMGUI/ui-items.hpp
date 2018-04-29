@@ -1,5 +1,6 @@
 #pragma once
 #include "common.hpp"
+#include "ui-text.hpp"
 // TODO: rename this, pleaseeee
 
 class Panel;
@@ -19,9 +20,22 @@ public:
     Item& h(i32 i);
     Item& h(float i);
 
+    // injects Utrm to panel, collects input, calculates bounding box and renders item
     Item& operator()();
 
     //
+    Item& font(const std::string& f){
+        m_font = f;
+        return *this;
+    }
+    Item& textColor(u32 c){
+        m_textColor = c;
+        return *this;
+    }
+    Item& formatting(Text::Formatting f){
+        m_formatting = f;
+        return *this;
+    }
     Item& text(const std::string& text);
 
 private:
@@ -29,4 +43,10 @@ private:
     glm::vec4 m_size{};
     Panel& m_panel;
     std::optional<i32> m_keyPressed;
+    std::optional<i32> m_image;
+
+    std::optional<std::string> m_font;
+    std::optional<u32> m_textColor;
+    std::optional<Text::Formatting> m_formatting;
+    std::optional<Text> m_text;
 };

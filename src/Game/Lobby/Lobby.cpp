@@ -3,6 +3,7 @@
 #include "GraphicEngine.hpp"
 #include "Context.hpp"
 #include "ui-renderer.hpp"
+#include "ui-text.hpp"
 
 struct MainLobbyViewState : public LobbyViewState
 {
@@ -13,16 +14,14 @@ struct MainLobbyViewState : public LobbyViewState
             .x(-450).y(0)
             .fill().color(0x2C4555);
         panel.layout().toDown();
-        panel.button().y(0.6f).w(0.9f).h(30).text("New Game")();
-        panel.button().w(0.9f).h(36).text("Continue")();
-        panel.button().w(0.9f).h(36).text("Settings")();
-        panel.button().w(0.9f).h(36).text("Credits")();
-        panel.button().w(0.9f).h(36).text("Exit")();
+        panel.button().y(0.6f).w(0.9f).h(44)().formatting(Text::Centered).text("New Game");
+        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Continue");
+        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Settings");
+        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Credits");
+        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Exit");
         panel();
     }
 };
-
-
 
 Lobby::Lobby(Imgui& ui, InputContextHandler &parentInput): m_ui(ui), m_input(parentInput.derive("Lobby")){
     m_view = std::make_unique<MainLobbyViewState>();

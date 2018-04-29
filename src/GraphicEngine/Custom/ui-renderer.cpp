@@ -1,17 +1,15 @@
 #include "ui-renderer.hpp"
 #include "ui-rendered.hpp"
+#include "ui-text.hpp"
 #include "Context.hpp"
 #include "Assets.hpp"
 #include "PerfTimers.hpp"
-
 
 void UIRender::depthPrepass(RenderedUIItems& ui){}
 
 template<>
 void UIRender::render(std::vector<RenderedUIItems::Background>& backgrounds){
-
-
-    auto shader = assets::getShader("PanelBackground");
+    auto shader = assets::getShader("ui-panel-background");
     shader.bind();
     shader.uniform("uWidth", m_window.size.x);
     shader.uniform("uHeight", m_window.size.y);
@@ -37,6 +35,36 @@ void UIRender::render(std::vector<RenderedUIItems::Background>& backgrounds){
     backgrounds.clear();
 }
 
+template<>
+void UIRender::render(std::vector<Text::Rendered>& text){
+    auto shader = assets::getShader("ui-text");
+    shader.bind();
+    shader.uniform("uFrameSize", m_window.size);
+
+    shader.atlas("uTexture", assets::getAtlas("Fonts").id);
+
+    m_context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
+    m_context.getRandomBuffer().update(text)
+        .attrib(1).pointer_float(4, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, polygon)).divisor(1)
+        .attrib(2).pointer_float(3, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, uv)).divisor(1)
+        .attrib(3).pointer_float(2, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, uvSize)).divisor(1)
+        .attrib(4).pointer_float(1, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, depth)).divisor(1)
+        .attrib(5).pointer_color(sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, color)).divisor(1);
+
+    gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, text.size()); // TODO: check if simple draw arrays wouldn't be faster
+    m_context.errors();
+
+    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+
+    gl::DisableVertexAttribArray(1);
+    gl::DisableVertexAttribArray(2);
+    gl::DisableVertexAttribArray(3);
+    gl::DisableVertexAttribArray(4);
+    gl::DisableVertexAttribArray(5);
+
+    text.clear();
+}
+
 void UIRender::render(RenderedUIItems& ui){
     // TODO: please rename this functions
     m_context.setupFBO_11_depth(m_context.tex.full.a);
@@ -44,16 +72,17 @@ void UIRender::render(RenderedUIItems& ui){
     gl::ClearColor(0.f, 0.f, 0.f, 0.f);
     gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
 
-    // gl::DepthMask(gl::FALSE_);
     gl::DepthMask(gl::TRUE_);
     gl::Enable(gl::DEPTH_TEST);
-
     gl::Disable(gl::BLEND);
-
 
     depthPrepass(ui);
     render(ui.get<RenderedUIItems::Background>());
 
+    gl::DepthMask(gl::FALSE_);
+    gl::Enable(gl::BLEND);
+    gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+    render(ui.get<Text::Rendered>());
 
 
     m_context.setupFBO_11(m_context.tex.gbuffer.color);

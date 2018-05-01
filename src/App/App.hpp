@@ -44,9 +44,14 @@ public:
     void setCommonCallbacks();
     bool loadResources();
     void run();
+    void exit(){
+        quit = true;
+    }
     void render();
     void finish();
     void setGameState(std::shared_ptr<GameState> gameState);
+    void hideMouse();
+    void showMouse();
 
     static void scrollCallback(GLFWwindow *w, double dx, double dy);
     static void keyCallback(GLFWwindow *w, int key, int scancode, int action, int mods);

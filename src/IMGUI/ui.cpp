@@ -23,6 +23,14 @@ void Imgui::restart(){
     }
     m_renderedUIItems->reset();
     // cleanup all states
+
+    input.main.on = false;
+    if(input.main.off) input.main.position.reset();
+    input.main.off = false;
+    input.alternate.on = false;
+    if(input.alternate.off) input.alternate.position.reset();
+    input.alternate.off = false;
+
 }
 
 Panel& Imgui::newFixedPanel(){

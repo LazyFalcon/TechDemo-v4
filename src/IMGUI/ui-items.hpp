@@ -3,13 +3,14 @@
 #include "ui-text.hpp"
 // TODO: rename this, pleaseeee
 
+class Imgui;
 class Panel;
 class Styler;
 
 class Item
 {
 public:
-    Item(Panel& p) : m_panel(p){}
+    Item(Imgui& ui, Panel& p) : m_ui(ui), m_panel(p){}
     // positioning
     Item& x(i32 i);
     Item& x(float i);
@@ -38,9 +39,19 @@ public:
     }
     Item& text(const std::string& text);
 
+    bool isDefaultPressed();
+    bool isAlternatePressed();
+    // default for LLM actions, unfortunately default is restricted keyword
+    template<typename Callback>
+    Item& action(Callback&& c){
+        if(isDefaultPressed()) c();
+        return *this;
+    }
+
 private:
     friend Styler;
     glm::vec4 m_size{};
+    Imgui& m_ui;
     Panel& m_panel;
     std::optional<i32> m_keyPressed;
     std::optional<i32> m_image;

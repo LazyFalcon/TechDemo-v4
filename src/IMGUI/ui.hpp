@@ -14,8 +14,36 @@ private:
     std::vector<Panel> m_panelStack;
     i32 m_width, m_height;
     std::unique_ptr<RenderedUIItems> m_renderedUIItems;
-
 public:
+    struct {
+        struct Action {
+            std::optional<glm::vec2> position;
+            bool on;
+            bool off;
+            bool pressed(const glm::vec4& poly){
+                return position and off and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
+            }
+        } main, alternate;
+
+        glm::vec2 mousePos;
+
+        void defaultOn(){
+            main.position = mousePos;
+            main.on = true;
+        }
+        void defaultOff(){ if(main.position){
+            main.off = true;
+        }}
+        void alternateOn(){
+            alternate.position = mousePos;
+            alternate.on = true;
+        }
+        void alternateOff(){ if(alternate.position){
+            alternate.off = true;
+        }}
+
+    } input;
+
     Styler basicStyle;
 
     Imgui(i32 width, i32 height, const std::string& name = "default");
@@ -31,6 +59,7 @@ public:
     void restart();
 
     void getKey(const glm::vec4& box){}
+
 
     RenderedUIItems& getToRender(){
         return *m_renderedUIItems;

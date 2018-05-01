@@ -4,6 +4,8 @@
 #include "Context.hpp"
 #include "ui-renderer.hpp"
 #include "ui-text.hpp"
+#include "Logging.hpp"
+#include "LobbyEvents.hpp"
 
 struct MainLobbyViewState : public LobbyViewState
 {
@@ -17,8 +19,12 @@ struct MainLobbyViewState : public LobbyViewState
         panel.button().y(0.6f).w(0.9f).h(44)().formatting(Text::Centered).text("New Game");
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Continue");
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Settings");
-        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Credits");
-        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Exit");
+        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Credits").action([]{
+            log("Credits? Me! Lazy Falcon!");
+        });
+        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Exit").action([]{
+            event<ExitGame>();
+        });
         panel();
     }
 };

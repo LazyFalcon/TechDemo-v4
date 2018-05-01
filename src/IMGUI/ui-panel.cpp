@@ -80,7 +80,7 @@ Panel& Panel::color(u32 c){
 
 
 Item Panel::button(){
-    Item i(*this);
+    Item i(m_imgui, *this);
 
     return i;
 }

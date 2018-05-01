@@ -59,3 +59,10 @@ Item& Item::text(const std::string& text){
 
     return *this;
 }
+
+bool Item::isDefaultPressed(){
+    return m_ui.input.main.pressed(m_size);
+}
+bool Item::isAlternatePressed(){
+    return m_ui.input.alternate.pressed(m_size);
+}

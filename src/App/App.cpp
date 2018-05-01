@@ -26,7 +26,7 @@ bool CLOG_SPECIAL_VALUE_2 = false;
 bool CLOG_SPECIAL_VALUE_3 = false;
 bool ONCE_IN_FRAME = false;
 bool quit = false;
-bool CURSOR_DISABLED = true;
+bool CURSOR_DISABLED = false;
 bool TAKE_SCREENSHOT = false;
 bool HIDE_UI = false;
 bool ALT_MODE = false;
@@ -75,22 +75,24 @@ bool App::initialize(){
     return true;
 }
 void App::initializeInputHandler(){
-    inputContext.setAction("LMB", "default LMB", []{
-            // KeyState::lClicked = true;
-            // KeyState::lClick = true;
-        }, []{
+    inputContext.setAction("LMB", "default LMB", [this]{
+            imgui->input.defaultOn();
+        }, [this]{
+            imgui->input.defaultOff();
             // KeyState::lClicked = false;
         });
-    inputContext.setAction("MMB", "default LMB", []{
+    inputContext.setAction("MMB", "default MMB", [this]{
             // KeyState::rClicked = true;
             // KeyState::rClick = true;
         }, []{
             // KeyState::rClicked = false;
         });
-    inputContext.setAction("RMB", "default LMB", []{
+    inputContext.setAction("RMB", "default RMB", [this]{
+            imgui->input.alternateOn();
             // KeyState::mClicked = true;
             // KeyState::mClick = true;
-        }, []{
+        }, [this]{
+            imgui->input.alternateOff();
             // KeyState::mClicked = false;
         });
 
@@ -139,6 +141,9 @@ void App::initializeInputHandler(){
             }
             CURSOR_DISABLED = !CURSOR_DISABLED;
         }, []{});
+    inputContext.setAction("MousePosition", "ui mouse", [this](float x, float y){
+        imgui->input.mousePos = glm::vec2(x,y);
+    });
 
     inputContext.activate();
 }
@@ -236,6 +241,14 @@ void App::setGameState(std::shared_ptr<GameState> p_gameState){
     gameState = p_gameState;
 }
 
+
+void App::hideMouse(){
+    CURSOR_DISABLED = false;
+}
+void App::showMouse(){
+    CURSOR_DISABLED = true;
+}
+
 void App::scrollCallback(GLFWwindow *w, double dx, double dy){
     self->inputHandler.scrollCallback(dx, dy);
 }
@@ -248,19 +261,18 @@ void App::mouseButtonCallback(GLFWwindow *w, int button, int action, int mods){
 }
 void App::cursorPosCallback(GLFWwindow *w, double xpos, double ypos){
     // if(not KeyState::mouseReset) self->uiUpdater->setMousePosition(xpos, ypos);
-
     auto size = self->window->size;
 
-    auto mp = lastCursorPos;
-    // if(not KeyState::mouseReset) KeyState::mousePosition = glm::vec2(xpos, size.y -  ypos);
-    // else KeyState::mousePosition = glm::vec2(-500);
-
+    auto last = lastCursorPos;
     lastCursorPos = glm::vec2(xpos, size.y -  ypos);
-    // KeyState::mouseTranslation = lastCursorPos - mp;
-    // KeyState::mouseTranslation.y *= -1;
-    // KeyState::mouseTranslationNormalized = KeyState::mouseTranslation / size * 0.5f;
-    // self->inputHandler.mousePosition(KeyState::mousePosition.x, KeyState::mousePosition.y);
-    // self->inputHandler.mouseMovement(KeyState::mouseTranslation.x, KeyState::mouseTranslation.y);
+    float dx = (lastCursorPos.x - last.x) / size.x * 0.5f;
+    float dy = -(lastCursorPos.y - last.y) / size.y * 0.5f;
+
+    float x = xpos;
+    float y = size.y - ypos;
+
+    self->inputHandler.mousePosition(x, y);
+    self->inputHandler.mouseMovement(dx, dy);
 }
 void App::exitCallback(GLFWwindow *w){
     self->quit = true;

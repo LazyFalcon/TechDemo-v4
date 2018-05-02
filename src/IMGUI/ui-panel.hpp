@@ -14,7 +14,7 @@ class Styler;
 class Panel
 {
 public:
-    Panel(Imgui& imgui, Styler* style, Panel* parentPanel=nullptr) : m_imgui(imgui), m_style(style), m_parent(parentPanel){}
+    Panel(Imgui& imgui, Styler* style, Panel* parentPanel=nullptr) : m_imgui(imgui), m_style(style),  m_parent(parentPanel){}
     Panel& panel(); // returns active child panel
     void operator()();
 
@@ -63,8 +63,10 @@ private:
     Styler* m_style {nullptr};
     Layout m_layout;
 
+    float m_depth {};
     glm::vec4 m_size;
     iBox m_bounds;
+    int m_childCount {};
 
     RenderedUIItems::Background m_background;
 };

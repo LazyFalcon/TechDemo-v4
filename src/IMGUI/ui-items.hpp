@@ -10,7 +10,7 @@ class Styler;
 class Item
 {
 public:
-    Item(Imgui& ui, Panel& p) : m_ui(ui), m_panel(p){}
+    Item(Imgui& ui, Panel& p, float depth) : m_ui(ui), m_panel(p), m_depth(depth){}
     // positioning
     Item& x(i32 i);
     Item& x(float i);
@@ -41,10 +41,21 @@ public:
 
     bool isDefaultPressed();
     bool isAlternatePressed();
+    bool isHover(); // au
     // default for LLM actions, unfortunately default is restricted keyword
     template<typename Callback>
     Item& action(Callback&& c){
         if(isDefaultPressed()) c();
+        return *this;
+    }
+    template<typename Callback>
+    Item& alternate(Callback&& c){
+        if(isAlternatePressed()) c();
+        return *this;
+    }
+    template<typename Callback>
+    Item& hover(Callback&& c){
+        if(isHover()) c();
         return *this;
     }
 
@@ -53,6 +64,9 @@ private:
     glm::vec4 m_size{};
     Imgui& m_ui;
     Panel& m_panel;
+
+    float m_depth;
+
     std::optional<i32> m_keyPressed;
     std::optional<i32> m_image;
 

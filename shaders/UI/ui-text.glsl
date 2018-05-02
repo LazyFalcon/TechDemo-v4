@@ -18,7 +18,7 @@ void main(){
     vUV.z = mUV.z;
     gl_Position = vec4(
                       (mVertex.xy*mPolygon.zw + mPolygon.xy) / (uFrameSize/2) - vec2(1),
-                      mDepth,
+                      1-mDepth,
                       1);
 }
 

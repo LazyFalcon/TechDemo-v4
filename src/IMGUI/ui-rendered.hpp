@@ -43,8 +43,9 @@ struct RenderedUIItems
         u32 color;
     };
 
-    struct ColorOnly
+    struct ColoredBox
     {
+        glm::vec4 box;
         float depth;
         u32 color;
     };
@@ -78,7 +79,7 @@ struct RenderedUIItems
         std::vector<RenderedUIItems::Background>, // this also needs to be sorted
         std::vector<RenderedUIItems::Image>,
         std::vector<RenderedUIItems::ColoredImage>,
-        std::vector<RenderedUIItems::ColorOnly>,
+        std::vector<RenderedUIItems::ColoredBox>,
 
         // these not
         std::vector<RenderedUIItems::Line>,

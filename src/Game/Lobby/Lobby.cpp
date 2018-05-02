@@ -11,21 +11,40 @@ struct MainLobbyViewState : public LobbyViewState
 {
     void render(Imgui& ui){
         // ui.panel().image("Logo").position(0.f, 1.f)();
-        auto& panel = ui.newFixedPanel()
-            .width(350).height(1.f)
-            .x(-450).y(0)
-            .fill().color(0x2C4555);
-        panel.layout().toDown();
-        panel.button().y(0.6f).w(0.9f).h(44)().formatting(Text::Centered).text("New Game");
-        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Continue");
-        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Settings");
-        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Credits").action([]{
-            log("Credits? Me! Lazy Falcon!");
-        });
-        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Exit").action([]{
-            event<ExitGame>();
-        });
-        panel();
+        {
+            auto& panel = ui.newFixedPanel()
+                .width(350).height(1.f)
+                .x(-450).y(0)
+                .fill().color(0x6D3A31d0);
+            panel.layout().toDown();
+            panel.button().y(0.6f).w(0.9f).h(44)().formatting(Text::Centered).text("New Game");
+            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Continue");
+            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Settings");
+            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Credits").action([]{
+                log("Credits? Me! Lazy Falcon!");
+            });
+            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Exit").action([]{
+                event<ExitGame>();
+            });
+            panel();
+        }
+        {
+            auto& panel = ui.newFixedPanel()
+                .width(350).height(1.f)
+                .x(-500).y(0)
+                .fill().color(0xDBD4CEd0);
+            panel.layout().toDown();
+            panel.button().y(0.59f).w(0.9f).h(44)().formatting(Text::Centered).text(".New Game");
+            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text(".Continue");
+            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text(".Settings");
+            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text(".Credits").action([]{
+                log("Overcostam!");
+            });
+            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text(".Exit").action([]{
+                event<ExitGame>();
+            });
+            panel();
+        }
     }
 };
 

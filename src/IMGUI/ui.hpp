@@ -20,12 +20,29 @@ public:
             std::optional<glm::vec2> position;
             bool on;
             bool off;
-            bool pressed(const glm::vec4& poly){
+            bool pressedOn(const glm::vec4& poly, float depth){
+                return position and on and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
+            }
+            bool pressedOff(const glm::vec4& poly, float depth){
                 return position and off and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
+            }
+            bool pressed(const glm::vec4& poly, float depth){
+                return pressedOff(poly, depth);
             }
         } main, alternate;
 
         glm::vec2 mousePos;
+        float cursorDepthInThisFrame;
+        float cursorDepthInLastFrame; // to cover scenario in which items/panels are overlapping
+
+        bool hover(const glm::vec4& poly, float depth){
+            bool hasHover = (mousePos.x>=poly.x and mousePos.x <=poly.x+poly.z) and (mousePos.y >=poly.y and mousePos.y <=poly.y+poly.w);
+            if(hasHover and depth >= cursorDepthInLastFrame){
+                cursorDepthInThisFrame = depth;
+                return true;
+            }
+            return false;
+        }
 
         void defaultOn(){
             main.position = mousePos;
@@ -54,6 +71,7 @@ public:
     }
 
     Panel& newFixedPanel();
+    Panel& instantiateNewFixedPanel();
     void finishPanel(Panel*);
 
     void restart();

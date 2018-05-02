@@ -5,15 +5,28 @@
 #include "Assets.hpp"
 #include "PerfTimers.hpp"
 
-void UIRender::depthPrepass(RenderedUIItems& ui){}
+void UIRender::depthPrepass(RenderedUIItems& ui){
 
-template<>
-void UIRender::render(std::vector<RenderedUIItems::Background>& backgrounds){
-    auto shader = assets::getShader("ui-panel-background");
+    gl::BindFramebuffer(gl::FRAMEBUFFER, m_context.fbo.full);
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, m_context.tex.gbuffer.depth.ID, 0);
+    gl::DrawBuffers(0, &m_context.fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, m_window.size.x, m_window.size.y);
+    gl::ClearDepth(1);
+    gl::Clear(gl::DEPTH_BUFFER_BIT);
+
+    gl::DepthMask(gl::TRUE_);
+    gl::Enable(gl::DEPTH_TEST);
+    gl::DepthFunc(gl::LEQUAL);
+    gl::DepthRange(0.0f, 1.0f);
+    gl::Disable(gl::BLEND);
+
+    auto& backgrounds = ui.get<RenderedUIItems::Background>();
+    std::sort(backgrounds.begin(), backgrounds.end(), [](const auto& a, const auto& b){return a.depth < b.depth;});
+
+    auto shader = assets::getShader("ui-panel-background-depth");
     shader.bind();
     shader.uniform("uWidth", m_window.size.x);
     shader.uniform("uHeight", m_window.size.y);
-
 
     m_context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
     m_context.getRandomBuffer().update(backgrounds)
@@ -22,7 +35,18 @@ void UIRender::render(std::vector<RenderedUIItems::Background>& backgrounds){
         .attrib(3).pointer_float(1, sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, depth)).divisor(1)
         .attrib(4).pointer_color(sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, color)).divisor(1);
 
-    gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, backgrounds.size()); // TODO: check if simple draw arrays wouldn't be faster
+    gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, backgrounds.size());
+    m_context.errors();
+}
+
+template<>
+void UIRender::render(std::vector<RenderedUIItems::Background>& backgrounds){
+    auto shader = assets::getShader("ui-panel-background");
+    shader.bind();
+    shader.uniform("uWidth", m_window.size.x);
+    shader.uniform("uHeight", m_window.size.y);
+
+    gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, backgrounds.size());
     m_context.errors();
 
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
@@ -33,6 +57,32 @@ void UIRender::render(std::vector<RenderedUIItems::Background>& backgrounds){
     gl::DisableVertexAttribArray(4);
 
     backgrounds.clear();
+}
+
+template<>
+void UIRender::render(std::vector<RenderedUIItems::ColoredBox>& coloredBoxes){
+    auto shader = assets::getShader("ui-panel-coloredPolygon");
+    shader.bind();
+    shader.uniform("uWidth", m_window.size.x);
+    shader.uniform("uHeight", m_window.size.y);
+
+    m_context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
+    m_context.getRandomBuffer().update(coloredBoxes)
+        .attrib(1).pointer_float(4, sizeof(RenderedUIItems::ColoredBox), (void*)offsetof(RenderedUIItems::ColoredBox, box)).divisor(1)
+        .attrib(2).pointer_float(1, sizeof(RenderedUIItems::ColoredBox), (void*)offsetof(RenderedUIItems::ColoredBox, depth)).divisor(1)
+        .attrib(3).pointer_color(sizeof(RenderedUIItems::ColoredBox), (void*)offsetof(RenderedUIItems::ColoredBox, color)).divisor(1);
+
+    gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, coloredBoxes.size());
+    m_context.errors();
+
+    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+
+    gl::DisableVertexAttribArray(1);
+    gl::DisableVertexAttribArray(2);
+    gl::DisableVertexAttribArray(3);
+    gl::DisableVertexAttribArray(4);
+
+    coloredBoxes.clear();
 }
 
 template<>
@@ -66,22 +116,32 @@ void UIRender::render(std::vector<Text::Rendered>& text){
 }
 
 void UIRender::render(RenderedUIItems& ui){
-    // TODO: please rename this functions
-    m_context.setupFBO_11_depth(m_context.tex.full.a);
     m_context.defaultVAO.bind();
-    gl::ClearColor(0.f, 0.f, 0.f, 0.f);
-    gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
-
-    gl::DepthMask(gl::TRUE_);
-    gl::Enable(gl::DEPTH_TEST);
-    gl::Disable(gl::BLEND);
-
+    // for all renderable objects(polygons) render depth
     depthPrepass(ui);
-    render(ui.get<RenderedUIItems::Background>());
+
+    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, m_context.fbo.full);
+    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, m_context.tex.full.a.ID, 0);
+    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, m_context.tex.gbuffer.depth.ID, 0);
+    gl::DrawBuffers(1, &m_context.fbo.drawBuffers[0]);
+    gl::Viewport(0, 0, m_window.size.x, m_window.size.y);
+
+    gl::ClearColor(0.f, 0.f, 0.f, 0.f);
+    gl::Clear(gl::COLOR_BUFFER_BIT);
+
 
     gl::DepthMask(gl::FALSE_);
+    gl::Disable(gl::DEPTH_TEST);
     gl::Enable(gl::BLEND);
     gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+
+    // render panel backgrounds, sorted, without depth test
+    render(ui.get<RenderedUIItems::Background>());
+
+    gl::Enable(gl::DEPTH_TEST);
+    // render as-is with depth enabled
+    render(ui.get<RenderedUIItems::ColoredBox>());
+    // render the rest with depth test
     render(ui.get<Text::Rendered>());
 
 

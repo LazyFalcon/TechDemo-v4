@@ -46,6 +46,11 @@ Layout& Layout::toLeft(){
 
     return *this;
 }
+Layout& Layout::dummy(){
+    feedback = [](glm::vec4 item){return glm::vec4(0);};
+    calcPosition = [](glm::vec4 item){return glm::vec4(0);};
+    return *this;
+}
 
 // align, domyślnie środek
 

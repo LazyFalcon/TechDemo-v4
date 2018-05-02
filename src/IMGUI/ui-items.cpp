@@ -61,8 +61,11 @@ Item& Item::text(const std::string& text){
 }
 
 bool Item::isDefaultPressed(){
-    return m_ui.input.main.pressed(m_size);
+    return m_ui.input.main.pressed(m_size, m_depth);
 }
 bool Item::isAlternatePressed(){
-    return m_ui.input.alternate.pressed(m_size);
+    return m_ui.input.alternate.pressed(m_size, m_depth);
+}
+bool Item::isHover(){
+    return m_ui.input.hover(m_size, m_depth);
 }

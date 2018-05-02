@@ -25,6 +25,7 @@ public:
     Layout& toDown();
     Layout& toRight();
     Layout& toLeft();
+    Layout& dummy();
 
     /*  ______<w>_______
         |               |

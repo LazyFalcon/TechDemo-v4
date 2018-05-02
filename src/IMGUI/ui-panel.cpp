@@ -6,26 +6,28 @@ void Panel::operator()(){
     // m_parent->finishChildWidget(m_size);
     // tu powinien odpalić się styler, używany jako
     m_background.box = m_size;
-    m_background.depth = 0;
+    m_background.depth = m_depth;
     m_style->render(*this);
     m_imgui.finishPanel(this);
 }
 
 
 Panel& Panel::newFixedPanel(){
-    auto& p = m_imgui.newFixedPanel();
-    // może niech layout ustawia tu odpowiednio, i niech ustalnaie rozmiaru odbywa się potem?
+    m_childCount++;
+    clog("New panel:", m_childCount);
+    auto& p = m_imgui.instantiateNewFixedPanel();
+    p.m_depth = m_depth + 0.1f*m_childCount;
     p.m_size = m_layout.calcPosition({}); // now we will receive position, size have to be filler later,\
      no idea how it will be calculater, but doesn't care
-
     return p;
 }
 
 Panel& Panel::newFixedPanel(int w, int h){
-    auto& p = m_imgui.newFixedPanel();
-    // może niech layout ustawia tu odpowiednio, i niech ustalnaie rozmiaru odbywa się potem?
-    p.m_size = m_layout.calcPosition({0,0,w,h}); // now we will receive position depend on provided size
+    m_childCount++;
+    auto& p = m_imgui.instantiateNewFixedPanel();
+    p.m_depth = m_depth + 0.1f*m_childCount;
 
+    p.m_size = m_layout.calcPosition({0,0,w,h}); // now we will receive position depend on provided size
     return p;
 }
 
@@ -80,7 +82,7 @@ Panel& Panel::color(u32 c){
 
 
 Item Panel::button(){
-    Item i(m_imgui, *this);
+    Item i(m_imgui, *this, m_depth+0.0001f);
 
     return i;
 }

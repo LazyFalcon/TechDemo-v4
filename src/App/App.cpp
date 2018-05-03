@@ -144,6 +144,9 @@ void App::initializeInputHandler(){
     inputContext.setAction("MousePosition", "ui mouse", [this](float x, float y){
         imgui->input.mousePos = glm::vec2(x,y);
     });
+    inputContext.setAction("MouseMove", "ui mouse", [this](float x, float y){
+        imgui->input.mouseTranslation = glm::vec2(x,y) * window->size*2.f;
+    });
 
     inputContext.activate();
 }

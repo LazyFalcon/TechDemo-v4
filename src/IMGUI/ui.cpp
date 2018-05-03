@@ -31,6 +31,8 @@ void Imgui::restart(){
     input.alternate.off = false;
 
     input.cursorDepthInLastFrame = input.cursorDepthInThisFrame;
+    input.cursorDepthInThisFrame = 0;
+    input.mouseTranslation = glm::vec2(0);
 
     // recreate window panel, easier than reset function
     m_panelStack.clear();

@@ -15,5 +15,6 @@ public:
     Styler(RenderedUIItems& renderedUiContainer) : m_renderedUiItems(renderedUiContainer) {}
     void render(Panel& panel);
     void render(Item& item);
+    void renderSlider(Item& item, float ratio);
     void renderText(Item& item, const std::string& text);
 };

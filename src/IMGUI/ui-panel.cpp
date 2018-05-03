@@ -7,6 +7,7 @@ void Panel::operator()(){
     // tu powinien odpalić się styler, używany jako
     m_background.box = m_size;
     m_background.depth = m_depth;
+    m_imgui.input.hover(m_size, m_depth);
     m_style->render(*this);
     m_imgui.finishPanel(this);
 }
@@ -16,7 +17,7 @@ Panel& Panel::newFixedPanel(){
     m_childCount++;
     clog("New panel:", m_childCount);
     auto& p = m_imgui.instantiateNewFixedPanel();
-    p.m_depth = m_depth + 0.1f*m_childCount;
+    p.m_depth = m_depth + 0.1f + 0.001f*m_childCount;
     p.m_size = m_layout.calcPosition({}); // now we will receive position, size have to be filler later,\
      no idea how it will be calculater, but doesn't care
     return p;
@@ -25,7 +26,7 @@ Panel& Panel::newFixedPanel(){
 Panel& Panel::newFixedPanel(int w, int h){
     m_childCount++;
     auto& p = m_imgui.instantiateNewFixedPanel();
-    p.m_depth = m_depth + 0.1f*m_childCount;
+    p.m_depth = m_depth + 0.1f + 0.001f*m_childCount;
 
     p.m_size = m_layout.calcPosition({0,0,w,h}); // now we will receive position depend on provided size
     return p;
@@ -82,7 +83,13 @@ Panel& Panel::color(u32 c){
 
 
 Item Panel::button(){
-    Item i(m_imgui, *this, m_depth+0.0001f);
+    Item i(Item::Button, m_imgui, *this, m_depth+0.0001f);
+
+    return i;
+}
+
+Item Panel::slider(){
+    Item i(Item::Slider, m_imgui, *this, m_depth+0.0001f);
 
     return i;
 }

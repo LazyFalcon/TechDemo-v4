@@ -55,6 +55,7 @@ public:
 
     // create items
     Item button();
+    Item slider();
 
 private:
     friend Styler;

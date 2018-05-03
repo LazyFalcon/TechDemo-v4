@@ -10,7 +10,11 @@ class Styler;
 class Item
 {
 public:
-    Item(Imgui& ui, Panel& p, float depth) : m_ui(ui), m_panel(p), m_depth(depth){}
+    enum ItemType {
+        Button, Slider, TextOnly
+    };
+
+    Item(ItemType i, Imgui& ui, Panel& p, float depth) : m_type(i), m_ui(ui), m_panel(p), m_depth(depth){}
     // positioning
     Item& x(i32 i);
     Item& x(float i);
@@ -21,8 +25,11 @@ public:
     Item& h(i32 i);
     Item& h(float i);
 
-    // injects Utrm to panel, collects input, calculates bounding box and renders item
+    // finishing functions
+    // injects Item to panel, collects input, calculates bounding box and renders item
     Item& operator()();
+    // for slider item
+    Item& operator()(float& value, float min, float max);
 
     //
     Item& font(const std::string& f){
@@ -45,27 +52,29 @@ public:
     // default for LLM actions, unfortunately default is restricted keyword
     template<typename Callback>
     Item& action(Callback&& c){
-        if(isDefaultPressed()) c();
+        if(m_hovered and isDefaultPressed()) c();
         return *this;
     }
     template<typename Callback>
     Item& alternate(Callback&& c){
-        if(isAlternatePressed()) c();
+        if(m_hovered and isAlternatePressed()) c();
         return *this;
     }
     template<typename Callback>
     Item& hover(Callback&& c){
-        if(isHover()) c();
+        if(m_hovered and isHover()) c();
         return *this;
     }
 
 private:
     friend Styler;
+    ItemType m_type;
     glm::vec4 m_size{};
     Imgui& m_ui;
     Panel& m_panel;
 
     float m_depth;
+    bool m_hovered;
 
     std::optional<i32> m_keyPressed;
     std::optional<i32> m_image;

@@ -16,15 +16,20 @@ private:
     std::unique_ptr<RenderedUIItems> m_renderedUIItems;
 public:
     struct {
+        enum ItemAction {
+            None, Hover, Default, Alternate
+        };
         struct Action {
             std::optional<glm::vec2> position;
             bool on;
             bool off;
+            float layer;
+            // checks against position from initial click
             bool pressedOn(const glm::vec4& poly, float depth){
-                return position and on and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
+                return position and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
             }
             bool pressedOff(const glm::vec4& poly, float depth){
-                return position and off and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
+                return position and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
             }
             bool pressed(const glm::vec4& poly, float depth){
                 return pressedOff(poly, depth);
@@ -32,9 +37,11 @@ public:
         } main, alternate;
 
         glm::vec2 mousePos;
+        glm::vec2 mouseTranslation;
         float cursorDepthInThisFrame;
         float cursorDepthInLastFrame; // to cover scenario in which items/panels are overlapping
 
+        // checks agains layer and current mouse position
         bool hover(const glm::vec4& poly, float depth){
             bool hasHover = (mousePos.x>=poly.x and mousePos.x <=poly.x+poly.z) and (mousePos.y >=poly.y and mousePos.y <=poly.y+poly.w);
             if(hasHover and depth >= cursorDepthInLastFrame){
@@ -47,6 +54,7 @@ public:
         void defaultOn(){
             main.position = mousePos;
             main.on = true;
+            main.layer = cursorDepthInLastFrame;
         }
         void defaultOff(){ if(main.position){
             main.off = true;
@@ -54,6 +62,7 @@ public:
         void alternateOn(){
             alternate.position = mousePos;
             alternate.on = true;
+            alternate.layer = cursorDepthInLastFrame;
         }
         void alternateOff(){ if(alternate.position){
             alternate.off = true;
@@ -62,6 +71,7 @@ public:
     } input;
 
     Styler basicStyle;
+    void* editedValue {nullptr}; // not for reading from, only to compare edited variables
 
     Imgui(i32 width, i32 height, const std::string& name = "default");
     ~Imgui();

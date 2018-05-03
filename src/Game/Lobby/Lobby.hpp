@@ -9,7 +9,7 @@ class Imgui;
 struct LobbyViewState
 {
     ~LobbyViewState() = default;
-    virtual void render(Imgui& ui) = 0;
+    virtual void run(Imgui&, float) = 0;
 };
 
 class Lobby : public GameState

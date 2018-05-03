@@ -44,7 +44,7 @@ public:
     Panel& y(i32);
 
     i32 getRelative(i32 idx, float rel){
-        return m_size[idx] * rel;
+        return rel <= 1.f and rel >= -1.f ? m_size[idx] * rel : rel;
     }
 
     // apperance

@@ -9,30 +9,78 @@
 
 struct MainLobbyViewState : public LobbyViewState
 {
-    float toSlide {45.f};
-    void render(Imgui& ui){
-        // ui.panel().image("Logo").position(0.f, 1.f)();
-        {
-            auto& panel = ui.newFixedPanel()
-                .width(350).height(1.f)
-                .x(-450).y(0)
-                .fill().color(0x6D3A31d0);
-            panel.layout().toDown();
-            panel.button().y(0.6f).w(0.9f).h(44)().formatting(Text::Centered).text("New Game");
-            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Continue");
-            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Settings");
-            panel.slider().w(0.9f).h(44)(toSlide, 0.f, 100.f).formatting(Text::Centered).text("Volume " + toString(floor(toSlide)));
-            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Credits").action([]{
-                log("Credits? Me! Lazy Falcon!");
-            });
-            panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Exit").action([]{
-                event<ExitGame>();
-            });
-            panel();
+private:
+    std::function<void(void)> m_callAfterTransition;
+    enum State {
+        FadeIn, Main, FadeOut
+    };
+    State m_state;
+    const float fadeTime = 0.2f * 1000;
 
-        }
-
+    void fadeIn(){
+        m_state = FadeIn;
+        m_timer = fadeTime;
     }
+    void fadeOut(std::function<void(void)> f){
+        m_state = FadeOut;
+        m_timer = fadeTime;
+        m_callAfterTransition = f;
+    }
+
+    void render(Imgui& ui, float startPosition){
+        // ui.panel().image("Logo").position(0.f, 1.f)();
+        auto& panel = ui.newFixedPanel()
+            .width(350).height(1.f)
+            .x(startPosition).y(0)
+            // .x(-450).y(0)
+            .fill().color(0x6D3A31d0);
+        panel.layout().toDown();
+        panel.button().y(0.6f).w(0.9f).h(44)().formatting(Text::Centered).text("New Game");
+        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Continue");
+        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Settings");
+        panel.slider().w(0.9f).h(44)(toSlide, 0.f, 100.f).formatting(Text::Centered).text("Volume " + toString(floor(toSlide)));
+        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Credits").action([this]{
+            fadeOut([]{log("Credits? Me! Lazy Falcon!");});
+        });
+        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Exit").action([this]{
+            fadeOut([]{event<ExitGame>();});
+        });
+        panel();
+    }
+
+    float toSlide {45.f};
+    float m_timer;
+public:
+    MainLobbyViewState(){
+        fadeIn();
+    }
+    void run(Imgui& ui, float dt) override {
+        float pos = -450.f;
+        switch(m_state){
+            case FadeIn : {
+                m_timer -= dt;
+                if(m_timer < 0.f) m_state = Main;
+
+                pos = -1 - 450 * (1-m_timer / fadeTime);
+
+                break;
+            }
+            case Main : {break;}
+            case FadeOut : {
+                m_timer -= dt;
+                if(m_timer < 0.f){
+                    m_state = Main;
+                    m_callAfterTransition();
+                }
+
+                pos = -450 + 449 * (1-m_timer / fadeTime);
+
+                break;
+            }
+        }
+        render(ui, pos);
+    }
+
 };
 
 Lobby::Lobby(Imgui& ui, InputContextHandler &parentInput): m_ui(ui), m_input(parentInput.derive("Lobby")){
@@ -42,7 +90,7 @@ Lobby::Lobby(Imgui& ui, InputContextHandler &parentInput): m_ui(ui), m_input(par
 
 void Lobby::update(float dt){
     // m_ui.update();
-    m_view->render(m_ui);
+    m_view->run(m_ui, dt);
 
 }
 void Lobby::updateWithHighPrecision(float dt){}

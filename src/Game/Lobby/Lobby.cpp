@@ -15,7 +15,7 @@ private:
         FadeIn, Main, FadeOut
     };
     State m_state;
-    const float fadeTime = 0.2f * 1000;
+    const float fadeTime = 0.1f * 1000;
 
     void fadeIn(){
         m_state = FadeIn;
@@ -61,7 +61,7 @@ public:
                 m_timer -= dt;
                 if(m_timer < 0.f) m_state = Main;
 
-                pos = -1 - 450 * (1-m_timer / fadeTime);
+                pos = -1 - 450 * glm::smoothstep(0.f, 1.f, 1-m_timer / fadeTime);
 
                 break;
             }
@@ -73,7 +73,7 @@ public:
                     m_callAfterTransition();
                 }
 
-                pos = -450 + 449 * (1-m_timer / fadeTime);
+                pos = -450 + 449 * glm::smoothstep(0.f, 1.f, 1-m_timer / fadeTime);
 
                 break;
             }

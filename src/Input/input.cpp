@@ -14,7 +14,6 @@ bool Input::execute(int k, int a, int m){
         it->second();
         anyExecuted = true;
     }
-    if(parent) anyExecuted = parent->execute(k, a, m);
     return anyExecuted;
 }
 bool Input::executeTwoArgs(int arg, float x, float y){
@@ -24,12 +23,11 @@ bool Input::executeTwoArgs(int arg, float x, float y){
         it->second(x, y);
         anyExecuted = true;
     }
-    if(parent) parent->executeTwoArgs(arg, x, y);
     return anyExecuted;
 }
 
 void Input::setAction(const std::string &actionName, Lambda onEnter, Lambda onExit){
-    auto keys = inputDispatcher.getBinding(actionName);
+    auto keys = inputDispatcher.getPredefiniedBinding(actionName);
     for(auto it = keys.first; it != keys.second; ++it){
         setAction(actionName, it->second, onEnter, onExit);
     }
@@ -52,22 +50,8 @@ void Input::setAction(const std::string &binding, const std::string &name, Lambd
     actions2f.emplace(keys.key, Action2F{name, function});
 }
 void Input::activate(){
-    lastActive = inputDispatcher.active;
-    inputDispatcher.active = this;
+    active = true;
 }
-// TODO: add check if last active exists
-// TODO: also deactivate children
 void Input::deactivate(){
-    if(inputDispatcher.active == this){
-        inputDispatcher.active = lastActive;
-        // inputDispatcher.active -> activate(); ??
-    }
-}
-std::shared_ptr<Input> Input::derive(const std::string& newName){
-    auto child = std::make_shared<Input>(inputDispatcher, newName);
-
-    child->parent = this;
-    children.push_back(child);
-
-    return child;
+    active = false;
 }

@@ -6,6 +6,8 @@
 #include "ui-text.hpp"
 #include "Logging.hpp"
 #include "LobbyEvents.hpp"
+#include "input-dispatcher.hpp"
+#include "input.hpp"
 
 struct MainLobbyViewState : public LobbyViewState
 {
@@ -40,7 +42,7 @@ private:
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Settings");
         panel.slider().w(0.9f).h(44)(toSlide, 0.f, 100.f).formatting(Text::Centered).text("Volume " + toString(floor(toSlide)));
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Credits").action([this]{
-            fadeOut([]{log("Credits? Me! Lazy Falcon!");});
+            fadeOut([this]{log("Credits? Me! Lazy Falcon!");fadeIn();});
         });
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Exit").action([this]{
             fadeOut([]{event<ExitGame>();});
@@ -83,7 +85,7 @@ public:
 
 };
 
-Lobby::Lobby(Imgui& ui, Input &parentInput): m_ui(ui), m_input(parentInput.derive("Lobby")){
+Lobby::Lobby(Imgui& ui, InputDispatcher& inputDispatcher): m_ui(ui), m_input(inputDispatcher.createNew("Lobby")){
     m_view = std::make_unique<MainLobbyViewState>();
     m_input->activate();
 }

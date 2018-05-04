@@ -4,6 +4,12 @@
 #include "input.hpp"
 #include "Logging.hpp"
 
+
+std::shared_ptr<Input> InputDispatcher::createNew(const std::string& name){
+    m_activeIputHandlers.emplace_back(std::make_shared<Input>(*this, name));
+    return m_activeIputHandlers.back();
+}
+
 // passes input to active context, and recursive to its parents
 void InputDispatcher::execute(int k, int a, int m){
     if(a != GLFW_PRESS and a != GLFW_RELEASE) return; /// GLFW_REPEAT is handled internally in funcion refresh as default behaviour for repeating keys sucks
@@ -16,17 +22,19 @@ void InputDispatcher::execute(int k, int a, int m){
     }
 
     currentModifierKey = m;
-    active->execute(k, a, m);
+    for(auto& i : m_activeIputHandlers)
+        if(i->active) i->execute(k, a, m);
 }
 
-void InputDispatcher::setBinding(const std::string& combination){
+void InputDispatcher::setPredefiniedBinding(const std::string& combination){
     auto funcAndKeys = splitToFunctionAndKeys(combination);
     configuredActions.emplace(funcAndKeys.first, funcAndKeys.second);
 }
 
 void InputDispatcher::refresh(){
     for(auto &it : currentlyPressedKeys){
-        active->execute(it, GLFW_REPEAT, currentModifierKey);
+        for(auto& i : m_activeIputHandlers)
+            if(i->active) i->execute(it, GLFW_REPEAT, currentModifierKey);
     }
 }
 void InputDispatcher::scrollCallback(double dx, double dy){
@@ -45,9 +53,11 @@ void InputDispatcher::mouseButtonCallback(int button, int action, int mods){
     execute(button, action, mods);
 }
 void InputDispatcher::mousePosition(float x, float y){
-    active->executeTwoArgs(MousePosition, x, y);
+    for(auto& i : m_activeIputHandlers)
+        if(i->active) i->executeTwoArgs(MousePosition, x, y);
 }
 void InputDispatcher::mouseMovement(float x, float y){
-    active->executeTwoArgs(MouseMove, x, y);
+    for(auto& i : m_activeIputHandlers)
+        if(i->active) i->executeTwoArgs(MouseMove, x, y);
 }
 void InputDispatcher::joyPadDispatch(){}

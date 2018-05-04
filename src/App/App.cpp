@@ -2,25 +2,20 @@
 
 #include "common.hpp"
 #include "App.hpp"
-// #include "Events.hpp"
+#include "DebugScreen.hpp"
 #include "EventProcessor.hpp"
 #include "GameState.hpp"
-#include "Settings.hpp"
 #include "GraphicEngine.hpp"
-// #include "KeyState.hpp" // TODO: Remove
+#include "input-dispatcher.hpp"
+#include "input.hpp"
 #include "Logging.hpp"
 #include "PerfTimers.hpp"
 #include "ResourceLoader.hpp"
+#include "Settings.hpp"
 #include "Timer.hpp"
+#include "ui.hpp"
 #include "Window.hpp"
 #include "Yaml.hpp"
-#include "DebugScreen.hpp"
-#include "ui.hpp"
-#include "input.hpp"
-// #include "PhysicsWorld.hpp"
-// #include "ParticleProcessor.hpp"
-
-// #include "UIUpdater.hpp"
 
 bool CLOG_SPECIAL_VALUE = false;
 bool CLOG_SPECIAL_VALUE_2 = false;
@@ -34,10 +29,9 @@ bool ALT_MODE = false;
 bool SHIFT_MODE = false;
 bool CTRL_MODE = false;
 
-glm::vec2 App::lastCursorPos;
 App* App::self = nullptr;
 
-App::App() : input(std::make_shared<Input>(inputDispatcher)), settings(std::make_unique<Settings>()){
+App::App() : inputDispatcher(std::make_unique<InputDispatcher>()), input(inputDispatcher->createNew("App")), settings(std::make_unique<Settings>()){
     self = this;
 }
 App::~App(){
@@ -196,7 +190,7 @@ void App::run() try {
         imgui->restart();
 
         glfwPollEvents();
-        inputDispatcher.refresh();
+        inputDispatcher->refresh();
 
         fixedStepLoopAccumulator += dt;
         while(fixedStepLoopAccumulator > 0.f and not quit){
@@ -254,29 +248,29 @@ void App::showMouse(){
 }
 
 void App::scrollCallback(GLFWwindow *w, double dx, double dy){
-    self->inputDispatcher.scrollCallback(dx, dy);
+    self->inputDispatcher->scrollCallback(dx, dy);
 }
 void App::keyCallback(GLFWwindow *w, int key, int scancode, int action, int mods){
-    self->inputDispatcher.keyCallback(key, action, mods);
+    self->inputDispatcher->keyCallback(key, action, mods);
 }
 void App::mouseButtonCallback(GLFWwindow *w, int button, int action, int mods){
     // if(not KeyState::mouseReset) self->uiUpdater->setMouseAction(button, action);
-    self->inputDispatcher.mouseButtonCallback(button, action, mods);
+    self->inputDispatcher->mouseButtonCallback(button, action, mods);
 }
 void App::cursorPosCallback(GLFWwindow *w, double xpos, double ypos){
     // if(not KeyState::mouseReset) self->uiUpdater->setMousePosition(xpos, ypos);
     auto size = self->window->size;
 
-    auto last = lastCursorPos;
-    lastCursorPos = glm::vec2(xpos, size.y -  ypos);
-    float dx = (lastCursorPos.x - last.x) / size.x * 0.5f;
-    float dy = -(lastCursorPos.y - last.y) / size.y * 0.5f;
+    auto last = self->lastCursorPos;
+    self->lastCursorPos = glm::vec2(xpos, size.y -  ypos);
+    float dx = (self->lastCursorPos.x - last.x) / size.x * 0.5f;
+    float dy = -(self->lastCursorPos.y - last.y) / size.y * 0.5f;
 
     float x = xpos;
     float y = size.y - ypos;
 
-    self->inputDispatcher.mousePosition(x, y);
-    self->inputDispatcher.mouseMovement(dx, dy);
+    self->inputDispatcher->mousePosition(x, y);
+    self->inputDispatcher->mouseMovement(dx, dy);
 }
 void App::exitCallback(GLFWwindow *w){
     self->quit = true;

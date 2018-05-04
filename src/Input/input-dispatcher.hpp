@@ -11,14 +11,14 @@ class InputDispatcher
 private:
     std::multimap<std::string, std::string> configuredActions;
     std::list<int> currentlyPressedKeys;
+    std::vector<std::shared_ptr<Input>> m_activeIputHandlers;
     int currentModifierKey;
 public:
-    std::shared_ptr<Input> root;
-    Input *active;
+    std::shared_ptr<Input> createNew(const std::string&);
 
-    void setBinding(const std::string& combination);
+    void setPredefiniedBinding(const std::string& combination);
 
-    auto getBinding(const std::string& function) -> decltype(configuredActions.equal_range(function)){
+    auto getPredefiniedBinding(const std::string& function) -> decltype(configuredActions.equal_range(function)){
         return configuredActions.equal_range(function);
     }
 

@@ -1,6 +1,5 @@
 #pragma once
-#include <memory>
-#include "input-dispatcher.hpp"
+#include "common.hpp"
 
 class DebugScreen;
 class EventProcessor;
@@ -8,12 +7,13 @@ class GameState;
 class GLFWwindow;
 class GraphicEngine;
 class IAudio;
+class Imgui;
+class Input;
+class InputDispatcher;
 class ParticleProcessor;
 class PhysicsWorld;
 class Settings;
 class Window;
-class Imgui;
-class Input;
 
 class App
 {
@@ -31,12 +31,12 @@ public:
     // std::unique_ptr<PhysicsWorld> physics;
     // std::unique_ptr<UI::Updater> uiUpdater;
     std::unique_ptr<Imgui> imgui;
-    InputDispatcher inputDispatcher;
+    std::unique_ptr<InputDispatcher> inputDispatcher;
     std::shared_ptr<Input> input;
     std::unique_ptr<Settings> settings;
 
     bool quit {false};
-    static glm::vec2 lastCursorPos;
+    glm::vec2 lastCursorPos;
     App();
     ~App();
 

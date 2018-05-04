@@ -1,7 +1,5 @@
 #pragma once
 #include "common.hpp"
-#include <map>
-#include <memory>
 
 using Lambda = std::function<void(void)>;
 using Lambda2F = std::function<void(float,float)>;
@@ -35,8 +33,6 @@ private:
     std::multimap<u32, Action> actions;
     std::multimap<u32, Action2F> actions2f;
     InputDispatcher& inputDispatcher;
-    Input* lastActive {nullptr}; // when context will be released, it will be returned to this
-    Input* parent {nullptr};
     std::vector<std::shared_ptr<Input>> children;
     std::string name;
 public:
@@ -48,10 +44,8 @@ public:
     void setAction(const std::string &binding, const std::string &name, Lambda2F function);
     void activate();
     void deactivate();
-    std::shared_ptr<Input> derive(const std::string& newName);
-    InputDispatcher& getHandler(){
-        return inputDispatcher;
-    }
+
+    bool active {false};
 };
 
 using InputContextPtr = std::shared_ptr<Input>;

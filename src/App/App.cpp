@@ -16,6 +16,7 @@
 #include "Yaml.hpp"
 #include "DebugScreen.hpp"
 #include "ui.hpp"
+#include "input.hpp"
 // #include "PhysicsWorld.hpp"
 // #include "ParticleProcessor.hpp"
 
@@ -36,7 +37,7 @@ bool CTRL_MODE = false;
 glm::vec2 App::lastCursorPos;
 App* App::self = nullptr;
 
-App::App() : inputContext(inputHandler), settings(std::make_unique<Settings>()){
+App::App() : input(std::make_shared<Input>(inputDispatcher)), settings(std::make_unique<Settings>()){
     self = this;
 }
 App::~App(){
@@ -53,7 +54,7 @@ bool App::initialize(){
 
     glfwSetWindowUserPointer(window->window, this);
 
-    initializeInputHandler();
+    initializeInputDispatcher();
 
     // uiUpdater = std::make_unique<UI::Updater>(*window);
     imgui = std::make_unique<Imgui>(window->size.x, window->size.y);
@@ -74,20 +75,20 @@ bool App::initialize(){
 
     return true;
 }
-void App::initializeInputHandler(){
-    inputContext.setAction("LMB", "default LMB", [this]{
+void App::initializeInputDispatcher(){
+    input->setAction("LMB", "default LMB", [this]{
             imgui->input.defaultOn();
         }, [this]{
             imgui->input.defaultOff();
             // KeyState::lClicked = false;
         });
-    inputContext.setAction("MMB", "default MMB", [this]{
+    input->setAction("MMB", "default MMB", [this]{
             // KeyState::rClicked = true;
             // KeyState::rClick = true;
         }, []{
             // KeyState::rClicked = false;
         });
-    inputContext.setAction("RMB", "default RMB", [this]{
+    input->setAction("RMB", "default RMB", [this]{
             imgui->input.alternateOn();
             // KeyState::mClicked = true;
             // KeyState::mClick = true;
@@ -96,31 +97,31 @@ void App::initializeInputHandler(){
             // KeyState::mClicked = false;
         });
 
-    inputContext.setAction("printScreen", "", []{ TAKE_SCREENSHOT = true; });
-    inputContext.setAction("alt", "", []{ ALT_MODE = true; }, []{ ALT_MODE = false; });
-    inputContext.setAction("shift", "", []{ SHIFT_MODE = true; }, []{ SHIFT_MODE = false; });
-    inputContext.setAction("ctrl", "", []{ CTRL_MODE = true; }, []{ CTRL_MODE = false; });
-    inputContext.setAction("f4", "exit", [this]{ if(ALT_MODE) quit = true; });
-    inputContext.setAction("esc", "exit", [this]{ quit = true; });
-    inputContext.setAction("f1", "help", []{ log("Helpful message"); });
-    inputContext.setAction("f10", "screenshot", []{ TAKE_SCREENSHOT = true; });
-    inputContext.setAction("f11", "debug", []{
+    input->setAction("printScreen", "", []{ TAKE_SCREENSHOT = true; });
+    input->setAction("alt", "", []{ ALT_MODE = true; }, []{ ALT_MODE = false; });
+    input->setAction("shift", "", []{ SHIFT_MODE = true; }, []{ SHIFT_MODE = false; });
+    input->setAction("ctrl", "", []{ CTRL_MODE = true; }, []{ CTRL_MODE = false; });
+    input->setAction("f4", "exit", [this]{ if(ALT_MODE) quit = true; });
+    input->setAction("esc", "exit", [this]{ quit = true; });
+    input->setAction("f1", "help", []{ log("Helpful message"); });
+    input->setAction("f10", "screenshot", []{ TAKE_SCREENSHOT = true; });
+    input->setAction("f11", "debug", []{
             CLOG_SPECIAL_VALUE_3 != CLOG_SPECIAL_VALUE_3;
         });
-    inputContext.setAction("f12", "debug 2", []{
+    input->setAction("f12", "debug 2", []{
             CLOG_SPECIAL_VALUE = true;
             CLOG_SPECIAL_VALUE_2 = true;
             GpuTimerScoped::print();
         }, []{ CLOG_SPECIAL_VALUE_2 = false; });
-    inputContext.setAction("H", "Hide UI", []{ HIDE_UI = !HIDE_UI; });
-    inputContext.setAction("R", "Reload Shaders", []{
+    input->setAction("H", "Hide UI", []{ HIDE_UI = !HIDE_UI; });
+    input->setAction("R", "Reload Shaders", []{
             ResourceLoader loader;
             log("Reloading shaders");
             Yaml shadersToReload("../ShadersToReload.yml");
             for(auto &it : shadersToReload){
                 loader.reloadShader(it.string());
             }});
-    inputContext.setAction("ctrl", "hide ui", [this]{
+    input->setAction("ctrl", "hide ui", [this]{
             if(CURSOR_DISABLED){
                 glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 // KeyState::mouseReset = false;
@@ -131,7 +132,7 @@ void App::initializeInputHandler(){
                 // KeyState::mouseReset = true;
             }
             });
-    inputContext.setAction("f2", "hide cursor", [this]{
+    input->setAction("f2", "hide cursor", [this]{
             if(CURSOR_DISABLED){
                 glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 // KeyState::mouseReset = true;
@@ -141,14 +142,14 @@ void App::initializeInputHandler(){
             }
             CURSOR_DISABLED = !CURSOR_DISABLED;
         }, []{});
-    inputContext.setAction("MousePosition", "ui mouse", [this](float x, float y){
+    input->setAction("MousePosition", "ui mouse", [this](float x, float y){
         imgui->input.mousePos = glm::vec2(x,y);
     });
-    inputContext.setAction("MouseMove", "ui mouse", [this](float x, float y){
+    input->setAction("MouseMove", "ui mouse", [this](float x, float y){
         imgui->input.mouseTranslation = glm::vec2(x,y) * window->size*2.f;
     });
 
-    inputContext.activate();
+    input->activate();
 }
 
 void App::setCommonCallbacks(){
@@ -195,7 +196,7 @@ void App::run() try {
         imgui->restart();
 
         glfwPollEvents();
-        inputHandler.refresh();
+        inputDispatcher.refresh();
 
         fixedStepLoopAccumulator += dt;
         while(fixedStepLoopAccumulator > 0.f and not quit){
@@ -253,14 +254,14 @@ void App::showMouse(){
 }
 
 void App::scrollCallback(GLFWwindow *w, double dx, double dy){
-    self->inputHandler.scrollCallback(dx, dy);
+    self->inputDispatcher.scrollCallback(dx, dy);
 }
 void App::keyCallback(GLFWwindow *w, int key, int scancode, int action, int mods){
-    self->inputHandler.keyCallback(key, action, mods);
+    self->inputDispatcher.keyCallback(key, action, mods);
 }
 void App::mouseButtonCallback(GLFWwindow *w, int button, int action, int mods){
     // if(not KeyState::mouseReset) self->uiUpdater->setMouseAction(button, action);
-    self->inputHandler.mouseButtonCallback(button, action, mods);
+    self->inputDispatcher.mouseButtonCallback(button, action, mods);
 }
 void App::cursorPosCallback(GLFWwindow *w, double xpos, double ypos){
     // if(not KeyState::mouseReset) self->uiUpdater->setMousePosition(xpos, ypos);
@@ -274,8 +275,8 @@ void App::cursorPosCallback(GLFWwindow *w, double xpos, double ypos){
     float x = xpos;
     float y = size.y - ypos;
 
-    self->inputHandler.mousePosition(x, y);
-    self->inputHandler.mouseMovement(dx, dy);
+    self->inputDispatcher.mousePosition(x, y);
+    self->inputDispatcher.mouseMovement(dx, dy);
 }
 void App::exitCallback(GLFWwindow *w){
     self->quit = true;

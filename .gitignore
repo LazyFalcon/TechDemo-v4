@@ -79,11 +79,7 @@ PlayerSettings.yml
 res/
 userData/
 screenshots/
-src/InputHandler
 res/models/Garage_2.yml
-src/Utils/Camera_old.cpp
-src/Utils/Camera_old.h
-src/Utils/Camera_old.h.old
 html/
 doc/
 *.bat

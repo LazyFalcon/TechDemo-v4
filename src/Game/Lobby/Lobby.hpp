@@ -1,8 +1,8 @@
 #pragma once
 #include "GameState.hpp"
 #include "Scene.hpp"
-#include "InputHandler.hpp"
-#include "InputContextHandler.hpp"
+#include "input-dispatcher.hpp"
+#include "input.hpp"
 
 class Imgui;
 
@@ -20,7 +20,7 @@ private:
     Imgui& m_ui;
     std::unique_ptr<LobbyViewState> m_view;
 public:
-    Lobby(Imgui& ui, InputContextHandler& parentInput);
+    Lobby(Imgui& ui, Input& parentInput);
     void update(float dt);
     void updateWithHighPrecision(float dt);
     Scene& getScene();

@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
-#include "InputHandler.hpp"
-#include "InputContextHandler.hpp"
+#include "input-dispatcher.hpp"
 
 class DebugScreen;
 class EventProcessor;
@@ -14,11 +13,12 @@ class PhysicsWorld;
 class Settings;
 class Window;
 class Imgui;
+class Input;
 
 class App
 {
 private:
-    void initializeInputHandler();
+    void initializeInputDispatcher();
     std::unique_ptr<DebugScreen> debugScreen;
     static App* self;
 public:
@@ -31,8 +31,8 @@ public:
     // std::unique_ptr<PhysicsWorld> physics;
     // std::unique_ptr<UI::Updater> uiUpdater;
     std::unique_ptr<Imgui> imgui;
-    InputHandler inputHandler;
-    InputContextHandler inputContext;
+    InputDispatcher inputDispatcher;
+    std::shared_ptr<Input> input;
     std::unique_ptr<Settings> settings;
 
     bool quit {false};

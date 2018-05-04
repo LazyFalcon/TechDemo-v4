@@ -83,7 +83,7 @@ public:
 
 };
 
-Lobby::Lobby(Imgui& ui, InputContextHandler &parentInput): m_ui(ui), m_input(parentInput.derive("Lobby")){
+Lobby::Lobby(Imgui& ui, Input &parentInput): m_ui(ui), m_input(parentInput.derive("Lobby")){
     m_view = std::make_unique<MainLobbyViewState>();
     m_input->activate();
 }

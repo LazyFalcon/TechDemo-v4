@@ -1,13 +1,14 @@
 #include "Lobby.hpp"
-#include "ui.hpp"
-#include "GraphicEngine.hpp"
 #include "Context.hpp"
-#include "ui-renderer.hpp"
-#include "ui-text.hpp"
-#include "Logging.hpp"
-#include "LobbyEvents.hpp"
+#include "GraphicEngine.hpp"
 #include "input-dispatcher.hpp"
 #include "input.hpp"
+#include "LobbyEvents.hpp"
+#include "Logging.hpp"
+#include "RendererUtils.hpp"
+#include "ui-renderer.hpp"
+#include "ui-text.hpp"
+#include "ui.hpp"
 
 struct MainLobbyViewState : public LobbyViewState
 {
@@ -102,6 +103,7 @@ Scene&Lobby:: getScene(){
 void Lobby::renderProcedure(GraphicEngine& renderer){
     renderer.context->beginFrame();
     renderer.context->setupFramebufferForGBufferGeneration();
+    renderer.utils->drawBackground("nebula");
     renderer.uiRender->render(m_ui.getToRender());
     renderer.context->endFrame();
 }

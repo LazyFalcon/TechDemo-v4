@@ -15,6 +15,7 @@ private:
     i32 m_width, m_height;
     std::unique_ptr<RenderedUIItems> m_renderedUIItems;
 public:
+    // handling mouse actions for proper actions
     struct {
         enum ItemAction {
             None, Hover, Default, Alternate
@@ -84,10 +85,11 @@ public:
     Panel& instantiateNewFixedPanel();
     void finishPanel(Panel*);
 
+    // call on beginning of frame to cleanup states and conteners
+    // creates default, full screen panel
     void restart();
 
     void getKey(const glm::vec4& box){}
-
 
     RenderedUIItems& getToRender(){
         return *m_renderedUIItems;

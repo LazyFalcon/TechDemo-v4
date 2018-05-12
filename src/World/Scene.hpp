@@ -22,16 +22,16 @@ struct Scene
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
 
-    shared_ptr<Atmosphere> atmosphere;
-    shared_ptr<Environment> environment;
-    shared_ptr<Grass> grass;
-    shared_ptr<SceneGraph> graph;
-    shared_ptr<Sun> sun;
-    shared_ptr<Starfield> starfield;
-    shared_ptr<Terrain> terrain;
-    shared_ptr<Foliage> foliage;
+    std::shared_ptr<Atmosphere> atmosphere;
+    std::shared_ptr<Environment> environment;
+    std::shared_ptr<Grass> grass;
+    std::shared_ptr<SceneGraph> graph;
+    std::shared_ptr<Sun> sun;
+    std::shared_ptr<Starfield> starfield;
+    std::shared_ptr<Terrain> terrain;
+    std::shared_ptr<Foliage> foliage;
     PhysicsWorld *physics { nullptr };
-    shared_ptr<GeoTimePosition> geoTimePosition;
+    std::shared_ptr<GeoTimePosition> geoTimePosition;
 
     bool load(const std::string &name, Yaml &cfg);
     void update(float dt, Camera &camera);

@@ -256,7 +256,7 @@ void Foliage::update(glm::vec4 reference){
     // set owner of removed render data to 0
 
     for(auto &added : addedChunks){
-        if(not added->payload.foliageData) added->payload.foliageData = make_unique<FoliageData>();
+        if(not added->payload.foliageData) added->payload.foliageData = std::make_unique<FoliageData>();
         else continue;
         plantTrees(*added->payload.foliageData, *added, QT);
     }

@@ -2,14 +2,6 @@
 #include "Logging.hpp"
 #include <boost/filesystem.hpp>
 
-static const float pi = 3.141592f;
-static const float hpi = 0.5f * 3.141592f;
-static const float pi2 = 2.f * 3.141592f;
-static const double dpi = 3.141592653589793;
-static const double hdpi = 0.5 * 3.141592653589793;
-static const double sqdpi = 3.141592653589793 * 3.141592653589793;
-static const double dpi2 = 2.0 * 3.141592653589793;
-
 glm::vec4 colorHex(uint32_t hexVal){
     return glm::vec4(
          ((hexVal >> 24) & 0xFF) / 255.f,

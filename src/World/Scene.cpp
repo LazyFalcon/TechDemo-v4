@@ -33,18 +33,18 @@ bool Scene::load(const std::string &name, Yaml &cfg){
 
     Yaml settings("../SceneSettings.yml");
 
-    geoTimePosition = make_shared<GeoTimePosition>(settings["GeoTime"]);
-    sun = make_shared<Sun>(settings["Sun"], *geoTimePosition);
-    starfield = make_shared<Starfield>();
+    geoTimePosition = std::make_shared<GeoTimePosition>(settings["GeoTime"]);
+    sun = std::make_shared<Sun>(settings["Sun"], *geoTimePosition);
+    starfield = std::make_shared<Starfield>();
     starfield->regenerate();
-    atmosphere = make_shared<Atmosphere>(settings["Atmosphere"], *geoTimePosition);
+    atmosphere = std::make_shared<Atmosphere>(settings["Atmosphere"], *geoTimePosition);
 
-    graph = make_shared<SceneGraph>(*physics);
+    graph = std::make_shared<SceneGraph>(*physics);
     graph->loadMap(cfg["Map"]["Dir"].string());
 
-    environment = make_shared<Environment>(*graph, physics);
+    environment = std::make_shared<Environment>(*graph, physics);
     environment->load(cfg["Map"]["Dir"].string());
-    // terrain = make_shared<Terrain>(*quadTree);
+    // terrain = std::make_shared<Terrain>(*quadTree);
     // terrain->create(cfg["Map"]);
     // terrain->uploadTexture();
     //
@@ -52,10 +52,10 @@ bool Scene::load(const std::string &name, Yaml &cfg){
     // terrain->finalize();
     // quadTree->recalculateNodeZPosition();
     //
-    // grass = make_shared<Grass>(*quadTree);
+    // grass = std::make_shared<Grass>(*quadTree);
     // grass->loadData(loader, cfg["Res"]["Grass"]["Common"]);
     //
-    // foliage = make_shared<Foliage>(*quadTree, *physics);
+    // foliage = std::make_shared<Foliage>(*quadTree, *physics);
     // foliage->load(Global::m_resources["Foliage"]);
     //
     // grass->initVBO();

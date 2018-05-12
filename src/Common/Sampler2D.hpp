@@ -32,7 +32,7 @@ public:
 private:
     u32 width;
     u32 height;
-    unique_ptr<ISampler> data;
+    std::unique_ptr<ISampler> data;
 };
 
 template<typename SampleType>

@@ -174,7 +174,7 @@ void Terrain::copyElevationData(QTNode &node){
 
 void Terrain::generatePayload(QTNode &node, PhysicsWorld &physics){
     if(not node.payload.terrainData){
-        node.payload.terrainData = make_unique<TerrainData>();
+        node.payload.terrainData = std::make_unique<TerrainData>();
     }
     auto &chunk = *(node.payload.terrainData);
     chunk.data = bulletDataIterator;

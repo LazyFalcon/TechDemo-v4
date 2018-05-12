@@ -147,7 +147,7 @@ private:
     std::vector<FoliageModel> plants;
     QuadTree &QT;
     PhysicsWorld &physics;
-    shared_ptr<Sampler2D> densitySampler;
+    std::shared_ptr<Sampler2D> densitySampler;
     FoliageDensityMap densityMap;
     std::vector<std::string> prepareAtlas();
 

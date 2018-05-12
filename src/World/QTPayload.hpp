@@ -8,9 +8,9 @@ struct FoliageData;
 
 struct QTPayload
 {
-    unique_ptr<TerrainData> terrainData;
-    unique_ptr<GrassData> grassData;
-    unique_ptr<FoliageData> foliageData;
+    std::unique_ptr<TerrainData> terrainData;
+    std::unique_ptr<GrassData> grassData;
+    std::unique_ptr<FoliageData> foliageData;
     // unique_ptr<Environmentdata> environmentdata;
 };
 

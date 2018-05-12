@@ -42,6 +42,9 @@ void ResourceLoader::loadResources(const Yaml &cfg){
         // loadCubeMap("Park");
     }
 
+    if(isFile("../res/images/")){
+        loadImages("../res/images/");
+    }
     if(isFile("../res/models/")){
         ModelLoader modelLoader;
         modelLoader.loadTangents = true;
@@ -57,6 +60,22 @@ void ResourceLoader::loadResources(const Yaml &cfg){
         assets::addVao(modelLoader.build(), "Common");
     }
     loadFonts();
+}
+
+void ResourceLoader::loadImages(const std::string& dir){
+    using namespace boost::filesystem;
+    try {
+        path p(dir);
+        auto dir_it = recursive_directory_iterator(p);
+        for(dir_it; dir_it != recursive_directory_iterator(); dir_it++){
+            if ( is_directory(dir_it->status()) ) continue;
+
+            loadImage((*dir_it).path().relative_path().string());
+        }
+    }
+    catch (const filesystem_error& ex){
+        error("boost::filesystem ex: ", ex.what());
+    }
 }
 
 /**
@@ -123,6 +142,7 @@ bool ResourceLoader::loadMesh(const Yaml &cfg){
     loadMesh(name);
     return true;
 }
+// TODO: really this still exists?!
 bool ResourceLoader::loadObj(std::fstream &file){
     std::string tmp, mpt;
 
@@ -247,22 +267,20 @@ bool ResourceLoader::loadFont(const std::string &fontFileName, std::vector<std::
 
 bool ResourceLoader::loadImage(const Yaml &cfg){
     std::string name = cfg.string();
-    return loadImage(name).ID;
+    return loadImage(imagePath+name).ID;
 }
-Image ResourceLoader::loadImage(const std::string &name){
+Image ResourceLoader::loadImage(const std::string &filePath){
     using namespace boost::filesystem;
-    path p(name);
+    path p(filePath);
 
-    std::string exactName = getName(name);
+    std::string exactName = getName(filePath);
     Image image = assets::getImage(exactName);
     if(image.ID != 0){
         return image;
     }
     log("[ IMAGE ] ", exactName);
 
-    std::string fileName = imagePath+name;
-
-    auto imageData = ImageUtils::loadImageToGpu(fileName);
+    auto imageData = ImageUtils::loadImageToGpu(filePath);
 
     image = Image { imageData.id, imageData.width, imageData.height };
     assets::addImage(id, image, exactName);

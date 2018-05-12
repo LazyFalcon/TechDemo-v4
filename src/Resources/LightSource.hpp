@@ -60,14 +60,14 @@ struct LightSource
 
 struct LightSourcesContainer
 {
-    std::map<LightSource::LightType, std::list<shared_ptr<LightSource>>> lights;
+    std::map<LightSource::LightType, std::list<std::shared_ptr<LightSource>>> lights;
 
-    shared_ptr<LightSource> emplace(LightSource::LightType type){
-        lights[type].emplace_back(make_unique<LightSource>(type));
+    std::shared_ptr<LightSource> emplace(LightSource::LightType type){
+        lights[type].emplace_back(std::make_unique<LightSource>(type));
         return lights[type].back();
     }
-    shared_ptr<LightSource> emplace(const std::string &type){
-        lights[LightSource::getType(type)].emplace_back(make_unique<LightSource>(type));
+    std::shared_ptr<LightSource> emplace(const std::string &type){
+        lights[LightSource::getType(type)].emplace_back(std::make_unique<LightSource>(type));
         return lights[LightSource::getType(type)].back();
     }
     auto begin(){
@@ -76,7 +76,7 @@ struct LightSourcesContainer
     auto end(){
         return lights.end();
     }
-    void remove(shared_ptr<LightSource> &light){
+    void remove(std::shared_ptr<LightSource> &light){
         lights[light->m_type].remove(light);
     }
     void update(float dt);

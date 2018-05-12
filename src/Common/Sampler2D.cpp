@@ -40,7 +40,7 @@ Sampler2D::Sampler2D(const std::string &filename, u32 s){
     width = image.width;
     height = image.height;
     info("SAMPLER", "from:", filename, width, ":", height);
-    data = make_unique<SamplerSingleChannelU8>(image.data, image.width, image.height);
+    data = std::make_unique<SamplerSingleChannelU8>(image.data, image.width, image.height);
 }
 Sampler2D::Sampler2D(u32 s){
     settings = s;

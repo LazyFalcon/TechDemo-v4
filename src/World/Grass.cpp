@@ -64,7 +64,7 @@ void Grass::initVBO(){
 void Grass::loadData(ResourceLoader &loader, const Yaml &cfg){
     texture = loader.loadImage("Grass.png");
 
-    densitySampler = make_shared<Sampler2D>("../res/textures/GrassDensity.png");
+    densitySampler = std::make_shared<Sampler2D>("../res/textures/GrassDensity.png");
 }
 void Grass::updateBuffer(){
     PerfCounter::records["fieldCount: "] = GrassField::noOfpatchData;
@@ -206,7 +206,7 @@ void Grass::update(glm::vec4 eyePos){
     }
 
     for(auto &it : QT.lodLevels[0].addedNodes){
-        if(not it->payload.grassData) it->payload.grassData = make_unique<GrassData>();
+        if(not it->payload.grassData) it->payload.grassData = std::make_unique<GrassData>();
         for(i32 fieldId=0; fieldId<4; fieldId++){
             i32 newId = grassFields.size();
             grassFields.emplace_back(fieldId, it);

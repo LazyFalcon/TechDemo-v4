@@ -37,7 +37,7 @@ struct QTNode
     QTNode& operator () (u32 i, u32 j);
 
     std::vector<u32> objects; // assuming that object are static and never removed
-    std::vector<shared_ptr<LightSource>> lightSources; // assuming that object are static and never removed
+    std::vector<std::shared_ptr<LightSource>> lightSources; // assuming that object are static and never removed
 
     u32 testSphereAgainsFrustum(const Frustum &frustum) const;
     u32 testAABBAgainsFrustum(const Frustum &frustum) const;

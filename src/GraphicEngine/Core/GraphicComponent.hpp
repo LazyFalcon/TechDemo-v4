@@ -20,7 +20,7 @@ public:
 class GraphicComponent
 {
 public:
-    std::vector<unique_ptr<GraphicDataCollector>> entitiesToDraw;
+    std::vector<std::unique_ptr<GraphicDataCollector>> entitiesToDraw;
     void addSelfToQueue(){
         for(auto &it : entitiesToDraw){
             it->addSelfToQueue();

@@ -99,6 +99,6 @@ private:
 
 
     glm::vec4 eyePosition;
-    shared_ptr<Sampler2D> densitySampler;
+    std::shared_ptr<Sampler2D> densitySampler;
     QuadTree &QT;
 };

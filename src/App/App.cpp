@@ -1,7 +1,8 @@
 #include <GLFW/glfw3.h>
 
-#include "common.hpp"
 #include "App.hpp"
+#include "AudioLibrary.hpp"
+#include "common.hpp"
 #include "DebugScreen.hpp"
 #include "EventProcessor.hpp"
 #include "GameState.hpp"
@@ -40,7 +41,7 @@ App::~App(){
 
 bool App::initialize(){
     log("--initializing main systems");
-
+    audio = std::make_unique<AudioLibrary>();
     settings->load();
 
     window = std::make_unique<Window>(*this);

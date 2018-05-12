@@ -91,3 +91,4 @@ logs.md
 doc/html/classarmory_1_1_weapon.html
 src/FontRenderer.cpp
 src/FontRenderer.hpp
+generate_vsc_props.py

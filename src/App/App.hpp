@@ -1,12 +1,12 @@
 #pragma once
 #include "common.hpp"
 
+class AudioLibrary;
 class DebugScreen;
 class EventProcessor;
 class GameState;
 class GLFWwindow;
 class GraphicEngine;
-class IAudio;
 class Imgui;
 class Input;
 class InputDispatcher;
@@ -23,7 +23,7 @@ private:
     static App* self;
 public:
     std::unique_ptr<Window> window;
-    // std::unique_ptr<IAudio> audio;
+    std::unique_ptr<AudioLibrary> audio;
     std::unique_ptr<GraphicEngine> graphicEngine;
     std::shared_ptr<GameState> gameState;
     std::unique_ptr<EventProcessor> eventProcessor;

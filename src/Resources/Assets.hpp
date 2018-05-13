@@ -35,6 +35,7 @@ TextureArray& getRoughnessArray(const std::string &name);
 TextureArray& getCubeMap(const std::string &name);
 Shader& setShader(const std::string &name);
 Shader& getShader(const std::string &name);
+Shader& bindShader(const std::string &name);
 Font& getFont(const std::string &name);
 
 std::string findArrayWithTextureName(const std::string &name);

@@ -17,7 +17,7 @@ out float outColor;
 
 uniform sampler2D uTexture;
 uniform float uBlurSize;
-uniform vec2 uScreenSize;
+uniform vec2 uWindowSize;
 
 in vec2 vUV;
 
@@ -25,7 +25,7 @@ void main(void){
 
     float sum = 0.0;
     vec2 position = vUV;
-        float radius = uBlurSize*1.0/uScreenSize.y*1;
+        float radius = uBlurSize*1.0/uWindowSize.y*1;
     sum += texture(uTexture, vec2(position.x, position.y - 4.0*radius)).r * 0.05;
     sum += texture(uTexture, vec2(position.x, position.y - 3.0*radius)).r * 0.09;
     sum += texture(uTexture, vec2(position.x, position.y - 2.0*radius)).r * 0.12;
@@ -39,4 +39,3 @@ void main(void){
 }
 
 #endif
-

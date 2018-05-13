@@ -88,7 +88,7 @@ void VfxEffects::drawVolumetricLaserBeams(Camera &camera){
     // shader.uniform("uEye", camera.position.xyz());
     // shader.uniform("uCamera", camera.at.xyz());
     // shader.uniform("uPixelSize", window.pixelSize);
-    // shader.uniform("uScreenSize", window.size);
+    // shader.uniform("uWindowSize", window.size);
     // shader.uniform("uFovTan", (float)tan(camera.fov*0.5f));
     // shader.uniform("uPV", camera.PV);
     // shader.uniform("uInvPV", camera.invPV);

@@ -245,7 +245,7 @@ void Effects::SSAO(Camera &camera){
         shader.texture("uNormal", context.tex.gbuffer.normals, 1);
         shader.texture("uSSAONoise", assets::getImage("SSAONoise").ID, 2);
 
-        shader.uniform("uScreenSize", window.size);
+        shader.uniform("uWindowSize", window.size);
         shader.uniform("uPixelSize", window.pixelSize);
         shader.uniform("uFovTan", (float)tan(camera.fov*0.5f));
         shader.uniform("uNear", camera.nearDistance);
@@ -263,7 +263,7 @@ void Effects::SSAO(Camera &camera){
         shader.texture("uNormal", context.tex.gbuffer.normals, 1);
         shader.texture("uSSAONoise", assets::getImage("SSAONoise").ID, 2);
 
-        shader.uniform("uScreenSize", window.size);
+        shader.uniform("uWindowSize", window.size);
         shader.uniform("uPixelSize", window.pixelSize);
         shader.uniform("uFovTan", (float)tan(camera.fov*0.5f));
         shader.uniform("uNear", camera.nearDistance);

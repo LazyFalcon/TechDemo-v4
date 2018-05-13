@@ -49,9 +49,8 @@ public:
 
     // apperance
     Panel& fill();
-
-    // utils
     Panel& color(u32);
+    Panel& blured(u32);
 
     // create items
     Item button();
@@ -70,4 +69,5 @@ private:
     int m_childCount {};
 
     RenderedUIItems::Background m_background;
+    bool m_blured {false};
 };

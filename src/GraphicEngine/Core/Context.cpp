@@ -502,7 +502,7 @@ void Context::cullFrontFaces(){
 //         splashScreen = loader.loadImage(filename);
 
 //         glfwShowWindow(Global::main.window);
-//         glfwSetWindowPos(Global::main.window, Global::main.screenSize.x/2.f - splashScreen.width/2, Global::main.screenSize.y/2.f - splashScreen.height/2);
+//         glfwSetWindowPos(Global::main.window, Global::main.size.x/2.f - splashScreen.width/2, Global::main.size.y/2.f - splashScreen.height/2);
 //         glfwSetWindowSize(Global::main.window, splashScreen.width, splashScreen.height);
 //     }
 //     gl::Viewport(0, 0, splashScreen.width, splashScreen.height);

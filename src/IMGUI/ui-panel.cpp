@@ -80,6 +80,12 @@ Panel& Panel::color(u32 c){
     m_background.color = c;
     return *this;
 }
+Panel& Panel::blured(u32 c){
+    m_background = {};
+    m_background.color = c;
+    m_blured = true;
+    return *this;
+}
 
 
 Item Panel::button(){

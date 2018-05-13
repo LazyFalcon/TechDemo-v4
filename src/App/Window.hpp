@@ -17,7 +17,7 @@ public:
     ~Window();
 
     glm::vec2 size;
-    glm::vec2 screenSize;
+    glm::vec2 screenSize; //! ACHTUNG it is size of whole screen not window!
     glm::vec2 center;
     glm::vec2 topCenter;
     glm::vec2 bottomCenter;

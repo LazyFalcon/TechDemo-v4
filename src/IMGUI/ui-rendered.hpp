@@ -28,6 +28,12 @@ struct RenderedUIItems
         u32 color;
     };
 
+    struct ToBlur
+    {
+        glm::vec4 poly;
+        float depth;
+    };
+
     struct Image
     {
         glm::vec4 box; // tex coords are extracted from box screen position, layer 0 is black
@@ -77,6 +83,7 @@ struct RenderedUIItems
     std::tuple<
         // these are render as opaque elements in depth-pre pass
         std::vector<RenderedUIItems::Background>, // this also needs to be sorted
+        std::vector<RenderedUIItems::ToBlur>, // this also needs to be sorted
         std::vector<RenderedUIItems::Image>,
         std::vector<RenderedUIItems::ColoredImage>,
         std::vector<RenderedUIItems::ColoredBox>,

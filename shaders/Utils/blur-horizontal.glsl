@@ -2,24 +2,31 @@
 
 layout(location=0)in vec4 mVertex;
 
-out vec2 vUV;
+uniform vec4 pxBlurPolygon;
+uniform vec2 pxViewSize;
+uniform vec2 uTexelSize;
 
 void main(){
-    vUV = mVertex.zw;
-    gl_Position = (vec4(mVertex.xy,0,1));
+    float blurRadii = 20;
+    vec4 poly = pxBlurPolygon + vec4(0, -blurRadii, 0, 2*blurRadii);
+
+    // calc corner position
+    vec2 cornerPosition = poly.xy + poly.zw * mVertex.xy;
+
+    // transform to range [0,1] then to [-1, 1]
+    cornerPosition = (cornerPosition / pxViewSize)*2 - vec2(1);
+    cornerPosition = clamp(cornerPosition, vec2(-1), vec2(1));
+
+    gl_Position = vec4(cornerPosition, 0, 1);
 }
 
 #endif
 
-
 #ifdef FRAGMENT_SHADER
-#line 17
 out vec4 outColor;
 
 uniform sampler2D uTexture;
-uniform vec2 uPixelSize;
-
-in vec2 vUV;
+uniform vec2 uTexelSize;
 
 vec4 GaussianBlur(in sampler2D tex0, in vec2 centreUV, in vec2 pixelOffset){
     vec4 colOut = vec4(0);
@@ -51,7 +58,7 @@ vec4 GaussianBlur(in sampler2D tex0, in vec2 centreUV, in vec2 pixelOffset){
 
     for( int i = 0; i < stepCount; i++ )
     {
-        vec2 texCoordOffset = gOffsets[i] * pixelOffset*1.5;
+        vec2 texCoordOffset = gOffsets[i] * pixelOffset;
         vec4 col = texture( tex0, centreUV + texCoordOffset ) + texture( tex0, centreUV - texCoordOffset );
         colOut += gWeights[i] * col;
     }
@@ -60,7 +67,7 @@ vec4 GaussianBlur(in sampler2D tex0, in vec2 centreUV, in vec2 pixelOffset){
 }
 
 void main(void){
-    outColor = GaussianBlur(uTexture, vUV, uPixelSize/2*vec2(1,0));
+    outColor = GaussianBlur(uTexture, gl_FragCoord.xy*uTexelSize, uTexelSize*vec2(0.5,0));
 }
 
 #endif

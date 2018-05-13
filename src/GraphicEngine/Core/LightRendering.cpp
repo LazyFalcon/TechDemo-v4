@@ -158,7 +158,7 @@ float LightRendering::calculateLuminance(){
 
     // auto shader = assets::getShader("CalculateLuminance");
     // shader.bind();
-    // shader.uniform("uScreenSize", windows.screenSize.xy());
+    // shader.uniform("uWindowSize", windows.size.xy());
     // shader.texture("uHdrTexture", Textures::HDRScene);
 
     // drawScreen();

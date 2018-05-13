@@ -12,6 +12,8 @@ private:
     Context& m_context;
 
     void depthPrepass(RenderedUIItems&);
+    void blurBackgroundCumulative(RenderedUIItems&);
+    void blurBackgroundEven(RenderedUIItems&);
 
     template<typename T>
     void render(std::vector<T>&){}

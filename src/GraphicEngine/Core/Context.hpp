@@ -4,6 +4,7 @@
 #include "Window.hpp"
 #include "Texture.hpp"
 #include "GPUResources.hpp"
+#include "GraphicMiscellaneous.hpp"
 
 class Context
 {

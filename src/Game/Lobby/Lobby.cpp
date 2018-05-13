@@ -1,11 +1,12 @@
-#include "Lobby.hpp"
 #include "Context.hpp"
 #include "GraphicEngine.hpp"
 #include "input-dispatcher.hpp"
 #include "input.hpp"
+#include "Lobby.hpp"
 #include "LobbyEvents.hpp"
 #include "Logging.hpp"
 #include "RendererUtils.hpp"
+#include "Texture.hpp"
 #include "ui-renderer.hpp"
 #include "ui-text.hpp"
 #include "ui.hpp"
@@ -35,8 +36,7 @@ private:
         auto& panel = ui.newFixedPanel()
             .width(350).height(1.f)
             .x(startPosition).y(0)
-            // .x(-450).y(0)
-            .fill().color(0x6D3A31d0);
+            .blured(0x6D3A3100);
         panel.layout().toDown();
         panel.button().y(0.6f).w(0.9f).h(44)().formatting(Text::Centered).text("New Game");
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Continue");
@@ -104,6 +104,9 @@ void Lobby::renderProcedure(GraphicEngine& renderer){
     renderer.context->beginFrame();
     renderer.context->setupFramebufferForGBufferGeneration();
     renderer.utils->drawBackground("nebula");
+
+    renderer.context->tex.gbuffer.color.genMipmaps();
+
     renderer.uiRender->render(m_ui.getToRender());
     renderer.context->endFrame();
 }

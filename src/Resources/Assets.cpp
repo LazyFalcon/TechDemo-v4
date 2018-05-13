@@ -63,6 +63,9 @@ Shader& setShader(const std::string &name){
 Shader& getShader(const std::string &name){
     return shaders.at(name);
 }
+Shader& bindShader(const std::string &name){
+    return shaders.at(name).bind();
+}
 Font& getFont(const std::string &name){
     return fonts[name];
 }

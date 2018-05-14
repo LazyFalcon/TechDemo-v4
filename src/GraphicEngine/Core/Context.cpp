@@ -233,92 +233,6 @@ bool Context::_errors(const std::string &text, const std::string &file, int line
     return false;
 }
 
-void Context::setupFBO_11(const Texture &t0){
-    // if(currentFbo != fbo.full){
-        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
-    //     currentFbo = fbo.full;
-    // }
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
-    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x, window.size.y);
-}
-void Context::setupFBO_11_depth(const Texture &t0){
-    // if(currentFbo != fbo.full){
-        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
-    //     currentFbo = fbo.full;
-    // }
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, tex.gbuffer.depth.ID, 0);
-    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x, window.size.y);
-}
-void Context::setupFBO_11_depth(const Texture &t0, const Texture &t1){
-    // if(currentFbo != fbo.full){
-        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
-    //     currentFbo = fbo.full;
-    // }
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT1, t1.ID, 0);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, tex.gbuffer.depth.ID, 0);
-    gl::DrawBuffers(2, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x, window.size.y);
-}
-void Context::setupFBO_11(const Texture &t0, const Texture &t1){
-    // if(currentFbo != fbo.full){
-        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
-    //     currentFbo = fbo.full;
-    // }
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT1, t1.ID, 0);
-    gl::DrawBuffers(2, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x, window.size.y);
-}
-void Context::setupFBO_12(const Texture &t0){
-    // if(currentFbo != fbo._12){
-        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._12);
-    //     currentFbo = fbo._12;
-    // }
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
-    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x*0.5f, window.size.y*0.5f);
-}
-void Context::setupFBO_12(const Texture &t0, const Texture &t1){
-    // if(currentFbo != fbo._12){
-        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._12);
-    //     currentFbo = fbo._12;
-    // }
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT1, t1.ID, 0);
-    gl::DrawBuffers(2, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x*0.5f, window.size.y*0.5f);
-}
-void Context::setupFBO_12_wide(const Texture &t0){
-    // if(currentFbo != fbo._12_wide){
-        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._12_wide);
-    //     currentFbo = fbo._12_wide;
-    // }
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
-    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x, window.size.y*0.5f);
-}
-void Context::setupFBO_14(const Texture &t0){
-    // if(currentFbo != fbo._14){
-        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._14);
-    //     currentFbo = fbo._14;
-    // }
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
-    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x*0.25f, window.size.y*0.25f);
-}
-void Context::setupFBO_18(const Texture &t0){
-    // if(currentFbo != fbo._18){
-        gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo._18);
-    //     currentFbo = fbo._18;
-    // }
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
-    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x*0.125f, window.size.y*0.125f);
-}
 void Context::bindTexture(const Texture &t0){
     gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, t0.ID, 0);
 }
@@ -475,12 +389,12 @@ void Context::setupFramebufferForGBufferGeneration(){
     errors();
 }
 void Context::setupFramebufferForLighting(){
-    setupFBO_11(tex.light.color, tex.light.specular);
+    fbo[1].tex(tex.light.color).tex(tex.light.specular)();
     gl::ClearColor(0.0,0.0,0.0,0);
     gl::Clear(gl::COLOR_BUFFER_BIT);
 }
 void Context::setupFramebufferForLightingWithAddionalDepth(){
-    setupFBO_11_depth(tex.light.color, tex.light.specular);
+    fbo[1].tex(tex.light.color).tex(tex.light.specular).tex(tex.gbuffer.depth);
 }
 void Context::setupFramebufferForLDRProcessing(){
     // na razie pusty, potem przenieść na rgb10

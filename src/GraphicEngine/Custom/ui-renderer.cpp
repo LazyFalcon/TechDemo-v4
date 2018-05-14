@@ -12,7 +12,8 @@ void UIRender::blurBackgroundEven(RenderedUIItems& ui){
     m_context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
 
     // first pass
-    m_context.setupFBO_12(m_context.tex.half.a);
+
+    m_context.fbo[2].tex(m_context.tex.half.a)();
 
     auto shader = assets::bindShader("blur-horizontal");
     shader.uniform("pxViewSize", m_window.size*0.5f);
@@ -23,7 +24,8 @@ void UIRender::blurBackgroundEven(RenderedUIItems& ui){
         gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
     }
 
-    m_context.setupFBO_12(m_context.tex.half.b);
+    m_context.fbo[2].tex(m_context.tex.half.b)();
+
     shader = assets::bindShader("blur-vertical");
     shader.uniform("pxViewSize", m_window.size*0.5f);
     shader.uniform("uTexelSize", m_window.pixelSize*2.f);
@@ -35,7 +37,8 @@ void UIRender::blurBackgroundEven(RenderedUIItems& ui){
 
 
     shader = assets::bindShader("copy-rect");
-    m_context.setupFBO_11(m_context.tex.full.a);
+    m_context.fbo[1].tex(m_context.tex.full.a)();
+
     shader.uniform("pxViewSize", m_window.size);
     shader.texture("uTexture", m_context.tex.half.b, 0);
     for(auto& poly : polygons){
@@ -49,10 +52,7 @@ void UIRender::blurBackgroundEven(RenderedUIItems& ui){
 
 void UIRender::depthPrepass(RenderedUIItems& ui){
 
-    gl::BindFramebuffer(gl::FRAMEBUFFER, m_context.fbo.full);
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, m_context.tex.gbuffer.depth.ID, 0);
-    gl::DrawBuffers(0, &m_context.fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, m_window.size.x, m_window.size.y);
+    m_context.fbo[1].tex(m_context.tex.gbuffer.depth)();
     gl::ClearDepth(1);
     gl::Clear(gl::DEPTH_BUFFER_BIT);
 
@@ -167,22 +167,14 @@ void UIRender::render(RenderedUIItems& ui){
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::DEPTH_TEST);
 
-    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, m_context.fbo.full);
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, m_context.tex.full.a.ID, 0);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, m_context.tex.gbuffer.depth.ID, 0);
-    gl::DrawBuffers(1, &m_context.fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, m_window.size.x, m_window.size.y);
+    m_context.fbo[1].tex(m_context.tex.full.a).tex(m_context.tex.gbuffer.depth)();
 
     gl::ClearColor(0.f, 0.f, 0.f, 0.f);
     gl::Clear(gl::COLOR_BUFFER_BIT);
 
     blurBackgroundEven(ui);
 
-    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, m_context.fbo.full);
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, m_context.tex.full.a.ID, 0);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, m_context.tex.gbuffer.depth.ID, 0);
-    gl::DrawBuffers(1, &m_context.fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, m_window.size.x, m_window.size.y);
+    m_context.fbo[1].tex(m_context.tex.full.a).tex(m_context.tex.gbuffer.depth)();
 
     gl::Enable(gl::BLEND);
     gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
@@ -197,7 +189,7 @@ void UIRender::render(RenderedUIItems& ui){
     render(ui.get<Text::Rendered>());
 
 
-    m_context.setupFBO_11(m_context.tex.gbuffer.color);
+    m_context.fbo[1].tex(m_context.tex.gbuffer.color)();
 
     gl::Disable(gl::DEPTH_TEST);
     gl::Enable(gl::BLEND);

@@ -231,7 +231,7 @@ void Effects::drawDecals(Camera &camera){
 void Effects::SSAO(Camera &camera){
     GPU_SCOPE_TIMER();
     /// maybe disable if for sky? Enable depth test for not eqial 1?
-    context.setupFBO_11(context.tex.full.rg16a);
+    context.fbo.tex(context.tex.full.rg16a)();
     gl::Disable(gl::DEPTH_TEST);
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::BLEND);
@@ -280,7 +280,7 @@ void Effects::SSAO(Camera &camera){
 }
 void Effects::toneMapping(float exposure){
     GPU_SCOPE_TIMER();
-    context.setupFBO_11(context.tex.full.a);
+    context.fbo.tex(context.tex.full.a)();
     gl::ClearColor(0.0,0.0,0.0,0.0);
     gl::Clear(gl::COLOR_BUFFER_BIT);
     gl::Disable(gl::BLEND);
@@ -370,7 +370,7 @@ void Effects::bloom(){
     auto blur14 = utils.blur14(blur12, BlurOptions::Symmetrical);
     // auto blur18 = utils.blur18(blur14, BlurOptions::Symmetrical);
 
-    context.setupFBO_11(context.tex.gbuffer.color);
+    context.fbo.tex(context.tex.gbuffer.color)();
     gl::Enable(gl::BLEND);
     gl::BlendFunc(gl::ONE, gl::ONE);
 
@@ -395,7 +395,7 @@ void Effects::bloomSpecular(){
     // auto blur14 = utils.blur14(blur12, BlurOptions::Symmetrical);
     // auto blur18 = utils.blur18(blur14, BlurOptions::Symmetrical);
 
-    context.setupFBO_11(context.tex.gbuffer.color);
+    context.fbo.tex(context.tex.gbuffer.color)();
     gl::Enable(gl::BLEND);
     gl::BlendFunc(gl::ONE, gl::ONE);
 

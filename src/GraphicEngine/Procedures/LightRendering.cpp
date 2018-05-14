@@ -179,7 +179,7 @@ float LightRendering::calculateLuminance(){
 }
 void LightRendering::compose(Camera &camera){
     GPU_SCOPE_TIMER();
-    context.setupFBO_11_depth(context.tex.full.a);
+    context.fbo[1].tex(context.tex.full.a).tex(context.tex.gbuffer.depth)();
     gl::Disable(gl::BLEND);
     gl::Enable(gl::DEPTH_TEST);
     gl::DepthMask(gl::FALSE_);

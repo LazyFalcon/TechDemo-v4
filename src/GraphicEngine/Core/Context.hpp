@@ -1,10 +1,11 @@
 #pragma once
 #include "gl_core_4_5.hpp"
 #include "common.hpp"
-#include "Window.hpp"
-#include "Texture.hpp"
+#include "FBO.hpp"
 #include "GPUResources.hpp"
 #include "GraphicMiscellaneous.hpp"
+#include "Texture.hpp"
+#include "Window.hpp"
 
 class Context
 {
@@ -71,15 +72,15 @@ public:
     struct {
         u32 matrices;
     } ubo;
-    struct {
-        GLenum drawBuffers[5];
-        GLuint shadowmap;
-        GLuint full;
-        GLuint _12;
-        GLuint _12_wide;
-        GLuint _14;
-        GLuint _18;
-    } fbo;
+    // struct {
+    //     GLenum drawBuffers[5];
+    //     GLuint shadowmap;
+    //     GLuint full;
+    //     GLuint _12;
+    //     GLuint _12_wide;
+    //     GLuint _14;
+    //     GLuint _18;
+    // } fbo;
 
     struct {
         VAO vao;
@@ -102,8 +103,9 @@ public:
     }
     VAO defaultVAO;
     u32 currentFbo;
+    FBO fbo;
 
-    Context(Window &window) : window(window){}
+    Context(Window &window) : window(window), fbo(window){}
     void reset();
 
     void beginFrame();
@@ -115,15 +117,6 @@ public:
     void setupFramebufferForLightingWithAddionalDepth();
     void setupFramebufferForLDRProcessing();
 
-    void setupFBO_11(const Texture &texture);
-    void setupFBO_11(const Texture &texture, const Texture &texture2);
-    void setupFBO_11_depth(const Texture &texture);
-    void setupFBO_11_depth(const Texture &texture, const Texture &texture2);
-    void setupFBO_12(const Texture &texture);
-    void setupFBO_12_wide(const Texture &texture);
-    void setupFBO_12(const Texture &texture, const Texture &texture2);
-    void setupFBO_14(const Texture &texture);
-    void setupFBO_18(const Texture &texture);
     void bindTexture(const Texture &texture);
 
     void setupDefaultBuffer();

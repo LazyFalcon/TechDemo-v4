@@ -36,7 +36,7 @@ private:
         auto& panel = ui.newFixedPanel()
             .width(350).height(1.f)
             .x(startPosition).y(0)
-            .blured(0x6D3A3100);
+            .blured(0x6D3A3150);
         panel.layout().toDown();
         panel.button().y(0.6f).w(0.9f).h(44)().formatting(Text::Centered).text("New Game");
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Continue");

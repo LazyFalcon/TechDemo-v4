@@ -28,7 +28,7 @@ void RendererUtils::blurBuffer(){
     context.tex.gbuffer.color.genMipmaps();
 
     // first pass
-    context.setupFBO_12(context.tex.half.a);
+    context.fbo[2].tex(context.tex.half.a)();
 
     auto shader = assets::getShader("blur-horizontal");
     shader.bind();
@@ -39,7 +39,7 @@ void RendererUtils::blurBuffer(){
     context.drawScreen();
 
     // second pass
-    context.setupFBO_12(context.tex.half.b);
+    context.fbo[2].tex(context.tex.half.b)();
 
     shader = assets::getShader("blur-vertical");
     shader.bind();
@@ -67,7 +67,7 @@ void RendererUtils::renderBlurred(){
  *
  */
 const Texture& RendererUtils::bilateralAOBlur(const Texture &source, float kernel){
-    context.setupFBO_12(context.tex.half.rg16a);
+    context.fbo[2].tex(context.tex.half.rg16a)();
     {
         auto shader = assets::getShader("Bilateralblur-vertical");
         shader.bind();
@@ -118,7 +118,7 @@ void RendererUtils::takeScreenShot(){
 
 
 Texture RendererUtils::extractBrightParts(Texture& source){
-    context.setupFBO_11(context.tex.full.a);
+    context.fbo[1].tex(context.tex.full.a)();
 
     auto shader = assets::getShader("BrightPartsExtraction").bind();
     // shader.uniform("uThreshold", 0.9999f);
@@ -132,7 +132,7 @@ Texture RendererUtils::extractBrightParts(Texture& source){
 }
 Texture RendererUtils::blur12(Texture& source, BlurOptions option){
     if(option == BlurOptions::Symmetrical){
-        context.setupFBO_12(context.tex.half.a);
+        context.fbo[2].tex(context.tex.half.a)();
 
         auto shader = assets::getShader("blur-horizontal").bind();
         shader.uniform("uPixelSize", window.pixelSize*2.f);
@@ -152,7 +152,7 @@ Texture RendererUtils::blur12(Texture& source, BlurOptions option){
         context.drawScreen();
     }
     if(option == BlurOptions::Anamorphic){
-        context.setupFBO_12(context.tex.half.a);
+        context.fbo[2].tex(context.tex.half.a)();
 
         auto shader = assets::getShader("blur-vertical_Anamorphic").bind();
         shader.uniform("uPixelSize", window.pixelSize*2.f);
@@ -174,7 +174,7 @@ Texture RendererUtils::blur12(Texture& source, BlurOptions option){
 }
 Texture RendererUtils::blur14(Texture& source, BlurOptions option){
     if(option == BlurOptions::Symmetrical){
-        context.setupFBO_14(context.tex.quarter.a);
+        context.fbo[4].tex(context.tex.quarter.a)();
 
         auto shader = assets::getShader("blur-vertical").bind();
         shader.uniform("uPixelSize", window.pixelSize*4.f);
@@ -190,7 +190,7 @@ Texture RendererUtils::blur14(Texture& source, BlurOptions option){
         context.drawScreen();
     }
     if(option == BlurOptions::Anamorphic){
-        context.setupFBO_14(context.tex.quarter.a);
+        context.fbo[4].tex(context.tex.quarter.a)();
 
         auto shader = assets::getShader("blur-vertical_Anamorphic").bind();
         shader.uniform("uPixelSize", window.pixelSize*4.f);
@@ -212,7 +212,7 @@ Texture RendererUtils::blur14(Texture& source, BlurOptions option){
 }
 Texture RendererUtils::blur18(Texture& source, BlurOptions option){
     if(option == BlurOptions::Symmetrical){
-        context.setupFBO_18(context.tex.eight.a);
+        context.fbo[8].tex(context.tex.eight.a)();
 
         auto shader = assets::getShader("blur-vertical").bind();
         shader.uniform("uPixelSize", window.pixelSize*8.f);
@@ -228,7 +228,7 @@ Texture RendererUtils::blur18(Texture& source, BlurOptions option){
         context.drawScreen();
     }
     if(option == BlurOptions::Anamorphic){
-        context.setupFBO_18(context.tex.eight.a);
+        context.fbo[8].tex(context.tex.eight.a)();
 
         auto shader = assets::getShader("blur-vertical_Anamorphic").bind();
         shader.uniform("uPixelSize", window.pixelSize*8.f);

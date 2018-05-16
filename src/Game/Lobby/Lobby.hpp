@@ -5,12 +5,8 @@
 class Imgui;
 class Input;
 class InputDispatcher;
-
-struct LobbyViewState
-{
-    ~LobbyViewState() = default;
-    virtual void run(Imgui&, float) = 0;
-};
+class LobbyUI;
+class Settings;
 
 class Lobby : public GameState
 {
@@ -18,9 +14,10 @@ private:
     Scene m_scene;
     std::shared_ptr<Input> m_input;
     Imgui& m_ui;
-    std::unique_ptr<LobbyViewState> m_view;
+    std::unique_ptr<LobbyUI> m_view;
 public:
-    Lobby(Imgui&, InputDispatcher&);
+    Lobby(Imgui&, InputDispatcher&, Settings&);
+    ~Lobby();
     void update(float dt);
     void updateWithHighPrecision(float dt);
     Scene& getScene();

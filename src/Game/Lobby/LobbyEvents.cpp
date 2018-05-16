@@ -6,7 +6,7 @@
 bool StartGame::handle(App &app){
     info("[ Start Lobby ]");
 
-    auto lobby = std::make_shared<Lobby>(*app.imgui, *app.inputDispatcher);
+    auto lobby = std::make_shared<Lobby>(*app.imgui, *app.inputDispatcher, *app.settings);
 
     app.window->show();
     app.showMouse();

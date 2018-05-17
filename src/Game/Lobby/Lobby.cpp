@@ -27,20 +27,20 @@ public:
     bool execute(Imgui& ui) override {
 
 
-        auto& panel = ui.newFixedPanel()
-            .width(0.8f).height(0.8f)
+        Panel panel(ui);
+        panel.width(0.8f).height(0.8f)
             .x(0.1f).y(0.1f)
-            .blured(0x6D3A3150);
+            .blured(0x6D3A3150)();
+        panel.layout().toDown();
 
-            auto& header = panel.newFixedPanel();
+            Panel header(panel);
             header.width(0.95f).height(50)
-                  .color(0x60606090);
-            header();
+                  .color(0x60606090)();
+            header.layout().toDown();
 
 
 
 
-        panel();
 
         return true;
     }
@@ -68,11 +68,12 @@ private:
 
     void render(Imgui& ui, float startPosition){
         // ui.panel().image("Logo").position(0.f, 1.f)();
-        auto& panel = ui.newFixedPanel()
-            .width(350).height(1.f)
+        Panel panel(ui);
+        panel.width(350).height(1.f)
             .x(startPosition).y(0)
-            .blured(0x6D3A3150);
+            .blured(0x6D3A3150)();
         panel.layout().toDown();
+        // panel.emptySpace(0.6f);
         panel.button().y(0.6f).w(0.9f).h(44)().formatting(Text::Centered).text("New Game");
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Continue");
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Settings").action([this]{
@@ -85,7 +86,6 @@ private:
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Exit").action([this]{
             fadeOut([]{event<ExitGame>();});
         });
-        panel();
     }
 
     std::shared_ptr<LobbyViewState> m_currentState;

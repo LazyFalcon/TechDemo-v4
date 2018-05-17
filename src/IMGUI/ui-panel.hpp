@@ -14,12 +14,12 @@ class Styler;
 class Panel
 {
 public:
-    Panel(Imgui& imgui, Styler* style, Panel* parentPanel=nullptr) : m_imgui(imgui), m_style(style),  m_parent(parentPanel){}
+    Panel(Imgui* imgui, Styler* style, Panel* parentPanel=nullptr);
+    Panel(Panel&); // create new panel attached to Panel
+    Panel(Imgui&); // create free panel, attached to default ui panel
+    Panel& operator=(const Panel&) = delete;
     Panel& panel(); // returns active child panel
-    void operator()();
-
-    Panel& newFixedPanel();
-    Panel& newFixedPanel(int w, int h);
+    Panel& operator()(); // finish panel styling and positioning
 
     // control part
     Layout& layout();
@@ -28,7 +28,7 @@ public:
     }
 
     Imgui& getUi(){
-        return m_imgui;
+        return *m_imgui;
     }
     Styler& getStyler(){
         return *m_style;
@@ -43,7 +43,7 @@ public:
     Panel& y(float);
     Panel& y(i32);
 
-    i32 getRelative(i32 idx, float rel){
+    i32 getRelative(i32 idx, float rel) const {
         return rel <= 1.f and rel >= -1.f ? m_size[idx] * rel : rel;
     }
 
@@ -56,9 +56,14 @@ public:
     Item button();
     Item slider();
 
+
+    void reset(){
+        m_childCount = 0;
+    }
+
 private:
     friend Styler;
-    Imgui& m_imgui;
+    Imgui* m_imgui {nullptr};
     Panel* m_parent {nullptr};
     Styler* m_style {nullptr};
     Layout m_layout;

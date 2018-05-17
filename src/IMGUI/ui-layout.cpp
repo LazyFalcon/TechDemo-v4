@@ -1,6 +1,10 @@
 #include "ui-layout.hpp"
 // used with assume that
 
+void Layout::setBounds(glm::vec4 b){
+    m_bounds = m_free = b;
+}
+
 Layout& Layout::toUp(){
 
     return *this;
@@ -10,13 +14,12 @@ Layout& Layout::toDown(){
         // clamp item width to panel width
         item[2] = std::min(item[2], m_w-m_padding[0]-m_padding[1]);
 
-        // in case when we nant to move item, check if shift isn't smaller than height
+        // in case when we want to move item, check if shift isn't smaller than height
         // little not consistent here, x,y received from item are displacement in main direction, not from lower left corner
         item[1] = m_y + m_h - std::max(item[1], item[3]) - m_padding[2];
 
         // center item in panel, here we have one column
         item[0] = m_x + floor(0.5f * (m_w - item[2]));
-
         // cut free space
         m_h = item[1] - m_y - m_padding[3];
 
@@ -47,8 +50,8 @@ Layout& Layout::toLeft(){
     return *this;
 }
 Layout& Layout::dummy(){
-    feedback = [](glm::vec4 item){return glm::vec4(0);};
-    calcPosition = [](glm::vec4 item){return glm::vec4(0);};
+    feedback = [](glm::vec4 item){return item;};
+    calcPosition = [](glm::vec4 item){return item;};
     return *this;
 }
 

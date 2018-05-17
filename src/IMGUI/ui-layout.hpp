@@ -14,11 +14,10 @@ public:
     // prostopadły wymiar ustawiamy tak żeby wycentrować item
     // czyli to co user chce przerabiamy podług wybranego algorytmu
     std::function<glm::vec4(glm::vec4)> feedback;
+    std::function<glm::vec4(glm::vec4)> alignPolicy; // by default is is center
     std::function<glm::vec4(glm::vec4)> calcPosition;
 
-    void setBounds(glm::vec4 b){
-        m_bounds = m_free = b;
-    }
+    void setBounds(glm::vec4 b);
     void compile(){}
 
     Layout& toUp();

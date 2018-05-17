@@ -2,35 +2,24 @@
 #include "ui.hpp"
 #include "Logging.hpp"
 
-void Panel::operator()(){
-    // m_parent->finishChildWidget(m_size);
-    // tu powinien odpalić się styler, używany jako
+Panel& Panel::operator()(){
+    // feedback size to parent layout
+    if(m_parent) m_size = m_parent->m_layout.feedback(m_size);
+
     m_background.box = m_size;
     m_background.depth = m_depth;
-    m_imgui.input.hover(m_size, m_depth);
+    m_imgui->input.hover(m_size, m_depth);
     m_style->render(*this);
-    m_imgui.finishPanel(this);
+
+    return *this;
 }
-
-
-Panel& Panel::newFixedPanel(){
-    m_childCount++;
-    clog("New panel:", m_childCount);
-    auto& p = m_imgui.instantiateNewFixedPanel();
-    p.m_depth = m_depth + 0.1f + 0.001f*m_childCount;
-    p.m_size = m_layout.calcPosition({}); // now we will receive position, size have to be filler later,\
-     no idea how it will be calculater, but doesn't care
-    return p;
+Panel::Panel(Imgui* imgui, Styler* style, Panel* parentPanel) : m_imgui(imgui), m_style(style),  m_parent(parentPanel){}
+Panel::Panel(Panel& parent) : Panel(parent.m_imgui, &parent.getStyler(), &parent){
+    parent.m_childCount++;
+    m_depth = m_depth + 0.1f + 0.001f*m_childCount;
+    m_size = {};
 }
-
-Panel& Panel::newFixedPanel(int w, int h){
-    m_childCount++;
-    auto& p = m_imgui.instantiateNewFixedPanel();
-    p.m_depth = m_depth + 0.1f + 0.001f*m_childCount;
-
-    p.m_size = m_layout.calcPosition({0,0,w,h}); // now we will receive position depend on provided size
-    return p;
-}
+Panel::Panel(Imgui& imgui) : Panel(imgui.panel()){}
 
 Panel& Panel::width(float w){
     return width(m_parent->getRelative(2, w));
@@ -89,13 +78,13 @@ Panel& Panel::blured(u32 c){
 
 
 Item Panel::button(){
-    Item i(Item::Button, m_imgui, *this, m_depth+0.0001f);
+    Item i(Item::Button, *m_imgui, *this, m_depth+0.0001f);
 
     return i;
 }
 
 Item Panel::slider(){
-    Item i(Item::Slider, m_imgui, *this, m_depth+0.0001f);
+    Item i(Item::Slider, *m_imgui, *this, m_depth+0.0001f);
 
     return i;
 }

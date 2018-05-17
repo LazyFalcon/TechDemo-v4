@@ -11,7 +11,7 @@ class RenderedUIItems;
 class Imgui
 {
 private:
-    std::vector<Panel> m_panelStack;
+    Panel m_defaultPanel;
     i32 m_width, m_height;
     std::unique_ptr<RenderedUIItems> m_renderedUIItems;
 public:
@@ -78,12 +78,8 @@ public:
     ~Imgui();
 
     Panel& panel(){ // returns active panel
-        return m_panelStack.back();
+        return m_defaultPanel;
     }
-
-    Panel& newFixedPanel();
-    Panel& instantiateNewFixedPanel();
-    void finishPanel(Panel*);
 
     // call on beginning of frame to cleanup states and conteners
     // creates default, full screen panel

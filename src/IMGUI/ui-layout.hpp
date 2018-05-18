@@ -13,30 +13,7 @@ class even
 {
 public:
     even(int elements) : elements(elements){}
-    std::vector<glm::vec4> precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, glm::vec4 padding, int indexOfAxis){
-        int notAxis = (indexOfAxis+1)%2;
-        glm::vec4 singleItem(0);
-        // cut items padding
-        float availbleLen = panelSize[indexOfAxis+2] - elements * (padding[indexOfAxis] + padding[indexOfAxis+2]);
-        // set item width and height
-        singleItem[indexOfAxis+2] = availbleLen/elements;
-        singleItem[notAxis+2] = panelSize[notAxis+2]; // assuming that full availble space will be taken;
-
-        clog("notAxis", notAxis);
-        clog("panelSize", panelSize);
-        clog("elements * (padding[indexOfAxis] + padding[indexOfAxis+2])", elements * (padding[indexOfAxis] + padding[indexOfAxis+2]));
-        clog("availbleLen", availbleLen);
-        clog("singleItem", singleItem);
-
-
-
-        auto out = std::vector<glm::vec4>(elements, singleItem);
-        for(auto& it : out){
-            it = feedback(it);
-        }
-
-        return out;
-    }
+    std::vector<glm::vec4> precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, glm::vec4 padding, int indexOfAxis);
 
 private:
     float elements;
@@ -46,7 +23,13 @@ class distribute
 {};
 
 class notEven
-{};
+{
+public:
+    notEven(std::vector<float>&& parts) : parts(std::move(parts)){}
+    std::vector<glm::vec4> precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, glm::vec4 padding, int indexOfAxis);
+private:
+    std::vector<float> parts;
+};
 
 class predefined
 {};
@@ -72,7 +55,16 @@ public:
     Layout& toUp();
     Layout& toDown();
     Layout& toRight();
-    Layout& toRight(even&&);
+    template<typename T>
+    Layout& toRight(T&& precalculator){
+        toRight();
+        auto itemSize = precalculator.precalculate(feedback, m_free, m_padding, 0);
+
+        feedback = [this, itemSize](const glm::vec4& item){
+            return itemSize[m_helper++];
+    };
+    return *this;
+}
     Layout& toLeft();
     Layout& dummy();
 

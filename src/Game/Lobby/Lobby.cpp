@@ -32,16 +32,26 @@ public:
             .x(0.1f).y(0.1f)
             .blured(0x6D3A3150)();
         panel.layout().toDown();
-
+        {
             Panel header(panel);
-            header.width(0.95f).height(50)
+            header.width(0.99f).height(50)
                   .color(0x60606090)();
             header.layout().padding({}).toRight(even(4));
-            header.button().color(0xf0f0f090)();
-            header.button().color(0x00000090)();
-            header.button().color(0xf0f0f090)();
-            header.button().color(0x00000090)();
-
+            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Misc.");
+            header.button().color(0x00000090)().formatting(Text::Centered).text("Video");
+            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Audio");
+            header.button().color(0x00000090)().formatting(Text::Centered).text("Controls");
+        }
+        {
+            Panel header(panel);
+            header.width(0.99f).height(50)
+                  .color(0x60606090)();
+            header.layout().padding({}).toRight(notEven({0.2f, 0.3f, 0.3f, 200}));
+            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Misc.");
+            header.button().color(0x00000090)().formatting(Text::Centered).text("Video");
+            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Audio");
+            header.button().color(0x00000090)().formatting(Text::Centered).text("Controls");
+        }
         return true;
     }
 };

@@ -2,6 +2,60 @@
 #include "Logging.hpp"
 // used with assume that
 
+std::vector<glm::vec4> even::precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, glm::vec4 padding, int indexOfAxis){
+    int notAxis = (indexOfAxis+1)%2;
+    glm::vec4 singleItem(0);
+    // cut items padding
+    float availbleLen = panelSize[indexOfAxis+2] - elements * (padding[indexOfAxis] + padding[indexOfAxis+2]);
+    // set item width and height
+    singleItem[indexOfAxis+2] = availbleLen/elements;
+    singleItem[notAxis+2] = panelSize[notAxis+2]; // assuming that full availble space will be taken;
+
+    auto out = std::vector<glm::vec4>(elements, singleItem);
+    for(auto& it : out){
+        it = feedback(it);
+    }
+
+    return out;
+}
+
+std::vector<glm::vec4> notEven::precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, glm::vec4 padding, int indexOfAxis){
+    int notAxis = (indexOfAxis+1)%2;
+    float availbleLen = panelSize[indexOfAxis+2] - parts.size() * (padding[indexOfAxis] + padding[indexOfAxis+2]);
+    float sumOfFloats = 0;
+    float sumOfInts = 0;
+    float numberOfFloats = 0;
+    for(auto& it : parts){
+        if(it > 1.f) {
+            sumOfInts += it;
+        }
+        else {
+            sumOfFloats += it;
+            numberOfFloats += 1.f;
+        }
+    }
+
+    float correctFloats = numberOfFloats ? (1-sumOfFloats)/numberOfFloats : 0.f;
+    for(auto& it : parts){
+        if(it > 1.f) continue;
+        it += correctFloats;
+        it = it*(availbleLen-sumOfInts);
+    }
+    // now width of each part is calced
+
+    auto out = std::vector<glm::vec4>(parts.size());
+    glm::vec4 sampleItem(0);
+    sampleItem[notAxis+2] = panelSize[notAxis+2]; // assuming that full availble space will be taken;
+    for(int i=0; i<parts.size(); i++){
+        sampleItem[indexOfAxis+2] = parts[i];
+        out[i] = feedback(sampleItem);
+    }
+
+    return out;
+}
+
+
+
 void Layout::setBounds(glm::vec4 b){
     m_bounds = m_free = b;
 }
@@ -42,20 +96,10 @@ Layout& Layout::toRight(){
         y = m_y + floor(0.5f * (m_h - h));
         // cut free space
         float prev_x = m_x;
-        m_x += w + m_padding[0];
+        m_x = x + w + m_padding[2];
         m_w -= m_x - prev_x;
 
         return glm::vec4(x,y,w,h);
-    };
-    return *this;
-}
-Layout& Layout::toRight(even&& precalculator){
-    toRight();
-    auto itemSize = precalculator.precalculate(feedback, m_free, m_padding, 0);
-
-    feedback = [this, itemSize](const glm::vec4& item){
-        clog(m_helper, itemSize[m_helper]);
-        return itemSize[m_helper++];
     };
     return *this;
 }

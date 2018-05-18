@@ -36,11 +36,11 @@ public:
             Panel header(panel);
             header.width(0.95f).height(50)
                   .color(0x60606090)();
-            header.layout().toDown();
-
-
-
-
+            header.layout().padding({}).toRight(even(4));
+            header.button().color(0xf0f0f090)();
+            header.button().color(0x00000090)();
+            header.button().color(0xf0f0f090)();
+            header.button().color(0x00000090)();
 
         return true;
     }

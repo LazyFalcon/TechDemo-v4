@@ -54,6 +54,7 @@ public:
 
     // create items
     Item button();
+    Item item();
     Item slider();
 
 

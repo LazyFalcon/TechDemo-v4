@@ -1,4 +1,5 @@
 #include "ui-layout.hpp"
+#include "Logging.hpp"
 // used with assume that
 
 void Layout::setBounds(glm::vec4 b){
@@ -10,39 +11,52 @@ Layout& Layout::toUp(){
     return *this;
 }
 Layout& Layout::toDown(){
-    feedback = [this](glm::vec4 item){
+    feedback = [this](const glm::vec4& item){
+        float x(item[0]), y(item[1]), w(item[2]), h(item[3]);
         // clamp item width to panel width
-        item[2] = std::min(item[2], m_w-m_padding[0]-m_padding[1]);
+        w = std::min(w, m_w-m_padding[0]-m_padding[1]);
 
         // in case when we want to move item, check if shift isn't smaller than height
         // little not consistent here, x,y received from item are displacement in main direction, not from lower left corner
-        item[1] = m_y + m_h - std::max(item[1], item[3]) - m_padding[2];
+        y = m_y + m_h - std::max(y, h) - m_padding[3];
 
         // center item in panel, here we have one column
-        item[0] = m_x + floor(0.5f * (m_w - item[2]));
+        x = m_x + floor(0.5f * (m_w - w));
         // cut free space
-        m_h = item[1] - m_y - m_padding[3];
+        m_h = y - m_y - m_padding[3];
 
-        return item;
-    };
-
-    calcPosition = [this](glm::vec4 item){
-        // clamp item width to panel width
-        item[2] = std::min(item[2], m_w);
-
-        // in case when we nant to move item, check if shift isn't smaller than height
-        item[1] = m_y + m_h - std::max(item[1], item[3]);
-
-        // center item in panel, here we have one column
-        item[0] = floor(0.5f * (m_w - item[2]));
-
-        return item;
+        return glm::vec4(x,y,w,h);
     };
 
     return *this;
 }
 Layout& Layout::toRight(){
+    feedback = [this](const glm::vec4& item){
+        float x(item[0]), y(item[1]), w(item[2]), h(item[3]);
+        // cut item height to panel height and padding
+        h = std::min(h, m_h-m_padding[1]-m_padding[3]);
 
+        x = m_x + m_padding[0];
+
+        // center item in panel, here we have one column
+        y = m_y + floor(0.5f * (m_h - h));
+        // cut free space
+        float prev_x = m_x;
+        m_x += w + m_padding[0];
+        m_w -= m_x - prev_x;
+
+        return glm::vec4(x,y,w,h);
+    };
+    return *this;
+}
+Layout& Layout::toRight(even&& precalculator){
+    toRight();
+    auto itemSize = precalculator.precalculate(feedback, m_free, m_padding, 0);
+
+    feedback = [this, itemSize](const glm::vec4& item){
+        clog(m_helper, itemSize[m_helper]);
+        return itemSize[m_helper++];
+    };
     return *this;
 }
 Layout& Layout::toLeft(){
@@ -50,8 +64,7 @@ Layout& Layout::toLeft(){
     return *this;
 }
 Layout& Layout::dummy(){
-    feedback = [](glm::vec4 item){return item;};
-    calcPosition = [](glm::vec4 item){return item;};
+    feedback = [](const glm::vec4& item){return item;};
     return *this;
 }
 

@@ -40,6 +40,10 @@ public:
         m_textColor = c;
         return *this;
     }
+    Item& color(u32 c){
+        m_color = c;
+        return *this;
+    }
     Item& formatting(Text::Formatting f){
         m_formatting = f;
         return *this;
@@ -81,6 +85,7 @@ private:
 
     std::optional<std::string> m_font;
     std::optional<u32> m_textColor;
+    std::optional<u32> m_color;
     std::optional<Text::Formatting> m_formatting;
     std::optional<Text> m_text;
 };

@@ -9,7 +9,7 @@ void Styler::render(Panel& panel){
     if(panel.m_blured) m_renderedUiItems.put<RenderedUIItems::ToBlur>(RenderedUIItems::ToBlur {panel.m_background.box, panel.m_background.depth });
 }
 void Styler::render(Item& item){
-    m_renderedUiItems.put<RenderedUIItems::ColoredBox>({item.m_size, item.m_depth, 0xf0f0f0f0});
+    m_renderedUiItems.put<RenderedUIItems::ColoredBox>({item.m_size, item.m_depth, item.m_color.value_or(0xf0f0f0f0)});
 }
 void Styler::renderSlider(Item& item, float ratio){
     m_renderedUiItems.put<RenderedUIItems::ColoredBox>({item.m_size, item.m_depth, 0x808080f0});

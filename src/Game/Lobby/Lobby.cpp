@@ -22,6 +22,26 @@ struct LobbySettings : public LobbyViewState
 {
 private:
     Settings& m_settings;
+    enum Views {Misc, Video, Audio, Controls};
+    Views m_currentPanel = Misc;
+
+    void drawMisc(Imgui& ui, Panel& parentPanel){
+        Panel panel(parentPanel);
+        panel.width(1.f).height(1.f).color(0x01010110)();
+        panel.layout().toDown();
+
+        panel.item().w(250).h(35)().text("Nothing to se here..");
+    }
+    void drawVideo(Imgui& ui, Panel& parentPanel){
+
+    }
+    void drawAudio(Imgui& ui, Panel& parentPanel){
+
+    }
+    void drawControls(Imgui& ui, Panel& parentPanel){
+
+    }
+
 public:
     LobbySettings(Settings& settings) : m_settings(settings){}
     bool execute(Imgui& ui) override {
@@ -31,27 +51,26 @@ public:
         panel.width(0.8f).height(0.8f)
             .x(0.1f).y(0.1f)
             .blured(0x6D3A3150)();
-        panel.layout().toDown();
+        panel.layout().padding({5,20,5,20}).toDown();
         {
             Panel header(panel);
             header.width(0.99f).height(50)
                   .color(0x60606090)();
-            header.layout().padding({}).toRight(even(4));
-            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Misc.");
-            header.button().color(0x00000090)().formatting(Text::Centered).text("Video");
-            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Audio");
-            header.button().color(0x00000090)().formatting(Text::Centered).text("Controls");
+            header.layout().padding({}).spacing(0).toRight(even(4));
+            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Misc.").action([this]{m_currentPanel = Misc;});
+            header.button().color(0x00000090)().formatting(Text::Centered).text("Video").action([this]{m_currentPanel = Video;});
+            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Audio").action([this]{m_currentPanel = Audio;});
+            header.button().color(0x00000090)().formatting(Text::Centered).text("Controls").action([this]{m_currentPanel = Controls;});
         }
-        {
-            Panel header(panel);
-            header.width(0.99f).height(50)
-                  .color(0x60606090)();
-            header.layout().padding({}).toRight(notEven({0.2f, 0.3f, 0.3f, 200}));
-            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Misc.");
-            header.button().color(0x00000090)().formatting(Text::Centered).text("Video");
-            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Audio");
-            header.button().color(0x00000090)().formatting(Text::Centered).text("Controls");
+
+        switch(m_currentPanel){
+            case Misc: drawMisc(ui, panel); break;
+            case Video: drawVideo(ui, panel); break;
+            case Audio: drawAudio(ui, panel); break;
+            case Controls: drawControls(ui, panel); break;
         }
+
+
         return true;
     }
 };

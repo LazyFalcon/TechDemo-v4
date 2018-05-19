@@ -15,16 +15,24 @@ public:
         struct {
             float fov;
             float inertia;
+            float sensitivity;
         } camera;
     } video;
 
     struct Audio
     {
-        int volume;
+        int masterVolume;
+        int musicVolume;
+        int effectsVolume;
+        int voiceVolume;
     } audio;
 
     struct Controls
     {
         int mouseSensitivity;
     } controls;
+
+    struct {
+
+    } misc;
 };

@@ -8,30 +8,49 @@ enum Alignment
 {
     RIGHT, LEFT, CENTERED, TOP, BOTTOM
 };
-
+/*
+    Distribute n elements evenly in given space
+    |   |   |   |   |   |
+*/
 class even
 {
 public:
     even(int elements) : elements(elements){}
-    std::vector<glm::vec4> precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, glm::vec4 padding, int indexOfAxis);
+    std::vector<glm::vec4> precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis);
 
 private:
     float elements;
 };
 
-class distribute
-{};
-
+/*
+    Not even distribution, if floats are not add up to one, they are corrected
+    |  |   | |     |    |
+*/
 class notEven
 {
 public:
     notEven(std::vector<float>&& parts) : parts(std::move(parts)){}
-    std::vector<glm::vec4> precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, glm::vec4 padding, int indexOfAxis);
+    std::vector<glm::vec4> precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis);
 private:
     std::vector<float> parts;
 };
 
+/*
+    Similar to notEven, dot with given sizes of items, distribution is done by adjusting spcacing between items
+*/
+class distribute
+{};
+
+/*
+    Returns data calculated by hand or from store
+*/
 class predefined
+{};
+
+class horizontalGrid
+{};
+
+class verticalGrid
 {};
 
 // used with assume that
@@ -58,7 +77,7 @@ public:
     template<typename T>
     Layout& toRight(T&& precalculator){
         toRight();
-        auto itemSize = precalculator.precalculate(feedback, m_free, m_padding, 0);
+        auto itemSize = precalculator.precalculate(feedback, m_free, m_spacing, 0);
 
         feedback = [this, itemSize](const glm::vec4& item){
             return itemSize[m_helper++];
@@ -75,11 +94,23 @@ public:
     */
     Layout& padding(glm::vec4 p = {}){
         m_padding = p;
+        m_free[0] += p[0];
+        m_free[1] += p[1];
+        m_free[2] -= p[0] + p[2];
+        m_free[3] -= p[1] + p[3];
+        return *this;
+    }
+    Layout& spacng(float s){
+        m_spacing = s;
+
         return *this;
     }
 
     Layout& prepare(glm::vec4 evenSize, i32 count);
     Layout& prepare(const std::vector<glm::vec4>& requestedSizes);
+    glm::vec4 getSpaceLeft(){
+        return m_free;
+    }
 private:
     std::vector<glm::vec4> m_generatedLayout;
     int m_used;
@@ -92,5 +123,6 @@ private:
     glm::vec4 m_bounds;
     glm::vec4 m_free;
     glm::vec4 m_padding {8,8,8,8}; // left, bottom, right, top
+    float m_spacing {8.f};
     float &m_x, &m_y, &m_w, &m_h;
 };

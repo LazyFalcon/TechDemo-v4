@@ -51,11 +51,10 @@ public:
         panel.width(0.8f).height(0.8f)
             .x(0.1f).y(0.1f)
             .blured(0x6D3A3150)();
-        panel.layout().padding({5,20,5,20}).toDown();
+        panel.layout().padding({5,20,5,20}).toDown(notEven({50, 1.f}));
         {
             Panel header(panel);
-            header.width(0.99f).height(50)
-                  .color(0x60606090)();
+            header.color(0x60606090)();
             header.layout().padding({}).spacing(0).toRight(even(4));
             header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Misc.").action([this]{m_currentPanel = Misc;});
             header.button().color(0x00000090)().formatting(Text::Centered).text("Video").action([this]{m_currentPanel = Video;});

@@ -73,6 +73,16 @@ public:
 
     Layout& toUp();
     Layout& toDown();
+    template<typename T>
+    Layout& toDown(T&& precalculator){
+        toDown();
+        auto itemSize = precalculator.precalculate(feedback, m_free, m_spacing, 1);
+
+        feedback = [this, itemSize](const glm::vec4& item){
+            return itemSize[m_helper++];
+        };
+        return *this;
+    }
     Layout& toRight();
     template<typename T>
     Layout& toRight(T&& precalculator){
@@ -81,9 +91,9 @@ public:
 
         feedback = [this, itemSize](const glm::vec4& item){
             return itemSize[m_helper++];
-    };
-    return *this;
-}
+        };
+        return *this;
+    }
     Layout& toLeft();
     Layout& dummy();
 
@@ -100,7 +110,7 @@ public:
         m_free[3] -= p[1] + p[3];
         return *this;
     }
-    Layout& spacng(float s){
+    Layout& spacing(float s){
         m_spacing = s;
 
         return *this;

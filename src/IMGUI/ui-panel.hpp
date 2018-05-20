@@ -76,7 +76,7 @@ private:
 
     float m_depth {};
     glm::vec4 m_size;
-    iBox m_bounds;
+    glm::vec4 m_bounds;
     int m_childCount {};
 
     RenderedUIItems::Background m_background;

@@ -27,13 +27,13 @@ public:
             float layer;
             // checks against position from initial click
             bool pressedOn(const glm::vec4& poly, float depth){
-                return on and position and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
+                return on and pressed(poly, depth);
             }
             bool pressedOff(const glm::vec4& poly, float depth){
-                return off and position and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
+                return off and pressed(poly, depth);
             }
             bool pressed(const glm::vec4& poly, float depth){
-                return pressedOff(poly, depth);
+                return position and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
             }
         } lmb, rmb;
 
@@ -86,6 +86,7 @@ public:
     void restart();
 
     void getKey(const glm::vec4& box){}
+    PointerActions getPointerAction(const glm::vec4& poly, float depth);
 
     RenderedUIItems& getToRender(){
         return *m_renderedUIItems;

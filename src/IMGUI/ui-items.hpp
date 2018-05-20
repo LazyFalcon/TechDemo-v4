@@ -1,7 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include "ui-text.hpp"
-// TODO: rename this, pleaseeee
+#include "ui-core.hpp"
 
 class Imgui;
 class Panel;
@@ -57,22 +57,22 @@ public:
     // default for LLM actions, unfortunately default is restricted keyword
     template<typename Callback>
     Item& action(Callback&& c){
-        if(m_hovered and isLmbPressed()) c();
+        if(m_action == PointerActions::LmbOff) c();
         return *this;
     }
     template<typename Callback>
     Item& actionOutside(Callback&& c){
-        if(!m_hovered and isAnyAction()) c();
+        if(m_action == PointerActions::ActionOutside) c();
         return *this;
     }
     template<typename Callback>
     Item& alternate(Callback&& c){
-        if(m_hovered and isRmbPressed()) c();
+        if(m_action == PointerActions::RmbOff) c();
         return *this;
     }
     template<typename Callback>
     Item& hover(Callback&& c){
-        if(m_hovered and isHover()) c();
+        if(m_hovered) c();
         return *this;
     }
 
@@ -84,6 +84,7 @@ private:
     Panel& m_panel;
 
     float m_depth;
+    PointerActions m_action {PointerActions::None};
     bool m_hovered;
 
     std::optional<int> m_keyPressed;

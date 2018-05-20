@@ -42,8 +42,8 @@ Item& Item::operator()(){
     m_size = m_panel.getLayout().feedback(m_size);
     // następnie feedback od ui -> akcje od myszy które odbywają się na tym prostokącie, pamiętać że mogą być różne typy przycisków
     // defaultowe akcje w zależności o typu
-    m_ui.getKey(m_size);
-    m_hovered = m_ui.input.hover(m_size, m_depth);
+    m_action = m_ui.getPointerAction(m_size, m_depth);
+    m_hovered = m_action>=PointerActions::Hover and m_action<=PointerActions::RmbHold;
     // render -> panel ma styler który powinien wygenerować odpowiednie elementy na podstawie danych o przycisku
 
     m_panel.getStyler().render(*this);
@@ -53,12 +53,11 @@ Item& Item::operator()(){
 
 Item& Item::operator()(float& value, float min, float max){
     m_size = m_panel.getLayout().feedback(m_size);
-    m_ui.getKey(m_size);
+    m_action = m_ui.getPointerAction(m_size, m_depth);
+    m_hovered = m_action>=PointerActions::Hover and m_action<=PointerActions::RmbHold;
 
     float ratio = (value - min)/(max - min);
     float slidePosition = m_size.x + m_size[2] * ratio;
-
-    m_hovered = m_ui.input.hover(m_size, m_depth);
 
     m_panel.getStyler().renderSlider(*this, ratio);
 

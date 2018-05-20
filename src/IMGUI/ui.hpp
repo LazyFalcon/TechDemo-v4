@@ -12,7 +12,7 @@ class Imgui
 {
 private:
     Panel m_defaultPanel;
-    i32 m_width, m_height;
+    int m_width, m_height;
     std::unique_ptr<RenderedUIItems> m_renderedUIItems;
 public:
     // handling mouse actions for proper actions
@@ -27,15 +27,15 @@ public:
             float layer;
             // checks against position from initial click
             bool pressedOn(const glm::vec4& poly, float depth){
-                return position and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
+                return on and position and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
             }
             bool pressedOff(const glm::vec4& poly, float depth){
-                return position and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
+                return off and position and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
             }
             bool pressed(const glm::vec4& poly, float depth){
                 return pressedOff(poly, depth);
             }
-        } main, alternate;
+        } lmb, rmb;
 
         glm::vec2 mousePos;
         glm::vec2 mouseTranslation;
@@ -52,21 +52,21 @@ public:
             return false;
         }
 
-        void defaultOn(){
-            main.position = mousePos;
-            main.on = true;
-            main.layer = cursorDepthInLastFrame;
+        void lmbOn(){
+            lmb.position = mousePos;
+            lmb.on = true;
+            lmb.layer = cursorDepthInLastFrame;
         }
-        void defaultOff(){ if(main.position){
-            main.off = true;
+        void lmbOff(){ if(lmb.position){
+            lmb.off = true;
         }}
-        void alternateOn(){
-            alternate.position = mousePos;
-            alternate.on = true;
-            alternate.layer = cursorDepthInLastFrame;
+        void rmbOn(){
+            rmb.position = mousePos;
+            rmb.on = true;
+            rmb.layer = cursorDepthInLastFrame;
         }
-        void alternateOff(){ if(alternate.position){
-            alternate.off = true;
+        void rmbOff(){ if(rmb.position){
+            rmb.off = true;
         }}
 
     } input;
@@ -74,7 +74,7 @@ public:
     Styler basicStyle;
     void* editedValue {nullptr}; // not for reading from, only to compare edited variables
 
-    Imgui(i32 width, i32 height, const std::string& name = "default");
+    Imgui(int width, int height, const std::string& name = "default");
     ~Imgui();
 
     Panel& panel(){ // returns active panel

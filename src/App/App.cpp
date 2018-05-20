@@ -72,24 +72,17 @@ bool App::initialize(){
 }
 void App::initializeInputDispatcher(){
     input->setAction("LMB", "default LMB", [this]{
-            imgui->input.defaultOn();
+            imgui->input.lmbOn();
         }, [this]{
-            imgui->input.defaultOff();
-            // KeyState::lClicked = false;
+            imgui->input.lmbOff();
         });
     input->setAction("MMB", "default MMB", [this]{
-            // KeyState::rClicked = true;
-            // KeyState::rClick = true;
         }, []{
-            // KeyState::rClicked = false;
         });
     input->setAction("RMB", "default RMB", [this]{
-            imgui->input.alternateOn();
-            // KeyState::mClicked = true;
-            // KeyState::mClick = true;
+            imgui->input.rmbOn();
         }, [this]{
-            imgui->input.alternateOff();
-            // KeyState::mClicked = false;
+            imgui->input.rmbOff();
         });
 
     input->setAction("printScreen", "", []{ TAKE_SCREENSHOT = true; });

@@ -3,7 +3,7 @@
 #include "ui-styler.hpp"
 #include "ui.hpp"
 
-Item& Item::x(i32 i){
+Item& Item::x(int i){
     m_size[0] = i;
     return *this;
 }
@@ -11,7 +11,7 @@ Item& Item::x(float i){
     m_size[0] = m_panel.getRelative(2, i);
     return *this;
 }
-Item& Item::y(i32 i){
+Item& Item::y(int i){
     m_size[1] = i;
     return *this;
 }
@@ -19,7 +19,7 @@ Item& Item::y(float i){
     m_size[1] = m_panel.getRelative(3, i);
     return *this;
 }
-Item& Item::w(i32 i){
+Item& Item::w(int i){
     m_size[2] = i;
     return *this;
 }
@@ -27,7 +27,7 @@ Item& Item::w(float i){
     m_size[2] = m_panel.getRelative(2, i);
     return *this;
 }
-Item& Item::h(i32 i){
+Item& Item::h(int i){
     m_size[3] = i;
     return *this;
 }
@@ -64,21 +64,21 @@ Item& Item::operator()(float& value, float min, float max){
 
     // now slider behavior
     // release slider
-    if(m_ui.editedValue == &value and m_ui.input.main.off){
+    if(m_ui.editedValue == &value and m_ui.input.lmb.off){
        m_ui.editedValue = nullptr;
     }
     // Move slider by mouse translation
-    else if(m_ui.editedValue == &value and m_ui.input.main.position){
+    else if(m_ui.editedValue == &value and m_ui.input.lmb.position){
         value += m_ui.input.mouseTranslation.x/m_size[2] * (max - min);
         value = glm::clamp(value, min, max);
     }
     // Catching slider
     bool isSlideHovered = m_ui.input.hover(glm::vec4(slidePosition-7, m_size.y, 14, m_size.w), m_depth);
-    if(isSlideHovered and m_ui.input.main.on){
+    if(isSlideHovered and m_ui.input.lmb.on){
         m_ui.editedValue = &value;
     }
     // if was pressed outside slide, move value in direction by 10%
-    else if(m_hovered and m_ui.input.main.on){
+    else if(m_hovered and m_ui.input.lmb.on){
         value += glm::sign(m_ui.input.mousePos.x - slidePosition) * 0.1f * (max - min);
         value = glm::clamp(value, min, max);
     }
@@ -98,12 +98,15 @@ Item& Item::text(const std::string& text){
     return *this;
 }
 
-bool Item::isDefaultPressed(){
-    return m_ui.input.main.off and m_ui.input.main.pressed(m_size, m_depth);
+bool Item::isLmbPressed(){
+    return m_ui.input.lmb.pressedOff(m_size, m_depth);
 }
-bool Item::isAlternatePressed(){
-    return m_ui.input.alternate.off and m_ui.input.alternate.pressed(m_size, m_depth);
+bool Item::isRmbPressed(){
+    return m_ui.input.rmb.pressedOn(m_size, m_depth);
 }
 bool Item::isHover(){
     return m_ui.input.hover(m_size, m_depth);
+}
+bool Item::isAnyAction(){
+    return m_ui.input.rmb.on or m_ui.input.rmb.off or m_ui.input.lmb.on or m_ui.input.lmb.off;
 }

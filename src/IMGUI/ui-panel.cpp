@@ -24,21 +24,21 @@ Panel::Panel(Imgui& imgui) : Panel(imgui.panel()){}
 Panel& Panel::width(float w){
     return width(m_parent->getRelative(2, w));
 }
-Panel& Panel::width(i32 w){
+Panel& Panel::width(int w){
     m_size.z = w;
     return *this;
 }
 Panel& Panel::height(float h){
     return height(m_parent->getRelative(3, h));
 }
-Panel& Panel::height(i32 h){
+Panel& Panel::height(int h){
     m_size.w = h;
     return *this;
 }
 Panel& Panel::x(float p){
     return x(m_parent->getRelative(2, p));
 }
-Panel& Panel::x(i32 p){
+Panel& Panel::x(int p){
     if(p < 0) m_size.x = m_parent->m_size.x + m_parent->m_size.z + p;
     else m_size.x = p + m_parent->m_size.x;
 
@@ -47,7 +47,7 @@ Panel& Panel::x(i32 p){
 Panel& Panel::y(float p){
     return y(m_parent->getRelative(3, p));
 }
-Panel& Panel::y(i32 p){
+Panel& Panel::y(int p){
     if(p < 0) m_size.y = m_parent->m_size.y + m_parent->m_size.w + p;
     else m_size.y = p + m_parent->m_size.y;
     return *this;

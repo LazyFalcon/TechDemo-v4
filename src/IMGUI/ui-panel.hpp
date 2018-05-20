@@ -9,7 +9,7 @@ class Layout;
 class Styler;
 
 // For dynamic number of childs
-// i32 is in pixels, float is relative to parent, it requires parent to be fixed size
+// int is in pixels, float is relative to parent, it requires parent to be fixed size
 
 class Panel
 {
@@ -38,15 +38,15 @@ public:
     }
 
     Panel& width(float);
-    Panel& width(i32);
+    Panel& width(int);
     Panel& height(float);
-    Panel& height(i32);
+    Panel& height(int);
     Panel& x(float);
-    Panel& x(i32);
+    Panel& x(int);
     Panel& y(float);
-    Panel& y(i32);
+    Panel& y(int);
 
-    i32 getRelative(i32 idx, float rel) const {
+    int getRelative(int idx, float rel) const {
         return rel <= 1.f and rel >= -1.f ? m_size[idx] * rel : rel;
     }
 

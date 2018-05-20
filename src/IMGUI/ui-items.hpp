@@ -16,13 +16,13 @@ public:
 
     Item(ItemType i, Imgui& ui, Panel& p, float depth) : m_type(i), m_ui(ui), m_panel(p), m_depth(depth){}
     // positioning
-    Item& x(i32 i);
+    Item& x(int i);
     Item& x(float i);
-    Item& y(i32 i);
+    Item& y(int i);
     Item& y(float i);
-    Item& w(i32 i);
+    Item& w(int i);
     Item& w(float i);
-    Item& h(i32 i);
+    Item& h(int i);
     Item& h(float i);
 
     // finishing functions
@@ -50,23 +50,24 @@ public:
     }
     Item& text(const std::string& text);
 
-    bool isDefaultPressed();
-    bool isAlternatePressed();
+    bool isLmbPressed();
+    bool isRmbPressed();
+    bool isAnyAction();
     bool isHover(); // au
     // default for LLM actions, unfortunately default is restricted keyword
     template<typename Callback>
     Item& action(Callback&& c){
-        if(m_hovered and isDefaultPressed()) c();
+        if(m_hovered and isLmbPressed()) c();
         return *this;
     }
     template<typename Callback>
     Item& actionOutside(Callback&& c){
-        if(!m_hovered and isDefaultPressed()) c();
+        if(!m_hovered and isAnyAction()) c();
         return *this;
     }
     template<typename Callback>
     Item& alternate(Callback&& c){
-        if(m_hovered and isAlternatePressed()) c();
+        if(m_hovered and isRmbPressed()) c();
         return *this;
     }
     template<typename Callback>
@@ -85,8 +86,8 @@ private:
     float m_depth;
     bool m_hovered;
 
-    std::optional<i32> m_keyPressed;
-    std::optional<i32> m_image;
+    std::optional<int> m_keyPressed;
+    std::optional<int> m_image;
 
     std::optional<std::string> m_font;
     std::optional<u32> m_textColor;

@@ -15,21 +15,25 @@ public:
         sub.width(itemSize[1]).height(itemSize[1])();
         sub.layout().spacing(0).padding({}).toRight();
 
-        sub.item().w(itemSize[1]).h(itemSize[1])().text("\\/");
-        sub.item().w(itemSize[0]-itemSize[1]).h(itemSize[1])().text(m_selected.first)
-           .action([this]{m_expanded = !m_expanded;})
-           .actionOutside([this]{m_expanded = false;});
+
         if(m_expanded){
             Panel panel(parentPanel.getUi());
             float height = m_values.size() * itemSize[1];
             panel.x(sub.getSize().x).y(sub.getSize().y-height)
-                 .width(itemSize[0]).height(height)();
+                 .width(itemSize[0]).height(height)()
+                 .actionOutside([this]{m_expanded = false;});
             panel.color(0);
             panel.layout().spacing(0).padding({}).toDown();
             for(auto&it : m_values)
                 panel.item().w(itemSize[0]).h(itemSize[1])().text(it.first);
         }
 
+        // ugly temporary workaround for order of call evaluation
+        // function to expand list must be called after functio to hide list, because they are reading the same states
+        // TODO: find solution for this, it isn't convinient now
+        sub.item().w(itemSize[1]).h(itemSize[1])().text("\\/");
+        sub.item().w(itemSize[0]-itemSize[1]).h(itemSize[1])().text(m_selected.first)
+           .action([this]{m_expanded = !m_expanded;});
     }
 
 };

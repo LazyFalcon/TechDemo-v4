@@ -7,6 +7,52 @@
 class Panel;
 class RenderedUIItems;
 
+struct ItemActions {
+    struct Action {
+        std::optional<glm::vec2> position;
+        bool on;
+        bool off;
+        float layer;
+        // checks against position from initial click
+        bool pressedOn(const glm::vec4& poly, float depth){
+            return on and pressed(poly, depth);
+        }
+        bool pressedOff(const glm::vec4& poly, float depth){
+            return off and pressed(poly, depth);
+        }
+        bool pressed(const glm::vec4& poly, float depth){
+            return position and depth == layer and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
+        }
+    } lmb, rmb;
+
+    glm::vec2 mousePos;
+    glm::vec2 mouseTranslation;
+    float cursorDepthInThisFrame;
+    float cursorDepthInLastFrame; // to cover scenario in which items/panels are overlapping
+
+    // checks agains layer and current mouse position
+    bool hover(const glm::vec4& poly, float depth);
+    PointerActions getPointerAction(const glm::vec4& poly, float depth);
+    void reset();
+
+    void lmbOn(){
+        lmb.position = mousePos;
+        lmb.on = true;
+        lmb.layer = cursorDepthInLastFrame;
+    }
+    void lmbOff(){ if(lmb.position){
+        if(lmb.position) lmb.off = true;
+    }}
+    void rmbOn(){
+        rmb.position = mousePos;
+        rmb.on = true;
+        rmb.layer = cursorDepthInLastFrame;
+    }
+    void rmbOff(){ if(rmb.position){
+        if(rmb.position) rmb.off = true;
+    }}
+};
+
 // Main class of this miracle
 class Imgui
 {
@@ -16,60 +62,7 @@ private:
     std::unique_ptr<RenderedUIItems> m_renderedUIItems;
 public:
     // handling mouse actions for proper actions
-    struct {
-        enum ItemAction {
-            None, Hover, Default, Alternate
-        };
-        struct Action {
-            std::optional<glm::vec2> position;
-            bool on;
-            bool off;
-            float layer;
-            // checks against position from initial click
-            bool pressedOn(const glm::vec4& poly, float depth){
-                return on and pressed(poly, depth);
-            }
-            bool pressedOff(const glm::vec4& poly, float depth){
-                return off and pressed(poly, depth);
-            }
-            bool pressed(const glm::vec4& poly, float depth){
-                return position and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
-            }
-        } lmb, rmb;
-
-        glm::vec2 mousePos;
-        glm::vec2 mouseTranslation;
-        float cursorDepthInThisFrame;
-        float cursorDepthInLastFrame; // to cover scenario in which items/panels are overlapping
-
-        // checks agains layer and current mouse position
-        bool hover(const glm::vec4& poly, float depth){
-            bool hasHover = (mousePos.x>=poly.x and mousePos.x <=poly.x+poly.z) and (mousePos.y >=poly.y and mousePos.y <=poly.y+poly.w);
-            if(hasHover and depth >= cursorDepthInLastFrame){
-                cursorDepthInThisFrame = depth;
-                return true;
-            }
-            return false;
-        }
-
-        void lmbOn(){
-            lmb.position = mousePos;
-            lmb.on = true;
-            lmb.layer = cursorDepthInLastFrame;
-        }
-        void lmbOff(){ if(lmb.position){
-            lmb.off = true;
-        }}
-        void rmbOn(){
-            rmb.position = mousePos;
-            rmb.on = true;
-            rmb.layer = cursorDepthInLastFrame;
-        }
-        void rmbOff(){ if(rmb.position){
-            rmb.off = true;
-        }}
-
-    } input;
+    ItemActions input, panelInput;
 
     Styler basicStyle;
     void* editedValue {nullptr}; // not for reading from, only to compare edited variables

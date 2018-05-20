@@ -16,43 +16,54 @@ Imgui::Imgui(int width, int height, const std::string& name):
 
 void Imgui::restart(){
     m_renderedUIItems->reset();
+
     // cleanup all states
+    input.reset();
+    panelInput.reset();
 
-    input.lmb.on = false;
-    if(input.lmb.off) input.lmb.position.reset();
-    input.lmb.off = false;
-    input.rmb.on = false;
-    if(input.rmb.off) input.rmb.position.reset();
-    input.rmb.off = false;
-
-    input.cursorDepthInLastFrame = input.cursorDepthInThisFrame;
-    input.cursorDepthInThisFrame = 0;
-    input.mouseTranslation = glm::vec2(0);
-
-    // recreate window panel, easier than reset function
-    // m_defaultPanel.width(m_width).height(m_height).layout().dummy();
     m_defaultPanel.reset();
+}
+
+bool ItemActions::hover(const glm::vec4& poly, float depth){
+    bool hasHover = (mousePos.x>=poly.x and mousePos.x <=poly.x+poly.z) and (mousePos.y >=poly.y and mousePos.y <=poly.y+poly.w);
+    if(hasHover and depth >= cursorDepthInLastFrame){
+        cursorDepthInThisFrame = depth;
+        return true;
+    }
+    return false;
+}
+void ItemActions::reset(){
+    lmb.on = false;
+    if(lmb.off) lmb.position.reset();
+    lmb.off = false;
+    rmb.on = false;
+    if(rmb.off) rmb.position.reset();
+    rmb.off = false;
+
+    cursorDepthInLastFrame = cursorDepthInThisFrame;
+    cursorDepthInThisFrame = 0;
+    mouseTranslation = glm::vec2(0);
 }
 /*
     Action to be performed on item should have been pressed on 'on' and on 'out', otherwise it doesn't count
 */
-PointerActions Imgui::getPointerAction(const glm::vec4& poly, float depth){
+PointerActions ItemActions::getPointerAction(const glm::vec4& poly, float depth){
     auto out = PointerActions::None;
-    if(input.hover(poly, depth)) out = PointerActions::Hover;
+    if(hover(poly, depth)) out = PointerActions::Hover;
 
-    if(out == PointerActions::Hover and input.lmb.pressed(poly, depth)){
-        if(input.lmb.on) return PointerActions::LmbOn;
-        if(input.lmb.off) return PointerActions::LmbOff;
+    if(out == PointerActions::Hover and lmb.pressed(poly, depth)){
+        if(lmb.on) return PointerActions::LmbOn;
+        if(lmb.off) return PointerActions::LmbOff;
         out = PointerActions::LmbHold;
     }
 
-    if(out == PointerActions::Hover and input.rmb.pressed(poly, depth)){
-        if(input.rmb.on) return PointerActions::RmbOn;
-        if(input.rmb.off) return PointerActions::RmbOff;
+    if(out == PointerActions::Hover and rmb.pressed(poly, depth)){
+        if(rmb.on) return PointerActions::RmbOn;
+        if(rmb.off) return PointerActions::RmbOff;
         out = PointerActions::RmbHold;
     }
 
-    if(out == PointerActions::None and input.rmb.on or input.rmb.off or input.lmb.on or input.lmb.off)
+    if(out == PointerActions::None and rmb.on or rmb.off or lmb.on or lmb.off)
         return PointerActions::ActionOutside;
 
     return out;

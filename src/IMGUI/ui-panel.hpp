@@ -46,8 +46,30 @@ public:
     Panel& y(float);
     Panel& y(int);
 
+    // misc
     int getRelative(int idx, float rel) const {
         return rel <= 1.f and rel >= -1.f ? m_size[idx] * rel : rel;
+    }
+
+    template<typename Callback>
+    Panel& action(Callback&& c){
+        if(m_action == PointerActions::LmbOff) c();
+        return *this;
+    }
+    template<typename Callback>
+    Panel& actionOutside(Callback&& c){
+        if(m_action == PointerActions::ActionOutside) c();
+        return *this;
+    }
+    template<typename Callback>
+    Panel& alternate(Callback&& c){
+        if(m_action == PointerActions::RmbOff) c();
+        return *this;
+    }
+    template<typename Callback>
+    Panel& hover(Callback&& c){
+        if(m_hovered) c();
+        return *this;
     }
 
     // apperance
@@ -61,7 +83,6 @@ public:
     Item slider();
     Item checkbox();
     Item radio();
-
 
     void reset(){
         m_childCount = 0;
@@ -78,6 +99,8 @@ private:
     glm::vec4 m_size;
     glm::vec4 m_bounds;
     int m_childCount {};
+    PointerActions m_action {PointerActions::None};
+    bool m_hovered;
 
     RenderedUIItems::Background m_background;
     bool m_blured {false};

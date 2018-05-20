@@ -73,16 +73,20 @@ bool App::initialize(){
 void App::initializeInputDispatcher(){
     input->setAction("LMB", "default LMB", [this]{
             imgui->input.lmbOn();
+            imgui->panelInput.lmbOn();
         }, [this]{
             imgui->input.lmbOff();
+            imgui->panelInput.lmbOff();
         });
     input->setAction("MMB", "default MMB", [this]{
         }, []{
         });
     input->setAction("RMB", "default RMB", [this]{
             imgui->input.rmbOn();
+            imgui->panelInput.rmbOn();
         }, [this]{
             imgui->input.rmbOff();
+            imgui->panelInput.rmbOff();
         });
 
     input->setAction("printScreen", "", []{ TAKE_SCREENSHOT = true; });
@@ -132,9 +136,11 @@ void App::initializeInputDispatcher(){
         }, []{});
     input->setAction("MousePosition", "ui mouse", [this](float x, float y){
         imgui->input.mousePos = glm::vec2(x,y);
+        imgui->panelInput.mousePos = glm::vec2(x,y);
     });
     input->setAction("MouseMove", "ui mouse", [this](float x, float y){
         imgui->input.mouseTranslation = glm::vec2(x,y) * window->size*2.f;
+        imgui->panelInput.mouseTranslation = glm::vec2(x,y) * window->size*2.f;
     });
 
     input->activate();

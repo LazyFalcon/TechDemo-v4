@@ -8,7 +8,11 @@ Panel& Panel::operator()(){
 
     m_background.box = m_size;
     m_background.depth = m_depth;
-    m_imgui->input.hover(m_size, m_depth);
+
+    m_imgui->input.hover(m_size, m_depth); // to hide items below this panel
+    m_action = m_imgui->panelInput.getPointerAction(m_size, m_depth);
+    m_hovered = m_action>=PointerActions::Hover and m_action<=PointerActions::RmbHold;
+
     m_style->render(*this);
 
     return *this;

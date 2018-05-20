@@ -11,6 +11,7 @@
 #include "ui-renderer.hpp"
 #include "ui-text.hpp"
 #include "ui.hpp"
+#include "ui-widgets.hpp"
 
 struct LobbyViewState
 {
@@ -27,12 +28,20 @@ private:
 
     void drawMisc(Imgui& ui, Panel& parentPanel){
         Panel panel(parentPanel);
-        panel.width(1.f).height(1.f).color(0x01010110)();
+        panel.color(0x01010110)();
         panel.layout().toDown();
 
         panel.item().w(250).h(35)().text("Nothing to se here..");
     }
+
+    DropDownList<glm::vec2> m_windowSizes;
     void drawVideo(Imgui& ui, Panel& parentPanel){
+        Panel panel(parentPanel);
+        panel.color(0x01010110)();
+        panel.layout().toDown();
+
+        // panel.checkbox().w(160).h(35)(m_settings.fullscreen);
+        m_windowSizes.execute(panel, {250, 35});
 
     }
     void drawAudio(Imgui& ui, Panel& parentPanel){
@@ -43,7 +52,8 @@ private:
     }
 
 public:
-    LobbySettings(Settings& settings) : m_settings(settings){}
+    // LobbySettings(Settings& settings) : m_settings(settings), m_windowSizes({{{"1600x900"}, {1600,900}}}, {{"1600x900"}, {1600,900}}){}
+    LobbySettings(Settings& settings) : m_settings(settings), m_windowSizes({{{"1600x900"}, {1600,900}}, {{"1920x1080"}, {1920,1080}}, {{"1920x1200"},{1920,1200}}}, {{"1600x900"}, {1600,900}}){}
     bool execute(Imgui& ui) override {
 
 

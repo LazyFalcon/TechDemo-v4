@@ -79,17 +79,25 @@ Panel& Panel::blured(u32 c){
 
 Item Panel::button(){
     Item i(Item::Button, *m_imgui, *this, m_depth+0.0001f);
-
     return i;
 }
 
 Item Panel::item(){
     Item i(Item::Button, *m_imgui, *this, m_depth+0.0001f);
-
     return i;
 }
 
 Item Panel::slider(){
+    Item i(Item::Slider, *m_imgui, *this, m_depth+0.0001f);
+    return i;
+}
+
+Item Panel::checkbox(){
+    Item i(Item::Slider, *m_imgui, *this, m_depth+0.0001f);
+    return i;
+}
+
+Item Panel::radio(){
     Item i(Item::Slider, *m_imgui, *this, m_depth+0.0001f);
 
     return i;

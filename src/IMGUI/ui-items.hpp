@@ -11,7 +11,7 @@ class Item
 {
 public:
     enum ItemType {
-        Button, Slider, TextOnly
+        Button, Slider, TextOnly, Radio, Checkbox
     };
 
     Item(ItemType i, Imgui& ui, Panel& p, float depth) : m_type(i), m_ui(ui), m_panel(p), m_depth(depth){}
@@ -57,6 +57,11 @@ public:
     template<typename Callback>
     Item& action(Callback&& c){
         if(m_hovered and isDefaultPressed()) c();
+        return *this;
+    }
+    template<typename Callback>
+    Item& actionOutside(Callback&& c){
+        if(!m_hovered and isDefaultPressed()) c();
         return *this;
     }
     template<typename Callback>

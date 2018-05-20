@@ -33,6 +33,9 @@ public:
     Styler& getStyler(){
         return *m_style;
     }
+    const glm::vec4& getSize(){
+        return m_size;
+    }
 
     Panel& width(float);
     Panel& width(i32);
@@ -56,6 +59,8 @@ public:
     Item button();
     Item item();
     Item slider();
+    Item checkbox();
+    Item radio();
 
 
     void reset(){

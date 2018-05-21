@@ -60,11 +60,11 @@ void Layout::setBounds(glm::vec4 b){
     m_bounds = m_free = b;
 }
 
-Layout& Layout::toUp(){
+Layout& Layout::toUp(Alignment alignment){
 
     return *this;
 }
-Layout& Layout::toDown(){
+Layout& Layout::toDown(Alignment alignment){
     feedback = [this](const glm::vec4& item){
         float x(item[0]), y(item[1]), w(item[2]), h(item[3]);
         // clamp item width to panel width
@@ -74,8 +74,8 @@ Layout& Layout::toDown(){
         // little not consistent here, x,y received from item are displacement in main direction, not from lower left corner
         y = m_y + m_h - std::max(y, h);
 
-        // center item in panel, here we have one column
-        x = m_x + floor(0.5f * (m_w - w));
+        // apply alignemt
+        x = LEFT? m_x : RIGHT? (m_x + m_w - w) : (m_x + floor(0.5f * (m_w - w)));
         // cut free space
         m_h = y - m_y - m_spacing;
 
@@ -84,7 +84,7 @@ Layout& Layout::toDown(){
 
     return *this;
 }
-Layout& Layout::toRight(){
+Layout& Layout::toRight(Alignment alignment){
     feedback = [this](const glm::vec4& item){
         float x(item[0]), y(item[1]), w(item[2]), h(item[3]);
         // cut item height to panel height and padding
@@ -92,8 +92,9 @@ Layout& Layout::toRight(){
 
         x = m_x + m_padding[0];
 
-        // center item in panel, here we have one column
-        y = m_y + floor(0.5f * (m_h - h));
+        // apply alignemt
+        y = UP? (m_y + m_h - h) : DOWN? m_y : (m_y + floor(0.5f * (m_h - h)));
+        
         // cut free space
         float prev_x = m_x;
         m_x = x + w + m_spacing;
@@ -103,7 +104,7 @@ Layout& Layout::toRight(){
     };
     return *this;
 }
-Layout& Layout::toLeft(){
+Layout& Layout::toLeft(Alignment alignment){
 
     return *this;
 }

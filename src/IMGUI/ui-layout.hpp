@@ -6,7 +6,7 @@ using LayoutStrategy = std::function<glm::vec4(const glm::vec4&)>;
 
 enum Alignment
 {
-    RIGHT, LEFT, CENTERED, TOP, BOTTOM
+    RIGHT, LEFT, CENTERED, UP, DOWN
 };
 /*
     Distribute n elements evenly in given space
@@ -71,11 +71,11 @@ public:
     void setBounds(glm::vec4 b);
     void compile(){}
 
-    Layout& toUp();
-    Layout& toDown();
+    Layout& toUp(Alignment alignment = CENTER);
+    Layout& toDown(Alignment alignment = CENTER);
     template<typename T>
-    Layout& toDown(T&& precalculator){
-        toDown();
+    Layout& toDown(T&& precalculator, Alignment alignment = CENTER){
+        toDown(alignment);
         auto itemSize = precalculator.precalculate(feedback, m_free, m_spacing, 1);
 
         feedback = [this, itemSize](const glm::vec4& item){
@@ -83,10 +83,10 @@ public:
         };
         return *this;
     }
-    Layout& toRight();
+    Layout& toRight(Alignment alignment = CENTER);
     template<typename T>
-    Layout& toRight(T&& precalculator){
-        toRight();
+    Layout& toRight(T&& precalculator, Alignment alignment = CENTER){
+        toRight(alignment);
         auto itemSize = precalculator.precalculate(feedback, m_free, m_spacing, 0);
 
         feedback = [this, itemSize](const glm::vec4& item){
@@ -94,7 +94,7 @@ public:
         };
         return *this;
     }
-    Layout& toLeft();
+    Layout& toLeft(Alignment alignment = CENTER);
     Layout& dummy();
 
     /*  ______<w>_______

@@ -85,27 +85,28 @@ bool Panel::onKey(const std::string& key){
 }
 
 Item Panel::button(){
-    Item i(Item::Button, *m_imgui, *this, m_depth+0.0001f);
+    Item i(Item::Button, *m_imgui, *this, m_depth+0.0001f, m_itemId++);
+    if(m_quickStyler) m_quickStyler(i);
     return i;
 }
 
 Item Panel::item(){
-    Item i(Item::Button, *m_imgui, *this, m_depth+0.0001f);
+    Item i(Item::Button, *m_imgui, *this, m_depth+0.0001f, m_itemId++);
+    if(m_quickStyler) m_quickStyler(i);
     return i;
 }
 
 Item Panel::slider(){
-    Item i(Item::Slider, *m_imgui, *this, m_depth+0.0001f);
+    Item i(Item::Slider, *m_imgui, *this, m_depth+0.0001f, m_itemId++);
     return i;
 }
 
 Item Panel::checkbox(){
-    Item i(Item::Slider, *m_imgui, *this, m_depth+0.0001f);
+    Item i(Item::Slider, *m_imgui, *this, m_depth+0.0001f, m_itemId++);
     return i;
 }
 
 Item Panel::radio(){
-    Item i(Item::Slider, *m_imgui, *this, m_depth+0.0001f);
-
+    Item i(Item::Slider, *m_imgui, *this, m_depth+0.0001f, m_itemId++);
     return i;
 }

@@ -14,7 +14,7 @@ public:
         Button, Slider, TextOnly, Radio, Checkbox
     };
 
-    Item(ItemType i, Imgui& ui, Panel& p, float depth) : m_type(i), m_ui(ui), m_panel(p), m_depth(depth){}
+    Item(ItemType i, Imgui& ui, Panel& p, float depth, int id) : m_type(i), m_ui(ui), m_panel(p), m_depth(depth), m_id(id){}
     // positioning
     Item& x(int i);
     Item& x(float i);
@@ -33,7 +33,7 @@ public:
 
     //
     Item& font(const std::string& f){
-        m_font = f;
+        if(not f.empty()) m_font = f;
         return *this;
     }
     Item& textColor(u32 c){
@@ -50,6 +50,9 @@ public:
     }
     Item& text(const std::string& text);
 
+    int id() const {
+        return m_id;
+    }
     bool isLmbPressed();
     bool isRmbPressed();
     bool isAnyAction();
@@ -83,6 +86,7 @@ private:
     Imgui& m_ui;
     Panel& m_panel;
 
+    int m_id;
     float m_depth;
     PointerActions m_action {PointerActions::None};
     bool m_hovered;

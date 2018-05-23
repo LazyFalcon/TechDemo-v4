@@ -5,7 +5,7 @@
 
 
 void Styler::render(Panel& panel){
-    panel.m_background.color = 0x10101010;
+    // panel.m_background.color = 0x10101010;
     if(panel.m_background.color & 0x00000011) m_renderedUiItems.put<RenderedUIItems::Background>(panel.m_background);
     if(panel.m_blured) m_renderedUiItems.put<RenderedUIItems::ToBlur>(RenderedUIItems::ToBlur {panel.m_background.box, panel.m_background.depth });
 }
@@ -16,8 +16,7 @@ void Styler::render(Item& item){
 
     itemColor = item.m_color.value_or(itemColor);
 
-    // if(itemColor & 0x00000011)
-    m_renderedUiItems.put<RenderedUIItems::ColoredBox>({item.m_size, item.m_depth, itemColor});
+    if(itemColor) m_renderedUiItems.put<RenderedUIItems::ColoredBox>({item.m_size, item.m_depth, itemColor});
 }
 void Styler::renderSlider(Item& item, float ratio){
     m_renderedUiItems.put<RenderedUIItems::ColoredBox>({item.m_size, item.m_depth, 0x808080f0});

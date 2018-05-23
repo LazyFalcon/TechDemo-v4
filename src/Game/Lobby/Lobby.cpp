@@ -24,7 +24,7 @@ struct LobbySettings : public LobbyViewState
 private:
     Settings& m_settings;
     enum Views {Misc, Video, Audio, Controls};
-    Views m_currentPanel = Misc;
+    int m_currentPanel = Misc;
 
     void drawMisc(Imgui& ui, Panel& parentPanel){
         Panel panel(parentPanel);
@@ -50,28 +50,30 @@ private:
     }
 
 public:
-    // LobbySettings(Settings& settings) : m_settings(settings), m_windowSizes({{{"1600x900"}, {1600,900}}}, {{"1600x900"}, {1600,900}}){}
     LobbySettings(Settings& settings) : m_settings(settings), m_windowSizes({{{"1600x900"}, {1600,900}}, {{"1920x1080"}, {1920,1080}}, {{"1920x1200"},{1920,1200}}}, {{"1600x900"}, {1600,900}}){}
     bool execute(Imgui& ui) override {
 
         Panel panel(ui);
         panel.width(0.8f).height(0.8f)
             .x(0.1f).y(0.1f)
-            .blured(0x6D3A3150)();
+            .blured(0x10101010)();
         panel.layout().padding({20,20,20,20}).spacing(25).toDown(notEven({50, 1.f}));
         if(panel.onKey("on-esc")){
-            log("Noooo wylacz to UI!!");
             return false;
         }
-        {
-            Panel header(panel);
-            header.color(0x60606090)();
-            header.layout().padding({}).spacing(0).toRight(even(4));
-            header.button()().formatting(Text::Centered).text("Misc.").action([this]{m_currentPanel = Misc;});
-            header.button()().formatting(Text::Centered).text("Video").action([this]{m_currentPanel = Video;});
-            header.button()().formatting(Text::Centered).text("Audio").action([this]{m_currentPanel = Audio;});
-            header.button()().formatting(Text::Centered).text("Controls").action([this]{m_currentPanel = Controls;});
-        }
+
+        Panel header(panel);
+        header.color(0)();
+        header.layout().padding({}).spacing(0).toRight(even(4));
+        header.quickStyler([this](Item& item){
+            item.formatting(Text::Centered).color(0);
+            if(item.id()==m_currentPanel) item.font("ui_20_bold");
+            item().action([this, &item]{m_currentPanel = item.id();});
+        });
+        header.button().text("Misc.");
+        header.button().text("Video");
+        header.button().text("Audio");
+        header.button().text("Controls");
 
         switch(m_currentPanel){
             case Misc: drawMisc(ui, panel); break;
@@ -110,19 +112,22 @@ private:
         Panel panel(ui);
         panel.width(350).height(1.f)
             .x(startPosition).y(0)
-            .blured(0x6D3A3150)();
+            .blured(0x10101010)();
         panel.layout().spacing(15).toDown();
+        panel.quickStyler([](Item& item){
+            item.w(0.9f).h(44).formatting(Text::Centered);
+        });
         // panel.emptySpace(0.6f);
-        panel.button().y(0.6f).w(0.9f).h(44)().formatting(Text::Centered).text("New Game");
-        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Continue");
-        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Settings").action([this]{
+        panel.button().y(0.6f)().text("New Game");
+        panel.button()().text("Continue");
+        panel.button()().text("Settings").action([this]{
             fadeOut([this]{fadeOut([this]{ m_currentState = m_settings; });});
         });
         panel.slider().w(0.9f).h(20)(toSlide, 0.f, 100.f).formatting(Text::Centered).text("Volume " + toString(floor(toSlide)));
-        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Credits").action([this]{
+        panel.button()().text("Credits").action([this]{
             fadeOut([this]{log("Credits? Me! Lazy Falcon!");fadeIn();});
         });
-        panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Exit").action([this]{
+        panel.button()().text("Exit").action([this]{
             fadeOut([]{event<ExitGame>();});
         });
 

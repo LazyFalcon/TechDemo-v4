@@ -72,6 +72,12 @@ public:
         return *this;
     }
 
+    template<typename Callback>
+    Panel& quickStyler(Callback&& c){
+        m_quickStyler = std::move(c);
+        return *this;
+    }
+
     bool onKey(const std::string& key);
 
     // apperance
@@ -96,7 +102,9 @@ private:
     Panel* m_parent {nullptr};
     Styler* m_style {nullptr};
     Layout m_layout;
+    std::function<void(Item&)> m_quickStyler;
 
+    int m_itemId{};
     float m_depth {};
     glm::vec4 m_size;
     glm::vec4 m_bounds;

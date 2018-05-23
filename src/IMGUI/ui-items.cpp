@@ -96,6 +96,11 @@ Item& Item::text(const std::string& text){
 
     return *this;
 }
+Item& Item::symbol(const std::u16string& text, const std::string& font){
+    m_panel.getStyler().renderSymbol(*this, text, font);
+
+    return *this;
+}
 
 bool Item::isLmbPressed(){
     return m_ui.input.lmb.pressedOff(m_size, m_depth);

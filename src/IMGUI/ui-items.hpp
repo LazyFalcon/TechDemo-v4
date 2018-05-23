@@ -49,6 +49,7 @@ public:
         return *this;
     }
     Item& text(const std::string& text);
+    Item& symbol(const std::u16string& text, const std::string& font="sym_20");
 
     int id() const {
         return m_id;

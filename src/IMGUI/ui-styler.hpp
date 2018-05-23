@@ -17,4 +17,5 @@ public:
     void render(Item& item);
     void renderSlider(Item& item, float ratio);
     void renderText(Item& item, const std::string& text);
+    void renderSymbol(Item& item, const std::u16string& text, const std::string& font = "sym_20");
 };

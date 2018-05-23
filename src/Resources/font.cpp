@@ -30,11 +30,14 @@ glm::vec4 splitVec4(std::string toSplit){
     return out;
 }
 
-int rgxIntSearch(const std::string &word, const std::string &rgx){
+std::optional<int> rgxIntSearch(const std::string &word, const std::string &rgx){
     std::smatch match;
     std::regex regex(rgx);
-    std::regex_search(word, match, regex);
-    return std::stoi(match[1]);
+    if(std::regex_search(word, match, regex))
+        return std::stoi(match[1]);
+
+    return {};
+
 }
 std::string regexStringSearch(const std::string &word, const std::string &rgx){
     std::smatch match;
@@ -67,7 +70,7 @@ std::vector<int> rgxVecIntSearch(const std::string &line){
 
 void Font::loadCharacter(const std::string &line, float imageWidth, float imageHeight, int pageOffset){
     auto &&vec = rgxVecFloatSearch(line);
-    int16_t id = vec[0];
+    char16_t id = vec[0];
     float x = vec[1]; // left position of glyph
     float y = vec[2]; // top position of glyph
     float pxWidth = vec[3];
@@ -99,9 +102,9 @@ void Font::load(const std::string &name, std::vector<std::string> &imagesToLoad)
     getline(file, info);
     getline(file, common);
 
-    lineHeight = rgxIntSearch(common, R"(lineHeight=([0-9]+))");
-    base = rgxIntSearch(common, R"(base=([0-9]+))");
-    int pages = rgxIntSearch(common, R"(pages=([0-9]+))");
+    lineHeight = *rgxIntSearch(common, R"(lineHeight=([0-9]+))");
+    base = *rgxIntSearch(common, R"(base=([0-9]+))");
+    int pages = *rgxIntSearch(common, R"(pages=([0-9]+))");
     int pageOffset = imagesToLoad.size();
     for(auto i=0; i<pages; i++){
         getline(file, page);
@@ -109,9 +112,9 @@ void Font::load(const std::string &name, std::vector<std::string> &imagesToLoad)
     }
     getline(file, count);
 
-    float sizeU = (float)rgxIntSearch(common, R"(scaleW=([\-]?[0-9]+))");
-    float sizeV = (float)rgxIntSearch(common, R"(scaleH=([\-]?[0-9]+))");
-    int charCount = rgxIntSearch(count, R"(chars count=([\-]?[0-9]+))");
+    float sizeU = *rgxIntSearch(common, R"(scaleW=([\-]?[0-9]+))");
+    float sizeV = *rgxIntSearch(common, R"(scaleH=([\-]?[0-9]+))");
+    int charCount = *rgxIntSearch(count, R"(chars count=([\-]?[0-9]+))");
 
     lines.resize(charCount);
     for(int i = 0; i < charCount; i++){
@@ -122,14 +125,15 @@ void Font::load(const std::string &name, std::vector<std::string> &imagesToLoad)
     }
     std::string kernings;
     getline(file, kernings);
-    int kerningCount = rgxIntSearch(kernings, R"(kernings count=([\-]?[0-9]+))");
-    lines.resize(kerningCount);
+    auto kerningCount = rgxIntSearch(kernings, R"(kernings count=([\-]?[0-9]+))");
+    if(kerningCount){
+        lines.resize(*kerningCount);
 
-    for (int i = 0; i < kerningCount; i++)
-        getline(file, lines[i]);
-    for(auto &it : lines)
-        loadKerning(it);
-
+        for (int i = 0; i < *kerningCount; i++)
+            getline(file, lines[i]);
+        for(auto &it : lines)
+            loadKerning(it);
+    }
     file.close();
 
     dotLen = symbols['.'].pxAdvance;

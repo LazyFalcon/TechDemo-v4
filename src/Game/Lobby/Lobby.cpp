@@ -28,15 +28,16 @@ private:
 
     void drawMisc(Imgui& ui, Panel& parentPanel){
         Panel panel(parentPanel);
-        panel.layout().toDown();
-
+        panel.color(0)();
+        panel.layout().padding({20,20,20,20}).spacing(25).toDown(LEFT);
         panel.item().w(250).h(35)().text("Nothing to se here..");
     }
 
     DropDownList<glm::vec2> m_windowSizes;
     void drawVideo(Imgui& ui, Panel& parentPanel){
         Panel panel(parentPanel);
-        panel.layout().toDown(LEFT);
+        panel.color(0)();
+        panel.layout().padding({20,20,20,20}).spacing(25).toDown(LEFT);
 
         // panel.checkbox().w(160).h(35)(m_settings.fullscreen);
         m_windowSizes.execute(panel, {250, 35});
@@ -62,24 +63,26 @@ public:
             return false;
         }
 
-        Panel header(panel);
-        header.color(0)();
-        header.layout().padding({}).spacing(0).toRight(even(4));
-        header.quickStyler([this](Item& item){
-            item.formatting(Text::Centered).color(0);
-            if(item.id()==m_currentPanel) item.font("ui_20_bold");
-            item().action([this, &item]{m_currentPanel = item.id();});
-        });
-        header.button().text("Misc.");
-        header.button().text("Video");
-        header.button().text("Audio");
-        header.button().text("Controls");
+            Panel header(panel);
+            header.color(0)();
+            header.layout().padding({}).spacing(0).toRight(even(4));
+            header.quickStyler([this](Item& item){
+                item.formatting(Text::Centered).color(0);
+                if(item.id()==m_currentPanel) item.font("ui_20_bold");
+                item().action([this, &item]{m_currentPanel = item.id();});
+            });
+            header.button().text("Misc.");
+            header.button().text("Video");
+            header.button().text("Audio");
+            header.button().text("Controls");
 
         switch(m_currentPanel){
             case Misc: drawMisc(ui, panel); break;
             case Video: drawVideo(ui, panel); break;
             case Audio: drawAudio(ui, panel); break;
             case Controls: drawControls(ui, panel); break;
+            default:
+                log("unknown panel", m_currentPanel);
         }
 
 

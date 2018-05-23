@@ -65,7 +65,7 @@ Layout& Layout::toUp(Alignment alignment){
     return *this;
 }
 Layout& Layout::toDown(Alignment alignment){
-    feedback = [this](const glm::vec4& item){
+    feedback = [this, alignment](const glm::vec4& item){
         float x(item[0]), y(item[1]), w(item[2]), h(item[3]);
         // clamp item width to panel width
         w = std::min(w, m_w);
@@ -75,7 +75,7 @@ Layout& Layout::toDown(Alignment alignment){
         y = m_y + m_h - std::max(y, h);
 
         // apply alignemt
-        x = LEFT? m_x : RIGHT? (m_x + m_w - w) : (m_x + floor(0.5f * (m_w - w)));
+        x = alignment==LEFT? m_x : alignment==RIGHT? (m_x + m_w - w) : (m_x + floor(0.5f * (m_w - w)));
         // cut free space
         m_h = y - m_y - m_spacing;
 
@@ -85,7 +85,7 @@ Layout& Layout::toDown(Alignment alignment){
     return *this;
 }
 Layout& Layout::toRight(Alignment alignment){
-    feedback = [this](const glm::vec4& item){
+    feedback = [this, alignment](const glm::vec4& item){
         float x(item[0]), y(item[1]), w(item[2]), h(item[3]);
         // cut item height to panel height and padding
         h = std::min(h, m_h);
@@ -93,8 +93,8 @@ Layout& Layout::toRight(Alignment alignment){
         x = m_x + m_padding[0];
 
         // apply alignemt
-        y = UP? (m_y + m_h - h) : DOWN? m_y : (m_y + floor(0.5f * (m_h - h)));
-        
+        y = alignment==UP? (m_y + m_h - h) : alignment==DOWN? m_y : (m_y + floor(0.5f * (m_h - h)));
+
         // cut free space
         float prev_x = m_x;
         m_x = x + w + m_spacing;

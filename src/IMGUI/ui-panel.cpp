@@ -80,6 +80,9 @@ Panel& Panel::blured(u32 c){
     return *this;
 }
 
+bool Panel::onKey(const std::string& key){
+    return m_hovered and key == m_imgui->pressedKey;
+}
 
 Item Panel::button(){
     Item i(Item::Button, *m_imgui, *this, m_depth+0.0001f);

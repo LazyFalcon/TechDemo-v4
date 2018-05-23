@@ -63,6 +63,7 @@ private:
 public:
     // handling mouse actions for proper actions
     ItemActions input, panelInput;
+    std::string pressedKey;
 
     Styler basicStyle;
     void* editedValue {nullptr}; // not for reading from, only to compare edited variables
@@ -80,6 +81,15 @@ public:
 
     void getKey(const glm::vec4& box){}
     PointerActions getPointerAction(const glm::vec4& poly, float depth);
+
+    bool onKey(const std::string& key){
+        return pressedKey == key;
+    }
+    template<typename Func>
+    Imgui& onKey(const std::string& key, Func func){
+        if(pressedKey == key) func();
+        return *this;
+    }
 
     RenderedUIItems& getToRender(){
         return *m_renderedUIItems;

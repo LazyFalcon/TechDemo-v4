@@ -1,12 +1,14 @@
 #include <GLFW/glfw3.h>
-#include "Input.hpp"
+#include "input.hpp"
 #include "input-dispatcher.hpp"
-#include "input-utils.hpp"
 /**
  * At first check if there are binding with mode key
  * If not execute  bindings without mod keys
  */
 bool Input::execute(int k, int a, int m){
+
+    if(m_forwardAction) m_forwardAction(convertKeyToString(k,a,m));
+
     auto range = actions.equal_range(hashInput(k, a, m));
     if(range.second == range.first) range = actions.equal_range(hashInput(k, a, 0));
     bool anyExecuted = false;
@@ -26,29 +28,42 @@ bool Input::executeTwoArgs(int arg, float x, float y){
     return anyExecuted;
 }
 
-void Input::setAction(const std::string &actionName, Lambda onEnter, Lambda onExit){
-    auto keys = inputDispatcher.getPredefiniedBinding(actionName);
-    for(auto it = keys.first; it != keys.second; ++it){
-        setAction(actionName, it->second, onEnter, onExit);
-    }
+Input& Input::action(const std::string& binding){
+    m_currentBinding = parseKeyBinding(binding);
+    return *this;
 }
-void Input::setAction(const std::string &binding, const std::string &name, Lambda onEnter, Lambda onExit){
-    auto keys = parseKeyBinding(binding);
-    if(onEnter){
-        auto hashed = hashInput(keys.key, keys.action, keys.modifier);
-        actions.emplace(hashed, Action{name, onEnter});
-    }
-    keys.action = GLFW_RELEASE;
-    if(onExit){
-        auto hashed = hashInput(keys.key, keys.action, keys.modifier);
-        actions.emplace(hashed, Action{name, onExit});
-    }
+Input& Input::defined(const std::string& funcName){
+    m_currentBinding = parseKeyBinding(inputDispatcher.getDefinied(funcName));
+    return *this;
 }
-void Input::setAction(const std::string &binding, const std::string &name, Lambda2F function){
-    auto keys = parseKeyBinding(binding);
-    // auto hashed = hashInput(keys.key, keys.action, keys.modifier);
-    actions2f.emplace(keys.key, Action2F{name, function});
+Input& Input::forward(std::function<void(const std::string&)>&& func){
+    m_forwardAction = std::move(func);
+    return *this;
 }
+Input& Input::on(Lambda&& func){
+    m_currentBinding.action = GLFW_PRESS;
+    actions.emplace(hashInput(m_currentBinding), std::move(func));
+
+    return *this;
+}
+Input& Input::hold(Lambda&& func){
+    m_currentBinding.action = GLFW_REPEAT;
+    actions.emplace(hashInput(m_currentBinding), std::move(func));
+
+    return *this;
+}
+Input& Input::off(Lambda&& func){
+    m_currentBinding.action = GLFW_RELEASE;
+    actions.emplace(hashInput(m_currentBinding), std::move(func));
+
+    return *this;
+}
+Input& Input::on(Lambda2F&& func){
+    actions2f.emplace(m_currentBinding.key, std::move(func));
+
+    return *this;
+}
+
 void Input::activate(){
     active = true;
 }

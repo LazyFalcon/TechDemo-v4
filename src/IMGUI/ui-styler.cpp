@@ -5,7 +5,7 @@
 
 
 void Styler::render(Panel& panel){
-    m_renderedUiItems.put<RenderedUIItems::Background>(panel.m_background);
+    if(panel.m_background.color & 0x00000011) m_renderedUiItems.put<RenderedUIItems::Background>(panel.m_background);
     if(panel.m_blured) m_renderedUiItems.put<RenderedUIItems::ToBlur>(RenderedUIItems::ToBlur {panel.m_background.box, panel.m_background.depth });
 }
 void Styler::render(Item& item){

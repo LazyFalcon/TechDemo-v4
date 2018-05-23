@@ -9,21 +9,18 @@ class Input;
 class InputDispatcher
 {
 private:
-    std::multimap<std::string, std::string> configuredActions;
+    std::map<std::string, std::string> m_configuredActions;
     std::list<int> currentlyPressedKeys;
     std::vector<std::shared_ptr<Input>> m_activeIputHandlers;
-    int currentModifierKey;
+    int m_currentModifierKey;
 public:
     std::shared_ptr<Input> createNew(const std::string&);
 
-    void setPredefiniedBinding(const std::string& combination);
-
-    auto getPredefiniedBinding(const std::string& function) -> decltype(configuredActions.equal_range(function)){
-        return configuredActions.equal_range(function);
-    }
+    InputDispatcher& defineBinding(const std::string& name, const std::string& keys);
+    const std::string& getDefinied(const std::string& name);
 
     void execute(int k, int a, int m);
-    void refresh();
+    void heldUpKeys();
     void scrollCallback(double dx, double dy);
     void keyCallback(int key, int action, int mods);
     void mouseButtonCallback(int button, int action, int mods);

@@ -6,8 +6,9 @@ using LayoutStrategy = std::function<glm::vec4(const glm::vec4&)>;
 
 enum Alignment
 {
-    RIGHT, LEFT, CENTERED, UP, DOWN
+    RIGHT, LEFT, CENTER, UP, DOWN
 };
+
 /*
     Distribute n elements evenly in given space
     |   |   |   |   |   |

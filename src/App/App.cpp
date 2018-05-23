@@ -71,60 +71,57 @@ bool App::initialize(){
     return true;
 }
 void App::initializeInputDispatcher(){
-    input->setAction("LMB", "default LMB", [this]{
+    input->action("LMB").on([this]{
             imgui->input.lmbOn();
             imgui->panelInput.lmbOn();
-        }, [this]{
+        }).off([this]{
             imgui->input.lmbOff();
             imgui->panelInput.lmbOff();
         });
-    input->setAction("MMB", "default MMB", [this]{
-        }, []{
-        });
-    input->setAction("RMB", "default RMB", [this]{
+    input->action("MMB").on([this]{});
+    input->action("RMB").on([this]{
             imgui->input.rmbOn();
             imgui->panelInput.rmbOn();
-        }, [this]{
+        }).off([this]{
             imgui->input.rmbOff();
             imgui->panelInput.rmbOff();
         });
 
-    input->setAction("printScreen", "", []{ TAKE_SCREENSHOT = true; });
-    input->setAction("alt", "", []{ ALT_MODE = true; }, []{ ALT_MODE = false; });
-    input->setAction("shift", "", []{ SHIFT_MODE = true; }, []{ SHIFT_MODE = false; });
-    input->setAction("ctrl", "", []{ CTRL_MODE = true; }, []{ CTRL_MODE = false; });
-    input->setAction("f4", "exit", [this]{ if(ALT_MODE) quit = true; });
-    input->setAction("esc", "exit", [this]{ quit = true; });
-    input->setAction("f1", "help", []{ log("Helpful message"); });
-    input->setAction("f10", "screenshot", []{ TAKE_SCREENSHOT = true; });
-    input->setAction("f11", "debug", []{
+    input->action("printScreen").on([]{ TAKE_SCREENSHOT = true; });
+    input->action("alt").on([]{ ALT_MODE = true; }).off([]{ ALT_MODE = false; });
+    input->action("shift").on([]{ SHIFT_MODE = true; }).off([]{ SHIFT_MODE = false; });
+    input->action("ctrl").on([]{ CTRL_MODE = true; }).off([]{ CTRL_MODE = false; });
+    input->action("alt-f2").on([this]{ quit = true; });
+    // input->action("esc", "exit", [this]{ quit = true; });
+    input->action("f1").on([]{ log("Helpful message"); });
+    input->action("f10").on([]{ TAKE_SCREENSHOT = true; });
+    input->action("f11").on([]{
             CLOG_SPECIAL_VALUE_3 != CLOG_SPECIAL_VALUE_3;
         });
-    input->setAction("f12", "debug 2", []{
+    input->action("f12").on([]{
             CLOG_SPECIAL_VALUE = true;
             CLOG_SPECIAL_VALUE_2 = true;
             GpuTimerScoped::print();
-        }, []{ CLOG_SPECIAL_VALUE_2 = false; });
-    input->setAction("H", "Hide UI", []{ HIDE_UI = !HIDE_UI; });
-    input->setAction("R", "Reload Shaders", []{
+        }).off([]{ CLOG_SPECIAL_VALUE_2 = false; });
+    input->action("H").on([]{ HIDE_UI = !HIDE_UI; });
+    input->action("R").on([]{
             ResourceLoader loader;
             log("Reloading shaders");
             Yaml shadersToReload("../ShadersToReload.yml");
             for(auto &it : shadersToReload){
                 loader.reloadShader(it.string());
             }});
-    input->setAction("ctrl", "hide ui", [this]{
+    input->action("ctrl").on([this]{
             if(CURSOR_DISABLED){
                 glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 // KeyState::mouseReset = false;
-            }
-        }, [this]{
+            }})
+            .off([this]{
             if(CURSOR_DISABLED){
                 glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 // KeyState::mouseReset = true;
-            }
-            });
-    input->setAction("f2", "hide cursor", [this]{
+            }});
+    input->action("f2").on([this]{
             if(CURSOR_DISABLED){
                 glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 // KeyState::mouseReset = true;
@@ -133,14 +130,18 @@ void App::initializeInputDispatcher(){
                 // KeyState::mouseReset = false;
             }
             CURSOR_DISABLED = !CURSOR_DISABLED;
-        }, []{});
-    input->setAction("MousePosition", "ui mouse", [this](float x, float y){
+        });
+    input->action("MousePosition").on([this](float x, float y){
         imgui->input.mousePos = glm::vec2(x,y);
         imgui->panelInput.mousePos = glm::vec2(x,y);
     });
-    input->setAction("MouseMove", "ui mouse", [this](float x, float y){
+    input->action("MouseMove").on([this](float x, float y){
         imgui->input.mouseTranslation = glm::vec2(x,y) * window->size*2.f;
         imgui->panelInput.mouseTranslation = glm::vec2(x,y) * window->size*2.f;
+    });
+
+    input->forward([this](const std::string& action){
+        imgui->pressedKey = action;
     });
 
     input->activate();
@@ -182,15 +183,11 @@ void App::run() try {
         auto dt = loopDeltaTime();
         auto msdt = msecLoopDeltaTime();
         CLOG_SPECIAL_VALUE = false;
-        // KeyState::mouseTranslation = glm::vec2(0);
-        // KeyState::mouseTranslationNormalized = glm::vec2(0);
 
-        // uiUpdater->update(dt);
-        // uiUpdater->begin();
         imgui->restart();
 
+        inputDispatcher->heldUpKeys();
         glfwPollEvents();
-        inputDispatcher->refresh();
 
         fixedStepLoopAccumulator += dt;
         while(fixedStepLoopAccumulator > 0.f and not quit){

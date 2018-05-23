@@ -1,7 +1,7 @@
 #pragma once
 #include "common.hpp"
 
-struct KeyActionMode
+struct KeyActionModifier
 {
     int key;
     int action;
@@ -9,10 +9,11 @@ struct KeyActionMode
 };
 
 u32 hashInput(int k, int a, int m);
-u32 hashInput(KeyActionMode keys);
-std::pair<std::string, std::string> splitToFunctionAndKeys(const std::string &str);
+u32 hashInput(KeyActionModifier keys);
+std::pair<std::string, std::string> splitToFunctionAndKeys(const std::string& str);
 std::vector<std::string> splitToKeys(std::string str);
-KeyActionMode parseKeyBinding(const std::string &str);
+KeyActionModifier parseKeyBinding(const std::string& str);
+std::string convertKeyToString(int k, int a, int m);
 
 const int LMB = 501;
 const int MMB = 502;
@@ -24,8 +25,3 @@ const int MouseMove = 508;
 const int HOLD_KEY = 666;
 const int LT = 666;
 const int RT = 666;
-
-/// TODO: better container?
-extern std::map<std::string, int> stringToKey;
-
-extern std::map<std::string, int> stringToMod;

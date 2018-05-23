@@ -15,6 +15,8 @@ Imgui::Imgui(int width, int height, const std::string& name):
 }
 
 void Imgui::restart(){
+    pressedKey = "";
+
     m_renderedUIItems->reset();
 
     // cleanup all states

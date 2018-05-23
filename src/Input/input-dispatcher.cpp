@@ -21,25 +21,28 @@ void InputDispatcher::execute(int k, int a, int m){
         currentlyPressedKeys.remove(k);
     }
 
-    currentModifierKey = m;
+    m_currentModifierKey = m;
     for(auto& i : m_activeIputHandlers)
         if(i->active) i->execute(k, a, m);
 }
 
-void InputDispatcher::setPredefiniedBinding(const std::string& combination){
-    auto funcAndKeys = splitToFunctionAndKeys(combination);
-    configuredActions.emplace(funcAndKeys.first, funcAndKeys.second);
+InputDispatcher& InputDispatcher::defineBinding(const std::string& name, const std::string& keys){
+    m_configuredActions[name] = keys;
+    return *this;
+}
+const std::string& InputDispatcher::getDefinied(const std::string& name){
+    return m_configuredActions[name];
 }
 
-void InputDispatcher::refresh(){
+void InputDispatcher::heldUpKeys(){
     for(auto &it : currentlyPressedKeys){
         for(auto& i : m_activeIputHandlers)
-            if(i->active) i->execute(it, GLFW_REPEAT, currentModifierKey);
+            if(i->active) i->execute(it, GLFW_REPEAT, m_currentModifierKey);
     }
 }
 void InputDispatcher::scrollCallback(double dx, double dy){
-    if(dy > 0) execute(SCROLL_UP, GLFW_PRESS, currentModifierKey);
-    if(dy < 0) execute(SCROLL_DOWN, GLFW_PRESS, currentModifierKey);
+    if(dy > 0) execute(SCROLL_UP, GLFW_PRESS, m_currentModifierKey);
+    if(dy < 0) execute(SCROLL_DOWN, GLFW_PRESS, m_currentModifierKey);
 }
 void InputDispatcher::keyCallback(int key, int action, int mods){
     execute(key, action, mods);

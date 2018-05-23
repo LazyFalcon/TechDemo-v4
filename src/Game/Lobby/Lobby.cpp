@@ -38,7 +38,7 @@ private:
     void drawVideo(Imgui& ui, Panel& parentPanel){
         Panel panel(parentPanel);
         panel.color(0x01010110)();
-        panel.layout().toDown();
+        panel.layout().toDown(LEFT);
 
         // panel.checkbox().w(160).h(35)(m_settings.fullscreen);
         m_windowSizes.execute(panel, {250, 35});
@@ -56,12 +56,15 @@ public:
     LobbySettings(Settings& settings) : m_settings(settings), m_windowSizes({{{"1600x900"}, {1600,900}}, {{"1920x1080"}, {1920,1080}}, {{"1920x1200"},{1920,1200}}}, {{"1600x900"}, {1600,900}}){}
     bool execute(Imgui& ui) override {
 
-
         Panel panel(ui);
         panel.width(0.8f).height(0.8f)
             .x(0.1f).y(0.1f)
             .blured(0x6D3A3150)();
-        panel.layout().padding({5,20,5,20}).toDown(notEven({50, 1.f}));
+        panel.layout().padding({20,20,20,20}).spacing(25).toDown(notEven({50, 1.f}));
+        if(panel.onKey("on-esc")){
+            log("Noooo wylacz to UI!!");
+            return false;
+        }
         {
             Panel header(panel);
             header.color(0x60606090)();
@@ -160,11 +163,11 @@ public:
                 break;
             case External:
                 if(m_currentState){
-                    if( m_currentState->execute(ui) == false){
+                    if(m_currentState->execute(ui)) return;
+                    else {
                         m_currentState.reset();
                         fadeIn();
                     }
-                    else return;
                 }
                 return;
         }

@@ -72,6 +72,8 @@ public:
         return *this;
     }
 
+    bool onKey(const std::string& key);
+
     // apperance
     Panel& fill();
     Panel& color(u32);
@@ -100,6 +102,8 @@ private:
     glm::vec4 m_bounds;
     int m_childCount {};
     PointerActions m_action {PointerActions::None};
+
+    // * when mouse is clearly over panel, doesn't count items
     bool m_hovered;
 
     RenderedUIItems::Background m_background;

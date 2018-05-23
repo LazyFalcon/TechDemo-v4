@@ -177,7 +177,7 @@ void UIRender::render(RenderedUIItems& ui){
     m_context.fbo[1].tex(m_context.tex.full.a).tex(m_context.tex.gbuffer.depth)();
 
     gl::Enable(gl::BLEND);
-    gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+    gl::BlendFunc(gl::ONE, gl::ONE_MINUS_SRC_ALPHA);
 
     // render panel backgrounds, sorted, without depth test
     render(ui.get<RenderedUIItems::Background>());

@@ -28,7 +28,6 @@ private:
 
     void drawMisc(Imgui& ui, Panel& parentPanel){
         Panel panel(parentPanel);
-        panel.color(0x01010110)();
         panel.layout().toDown();
 
         panel.item().w(250).h(35)().text("Nothing to se here..");
@@ -37,7 +36,6 @@ private:
     DropDownList<glm::vec2> m_windowSizes;
     void drawVideo(Imgui& ui, Panel& parentPanel){
         Panel panel(parentPanel);
-        panel.color(0x01010110)();
         panel.layout().toDown(LEFT);
 
         // panel.checkbox().w(160).h(35)(m_settings.fullscreen);
@@ -69,10 +67,10 @@ public:
             Panel header(panel);
             header.color(0x60606090)();
             header.layout().padding({}).spacing(0).toRight(even(4));
-            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Misc.").action([this]{m_currentPanel = Misc;});
-            header.button().color(0x00000090)().formatting(Text::Centered).text("Video").action([this]{m_currentPanel = Video;});
-            header.button().color(0xf0f0f090)().formatting(Text::Centered).text("Audio").action([this]{m_currentPanel = Audio;});
-            header.button().color(0x00000090)().formatting(Text::Centered).text("Controls").action([this]{m_currentPanel = Controls;});
+            header.button()().formatting(Text::Centered).text("Misc.").action([this]{m_currentPanel = Misc;});
+            header.button()().formatting(Text::Centered).text("Video").action([this]{m_currentPanel = Video;});
+            header.button()().formatting(Text::Centered).text("Audio").action([this]{m_currentPanel = Audio;});
+            header.button()().formatting(Text::Centered).text("Controls").action([this]{m_currentPanel = Controls;});
         }
 
         switch(m_currentPanel){
@@ -113,20 +111,21 @@ private:
         panel.width(350).height(1.f)
             .x(startPosition).y(0)
             .blured(0x6D3A3150)();
-        panel.layout().toDown();
+        panel.layout().spacing(15).toDown();
         // panel.emptySpace(0.6f);
         panel.button().y(0.6f).w(0.9f).h(44)().formatting(Text::Centered).text("New Game");
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Continue");
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Settings").action([this]{
             fadeOut([this]{fadeOut([this]{ m_currentState = m_settings; });});
         });
-        panel.slider().w(0.9f).h(44)(toSlide, 0.f, 100.f).formatting(Text::Centered).text("Volume " + toString(floor(toSlide)));
+        panel.slider().w(0.9f).h(20)(toSlide, 0.f, 100.f).formatting(Text::Centered).text("Volume " + toString(floor(toSlide)));
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Credits").action([this]{
             fadeOut([this]{log("Credits? Me! Lazy Falcon!");fadeIn();});
         });
         panel.button().w(0.9f).h(44)().formatting(Text::Centered).text("Exit").action([this]{
             fadeOut([]{event<ExitGame>();});
         });
+
     }
 
     std::shared_ptr<LobbyViewState> m_currentState;

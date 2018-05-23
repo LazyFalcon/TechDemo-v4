@@ -30,7 +30,7 @@ in float vTextureLayer;
 in float d;
 
 void main(void){
-    outColor = vColor;
+    outColor = vec4(vColor.rgb*vColor.a, vColor.a);
 }
 
 #endif

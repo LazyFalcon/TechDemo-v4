@@ -23,7 +23,7 @@ out vec4 outColor;
 in vec4 vColor;
 
 void main(void){
-    outColor = vColor;
+    outColor = vec4(vColor.rgb*vColor.a, vColor.a);
 }
 
 #endif

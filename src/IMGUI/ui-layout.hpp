@@ -17,10 +17,12 @@ class even
 {
 public:
     even(int elements) : elements(elements){}
-    std::vector<glm::vec4> precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis);
-
+    void precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis);
+    glm::vec4 operator()(const glm::vec4&);
 private:
     float elements;
+    std::vector<glm::vec4> m_generatedLayout;
+    int m_used;
 };
 
 /*
@@ -31,9 +33,12 @@ class notEven
 {
 public:
     notEven(std::vector<float>&& parts) : parts(std::move(parts)){}
-    std::vector<glm::vec4> precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis);
+    void precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis);
+    glm::vec4 operator()(const glm::vec4&);
 private:
     std::vector<float> parts;
+    std::vector<glm::vec4> m_generatedLayout;
+    int m_used;
 };
 
 /*
@@ -77,26 +82,24 @@ public:
     template<typename T>
     Layout& toDown(T&& precalculator, Alignment alignment = CENTER){
         toDown(alignment);
-        auto itemSize = precalculator.precalculate(feedback, m_free, m_spacing, 1);
+        precalculator.precalculate(feedback, m_free, m_spacing, 1);
+        feedback = precalculator;
 
-        feedback = [this, itemSize](const glm::vec4& item){
-            return itemSize[m_helper++];
-        };
         return *this;
     }
     Layout& toRight(Alignment alignment = CENTER);
     template<typename T>
     Layout& toRight(T&& precalculator, Alignment alignment = CENTER){
         toRight(alignment);
-        auto itemSize = precalculator.precalculate(feedback, m_free, m_spacing, 0);
+        precalculator.precalculate(feedback, m_free, m_spacing, 0);
 
-        feedback = [this, itemSize](const glm::vec4& item){
-            return itemSize[m_helper++];
-        };
+        feedback = precalculator;
         return *this;
     }
     Layout& toLeft(Alignment alignment = CENTER);
     Layout& dummy();
+
+    Layout& twoColumns();
 
     /*  ______<w>_______
         |               |
@@ -122,15 +125,7 @@ public:
     glm::vec4 getSpaceLeft(){
         return m_free;
     }
-private:
-    std::vector<glm::vec4> m_generatedLayout;
-    int m_used;
-
-    int m_axis;
-    int m_direction;
-    int m_helper {0};
-
-
+protected:
     glm::vec4 m_bounds;
     glm::vec4 m_free;
     glm::vec4 m_padding {8,8,8,8}; // left, bottom, right, top

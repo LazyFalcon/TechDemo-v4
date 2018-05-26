@@ -31,7 +31,6 @@ public:
     // for slider item
     Item& operator()(float& value, float min, float max);
 
-    //
     Item& font(const std::string& f){
         if(not f.empty()) m_font = f;
         return *this;
@@ -77,6 +76,11 @@ public:
     template<typename Callback>
     Item& hover(Callback&& c){
         if(m_hovered) c();
+        return *this;
+    }
+
+    Item& switchBool(bool& b){
+        if(m_action == PointerActions::LmbOff) b = !b;
         return *this;
     }
 

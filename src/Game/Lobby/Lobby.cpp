@@ -23,8 +23,10 @@ struct LobbySettings : public LobbyViewState
 {
 private:
     Settings& m_settings;
+    Settings m_settingsBackup;
     enum Views {Misc, Video, Audio, Controls};
     int m_currentPanel = Misc;
+    bool m_firstRun {true};
 
     void drawMisc(Imgui& ui, Panel& parentPanel){
         Panel panel(parentPanel);
@@ -39,11 +41,19 @@ private:
         panel.color(0)();
         panel.layout().padding({20,20,20,20}).spacing(25).toDown(LEFT);
 
-        // panel.checkbox().w(160).h(35)(m_settings.fullscreen);
+        // ? panel.checkbox().w(160).h(35)(m_settings.fullscreen);
+        checkbox(m_settings.video.fullscreen, "Fullscreen", panel, {250, 35});
         m_windowSizes.execute(panel, {250, 35});
 
     }
     void drawAudio(Imgui& ui, Panel& parentPanel){
+        Panel panel(parentPanel);
+        panel.color(0)();
+        panel.layout().padding({20,20,20,20}).spacing(25).toDown(LEFT);
+        panel.slider().w(0.9f).h(20)(m_settings.audio.masterVolume, 0.f, 100.f);
+        panel.slider().w(0.9f).h(20)(m_settings.audio.musicVolume, 0.f, 100.f);
+        panel.slider().w(0.9f).h(20)(m_settings.audio.effectsVolume, 0.f, 100.f);
+        panel.slider().w(0.9f).h(20)(m_settings.audio.voiceVolume, 0.f, 100.f);
 
     }
     void drawControls(Imgui& ui, Panel& parentPanel){
@@ -53,6 +63,7 @@ private:
 public:
     LobbySettings(Settings& settings) : m_settings(settings), m_windowSizes({{{"1600x900"}, {1600,900}}, {{"1920x1080"}, {1920,1080}}, {{"1920x1200"},{1920,1200}}}, {{"1600x900"}, {1600,900}}){}
     bool execute(Imgui& ui) override {
+        if(m_firstRun) m_settingsBackup = m_settings;
 
         Panel panel(ui);
         panel.width(0.8f).height(0.8f)
@@ -126,7 +137,6 @@ private:
         panel.button()().text("Settings").action([this]{
             fadeOut([this]{fadeOut([this]{ m_currentState = m_settings; });});
         });
-        panel.slider().w(0.9f).h(20)(toSlide, 0.f, 100.f).formatting(Text::Centered).text("Volume " + toString(floor(toSlide)));
         panel.button()().text("Credits").action([this]{
             fadeOut([this]{log("Credits? Me! Lazy Falcon!");fadeIn();});
         });

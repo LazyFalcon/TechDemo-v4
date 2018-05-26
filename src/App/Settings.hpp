@@ -21,10 +21,10 @@ public:
 
     struct Audio
     {
-        int masterVolume;
-        int musicVolume;
-        int effectsVolume;
-        int voiceVolume;
+        float masterVolume;
+        float musicVolume;
+        float effectsVolume;
+        float voiceVolume;
     } audio;
 
     struct Controls

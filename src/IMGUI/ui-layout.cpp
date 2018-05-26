@@ -2,7 +2,7 @@
 #include "Logging.hpp"
 // used with assume that
 
-std::vector<glm::vec4> even::precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis){
+void even::precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis){
     int notAxis = (indexOfAxis+1)%2;
     glm::vec4 singleItem(0);
     // cut items padding
@@ -11,15 +11,17 @@ std::vector<glm::vec4> even::precalculate(LayoutStrategy& feedback, glm::vec4 pa
     singleItem[indexOfAxis+2] = availbleLen/elements;
     singleItem[notAxis+2] = panelSize[notAxis+2]; // assuming that full availble space will be taken;
 
-    auto out = std::vector<glm::vec4>(elements, singleItem);
-    for(auto& it : out){
+    m_generatedLayout = std::vector<glm::vec4>(elements, singleItem);
+    for(auto& it : m_generatedLayout){
         it = feedback(it);
     }
 
-    return out;
+}
+glm::vec4 even::operator()(const glm::vec4& item){
+    return m_generatedLayout[m_used++];
 }
 
-std::vector<glm::vec4> notEven::precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis){
+void notEven::precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis){
     int notAxis = (indexOfAxis+1)%2;
     float availbleLen = panelSize[indexOfAxis+2] - (parts.size()-1.f) * spacing;
     float sumOfFloats = 0;
@@ -43,18 +45,19 @@ std::vector<glm::vec4> notEven::precalculate(LayoutStrategy& feedback, glm::vec4
     }
     // now width of each part is calced
 
-    auto out = std::vector<glm::vec4>(parts.size());
+    m_generatedLayout.resize(parts.size());
     glm::vec4 sampleItem(0);
     sampleItem[notAxis+2] = panelSize[notAxis+2]; // assuming that full availble space will be taken;
     for(int i=0; i<parts.size(); i++){
         sampleItem[indexOfAxis+2] = parts[i];
-        out[i] = feedback(sampleItem);
+        m_generatedLayout[i] = feedback(sampleItem);
     }
 
-    return out;
 }
 
-
+glm::vec4 notEven::operator()(const glm::vec4& item){
+    return m_generatedLayout[m_used++];
+}
 
 void Layout::setBounds(glm::vec4 b){
     m_bounds = m_free = b;

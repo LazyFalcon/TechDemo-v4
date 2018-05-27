@@ -35,4 +35,6 @@ public:
     struct {
 
     } misc;
+
+    std::map<std::string, std::string> keybindings;
 };

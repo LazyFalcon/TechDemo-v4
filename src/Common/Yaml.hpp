@@ -21,10 +21,10 @@ typedef boost::variant<
         std::string,             // 0
         u32,                     // bitfields? colors etc
         double,                  // 1
-        glm::vec4,               // 2
+        glm::vec4,               // TODO: maybe small vector instead? it will better handle vec2, etc cases?
         floatVec,                // 3, czy jest jakiś sens na te typy?
         bool,                    //
-        std::function<void(void)>// 5
+        std::function<void(void)>// ? why store callbacks? were there reason for this?
     > Variants;
 namespace {
     // template <typename... Condition>
@@ -133,6 +133,9 @@ public:
     void save(const std::string& filepath) const;
     void print() const;
 
+    void operator = (bool val){
+        m_value = val;
+    }
     template<typename T, typename = std::enable_if_t<is_from_true_types<T>::value>>
     void operator = (const T &val){
         m_value = val;

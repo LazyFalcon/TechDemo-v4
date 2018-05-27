@@ -37,6 +37,8 @@ Item& Item::h(float i){
 }
 
 Item& Item::operator()(){
+    if(m_size[2] == 0.f) w(1.f);
+    if(m_size[3] == 0.f) h(1.f);
     // odpalić feedback do panelu -> przekazać mu swój rozmiar i pozycję, uzyskać od niego poprawione wartości,
     // -> między innymi kwadrat wyrównany do odpowiedniego kierunku, zaaplikowany padding, narzucone wymiary
     m_size = m_panel.getLayout().feedback(m_size);
@@ -52,6 +54,8 @@ Item& Item::operator()(){
 }
 
 Item& Item::operator()(float& value, float min, float max){
+    if(m_size[2] == 0.f) w(1.f);
+    if(m_size[3] == 0.f) h(1.f);
     m_size = m_panel.getLayout().feedback(m_size);
     m_action = m_ui.input.getPointerAction(m_size, m_depth);
     m_hovered = m_action>=PointerActions::Hover and m_action<=PointerActions::RmbHold;
@@ -72,7 +76,8 @@ Item& Item::operator()(float& value, float min, float max){
         value = glm::clamp(value, min, max);
     }
     // Catching slider
-    bool isSlideHovered = m_ui.input.hover(glm::vec4(slidePosition-7, m_size.y, 14, m_size.w), m_depth);
+    float offset = 10;
+    bool isSlideHovered = m_ui.input.hover(glm::vec4(slidePosition-offset, m_size.y, 2.f*offset, m_size.w), m_depth);
     if(isSlideHovered and m_ui.input.lmb.on){
         m_ui.editedValue = &value;
     }

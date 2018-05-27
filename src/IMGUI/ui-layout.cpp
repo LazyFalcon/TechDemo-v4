@@ -75,9 +75,9 @@ Layout& Layout::toDown(Alignment alignment){
 
         // in case when we want to move item, check if shift isn't smaller than height
         // little not consistent here, x,y received from item are displacement in main direction, not from lower left corner
-        y = m_y + m_h - std::max(y, h);
+        y = m_y + m_h - std::max(y, h); // TODO: is this max eq correct?
 
-        // apply alignemt
+        // apply alignment
         x = alignment==LEFT? m_x : alignment==RIGHT? (m_x + m_w - w) : (m_x + floor(0.5f * (m_w - w)));
         // cut free space
         m_h = y - m_y - m_spacing;
@@ -95,7 +95,7 @@ Layout& Layout::toRight(Alignment alignment){
 
         x = m_x + m_padding[0];
 
-        // apply alignemt
+        // apply alignment
         y = alignment==UP? (m_y + m_h - h) : alignment==DOWN? m_y : (m_y + floor(0.5f * (m_h - h)));
 
         // cut free space
@@ -108,7 +108,20 @@ Layout& Layout::toRight(Alignment alignment){
     return *this;
 }
 Layout& Layout::toLeft(Alignment alignment){
+    feedback = [this, alignment](const glm::vec4& item){
+        float x(item[0]), y(item[1]), w(item[2]), h(item[3]);
 
+        h = std::min(h, m_h);
+
+        // * x received in item is displacement from starting point in direction, so here it is move in left by x pixels
+        x = m_x + m_w - std::max(x, w);
+
+        y = alignment==UP? (m_y + m_h - h) : alignment==DOWN? m_y : (m_y + floor(0.5f * (m_h - h)));
+
+        m_w = x - m_x - m_spacing;
+
+        return glm::vec4(x,y,w,h);
+    };
     return *this;
 }
 Layout& Layout::dummy(){

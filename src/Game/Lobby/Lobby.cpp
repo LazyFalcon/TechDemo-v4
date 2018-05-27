@@ -42,18 +42,34 @@ private:
         panel.layout().padding({20,20,20,20}).spacing(25).toDown(LEFT);
 
         // ? panel.checkbox().w(160).h(35)(m_settings.fullscreen);
-        checkbox(m_settings.video.fullscreen, "Fullscreen", panel, {250, 35});
+        checkbox(m_settingsBackup.video.fullscreen, "Fullscreen", panel, {250, 35});
         m_windowSizes.execute(panel, {250, 35});
 
     }
     void drawAudio(Imgui& ui, Panel& parentPanel){
         Panel panel(parentPanel);
         panel.color(0)();
-        panel.layout().padding({20,20,20,20}).spacing(25).toDown(LEFT);
-        panel.slider().w(0.9f).h(20)(m_settings.audio.masterVolume, 0.f, 100.f);
-        panel.slider().w(0.9f).h(20)(m_settings.audio.musicVolume, 0.f, 100.f);
-        panel.slider().w(0.9f).h(20)(m_settings.audio.effectsVolume, 0.f, 100.f);
-        panel.slider().w(0.9f).h(20)(m_settings.audio.voiceVolume, 0.f, 100.f);
+        panel.layout().padding({20,20,20,20}).spacing(25).toRight();
+
+        Panel column_a(panel);
+        column_a.width(250).color(0)();
+        column_a.layout().spacing(20).toDown();
+
+        Panel column_b(panel);
+        column_b.width(250).color(0)();
+        column_b.layout().spacing(20).toDown();
+            int h = 35;
+            column_a.item().h(h).color(0)().text("Master Volume");
+            column_b.slider().h(h)(m_settingsBackup.audio.masterVolume, 0.f, 100.f);
+
+            column_a.item().h(h).color(0)().text("Music Volume");
+            column_b.slider().h(h)(m_settingsBackup.audio.musicVolume, 0.f, 100.f);
+
+            column_a.item().h(h).color(0)().text("Effects Volume");
+            column_b.slider().h(h)(m_settingsBackup.audio.effectsVolume, 0.f, 100.f);
+
+            column_a.item().h(h).color(0)().text("Voice Volume");
+            column_b.slider().h(h)(m_settingsBackup.audio.voiceVolume, 0.f, 100.f);
 
     }
     void drawControls(Imgui& ui, Panel& parentPanel){
@@ -63,20 +79,24 @@ private:
 public:
     LobbySettings(Settings& settings) : m_settings(settings), m_windowSizes({{{"1600x900"}, {1600,900}}, {{"1920x1080"}, {1920,1080}}, {{"1920x1200"},{1920,1200}}}, {{"1600x900"}, {1600,900}}){}
     bool execute(Imgui& ui) override {
-        if(m_firstRun) m_settingsBackup = m_settings;
+        if(m_firstRun){
+            m_settingsBackup = m_settings;
+            m_firstRun = false;
+        }
 
         Panel panel(ui);
         panel.width(0.8f).height(0.8f)
             .x(0.1f).y(0.1f)
-            .blured(0x10101010)();
-        panel.layout().padding({20,20,20,20}).spacing(25).toDown(notEven({50, 1.f}));
+            .blured(0x10101080)();
+        panel.layout().padding({20,5,20,20}).spacing(25).toDown(notEven({40, 1.f, 40}));
         if(panel.onKey("on-esc")){
             return false;
+            m_firstRun = true;
         }
 
             Panel header(panel);
             header.color(0)();
-            header.layout().padding({}).spacing(0).toRight(even(4));
+            header.layout().toRight(even(4));
             header.quickStyler([this](Item& item){
                 item.formatting(Text::Centered).color(0);
                 if(item.id()==m_currentPanel) item.font("ui_20_bold");
@@ -95,6 +115,15 @@ public:
             default:
                 log("unknown panel", m_currentPanel);
         }
+
+        Panel savebar(panel);
+        savebar.color(0)();
+        savebar.layout().toLeft(DOWN).spacing(10);
+        savebar.item().w(150).color(0)().text("Save").action([this]{
+            m_settings = m_settingsBackup;
+            m_settings.save();
+            m_firstRun = true;
+        });
 
 
         return true;

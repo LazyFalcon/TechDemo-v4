@@ -22,7 +22,7 @@ public:
 private:
     float elements;
     std::vector<glm::vec4> m_generatedLayout;
-    int m_used;
+    int m_used{};
 };
 
 /*
@@ -38,7 +38,7 @@ public:
 private:
     std::vector<float> parts;
     std::vector<glm::vec4> m_generatedLayout;
-    int m_used;
+    int m_used{};
 };
 
 /*
@@ -112,12 +112,19 @@ public:
         m_free[1] += p[1];
         m_free[2] -= p[0] + p[2];
         m_free[3] -= p[1] + p[3];
+        m_bounds = m_free;
         return *this;
     }
     Layout& spacing(float s){
         m_spacing = s;
 
         return *this;
+    }
+    const glm::vec4& getBounds() const {
+        return m_bounds;
+    }
+    const glm::vec4& getFree() const {
+        return m_free;
     }
 
     Layout& prepare(glm::vec4 evenSize, i32 count);
@@ -128,7 +135,7 @@ public:
 protected:
     glm::vec4 m_bounds;
     glm::vec4 m_free;
-    glm::vec4 m_padding {8,8,8,8}; // left, bottom, right, top
+    glm::vec4 m_padding {0}; // left, bottom, right, top
     float m_spacing {8.f};
     float &m_x, &m_y, &m_w, &m_h;
 };

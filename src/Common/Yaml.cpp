@@ -212,8 +212,9 @@ void Yaml::load(const std::string& filename){
 void Yaml::save(const std::string& filename) const {
     std::fstream file(filename, std::fstream::out);
     for(auto& it : container){
-        it.printToStream(file, "  ", "", isArray);
+        it.printToStream(file, "    ", "", isArray);
     }
+    file << "\n";
     file.close();
 }
 
@@ -237,7 +238,7 @@ void Yaml::printToStream(std::ostream& output, std::string indent, std::string i
         }
     }
     else {
-        output << indentation << m_key << ": " << string() << " " << std::endl;
+        output << indentation << m_key << ": " << string() << "" << std::endl;
         for(auto& it : container){
             it.printToStream(output, indent, indentation + (isArray ? "" : indent), isArray);
         }

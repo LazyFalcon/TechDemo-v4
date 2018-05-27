@@ -48,7 +48,7 @@ public:
 
     // misc
     int getRelative(int idx, float rel) const {
-        return rel <= 1.f and rel >= -1.f ? m_size[idx] * rel : rel;
+        return rel <= 1.f and rel >= -1.f ? m_layout.getBounds()[idx] * rel : rel;
     }
 
     template<typename Callback>

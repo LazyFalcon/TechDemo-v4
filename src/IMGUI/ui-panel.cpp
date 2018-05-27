@@ -22,6 +22,8 @@ Panel::Panel(Panel& parent) : Panel(parent.m_imgui, &parent.getStyler(), &parent
     parent.m_childCount++;
     m_depth = m_depth + 0.1f + 0.001f*m_childCount;
     m_size = {};
+    width(1.f);
+    height(1.f);
 }
 Panel::Panel(Imgui& imgui) : Panel(imgui.panel()){}
 

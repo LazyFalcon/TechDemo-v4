@@ -1,12 +1,12 @@
 #pragma once
 #include "Events.hpp"
 
-struct StartLobby : public Event
+struct StartPlayground : public Event
 {
     bool handle(App &app);
 };
 
-struct ExitGame : public Event
+struct ExitPlayground : public Event
 {
     bool handle(App &app);
 };

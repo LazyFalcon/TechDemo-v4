@@ -6,6 +6,7 @@
 #include "PerfTimers.hpp"
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+// ! TODO: remember about scalling and window proportions!!
 void RendererUtils::drawBackground(const std::string &image){
     gl::Disable(gl::DEPTH_TEST);
     gl::Disable(gl::BLEND);

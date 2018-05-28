@@ -5,7 +5,7 @@
 #include "LobbyEvents.hpp"
 
 void initialEvent(){
-    auto startGame = event<StartGame>();
+    auto startGame = event<StartLobby>();
 }
 
 int main(int argc, char** argv){

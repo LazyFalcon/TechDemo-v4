@@ -1,9 +1,9 @@
 #include "App.hpp"
-#include "Window.hpp"
-#include "LobbyEvents.hpp"
 #include "Lobby.hpp"
+#include "LobbyEvents.hpp"
+#include "Window.hpp"
 
-bool StartGame::handle(App &app){
+bool StartLobby::handle(App &app){
     info("[ Start Lobby ]");
 
     auto lobby = std::make_shared<Lobby>(*app.imgui, *app.inputDispatcher, *app.settings);

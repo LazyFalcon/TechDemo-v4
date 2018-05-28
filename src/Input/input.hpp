@@ -38,6 +38,7 @@ private:
     KeyActionModifier m_currentBinding {};
 public:
     Input(InputDispatcher& inputDispatcher, std::string name="") : inputDispatcher(inputDispatcher), m_name(name){}
+    ~Input();
     bool execute(int k, int a, int m);
     bool executeTwoArgs(int arg, float x, float y);
     void activate();

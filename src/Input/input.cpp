@@ -1,6 +1,12 @@
 #include <GLFW/glfw3.h>
 #include "input.hpp"
 #include "input-dispatcher.hpp"
+
+Input::~Input(){
+    deactivate();
+    inputDispatcher.remove(this);
+}
+
 /**
  * At first check if there are binding with mode key
  * If not execute  bindings without mod keys
@@ -27,13 +33,15 @@ bool Input::executeTwoArgs(int arg, float x, float y){
     }
     return anyExecuted;
 }
-
+Input& Input::name(const std::string&){
+        return *this;
+    }
 Input& Input::action(const std::string& binding){
     m_currentBinding = parseKeyBinding(binding);
     return *this;
 }
 Input& Input::defined(const std::string& funcName){
-    m_currentBinding = parseKeyBinding(inputDispatcher.getDefinied(funcName));
+    m_currentBinding = parseKeyBinding(inputDispatcher.getDefined(funcName));
     return *this;
 }
 Input& Input::forward(std::function<void(const std::string&)>&& func){

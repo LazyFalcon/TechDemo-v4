@@ -4,15 +4,19 @@
 #include "input.hpp"
 #include "Logging.hpp"
 
-
 std::shared_ptr<Input> InputDispatcher::createNew(const std::string& name){
-    m_activeIputHandlers.emplace_back(std::make_shared<Input>(*this, name));
-    return m_activeIputHandlers.back();
+    m_activeInputHandlers.emplace_back(std::make_shared<Input>(*this, name));
+    return m_activeInputHandlers.back();
+}
+void InputDispatcher::remove(Input* toRemove){
+    m_activeInputHandlers.remove_if([toRemove](std::shared_ptr<Input>& it){
+        return it.get() == toRemove;
+    });
 }
 
 // passes input to active context, and recursive to its parents
 void InputDispatcher::execute(int k, int a, int m){
-    if(a != GLFW_PRESS and a != GLFW_RELEASE) return; /// GLFW_REPEAT is handled internally in funcion refresh as default behaviour for repeating keys sucks
+    if(a != GLFW_PRESS and a != GLFW_RELEASE) return; /// GLFW_REPEAT is handled internally in function refresh as default behaviour for repeating keys sucks
 
     if(a == GLFW_PRESS){
         currentlyPressedKeys.push_back(k);
@@ -22,7 +26,7 @@ void InputDispatcher::execute(int k, int a, int m){
     }
 
     m_currentModifierKey = m;
-    for(auto& i : m_activeIputHandlers)
+    for(auto& i : m_activeInputHandlers)
         if(i->active) i->execute(k, a, m);
 }
 
@@ -30,13 +34,13 @@ InputDispatcher& InputDispatcher::defineBinding(const std::string& name, const s
     m_configuredActions[name] = keys;
     return *this;
 }
-const std::string& InputDispatcher::getDefinied(const std::string& name){
+const std::string& InputDispatcher::getDefined(const std::string& name){
     return m_configuredActions[name];
 }
 
 void InputDispatcher::heldUpKeys(){
     for(auto &it : currentlyPressedKeys){
-        for(auto& i : m_activeIputHandlers)
+        for(auto& i : m_activeInputHandlers)
             if(i->active) i->execute(it, GLFW_REPEAT, m_currentModifierKey);
     }
 }
@@ -56,11 +60,11 @@ void InputDispatcher::mouseButtonCallback(int button, int action, int mods){
     execute(button, action, mods);
 }
 void InputDispatcher::mousePosition(float x, float y){
-    for(auto& i : m_activeIputHandlers)
+    for(auto& i : m_activeInputHandlers)
         if(i->active) i->executeTwoArgs(MousePosition, x, y);
 }
 void InputDispatcher::mouseMovement(float x, float y){
-    for(auto& i : m_activeIputHandlers)
+    for(auto& i : m_activeInputHandlers)
         if(i->active) i->executeTwoArgs(MouseMove, x, y);
 }
 void InputDispatcher::joyPadDispatch(){}

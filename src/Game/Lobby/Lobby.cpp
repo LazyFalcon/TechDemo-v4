@@ -4,6 +4,7 @@
 #include "input.hpp"
 #include "Lobby.hpp"
 #include "LobbyEvents.hpp"
+#include "PlaygroundEvents.hpp"
 #include "Logging.hpp"
 #include "RendererUtils.hpp"
 #include "Settings.hpp"
@@ -162,6 +163,9 @@ private:
         });
         // panel.emptySpace(0.6f);
         panel.button().y(0.6f)().text("New Game");
+        panel.button()().text("Playground").action([]{
+            event<StartPlayground>();
+        });
         panel.button()().text("Continue");
         panel.button()().text("Settings").action([this]{
             fadeOut([this]{fadeOut([this]{ m_currentState = m_settings; });});
@@ -226,7 +230,9 @@ Lobby::Lobby(Imgui& ui, InputDispatcher& inputDispatcher, Settings& settings): m
     m_view = std::make_unique<LobbyUI>(settings);
     m_input->activate();
 }
-Lobby::~Lobby() = default;
+Lobby::~Lobby(){
+    m_input->deactivate();
+}
 void Lobby::update(float dt){
     // m_ui.update();
     m_view->run(m_ui, dt);

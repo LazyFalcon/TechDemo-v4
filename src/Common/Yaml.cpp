@@ -26,17 +26,27 @@ struct Stringify : public boost::static_visitor<std::string>
 
     std::string operator()(const glm::vec4 &v) const {
         std::stringstream stream;
-        stream<< "[ "<<v.x<<" "<<v.y<<" "<<v.z<<" "<<v.w<<" ]"s;
+        stream<< "< "<<v.x<<" "<<v.y<<" "<<v.z<<" "<<v.w<<" >"s;
         return stream.str();
     }
 
     std::string operator()(const floatVec &v) const {
         std::stringstream stream;
-        stream<<"{ ";
+        stream<<"[ ";
         for(const auto &it : v){
             stream<<it<<" "s;
         }
-        stream<<" }";
+        stream<<" ]";
+        return stream.str();
+    }
+
+    std::string operator()(const stringVec &v) const {
+        std::stringstream stream;
+        stream<<"[ ";
+        for(const auto &it : v){
+            stream<<it<<" "s;
+        }
+        stream<<" ]";
         return stream.str();
     }
 
@@ -69,17 +79,27 @@ struct StringifyWithInfo : public boost::static_visitor<std::string>
 
     std::string operator()(const glm::vec4 &v) const {
         std::stringstream stream;
-        stream<< "[ "<<v.x<<" "<<v.y<<" "<<v.z<<" "<<v.w<<" ]"s;
+        stream<< "< "<<v.x<<" "<<v.y<<" "<<v.z<<" "<<v.w<<" >"s;
         return "glm: "s + stream.str();
     }
 
     std::string operator()(const floatVec &v) const {
         std::stringstream stream;
-        stream<<"{ ";
+        stream<<"[ ";
         for(const auto &it : v){
             stream<<it<<" "s;
         }
-        stream<<" }";
+        stream<<" ]";
+        return "vector "s + stream.str();
+    }
+
+    std::string operator()(const stringVec &v) const {
+        std::stringstream stream;
+        stream<<"[ ";
+        for(const auto &it : v){
+            stream<<it<<" "s;
+        }
+        stream<<" ]";
         return "vector "s + stream.str();
     }
 
@@ -167,22 +187,34 @@ Variants Yaml::decode(std::string s){
     std::smatch result;
 
 
-    if(s.front() == '[' && s.back() == ']'){ // then match vector
+    if(s.front() == '<' and s.back() == '>'){ // * mathutilsVector:<Vector (1.0000, 2.0000, 3.0000, 4.0000)>
         std::regex_iterator<std::string::iterator> rit ( s.begin(), s.end(), rFloat );
         std::regex_iterator<std::string::iterator> rend;
         glm::vec4 out(0);
         u32 i=0;
-        while (rit!=rend && i<4){
+        while(rit!=rend and i<4){
             out[i++] = stof(rit->str());
             ++rit;
         }
         return out;
     }
-    if(s.front() == '{' && s.back() == '}'){ // then match vector
+    if(s.find("'") and (s.front() == '{' and s.back() == '}' or s.front() == '[' and s.back() == ']')){ // * then match array of strings
+        stringVec out;
+        auto posA = s.find("'");
+        while(posA != std::string::npos){ // woho! unsafe
+            auto posB = s.find("'", posA+1);
+
+            out.push_back(s.substr(posA+1, posB-posA-1));
+
+            posA = s.find("'", posB+1);
+        }
+        return out;
+    }
+    if((s.front() == '{' and s.back() == '}') or (s.front() == '[' and s.back() == ']')){ // * then match array of floats
         std::regex_iterator<std::string::iterator> rit ( s.begin(), s.end(), rFloat );
         std::regex_iterator<std::string::iterator> rend;
         floatVec out;
-        while (rit!=rend){
+        while(rit!=rend){
             out.push_back(stof(rit->str()));
             ++rit;
         }

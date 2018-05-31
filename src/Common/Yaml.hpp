@@ -16,6 +16,7 @@
 struct Yaml;
 
 typedef std::vector<float> floatVec;
+typedef std::vector<std::string> stringVec;
 typedef std::vector<glm::vec4> vec4Vec;
 typedef boost::variant<
         std::string,             // 0
@@ -23,6 +24,7 @@ typedef boost::variant<
         double,                  // 1
         glm::vec4,               // TODO: maybe small vector instead? it will better handle vec2, etc cases?
         floatVec,                // 3, czy jest jakiś sens na te typy?
+        stringVec,                // 3, czy jest jakiś sens na te typy?
         bool,                    //
         std::function<void(void)>// ? why store callbacks? were there reason for this?
     > Variants;
@@ -202,6 +204,19 @@ public:
     // operator bool() const {
     //     return boolean();
     // }
+
+    const floatVec& floats() const {
+        return boost::get<floatVec>(m_value);
+    }
+    float floats(int i) const {
+        return boost::get<floatVec>(m_value)[i];
+    }
+    const stringVec& strings() const {
+        return boost::get<stringVec>(m_value);
+    }
+    const std::string& strings(int i) const {
+        return boost::get<stringVec>(m_value)[i];
+    }
 
     glm::vec4 vec4() const try {
         return boost::get<glm::vec4>(m_value);

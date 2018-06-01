@@ -29,7 +29,7 @@ class InputDispatcher;
 class Input
 {
 private:
-    std::multimap<u32, Lambda> actions;
+    std::multimap<u32, Lambda> actions; // TODO: maybe unordered_ ?
     std::multimap<u32, Lambda2F> actions2f;
     InputDispatcher& inputDispatcher;
     std::vector<std::shared_ptr<Input>> children;
@@ -52,6 +52,10 @@ public:
     Input& hold(Lambda&&);
     Input& off(Lambda&&);
     Input& on(Lambda2F&&);
+
+    InputDispatcher& getDispatcher(){
+        return inputDispatcher;
+    }
 
     bool active {false};
 };

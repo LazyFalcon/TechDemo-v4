@@ -1,8 +1,10 @@
 #pragma once
+#include "Actor.hpp"
 #include "CameraController.hpp"
-#include "GBufferSampler.hpp"
 #include "common.hpp"
+#include "GBufferSampler.hpp"
 #include "Utils.hpp"
+#include "VehicleEquipment.hpp"
 
 class Cannon;
 class Tank;
@@ -10,9 +12,10 @@ class Imgui;
 class Input;
 class InputDispatcher;
 
-class Player
+class Player : public Actor
 {
 private:
+    VehicleEquipment m_vehicleEq;
     std::unique_ptr<GBufferSampler> mouseSampler;
     std::unique_ptr<GBufferSampler> crosshairSampler;
 
@@ -57,4 +60,8 @@ public:
     void updateGraphic(float dt);
     void focusOn();
     void focusOff();
+    VehicleEquipment& eq(){
+        return m_vehicleEq;
+    }
+
 };

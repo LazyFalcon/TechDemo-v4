@@ -1,0 +1,53 @@
+#pragma once
+#include "common.hpp"
+#include "CameraController.hpp"
+/**
+    Stores informations about vehicle(universal for each type, vehicle is build from modules), can be used in HUD
+    Where goes hitpoints, or vehicle vitality
+*/
+class Actor;
+class DriveSystem;
+class IModule;
+class PowerShield;
+class Radar;
+class SKO;
+class Suspension;
+
+class VehicleEquipment
+{
+public:
+    void init();
+    void updateModules(float dt);
+    void updateMarkers();
+
+    btRigidBody *rgBody {nullptr};
+    btCompoundShape *compound {nullptr};
+    Actor *actor {nullptr};
+
+    float vitality; /// kind of hitpoints, derived from vitality of modules
+
+    btTransform rotation;
+    btVector3 forward;
+    btVector3 right;
+    void setTargetPoint(glm::vec4 target);
+    glm::vec3 getPosition(){
+        return (glTrans*glm::vec4(0,0,0,1)).xyz();
+    }
+
+    void lockCannonsInDefaultPosition(){
+        lockCannons = !lockCannons;
+    }
+    bool lockCannons {false};
+    void drawBBOXesOfChildren();
+
+    btTransform btTrans;
+    glm::mat4 invTrans;
+    glm::mat4 glTrans;
+    // std::vector<btTransform> transforms;
+    std::vector<std::shared_ptr<IModule>> modules; /// hierarchical for updateMarkers
+    std::vector<std::shared_ptr<CameraController>> cameras;
+    std::shared_ptr<PowerShield> powerShield;
+    std::shared_ptr<DriveSystem> driveSystem; /// instead of while class Vehicle, this unit is responsible for movement, and Actor for knowing which type it is
+    std::shared_ptr<Radar> radar;
+    std::shared_ptr<SKO> sko;
+};

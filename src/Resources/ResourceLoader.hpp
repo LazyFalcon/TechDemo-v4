@@ -11,11 +11,6 @@ public:
     ResourceLoader() : id(s_id++){}
     ~ResourceLoader();
 
-    std::string shaderPath { "../shaders/" };
-    std::string imagePath { "../res/textures/" };
-    std::string meshPath { "../res/models/" };
-    std::string soundPath { "../res/sound/" };
-
     std::vector<float> model_vertices;
     std::vector<float> model_coords;
     std::vector<float> model_normals;

@@ -58,6 +58,7 @@
 
 #include "Types.hpp"
 #include "Constants.hpp"
+#include "DefaultResourcePaths.hpp"
 
 using namespace std::literals;
 

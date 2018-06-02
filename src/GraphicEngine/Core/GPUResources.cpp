@@ -342,7 +342,7 @@ namespace {
     }
 
     std::string defines(const std::string &shader){
-        return loadFile("../shaders/Defines.hpp");
+        return loadFile(shaderPath + "Defines.hpp");
         std::string out;
         // for(auto &define : Global::settings.settings["Defines"][shader]){
         //     out += "#define "s + define.key + " "s + define.string() + "\n"s;
@@ -368,7 +368,7 @@ namespace {
             auto fileToInclude = include.substr(f, include.rfind("\"")-f);
 
             std::string pathTo;
-            if(not findFile("../shaders/", fileToInclude, "-r", pathTo)){
+            if(not findFile(shaderPath, fileToInclude, "-r", pathTo)){
                 error("Cannot resolve include:", fileToInclude);
             }
 

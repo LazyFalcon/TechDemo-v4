@@ -1,8 +1,8 @@
 DIRECTORIES = $(addprefix -I./,$(shell ls -d ./src/*/))
 DIRECTORIES_2 = $(addprefix -I./,$(shell ls -d ./src/*/*/))
-TARGET_NAME = TDv4
+TARGET_NAME = TDv4_0_2
 
-CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) -DBT_USE_DOUBLE_PRECISION=ON -DUSE_BULLET
+CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O3 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) -DBT_USE_DOUBLE_PRECISION=ON -DUSE_BULLET
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 ADDITIONAL_FLAGS = \
 -Werror=return-type
@@ -46,9 +46,9 @@ clean:
 	rm $(BIN)/$(TARGET_NAME).exe
 
 run: $(BIN)/$(TARGET_NAME)
-	(cd $(BIN) && ./$(TARGET_NAME).exe)
+	$(BIN)/$(TARGET_NAME).exe
 
 debug: $(BIN)/$(TARGET_NAME)
-	(cd $(BIN) && gdb $(TARGET_NAME).exe -ex=run)
+	gdb $(BIN)/$(TARGET_NAME).exe -ex=run
 
 .PHONY: clean

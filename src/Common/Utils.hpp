@@ -84,7 +84,7 @@ void cyclicDecr(T &value, u32 range){
 template <typename T>
 bool saveCache(std::string fileName, const std::vector<T> &data){
     std::ofstream file;
-    file.open("cache/"+fileName+".cache", std::ios::binary | std::ios::out | std::ios::trunc);
+    file.open(dataPath + "cache/"+fileName+".cache", std::ios::binary | std::ios::out | std::ios::trunc);
 
     // if(file.is_open()){
         file.write((char*)data.data(), data.size()*sizeof(T));
@@ -98,7 +98,7 @@ bool loadCache(std::string fileName, std::vector<T> &data){
     std::ifstream file;
     int size=0;
     // try {
-        file.open("../bin/cache/"+fileName+".cache", std::ios::binary | std::ios::in);
+        file.open(dataPath + "cache/"+fileName+".cache", std::ios::binary | std::ios::in);
         // if(file.is_open()){
         if(file.good()){
             file.seekg(0, std::ios::end);

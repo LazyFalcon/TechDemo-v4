@@ -13,8 +13,8 @@ void openLogFile(){
 }
 
 void dumpLogBufferTofile(){
-    std::fstream file("../Log.md", std::fstream::out | std::fstream::trunc);
-    if(not file.is_open()) file.open("../Log.md", std::fstream::out);
+    std::fstream file("Log.md", std::fstream::out | std::fstream::trunc);
+    if(not file.is_open()) file.open("Log.md", std::fstream::out);
 
     for(auto &record : logBuffer){
         file<<record<<"\n";

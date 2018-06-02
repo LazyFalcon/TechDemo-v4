@@ -90,7 +90,7 @@ void Font::loadKerning(const std::string &word){
     kerning[int(vec[0]<<16) & vec[1]] = vec[2];
 }
 void Font::load(const std::string &name, std::vector<std::string> &imagesToLoad){
-    std::string path = "../res/fonts/";
+    std::string path = resPath + "fonts/";
     std::ifstream file;
     file.open(path + name, std::ios::in);
     if(not file.good()){

@@ -31,7 +31,7 @@ bool Scene::load(const std::string &name, Yaml &cfg){
         error("no physics");
     }
 
-    Yaml settings("../SceneSettings.yml");
+    Yaml settings(rootPath + "SceneSettings.yml");
 
     geoTimePosition = std::make_shared<GeoTimePosition>(settings["GeoTime"]);
     sun = std::make_shared<Sun>(settings["Sun"], *geoTimePosition);

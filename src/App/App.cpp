@@ -107,7 +107,7 @@ void App::initializeInputDispatcher(){
     input->action("R").on([]{
             ResourceLoader loader;
             log("Reloading shaders");
-            Yaml shadersToReload("../ShadersToReload.yml");
+            Yaml shadersToReload(rootPath + "ShadersToReload.yml");
             for(auto &it : shadersToReload){
                 loader.reloadShader(it.string());
             }});
@@ -160,7 +160,7 @@ void App::setCommonCallbacks(){
 bool App::loadResources(){
     log("--loading resources");
 
-    Yaml resources("../data/GameResources.yml");
+    Yaml resources(dataPath + "GameResources.yml");
 
     ResourceLoader loader;
     loader.loadShaders();

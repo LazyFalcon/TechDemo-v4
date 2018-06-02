@@ -3,7 +3,7 @@
 #include "Yaml.hpp"
 
 void Settings::load(){
-    Yaml yaml("../data/Settings.yml");
+    Yaml yaml(dataPath + "Settings.yml");
 
     video.fullscreen = yaml["Video"]["Fullscreen"].boolean();
     video.size = yaml["Video"]["Size"].vec2();
@@ -38,6 +38,6 @@ void Settings::save(){
     for(auto& it : keybindings)
         keysRef.push(it.first, it.second);
 
-    yaml.save("../data/Settings.yml");
+    yaml.save(dataPath + "Settings.yml");
     yaml.print();
 }

@@ -64,7 +64,7 @@ void Grass::initVBO(){
 void Grass::loadData(ResourceLoader &loader, const Yaml &cfg){
     texture = loader.loadImage("Grass.png");
 
-    densitySampler = std::make_shared<Sampler2D>("../res/textures/GrassDensity.png");
+    densitySampler = std::make_shared<Sampler2D>(resPath + "textures/GrassDensity.png");
 }
 void Grass::updateBuffer(){
     PerfCounter::records["fieldCount: "] = GrassField::noOfpatchData;

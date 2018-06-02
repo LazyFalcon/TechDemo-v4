@@ -23,7 +23,7 @@ btCollisionShape* treeCapsuleShape;
 btCompoundShape* treeCapsuleCompoundShape;
 std::function<void(btRigidBody *&body, btGeneric6DofSpring2Constraint *constraint)> RenderData::removeTreeFromPhysics;
 std::vector<std::string> Foliage::prepareAtlas(){
-    return listDirectory("../res/foliage/textures");
+    return listDirectory(resPath + "foliage/textures");
 }
 
 typedef std::set<QTNode*> QtChunks;
@@ -51,10 +51,10 @@ bool Foliage::load(const Yaml &c){
     CPU_SCOPE_TIMER("Foliage::load");
     // TODO: remove hardcoded trees
     std::vector<Yaml> treesToLoad;
-    treesToLoad.emplace_back("../res/foliage/trees/Z_Trees.yml");
+    treesToLoad.emplace_back(resPath + "foliage/trees/Z_Trees.yml");
 
     ResourceLoader loader;
-    loader.meshPath = "../res/foliage/trees/";
+    // ? loader.meshPath = resPath + "foliage/trees/";
 
     // auto &&atlasData = prepareAtlas();
     textureAtlasID = assets::getAlbedoArray("Foliage").id;
@@ -62,7 +62,7 @@ bool Foliage::load(const Yaml &c){
     ModelLoader modelLoader;
     modelLoader.m_uvSize = 3u;
 
-    modelLoader.open("../res/foliage/trees/"s + "Z_Trees.dae", assets::layerSearch(assets::getAlbedoArray("Foliage")));
+    modelLoader.open(resPath + "foliage/trees/"s + "Z_Trees.dae", assets::layerSearch(assets::getAlbedoArray("Foliage")));
     for(const auto &tree : treesToLoad[0]){
         i32 lodCount(-1);
         trees.push_back({tree.key()});
@@ -92,7 +92,7 @@ bool Foliage::load(const Yaml &c){
 
     meshVAO = modelLoader.build();
 
-    // densitySampler = make_shared<Sampler2D>("../res/textures/TreeDensity.png");
+    // densitySampler = make_shared<Sampler2D>(resPath + "textures/TreeDensity.png");
 
     treeCapsuleShape = new btCapsuleShapeZ(0.1f, 10.f);
     treeCapsuleCompoundShape = new btCompoundShape();

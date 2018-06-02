@@ -112,7 +112,6 @@ struct Shader
     u32 ID {0};
     bool binded {false};
     Shader& bind();
-    // ../shaders/XX/name.glsl, name
     void loadFromFile(const std::string pathTo, const std::string name);
     Shader& texture(const i32 uniformId, u32 texture, u32 id = 0);
     Shader& texture(const std::string &name, u32 texture, u32 id = 0);

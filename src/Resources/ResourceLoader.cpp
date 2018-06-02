@@ -33,7 +33,7 @@ void ResourceLoader::loadResources(const Yaml &cfg){
         loadImageSet(set);
     }
 
-    if(isFile("../res/atlases/")){
+    if(isFile(resPath + "/atlases/")){
         loadTextureArray("Decals");
         loadTextureArray("Materials");
         // loadTextureArray("Terrain");
@@ -42,13 +42,13 @@ void ResourceLoader::loadResources(const Yaml &cfg){
         // loadCubeMap("Park");
     }
 
-    if(isFile("../res/images/")){
-        loadImages("../res/images/");
+    if(isFile(resPath + "/images/")){
+        loadImages(resPath + "/images/");
     }
-    if(isFile("../res/models/")){
+    if(isFile(resPath + "/models/")){
         ModelLoader modelLoader;
         modelLoader.loadTangents = true;
-        modelLoader.open("../res/models/CommonModels.dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
+        modelLoader.open(resPath + "/models/CommonModels.dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
         auto names = modelLoader.getNames();
         for(auto &name : names){
             auto mesh = modelLoader.beginMesh();
@@ -70,7 +70,7 @@ void ResourceLoader::loadImages(const std::string& dir){
         for(dir_it; dir_it != recursive_directory_iterator(); dir_it++){
             if ( is_directory(dir_it->status()) ) continue;
 
-            loadImage((*dir_it).path().relative_path().string());
+            loadImage((*dir_it).path().generic_string());
         }
     }
     catch (const filesystem_error& ex){
@@ -90,7 +90,7 @@ bool ResourceLoader::loadShaders(){
         for(dir_it; dir_it != recursive_directory_iterator(); dir_it++){
             if ( is_directory(dir_it->status()) ) continue;
 
-            std::string localShaderPath = (*dir_it).path().relative_path().string();
+            std::string localShaderPath = (*dir_it).path().generic_string();
 
             auto shaderName = (*dir_it).path().stem().string();
             if((*dir_it).path().extension().string() != ".glsl") continue;
@@ -115,7 +115,7 @@ bool ResourceLoader::reloadShader(const std::string &name){
 }
 
 Mesh ResourceLoader::loadMesh(std::string meshName){
-    std::string fileName = meshPath+meshName+".obj";
+    std::string fileName = resPath+"/models/"+meshName+".obj";
 
     Mesh mesh;
     std::fstream file;
@@ -247,12 +247,12 @@ bool ResourceLoader::loadObj(std::fstream &file){
 bool ResourceLoader::loadFonts(){
     log("---fonts");
     std::vector<std::string> imagesToLoad;
-    auto fontsToLoad = filter(listDirectory("../res/fonts/"), ".fnt");
+    auto fontsToLoad = filter(listDirectory(resPath + "/fonts/"), ".fnt");
     for(auto &font : fontsToLoad){
         loadFont(font, imagesToLoad);
     }
 
-    for(auto &it : imagesToLoad) it = "../res/fonts/" + it;
+    for(auto &it : imagesToLoad) it = resPath + "/fonts/" + it;
     assets::TextureArray out;
     out.id = ImageUtils::loadArrayToGpu(imagesToLoad).id;
     assets::addAlbedoArray(id, out, "Fonts");
@@ -267,7 +267,7 @@ bool ResourceLoader::loadFont(const std::string &fontFileName, std::vector<std::
 
 bool ResourceLoader::loadImage(const Yaml &cfg){
     std::string name = cfg.string();
-    return loadImage(imagePath+name).ID;
+    return loadImage(resPath+"/textures/"+name).ID;
 }
 Image ResourceLoader::loadImage(const std::string &filePath){
     using namespace boost::filesystem;
@@ -290,7 +290,7 @@ bool ResourceLoader::loadImageSet(const Yaml &cfg){
     std::string name = cfg["Config"].string();
     std::string image = cfg["Image"].string();
     try {
-        Yaml descr("../res/misc/"+name+".yml");
+        Yaml descr(resPath + "/misc/"+name+".yml");
         auto modeStr = descr["Mode"].string();
         u32 mode = 10;
         if(modeStr == "fromBottom") mode = 0;
@@ -345,9 +345,9 @@ assets::TextureArray ResourceLoader::loadTextureArray(const std::string &folder)
         for(auto &it : files) it = getName(it);
     };
     std::vector<std::string> files;
-    if(isFile("../res/atlases/" + folder + "/order.yml")){
-        Yaml order("../res/atlases/" + folder + "/order.yml");
-        auto allfiles = listDirectory("../res/atlases/" + folder);
+    if(isFile(resPath + "/atlases/" + folder + "/order.yml")){
+        Yaml order(resPath + "/atlases/" + folder + "/order.yml");
+        auto allfiles = listDirectory(resPath + "/atlases/" + folder);
 
         for(auto &it : order){
             for(auto &file : allfiles){
@@ -357,10 +357,10 @@ assets::TextureArray ResourceLoader::loadTextureArray(const std::string &folder)
         }
     }
     else {
-        files = listDirectory("../res/atlases/" + folder);
+        files = listDirectory(resPath + "/atlases/" + folder);
     }
     for(auto &it : files){
-        it = "../res/atlases/" + folder + "/"s + it;
+        it = resPath + "/atlases/" + folder + "/"s + it;
     }
 
     std::vector<std::string> albedo = extract(files, "_a.");
@@ -417,9 +417,9 @@ assets::TextureArray ResourceLoader::loadCubeMap(const std::string &folder){
         for(auto &it : files) it = getName(it);
     };
 
-    std::vector<std::string> files = listDirectory("../res/atlases/" + folder);
+    std::vector<std::string> files = listDirectory(resPath + "/atlases/" + folder);
     for(auto &it : files){
-        it = "../res/atlases/" + folder + "/"s + it;
+        it = resPath + "/atlases/" + folder + "/"s + it;
     }
 
     assets::TextureArray out;

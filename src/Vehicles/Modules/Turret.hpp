@@ -18,7 +18,9 @@ struct Joint
 class TurretPart : public IModule
 {
 
-
+public:
+    TurretPart(VehicleEquipment &eq) : IModule(eq, ModuleType::Part){}
+    void update(float dt) override {}
 };
 
 class Weapon;
@@ -35,6 +37,8 @@ private:
     std::vector<std::shared_ptr<Weapon>> m_installedWeapons;
     TurretKinematicLink m_kinematicLinks;
 public:
+    Turret(VehicleEquipment &eq) : IModule(eq, ModuleType::Turret){}
+    void update(float dt) override {}
 
 };
 
@@ -49,5 +53,7 @@ private:
     TurretKinematicLink m_linkB;
     Joint base;
 public:
+    MultiHeadTurret(VehicleEquipment &eq) : IModule(eq, ModuleType::Turret){}
+    void update(float dt) override {}
 
 };

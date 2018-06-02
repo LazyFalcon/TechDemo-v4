@@ -42,5 +42,5 @@ void Playground::spawnPlayer(const std::string& configName, glm::vec4 position){
     VehicleBuilder builder(configName);
     m_player = std::make_shared<Player>(m_input->getDispatcher());
 
-    builder.build(m_player);
+    builder.build(*m_player);
 }

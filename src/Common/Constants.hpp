@@ -27,7 +27,3 @@ extern const glm::vec3 Z3;
 extern const glm::mat4 identity;
 extern const btTransform btIdentity;
 extern const glm::quat qIdentity;
-
-extern std::string shaderPath;
-extern std::string resourcePath;
-extern std::string dataPath;

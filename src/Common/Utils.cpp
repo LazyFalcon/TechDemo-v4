@@ -161,12 +161,12 @@ const std::string getExt(const std::string &name){
 const std::string cutExt(const std::string &name){
     using namespace boost::filesystem;
     path p(name);
-    return p.parent_path().string() + getName(name);
+    return p.parent_path().generic_string() + getName(name);
 }
 const std::string getPath(const std::string &name){
     using namespace boost::filesystem;
     path p(name);
-    return p.relative_path().string();
+    return p.generic_string();
 }
 
 bool isFile(const std::string &file){
@@ -185,11 +185,11 @@ bool findFile(const std::string &from, const std::string &name, const std::strin
             for(dir_it; dir_it != recursive_directory_iterator(); dir_it++){
                 if( is_directory(dir_it->status()) ) continue;
                 if(cutExt and exactName == (*dir_it).path().stem().string()){
-                    ref = (*dir_it).path().relative_path().string();
+                    ref = (*dir_it).path().generic_string();
                     return true;
                 }
                 else if(exactName == (*dir_it).path().filename().string()){
-                    ref = (*dir_it).path().relative_path().string();
+                    ref = (*dir_it).path().generic_string();
                     return true;
                 }
             }
@@ -198,7 +198,7 @@ bool findFile(const std::string &from, const std::string &name, const std::strin
             auto dir_it = directory_iterator(p);
             for(dir_it; dir_it != directory_iterator(); dir_it++){
                 if(exactName == (*dir_it).path().stem().string()){
-                    ref = (*dir_it).path().relative_path().string();
+                    ref = (*dir_it).path().generic_string();
                     return true;
                 }
             }

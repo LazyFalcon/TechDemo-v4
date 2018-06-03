@@ -5,7 +5,7 @@ class Atmosphere;
 class Camera;
 class Environment;
 class Grass;
-class PhysicsWorld;
+class PhysicalWorld;
 class Sun;
 class Starfield;
 class Terrain;
@@ -17,7 +17,7 @@ struct Yaml;
 struct Scene
 {
     Scene(){}
-    Scene(PhysicsWorld &physics) : physics(&physics){}
+    Scene(PhysicalWorld &physics) : physics(&physics){}
     ~Scene();
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
@@ -30,7 +30,7 @@ struct Scene
     std::shared_ptr<Starfield> starfield;
     std::shared_ptr<Terrain> terrain;
     std::shared_ptr<Foliage> foliage;
-    PhysicsWorld *physics { nullptr };
+    PhysicalWorld *physics { nullptr };
     std::shared_ptr<GeoTimePosition> geoTimePosition;
 
     bool load(const std::string &name, Yaml &cfg);

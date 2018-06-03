@@ -10,7 +10,7 @@ class btRigidBody;
 class btBvhTriangleMeshShape;
 class btTriangleMesh;
 class ModelLoader;
-class PhysicsWorld;
+class PhysicalWorld;
 
 class Cell
 {
@@ -55,7 +55,7 @@ public:
     std::unordered_map<ObjectID, Object> objects; // na razie uMap wystarczy, najwyżej zamieni sie potem na jakąś zabawę z przesuwanie na wektorze
     std::map<Type, std::vector<Object>> visibleObjects;
 
-    SceneGraph(PhysicsWorld &physics);
+    SceneGraph(PhysicalWorld &physics);
     std::vector<i32> getVisibleCells();
 
     i32 idFromPosition(glm::vec2 position, i32 level = NoOfLevels);
@@ -79,7 +79,7 @@ public:
     btTriangleMesh *colliderMesh {nullptr};
     btSphereShape *defaultSphereCollider {nullptr};
 private:
-    PhysicsWorld &physics;
+    PhysicalWorld &physics;
     void cullWithPhysicsEngine(const Frustum &frustum);
     void diffBetweenFrames();
     void setLodForVisible(glm::vec4 eye);

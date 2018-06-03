@@ -2,6 +2,7 @@
 #include "common.hpp"
 #include "DecalsAndMarkers.hpp"
 #include "VehicleEquipment.hpp"
+#include "Joint.hpp"
 #include "Utils.hpp"
 
 enum class ModuleType {
@@ -16,31 +17,33 @@ class LightSource;
 class VehicleEquipment;
 
 // matrixContainer contains transformations in world space
-class ModuleGraphicUpdater
+class ModuleVisualUpdater
 {
+    std::vector<glm::mat4>* m_matrixContainer {nullptr};
+    uint m_boneIndex;
 public:
-    std::vector<glm::mat4> *matrixContainer {nullptr};
-    u32 index;
+    ModuleVisualUpdater() = default;
+    ModuleVisualUpdater(std::vector<glm::mat4>& referenceContainer, uint boneIndex) : m_matrixContainer(&referenceContainer), m_boneIndex(boneIndex){}
 
-    virtual ~ModuleGraphicUpdater() = default;
+    virtual ~ModuleVisualUpdater() = default;
     virtual void setTransform(const btTransform &tr){
-        (*matrixContainer)[index] = convert(tr);
+        (*m_matrixContainer)[m_boneIndex] = convert(tr);
     }
     virtual void setTransform(const btTransform &tr, u32 i){
-         (*matrixContainer)[i] = convert(tr);
+         (*m_matrixContainer)[i] = convert(tr);
     }
     virtual void setTransform(const glm::mat4 &tr){
-        (*matrixContainer)[index] = tr;
+        (*m_matrixContainer)[m_boneIndex] = tr;
     }
     virtual void setTransform(const glm::mat4 &tr, u32 i){
-        (*matrixContainer)[i] = tr;
+        (*m_matrixContainer)[i] = tr;
     }
     virtual const glm::mat4& getTransform() const {
-        return (*matrixContainer)[index];
+        return (*m_matrixContainer)[m_boneIndex];
     }
 };
 
-class NullModuleGraphicUpdater : public ModuleGraphicUpdater
+class NullModuleVisualUpdater : public ModuleVisualUpdater
 {
 public:
     virtual void setTransform(const btTransform &tr) override {}
@@ -48,28 +51,29 @@ public:
     virtual void setTransform(const glm::mat4 &tr) override {}
     virtual void setTransform(const glm::mat4 &tr, u32 i) override {}
     virtual const glm::mat4& getTransform() const override {
-        return identity;
+        return identityMatrix;
     }
 };
 
 class ModuleCompoundUpdater
 {
+    btCompoundShape* m_compound {nullptr};
+    glm::mat4 m_currentTransform;
+    uint m_childIndex;
 public:
-    btCompoundShape *compound {nullptr};
-    glm::mat4 matrix;
-    u32 index;
-
+    ModuleCompoundUpdater() = default;
+    ModuleCompoundUpdater(btCompoundShape* compound, uint childIndex) : m_compound(compound), m_childIndex(childIndex){}
     virtual ~ModuleCompoundUpdater() = default;
     // sets transform in vehicle space
     virtual void setTransform(const btTransform& tr){
-        compound->updateChildTransform(index, tr, false);
+        m_compound->updateChildTransform(m_childIndex, tr, false);
     }
     virtual void setTransform(const glm::mat4& tr){
-        compound->updateChildTransform(index, convert(tr), false);
-        matrix = tr;
+        m_compound->updateChildTransform(m_childIndex, convert(tr), false);
+        m_currentTransform = tr;
     }
     virtual const glm::mat4& getTransform() const {
-        return matrix;
+        return m_currentTransform;
     }
 };
 
@@ -79,7 +83,7 @@ public:
     void setTransform(const btTransform& tr) override {}
     void setTransform(const glm::mat4& tr) override {}
     const glm::mat4& getTransform() const override {
-        return identity;
+        return identityMatrix;
     }
 };
 
@@ -88,11 +92,12 @@ class IModule
 public:
     ModuleType type;
     std::string name;
+    Joint joint;
 
     IModule *parent {nullptr};
     VehicleEquipment &eq;
 
-    std::unique_ptr<ModuleGraphicUpdater> moduleGraphicUpdater;
+    std::unique_ptr<ModuleVisualUpdater> moduleVisualUpdater;
     std::unique_ptr<ModuleCompoundUpdater> moduleCompoundUpdater;
 
     glm::mat4 worldTransform;
@@ -102,26 +107,26 @@ public:
     std::list<std::shared_ptr<LightSource>> lights;
     void updateDecals(){
         for(auto &it : decals){
-            it.update(moduleGraphicUpdater->getTransform());
+            it.update(moduleVisualUpdater->getTransform());
         }
     }
     void updateMarkers(){
         for(auto &it : markers)
-            it.update(moduleGraphicUpdater->getTransform());
+            it.update(moduleVisualUpdater->getTransform());
     }
     virtual void updateTargetPoint(glm::vec4){}
 
-    IModule(VehicleEquipment &eq, ModuleType type) : eq(eq), type(type), moduleGraphicUpdater(std::make_unique<NullModuleGraphicUpdater>()), moduleCompoundUpdater(std::make_unique<NullModuleCompoundUpdater>()){}
+    IModule(VehicleEquipment &eq, ModuleType type) : eq(eq), type(type), moduleVisualUpdater(std::make_unique<NullModuleVisualUpdater>()), moduleCompoundUpdater(std::make_unique<NullModuleCompoundUpdater>()){}
 
     // ustawia jednocześnie transformację dla kości, dla potomków(również wzgledm świata) i tr compound mesha
     // transformacja jest względem rodzica
     void transform(const glm::mat4& tr){
         worldTransform = getParentTransform() * tr;
-        moduleGraphicUpdater->setTransform(worldTransform); /// tu wrzucamy pełną trnsformację
+        moduleVisualUpdater->setTransform(worldTransform); /// tu wrzucamy pełną trnsformację
         moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * tr : glm::mat4()); /// a tu względem rodzica, no nic, trzeba dodać dodatkowy wektor
     }
     const glm::mat4& getGlmTransform() const {
-        return moduleGraphicUpdater->getTransform();
+        return moduleVisualUpdater->getTransform();
     }
     const glm::mat4& getTransform() const {
         return worldTransform;
@@ -130,7 +135,7 @@ public:
         return moduleCompoundUpdater->getTransform();
     }
     const glm::mat4& getParentTransform() const {
-        if(not parent) return identity;
+        if(not parent) return identityMatrix;
         return parent->getTransform();
     }
     const glm::mat4& getBaseTransform() const {

@@ -141,24 +141,25 @@ std::vector<aiMesh*> ModelLoader::find(const std::string &name){
     return out;
 }
 
-std::vector<ConvexMesh> ModelLoader::loadCompoundMesh(const std::string &name){
+std::vector<ConvexMesh> ModelLoader::loadCompoundMeshes(const std::vector<std::string> &names){
     std::vector<ConvexMesh> out;
-
-    auto meshes = find(name);
-    if(meshes.empty()){
-        error("no mesh");
-        return {};
-    }
-    for(auto mesh : meshes){
-        std::vector<double> data;
-        data.resize(mesh->mNumVertices*3);
-        for(u32 i=0, j=0; i<mesh->mNumVertices; i++){
-            data[j++] = mesh->mVertices[i].x;
-            data[j++] = mesh->mVertices[i].y;
-            data[j++] = mesh->mVertices[i].z;
+    for(auto& name : names){
+        auto meshes = find(name);
+        if(meshes.empty()){
+            error("no mesh");
+            return {};
         }
-        out.emplace_back();
-        out.back().data.swap(data);
+        for(auto mesh : meshes){
+            std::vector<double> data;
+            data.resize(mesh->mNumVertices*3);
+            for(u32 i=0, j=0; i<mesh->mNumVertices; i++){
+                data[j++] = mesh->mVertices[i].x;
+                data[j++] = mesh->mVertices[i].y;
+                data[j++] = mesh->mVertices[i].z;
+            }
+            out.emplace_back();
+            out.back().data.swap(data);
+        }
     }
     return out;
 }
@@ -207,6 +208,11 @@ InternalMeshInfo ModelLoader::load(const std::string &name){
         if(getLayer) setTextureLayer(subinfo, getLayer(getTextureName(mesh)));
     }
     return info;
+}
+
+InternalMeshInfo ModelLoader::load(const std::vector<std::string> &names){
+
+    return {};
 }
 
 InternalMeshInfo ModelLoader::insert(InternalMesh &intMesh){
@@ -273,7 +279,7 @@ void ModelLoader::setTextureLayer(InternalMeshInfo info, float layer){
     }
 }
 
-void ModelLoader::setIndex(InternalMeshInfo info, float index){
+void ModelLoader::setBoneIndex(InternalMeshInfo info, float index){
     for(u32 i=0; i<info.vertexCount; i++){
         vertex[info.vID+i*4+3] += index;
     }

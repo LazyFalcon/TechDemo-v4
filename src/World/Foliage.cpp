@@ -8,7 +8,7 @@
 #include "ModelLoader.hpp"
 #include "Sampler2D.hpp"
 
-#include "PhysicsWorld.hpp"
+#include "PhysicalWorld.hpp"
 #include "Colors.hpp"
 #include "Yaml.hpp"
 #include <glm/gtc/noise.hpp>
@@ -267,7 +267,7 @@ void Foliage::update(glm::vec4 reference){
     treeBatchData.updatePhysics(reference, physics);
 }
 // TODO: errr
-void RenderData::updatePhysics(glm::vec4 reference, PhysicsWorld &p){
+void RenderData::updatePhysics(glm::vec4 reference, PhysicalWorld &p){
     auto addTree = [&](glm::mat4 o, FoliagePhysics &f){
         btTransform tr(
             btMatrix3x3(o[0][0], o[1][0], o[2][0],

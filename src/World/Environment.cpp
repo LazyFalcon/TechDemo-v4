@@ -6,7 +6,7 @@
 #include "ModelLoader.hpp"
 #include "GPUResources.hpp"
 #include "PerfTimers.hpp"
-#include "PhysicsWorld.hpp"
+#include "PhysicalWorld.hpp"
 #include "Yaml.hpp"
 #include "Utils.hpp"
 
@@ -32,7 +32,7 @@ void Environment::load(const std::string &dirPath){
             if(obj["Colliders"].size() != 1){
                 error("Unsupported number of collisders");
             }
-            auto colliders = modelLoader.loadCompoundMesh(obj["Colliders"][0]["Mesh"].string());
+            auto colliders = modelLoader.loadCompoundMeshes({obj["Colliders"][0]["Mesh"].string()});
             e.physics.rgBody = physics->createRigidBody(0, convert(obj["Quaternion"].quat(), e.physics.position), createCompoundMesh(colliders, nullptr));
         }
         e.id = entities.size();

@@ -1,7 +1,7 @@
 #include "SceneGraph.hpp"
 #include "ModelLoader.hpp"
 #include "Assets.hpp"
-#include "PhysicsWorld.hpp"
+#include "PhysicalWorld.hpp"
 #include "Yaml.hpp"
 #include "Utils.hpp"
 #include "PerfTimers.hpp"
@@ -10,7 +10,7 @@
 
 const float manhattanLodDistances[4] = {15,60,100,900};
 
-SceneGraph::SceneGraph(PhysicsWorld &physics) : cells(pow(4, NoOfLevels)), physics(physics){
+SceneGraph::SceneGraph(PhysicalWorld &physics) : cells(pow(4, NoOfLevels)), physics(physics){
     defaultSphereCollider = new btSphereShape(3);
 }
 

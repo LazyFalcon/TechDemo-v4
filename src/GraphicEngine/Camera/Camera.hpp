@@ -161,7 +161,7 @@ public:
     glm::vec4 position {0,0,0,1};
     glm::quat basis = qIdentity;
     glm::quat specQuat = qIdentity;
-    glm::mat4 baseOrientation = identity; //
+    glm::mat4 baseOrientation = identityMatrix; //
     glm::vec3 euler {0, -1.5, 0};
 
     glm::vec4 positionBounds; // -x, x, -y, y

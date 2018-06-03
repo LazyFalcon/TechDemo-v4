@@ -24,6 +24,6 @@ extern const glm::vec4 W4;
 extern const glm::vec3 X3;
 extern const glm::vec3 Y3;
 extern const glm::vec3 Z3;
-extern const glm::mat4 identity;
+extern const glm::mat4 identityMatrix;
 extern const btTransform btIdentity;
 extern const glm::quat qIdentity;

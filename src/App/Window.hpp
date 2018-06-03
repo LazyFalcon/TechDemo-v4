@@ -1,6 +1,6 @@
 #pragma once
 #include "common.hpp"
-// #include "CameraControllerFactory.hpp"
+#include "CameraControllerFactory.hpp"
 
 class GLFWwindow;
 class App;
@@ -12,7 +12,7 @@ public:
     void hide();
     void show();
 
-    Window(App &app) : app(app) {}
+    Window(App &app) : app(app), camFactory(*this){}
     // Window() : camFactory(*this){}
     ~Window();
 
@@ -26,5 +26,5 @@ public:
     float aspect;
     GLFWwindow *window;
     App &app;
-    // CameraControllerFactory camFactory;
+    CameraControllerFactory camFactory;
 };

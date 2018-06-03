@@ -6,7 +6,7 @@
 #include "Logging.hpp"
 #include "GPUResources.hpp"
 // TODO: zaoszczedzic na includach!
-#include "PhysicsWorld.hpp"
+#include "PhysicalWorld.hpp"
 
 struct InternalMeshInfo
 {
@@ -71,12 +71,13 @@ public:
     }
 
     InternalMeshInfo load(const std::string &name);
+    InternalMeshInfo load(const std::vector<std::string> &names);
     InternalMesh getInternalMesh(const std::string &name);
     InternalMeshInfo insert(InternalMesh &intMesh);
-    std::vector<ConvexMesh> loadCompoundMesh(const std::string &name);
+    std::vector<ConvexMesh> loadCompoundMeshes(const std::vector<std::string> &name);
     std::vector<std::string> findInstances(const std::string &pattern);
     void setTextureLayer(InternalMeshInfo info, float layer);
-    void setIndex(InternalMeshInfo info, float index);
+    void setBoneIndex(InternalMeshInfo info, float index);
     VAO build();
 
     std::pair<std::vector<double>, std::vector<u32>> loadStatic3DMesh(const std::string &name);

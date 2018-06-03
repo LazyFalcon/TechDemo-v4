@@ -3,7 +3,7 @@
 
 class IModule;
 class IMotor;
-class PhysicsWorld;
+class PhysicalWorld;
 class Tank;
 class TrackSim;
 class VehicleEquipment;
@@ -12,12 +12,12 @@ class Yaml;
 class ModuleFactory
 {
     VehicleEquipment &eq;
-    PhysicsWorld &physics;
+    PhysicalWorld &physics;
     btVector3 startPosition;
     int weaponId {0};
 
 public:
-    ModuleFactory(VehicleEquipment &eq, PhysicsWorld &physics, glm::vec4 startPosition);
+    ModuleFactory(VehicleEquipment &eq, PhysicalWorld &physics, glm::vec4 startPosition);
 
     std::shared_ptr<IMotor> createDieselMotor(const Yaml &cfg);
     std::shared_ptr<IMotor> createElectricMotor(const Yaml &cfg);

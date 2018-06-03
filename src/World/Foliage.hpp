@@ -21,7 +21,7 @@
 
 class Sampler2D;
 class btRigidBody;
- class PhysicsWorld;
+ class PhysicalWorld;
 
 /**
   *  To plant trees we need
@@ -97,7 +97,7 @@ struct RenderData
         return pos;
     }
     void cleanup(std::vector<u32> FoliageData::*member);
-    void updatePhysics(glm::vec4 reference, PhysicsWorld &p);
+    void updatePhysics(glm::vec4 reference, PhysicalWorld &p);
     static std::function<void(btRigidBody *&body, btGeneric6DofSpring2Constraint *constraint)> removeTreeFromPhysics;
 };
 
@@ -132,7 +132,7 @@ public:
     u32 textureAtlasID{0};
     VAO meshVAO;
 
-    Foliage(QuadTree &qt, PhysicsWorld &p) : QT(qt), physics(p), densityMap(qt.size, qt.nodes){}
+    Foliage(QuadTree &qt, PhysicalWorld &p) : QT(qt), physics(p), densityMap(qt.size, qt.nodes){}
     bool load(const Yaml &config);
     void update(glm::vec4 reference);
     RenderData& getRenderData(){
@@ -146,7 +146,7 @@ private:
     std::vector<FoliageModel> shrubs;
     std::vector<FoliageModel> plants;
     QuadTree &QT;
-    PhysicsWorld &physics;
+    PhysicalWorld &physics;
     std::shared_ptr<Sampler2D> densitySampler;
     FoliageDensityMap densityMap;
     std::vector<std::string> prepareAtlas();

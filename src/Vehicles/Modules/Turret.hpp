@@ -1,17 +1,6 @@
 #pragma once
 #include "IModule.hpp"
 
-struct Joint
-{
-    glm::vec4 fromAOrigin;
-    glm::vec4 toBOrigin;
-
-    float min, max;
-    int axis;
-
-    float value;
-};
-
 /*
 * dummy module responsible mainly for handling default module behaviors
 */

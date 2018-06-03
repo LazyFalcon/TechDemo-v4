@@ -14,16 +14,16 @@ class GraphicDataCollector
 {
 public:
     virtual ~GraphicDataCollector() = default;
-    virtual void addSelfToQueue() = 0;
+    virtual void toBeRendered() = 0;
 };
 
 class GraphicComponent
 {
 public:
-    std::vector<std::unique_ptr<GraphicDataCollector>> entitiesToDraw;
-    void addSelfToQueue(){
+    std::vector<std::shared_ptr<GraphicDataCollector>> entitiesToDraw;
+    void toBeRendered(){
         for(auto &it : entitiesToDraw){
-            it->addSelfToQueue();
+            it->toBeRendered();
         }
     }
 };
@@ -34,8 +34,8 @@ public:
     SkinnedMesh(){}
     Mesh mesh;
     VAO vao;
-    std::vector<glm::mat4> glmTransforms;
-    void addSelfToQueue(){
+    std::vector<glm::mat4> bones;
+    void toBeRendered(){
         RenderQueue::insert(this);
     }
 };
@@ -48,7 +48,7 @@ public:
     Mesh mesh;
     VAO vao;
     glm::mat4 baseTransform;
-    void addSelfToQueue(){
+    void toBeRendered(){
         RenderQueue::insert(this);
     }
 };

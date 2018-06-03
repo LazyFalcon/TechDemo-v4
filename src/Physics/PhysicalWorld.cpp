@@ -1,4 +1,4 @@
-#include "PhysicsWorld.hpp"
+#include "PhysicalWorld.hpp"
 #include "Logging.hpp"
 #include "Utils.hpp"
 #include "PerfTimers.hpp"
@@ -40,7 +40,7 @@ btCollisionShape* createCompoundMesh(std::vector<std::pair<btCollisionShape*, bt
     return shape;
 }
 
-void PhysicsWorld::init(){
+void PhysicalWorld::init(){
 
     log("SCALAR SIZE!!!!!!:", sizeof(btScalar));
     btVector3 worldMin(-2500.0,-2500.0,-500);
@@ -65,12 +65,12 @@ void PhysicsWorld::init(){
     tr.setOrigin(btVector3(0,0,-1));
 }
 
-btRigidBody* PhysicsWorld::createRigidBody(float mass, const btTransform& transform, btCollisionShape* shape, BodyUser *bodyUser, float inertiaScalling){
+btRigidBody* PhysicalWorld::createRigidBody(float mass, const btTransform& transform, btCollisionShape* shape, BodyUser *bodyUser, float inertiaScalling){
     return createRigidBodyWithMasks(mass, transform, shape, bodyUser, 2, -1, inertiaScalling);
 }
 
 // basically Actor should collide with everything, and everything with actor, and rays and particles
-btRigidBody* PhysicsWorld::createRigidBodyWithMasks(float mass, const btTransform& transform, btCollisionShape* shape, BodyUser *bodyUser, short group, short masks, float inertiaScalling){
+btRigidBody* PhysicalWorld::createRigidBodyWithMasks(float mass, const btTransform& transform, btCollisionShape* shape, BodyUser *bodyUser, short group, short masks, float inertiaScalling){
     //@ http://www.continuousphysics.com/Bullet/BulletFull/structbtRigidBody_1_1btRigidBodyConstructionInfo.html
     btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
@@ -99,14 +99,14 @@ btRigidBody* PhysicsWorld::createRigidBodyWithMasks(float mass, const btTransfor
     return body;
 }
 
-void PhysicsWorld::removeBody(btRigidBody *body){
+void PhysicalWorld::removeBody(btRigidBody *body){
     dynamicsWorld->removeRigidBody(body);
     // delete body->getUserPointer(); // niebezpieczne, co jesli user się powtarza?
     delete body->getMotionState();
     delete body;
 }
 
-void PhysicsWorld::update(float step){
+void PhysicalWorld::update(float step){
     CPU_SCOPE_TIMER("Update world physics");
     dynamicsWorld->stepSimulation(step, 10, 1.0/60.0/4.0);
 
@@ -133,7 +133,7 @@ void PhysicsWorld::update(float step){
     }
 }
 
-std::pair<SampleResult, btRigidBody*> PhysicsWorld::projectileCollision(btVector3 from, btVector3 to){
+std::pair<SampleResult, btRigidBody*> PhysicalWorld::projectileCollision(btVector3 from, btVector3 to){
     std::pair<SampleResult, btRigidBody*> result;
 
     btCollisionWorld::ClosestRayResultCallback closestResults(from,to);
@@ -152,7 +152,7 @@ std::pair<SampleResult, btRigidBody*> PhysicsWorld::projectileCollision(btVector
     return result;
 }
 
-CloseHitResult PhysicsWorld::closesetHit(glm::vec4 from, glm::vec4 to){
+CloseHitResult PhysicalWorld::closesetHit(glm::vec4 from, glm::vec4 to){
     CloseHitResult result {};
 
     btCollisionWorld::ClosestRayResultCallback closestResults(convert(from), convert(to));

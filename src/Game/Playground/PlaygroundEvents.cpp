@@ -7,7 +7,7 @@
 bool StartPlayground::handle(App &app){
     info("[ Start Playground ]");
 
-    auto playground = std::make_shared<Playground>(*app.imgui, *app.inputDispatcher);
+    auto playground = std::make_shared<Playground>(*app.imgui, *app.inputDispatcher, *app.window);
 
     playground->spawnPlayer("Turret", {0,0,0,1});
 

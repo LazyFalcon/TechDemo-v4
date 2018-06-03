@@ -42,7 +42,7 @@ void ObjectBatchedRender::renderSkinned(Camera &camera){
 
             // update buffer
             gl::BindBuffer(gl::UNIFORM_BUFFER, context.ubo.matrices);
-            gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->glmTransforms.size(), toRender->glmTransforms.data());
+            gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->bones.size(), toRender->bones.data());
             gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
 
             // use buffer
@@ -51,7 +51,7 @@ void ObjectBatchedRender::renderSkinned(Camera &camera){
 
         shader.uniform("uProjection", camera.projection);
         shader.uniform("uView", camera.view);
-        shader.uniform("uModel", identity);
+        shader.uniform("uModel", identityMatrix);
         shader.atlas("uAlbedo", assets::getAlbedoArray("Materials").id, 0);
         shader.atlas("uNormalMap", assets::getNormalArray("Materials").id, 1);
         shader.atlas("uRoughnessMap", assets::getRoughnessArray("Materials").id, 2);
@@ -89,7 +89,7 @@ void ObjectBatchedRender::renderSkinnedShadows(Scene &scene, Camera &camera){
             GLuint UBOBindingIndex = 0;
             // update buffer
             gl::BindBuffer(gl::UNIFORM_BUFFER, context.ubo.matrices);
-            gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->glmTransforms.size(), toRender->glmTransforms.data());
+            gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->bones.size(), toRender->bones.data());
             gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
 
             // use buffer

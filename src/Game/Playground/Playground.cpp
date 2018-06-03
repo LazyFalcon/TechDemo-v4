@@ -2,6 +2,7 @@
 #include "GraphicEngine.hpp"
 #include "input-dispatcher.hpp"
 #include "input.hpp"
+#include "PhysicalWorld.hpp"
 #include "Player.hpp"
 #include "Playground.hpp"
 #include "PlaygroundEvents.hpp"
@@ -9,8 +10,13 @@
 #include "Settings.hpp"
 #include "Texture.hpp"
 #include "VehicleBuilder.hpp"
+#include "Window.hpp"
 
-Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher): m_input(inputDispatcher.createNew("Playground")){
+Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window):
+    m_input(inputDispatcher.createNew("Playground")),
+    m_physical(std::make_unique<PhysicalWorld>()),
+    m_window(window)
+    {
     m_input->action("esc").on([]{
         event<ExitPlayground>();
     });
@@ -39,8 +45,8 @@ void Playground::renderProcedure(GraphicEngine& renderer){
 }
 
 void Playground::spawnPlayer(const std::string& configName, glm::vec4 position){
-    VehicleBuilder builder(configName);
     m_player = std::make_shared<Player>(m_input->getDispatcher());
 
-    builder.build(*m_player);
+    VehicleBuilder builder(configName, *m_player, *m_physical, m_window.camFactory);
+    builder.build();
 }

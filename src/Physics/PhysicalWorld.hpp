@@ -11,7 +11,7 @@ struct ConvexMesh
     btVector3 position;
 };
 
-class PhysicsWorld
+class PhysicalWorld
 {
 public:
     btBroadphaseInterface                  *broadphase {nullptr};

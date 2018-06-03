@@ -6,7 +6,7 @@
 #include "Yaml.hpp"
 #include "VehicleEquipment.hpp"
 
-ModuleFactory::ModuleFactory(VehicleEquipment &eq, PhysicsWorld &physics, glm::vec4 startPosition)
+ModuleFactory::ModuleFactory(VehicleEquipment &eq, PhysicalWorld &physics, glm::vec4 startPosition)
 : eq(eq), physics(physics), startPosition(convert(startPosition)) {}
 
 std::shared_ptr<IMotor> ModuleFactory::createDieselMotor(const Yaml &cfg){

@@ -3,7 +3,7 @@
 
 class QTNode;
 class QuadTree;
- class PhysicsWorld;
+ class PhysicalWorld;
 class Yaml;
 
 // TODO: rename
@@ -45,7 +45,7 @@ public:
     void create(const Yaml &cfg);
     void finalize();
 
-    void generatePayload(QTNode &node, PhysicsWorld &physics);
+    void generatePayload(QTNode &node, PhysicalWorld &physics);
     void uploadTexture();
     float sample(glm::vec2);
     std::vector<glm::vec4> generateListOfVisibleNodes();

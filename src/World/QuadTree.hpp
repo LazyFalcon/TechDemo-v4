@@ -6,7 +6,7 @@
 
 struct LightSource;
 class Terrain;
- class PhysicsWorld;
+ class PhysicalWorld;
 struct Yaml;
 
 enum LodLevel {
@@ -62,7 +62,7 @@ struct LodLevelContainer
 class QuadTree
 {
 public:
-    QuadTree(PhysicsWorld &p) : physics(p){}
+    QuadTree(PhysicalWorld &p) : physics(p){}
     void init(const Yaml &cfg);
     void buildQTNode(QTNode &qtNode, u32 lodLevel);
     void buildQTNodes(Terrain &terrain);
@@ -109,7 +109,7 @@ public:
     glm::vec2 size; // qtDimension;
     glm::vec2 chunkSize; // chunkDimension;
 
-    PhysicsWorld &physics;
+    PhysicalWorld &physics;
 private:
     u32 qtNodeIndex {0}; // used during qt bulding
 };

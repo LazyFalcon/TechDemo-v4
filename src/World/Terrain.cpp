@@ -3,7 +3,7 @@
 #include "Logging.hpp"
 #include "Terrain.hpp"
 #include "QuadTree.hpp"
-#include "PhysicsWorld.hpp"
+#include "PhysicalWorld.hpp"
 #include "PerfTimers.hpp"
 
 #include "Utils.hpp"
@@ -172,7 +172,7 @@ void Terrain::copyElevationData(QTNode &node){
     }
 }
 
-void Terrain::generatePayload(QTNode &node, PhysicsWorld &physics){
+void Terrain::generatePayload(QTNode &node, PhysicalWorld &physics){
     if(not node.payload.terrainData){
         node.payload.terrainData = std::make_unique<TerrainData>();
     }

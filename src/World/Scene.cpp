@@ -5,7 +5,7 @@
 #include "ResourceLoader.hpp"
 #include "Yaml.hpp"
 #include "PerfTimers.hpp"
-#include "PhysicsWorld.hpp"
+#include "PhysicalWorld.hpp"
 
 #include "Terrain.hpp"
 #include "Sun.hpp"

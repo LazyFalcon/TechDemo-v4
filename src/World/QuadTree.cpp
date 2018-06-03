@@ -4,7 +4,7 @@
 #include "PerfCounter.hpp"
 #include "Terrain.hpp"
 #include "Utils.hpp"
-#include "PhysicsWorld.hpp"
+#include "PhysicalWorld.hpp"
 #include "Yaml.hpp"
 
 void QuadTree::init(const Yaml &cfg){

@@ -7,7 +7,7 @@
 class btRgBody;
 class btCollisionShape;
 class Yaml;
-class PhysicsWorld;
+class PhysicalWorld;
 
 namespace projectiles {class Projectile;}
 
@@ -41,7 +41,7 @@ public:
 class Environment
 {
 public:
-    Environment(SceneGraph &graph, PhysicsWorld *physics) : graph(graph), physics(physics) {}
+    Environment(SceneGraph &graph, PhysicalWorld *physics) : graph(graph), physics(physics) {}
 
     void load(const std::string &dirPath);
 
@@ -54,7 +54,7 @@ public:
     VAO vao;
 private:
     SceneGraph &graph;
-    PhysicsWorld *physics;
+    PhysicalWorld *physics;
 
     // std::map<std::string, Mesh> meshes;
     // std::map<std::string, btCollisionShape*> collsionShapes;

@@ -26,6 +26,6 @@ const glm::vec3 X3(1,0,0);
 const glm::vec3 Y3(0,1,0);
 const glm::vec3 Z3(0,0,1);
 
-const glm::mat4 identity(1);
+const glm::mat4 identityMatrix(1);
 const btTransform btIdentity = btTransform::getIdentity();
 const glm::quat qIdentity = glm::quat(0,0,0,1);

@@ -128,7 +128,7 @@ void Effects::sky(Scene &scene, Camera &camera){
     auto shader = assets::getShader("Sky");
     shader.bind();
 
-    auto skyMatrix = glm::translate(identity, camera.position.xyz());
+    auto skyMatrix = glm::translate(identityMatrix, camera.position.xyz());
 
     shader.uniform("uPV", camera.getPV());
     shader.uniform("uModel", skyMatrix);

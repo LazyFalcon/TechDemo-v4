@@ -157,25 +157,34 @@ private:
         panel.width(350).height(1.f)
             .x(startPosition).y(0)
             .blured(0x10101010)();
-        panel.layout().spacing(15).toDown();
+        panel.layout().spacing(23).padding({10,55,10,50}).toUp();
         panel.quickStyler([](Item& item){
             item.w(0.9f).h(44).formatting(Text::Centered);
         });
         // panel.emptySpace(0.6f);
-        panel.button().y(0.6f)().text("New Game");
-        panel.button()().text("Playground").action([]{
-            event<StartPlayground>();
-        });
-        panel.button()().text("Continue");
-        panel.button()().text("Settings").action([this]{
-            fadeOut([this]{fadeOut([this]{ m_currentState = m_settings; });});
+        panel.button()().text("Exit").action([this]{
+            fadeOut([]{event<ExitGame>();});
         });
         panel.button()().text("Credits").action([this]{
             fadeOut([this]{log("Credits? Me! Lazy Falcon!");fadeIn();});
         });
-        panel.button()().text("Exit").action([this]{
-            fadeOut([]{event<ExitGame>();});
+        panel.button()().text("Settings").action([this]{
+            fadeOut([this]{fadeOut([this]{ m_currentState = m_settings; });});
         });
+        panel.button()().text("Continue");
+        if(m_playSelected){
+            panel.button().w(0.8f).h(40)().text("Demo With Drones").action([]{
+                log("not implemented yet");
+            });
+            panel.button().w(0.8f).h(40)().text("Void Rendering").action([]{
+                log("not implemented yet");
+            });
+            panel.button().w(0.8f).h(40)().text("Graphic Testing").action([]{
+                event<StartPlayground>();
+            });
+        }
+        panel.button()().text("New Game").action([this]{m_playSelected = !m_playSelected;});
+        // panel.button().y(0.6f)().text("New Game").action([this]{m_playSelected = !m_playSelected;});
 
     }
 
@@ -185,6 +194,7 @@ private:
     float toSlide {45.f};
     float m_timer;
     float m_uiPos;
+    bool m_playSelected {false};
 public:
     LobbyUI(Settings& settings) : m_settings(std::make_shared<LobbySettings>(settings)){
         fadeIn();

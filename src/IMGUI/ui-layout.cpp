@@ -64,6 +64,22 @@ void Layout::setBounds(glm::vec4 b){
 }
 
 Layout& Layout::toUp(Alignment alignment){
+    feedback = [this, alignment](const glm::vec4& item){
+        float x(item[0]), y(item[1]), w(item[2]), h(item[3]);
+        // clamp item width to panel width
+        w = std::min(w, m_w);
+
+        y = m_y;
+
+        // apply alignment
+        x = alignment==LEFT? m_x : alignment==RIGHT? (m_x + m_w - w) : (m_x + floor(0.5f * (m_w - w)));
+        // cut free space
+        float prev_y = m_y;
+        m_y = y + h + m_spacing;
+        m_h = m_y - prev_y;
+
+        return glm::vec4(x,y,w,h);
+    };
 
     return *this;
 }
@@ -75,7 +91,7 @@ Layout& Layout::toDown(Alignment alignment){
 
         // in case when we want to move item, check if shift isn't smaller than height
         // little not consistent here, x,y received from item are displacement in main direction, not from lower left corner
-        y = m_y + m_h - std::max(y, h); // TODO: is this max eq correct?
+        y = m_y + m_h - std::max(y, h);
 
         // apply alignment
         x = alignment==LEFT? m_x : alignment==RIGHT? (m_x + m_w - w) : (m_x + floor(0.5f * (m_w - w)));
@@ -93,7 +109,7 @@ Layout& Layout::toRight(Alignment alignment){
         // cut item height to panel height and padding
         h = std::min(h, m_h);
 
-        x = m_x + m_padding[0];
+        x = m_x;
 
         // apply alignment
         y = alignment==UP? (m_y + m_h - h) : alignment==DOWN? m_y : (m_y + floor(0.5f * (m_h - h)));

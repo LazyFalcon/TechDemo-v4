@@ -87,10 +87,18 @@ bool clog(const Args &... args){
     std::cout<<std::endl;
     return CLOG_SPECIAL_VALUE;
 }
-// TODO: macro to get file and line
 template <typename... Args>
 void error(const Args &... args){
     std::cerr << "[ ERROR ] ";
+    std::stringstream ss;
+    pmk::toStream(ss, args...);
+    std::cerr << ss.str() << std::endl;
+    pmk::logBuffer.push_back(toString(ss.str()));
+}
+
+template <typename... Args>
+void errorWithLine(const std::string& filename, int linenum, const std::string& func, const Args &... args){
+    std::cerr << "[ ERROR ] "<< filename << ":" << linenum<<":" << func <<" ";
     std::stringstream ss;
     pmk::toStream(ss, args...);
     std::cerr << ss.str() << std::endl;
@@ -104,7 +112,16 @@ void info(const T &t, const Args &... args){
     std::cout<<""<<std::endl;
 }
 
+template <typename T, typename... Args>
+void infoWithLine(const std::string& filename, int linenum, const std::string& func, const T &t, const Args &... args){
+    std::cout<<"[ "<<t<<" ] " << filename << ":" << linenum<<":" << func << " ";
+    pmk::toStream(std::cout, args...);
+    std::cout<<""<<std::endl;
+}
+
 #define LOG_LINE log(__FILE__, __LINE__);
+#define error(...) errorWithLine(__FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#define info(...) infoWithLine(__FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
 inline void hardPause(){
     std::cin.ignore();

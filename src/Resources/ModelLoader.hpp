@@ -3,7 +3,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "common.hpp"
-#include "Logging.hpp"
 #include "GPUResources.hpp"
 // TODO: zaoszczedzic na includach!
 #include "PhysicalWorld.hpp"

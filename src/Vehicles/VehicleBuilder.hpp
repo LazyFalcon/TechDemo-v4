@@ -30,7 +30,7 @@ private:
     void setDecals(IModule& module, const Yaml& cfg);
     void setMarkers(IModule& module, const Yaml& cfg);
     void setVisual(IModule& module, const Yaml& cfg);
-    void setConnection(IModule& module, const Yaml& cfg);
+    void setConnection(IModule& module, const Yaml& cfg, glm::vec4 parentToJoint, glm::vec4 jointAxis);
     void setPhysical(IModule& module, const Yaml& cfg);
     void setArmor(IModule& module, const Yaml& cfg);
 

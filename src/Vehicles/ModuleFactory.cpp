@@ -17,7 +17,7 @@ std::shared_ptr<IMotor> ModuleFactory::createElectricMotor(const Yaml &cfg){
 }
 
 std::shared_ptr<IModule> ModuleFactory::createModule(const Yaml &cfg){
-    std::string className = cfg["Class"].string();
+    std::string className = cfg["ModuleType"].string();
 
     if(className == "Base"){
         return createBase(cfg);
@@ -32,7 +32,7 @@ std::shared_ptr<IModule> ModuleFactory::createModule(const Yaml &cfg){
         return createArmor(cfg);
     }
 
-    error("Module", cfg["Name"].string(), "has undefined class:", className);
+    error("Module", cfg["Name"].string(), "has undefined type:", className);
     return nullptr;
 }
 std::shared_ptr<IModule> ModuleFactory::createBase(const Yaml &cfg){

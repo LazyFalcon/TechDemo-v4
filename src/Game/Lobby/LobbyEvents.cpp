@@ -1,6 +1,7 @@
 #include "App.hpp"
 #include "Lobby.hpp"
 #include "LobbyEvents.hpp"
+#include "Logging.hpp"
 #include "Window.hpp"
 
 bool StartLobby::handle(App &app){

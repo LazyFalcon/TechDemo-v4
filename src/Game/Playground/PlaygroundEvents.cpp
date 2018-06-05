@@ -1,6 +1,7 @@
 #include "App.hpp"
 #include "Playground.hpp"
 #include "LobbyEvents.hpp"
+#include "Logging.hpp"
 #include "PlaygroundEvents.hpp"
 #include "Window.hpp"
 

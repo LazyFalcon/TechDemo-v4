@@ -1,5 +1,4 @@
 #include "Settings.hpp"
-#include "Logging.hpp"
 #include "Yaml.hpp"
 
 void Settings::load(){

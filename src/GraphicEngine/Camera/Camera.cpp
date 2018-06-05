@@ -1,7 +1,6 @@
 #include "Utils.hpp"
 #include "common.hpp"
 #include "Camera.hpp"
-#include "Logging.hpp"
 
 void Exposure::update(float &exposure, float dt){
     exposure = 5;

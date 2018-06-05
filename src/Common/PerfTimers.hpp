@@ -1,7 +1,6 @@
 #pragma once
 #include "common.hpp"
 #include "Timer.hpp"
-#include "Logging.hpp"
 #include <queue>
 
 typedef u64 timeType;

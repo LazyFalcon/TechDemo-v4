@@ -41,7 +41,7 @@ void VehicleBuilder::build(){
     m_skinnedMesh->vao = m_modelLoader->build();
 }
 
-void VehicleBuilder::makeModulesRecursively(const Yaml &cfg, glm::vec4 parentPivot, glm::vec4 parentAxis, IModule *parentModule){
+void VehicleBuilder::makeModulesRecursively(const Yaml &cfg, glm::vec4 parentToJoint, glm::vec4 jointAxis, IModule *parentModule){
     if(not cfg["Active"].boolean()) return;
 
     std::string identifier = cfg["Identifier"].string();
@@ -63,7 +63,7 @@ void VehicleBuilder::makeModulesRecursively(const Yaml &cfg, glm::vec4 parentPiv
     setDecals(*module, cfg);
     setMarkers(*module, cfg);
     setVisual(*module, cfg);
-    setConnection(*module, cfg);
+    setConnection(*module, cfg, parentToJoint, jointAxis);
     setPhysical(*module, cfg);
     setArmor(*module, cfg);
 
@@ -74,11 +74,11 @@ void VehicleBuilder::makeModulesRecursively(const Yaml &cfg, glm::vec4 parentPiv
 
     if(cfg.has("Connector"))
     for(auto &slot : cfg["Connector"]){
-        auto pivot = slot["Pivot"].vec30();
-        auto axis = slot["Axis"].vec30();
+        auto toJoint = slot["FromParentOrigin"].vec30();
+        auto jointAxis = slot["Axis"].vec30();
 
         if(slot.has("Pinned")) for(int i=0; i<slot["Pinned"].size(); i++){
-            makeModulesRecursively(slot["Pinned"][i], pivot, axis, module.get());
+            makeModulesRecursively(slot["Pinned"][i], toJoint, jointAxis, module.get());
         }
     }
     return;
@@ -139,9 +139,22 @@ void VehicleBuilder::setVisual(IModule& module, const Yaml& cfg){
     m_boneMatrixIndex++;
 }
 
-void VehicleBuilder::setConnection(IModule& module, const Yaml& cfg){
+// * creates connection between parent and child module, usually this connection is updated by child
+// * can have different number of dof
+// * lack of limits means that connection is rigid
+void VehicleBuilder::setConnection(IModule& module, const Yaml& cfg, glm::vec4 parentToJoint, glm::vec4 jointAxis){
+    auto x = cfg["X"].vec30();
+    auto y = cfg["Y"].vec30();
+    auto z = cfg["Z"].vec30();
+    auto w = cfg["W"].vec31();
+    module.joint = Joint(glm::mat4(x, y, z, w));
+    module.joint.toBOrigin = cfg["FromParentToOrigin"].vec30();
+    if(cfg.has("Limits"))
+        module.joint.compileLimits(cfg["FromParentToOrigin"].floats(), cfg["FromParentToOrigin"].floats(), cfg["FromParentToOrigin"].floats());
+    else
+        module.joint.setRigidConnection();
 
-    glm::mat4 tr = module.joint.getDefaultTransform();
+    glm::mat4 tr = module.joint.loc();
     module.transform(tr);
 }
 
@@ -149,10 +162,10 @@ void VehicleBuilder::setConnection(IModule& module, const Yaml& cfg){
 void VehicleBuilder::setPhysical(IModule& module, const Yaml& cfg){
     if(not cfg.has("Physical")) return;
 
-    auto tr = module.getParentTransform() * module.joint.getDefaultTransform();
+    auto tr = module.getParentTransform() * module.joint.loc();
 
     // glm::vec4 cnvPos = glm::vec4(module.joint.toPivot + module.joint.toOrigin);
-    auto localTransformation = module.joint.getDefaultTransform();
+    auto localTransformation = module.joint.loc();
 
     if(cfg["Physical"].has("Collision")){
         auto meshes = m_modelLoader->loadCompoundMeshes(cfg["Physical"]["Collision"].strings());

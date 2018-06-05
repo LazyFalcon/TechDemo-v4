@@ -4,6 +4,7 @@
 #include "DefaultResourcePaths.hpp"
 #include "LobbyEvents.hpp"
 #include "PerfTimers.hpp"
+#include "Logging.hpp"
 
 void initialEvent(){
     auto startGame = event<StartLobby>();

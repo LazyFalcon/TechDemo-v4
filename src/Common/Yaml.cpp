@@ -1,4 +1,3 @@
-#include "Logging.hpp"
 #include "Yaml.hpp"
 #include <iostream>
 #include <fstream>
@@ -145,7 +144,7 @@ struct Line
         }
         else {
             key = s.substr(depth, res - depth);
-            if(s.size() > res+1) value = s.substr(s.find_first_not_of(' ', res+1));
+            if(auto valStart=s.find_first_not_of(' ', res+1); valStart != std::string::npos) value = s.substr(valStart);
             boost::trim(key);
             boost::trim(value);
         }
@@ -237,10 +236,15 @@ Variants Yaml::decode(std::string s){
     return s;
 }
 
-void Yaml::load(const std::string& filename){
+void Yaml::load(const std::string& filename)
+try {
     YamlLoader loader(filename, *this);
     loader.run();
 }
+catch(...){
+    error("exception caught for:", filename);
+}
+
 void Yaml::save(const std::string& filename) const {
     std::fstream file(filename, std::fstream::out);
     for(auto& it : container){

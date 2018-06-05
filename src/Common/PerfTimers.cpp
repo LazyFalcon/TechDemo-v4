@@ -1,5 +1,6 @@
 #include "gl_core_4_5.hpp"
 #include "PerfTimers.hpp"
+#include "Logging.hpp"
 #include <regex>
 extern bool CLOG_SPECIAL_VALUE;
 void TimeRecord::update(timeType dt){

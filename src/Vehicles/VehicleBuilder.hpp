@@ -7,6 +7,7 @@
 class CameraControllerFactory;
 class GraphicComponent;
 class IModule;
+class Joint;
 class PhysicalWorld;
 class Player;
 class SkinnedMesh;
@@ -26,11 +27,11 @@ private:
     Yaml m_config;
 
     void openModelFile();
-    void makeModulesRecursively(const Yaml &cfg, glm::vec4 parentPivot, glm::vec4 parentAxis, IModule *parentModule);
+    void makeModulesRecursively(const Yaml &cfg, Joint& connectorJoint, IModule *parentModule);
     void setDecals(IModule& module, const Yaml& cfg);
     void setMarkers(IModule& module, const Yaml& cfg);
     void setVisual(IModule& module, const Yaml& cfg);
-    void setConnection(IModule& module, const Yaml& cfg, glm::vec4 parentToJoint, glm::vec4 jointAxis);
+    void setConnection(IModule& module, const Yaml& cfg, Joint& connectorJoint);
     void setPhysical(IModule& module, const Yaml& cfg);
     void setArmor(IModule& module, const Yaml& cfg);
 

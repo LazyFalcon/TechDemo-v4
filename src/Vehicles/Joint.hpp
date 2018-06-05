@@ -22,7 +22,6 @@ private:
     void dof_2_solver(const glm::vec4& targetInLocaLspace){}
     void dof_3_solver(const glm::vec4& targetInLocaLspace){}
 
-
     int dof; // * also number of axes used, if axis is blocked, it's not included in dof.
     std::array<AxisData, 3> axes {};
     glm::mat4 m_loc; // * local coordinates and also default transform. To get module transform multiply by

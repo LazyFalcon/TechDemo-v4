@@ -123,7 +123,7 @@ public:
     void transform(const glm::mat4& tr){
         worldTransform = getParentTransform() * tr;
         moduleVisualUpdater->setTransform(worldTransform); /// tu wrzucamy pełną trnsformację
-        moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * tr : glm::mat4()); /// a tu względem rodzica, no nic, trzeba dodać dodatkowy wektor
+        // moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * tr : glm::mat4()); /// a tu względem rodzica, no nic, trzeba dodać dodatkowy wektor
     }
     const glm::mat4& getGlmTransform() const {
         return moduleVisualUpdater->getTransform();

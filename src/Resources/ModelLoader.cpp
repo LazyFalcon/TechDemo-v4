@@ -39,17 +39,28 @@ void ModelLoader::copyTexcoords(aiMesh *mesh, floats &target){
     }
 
     target.resize(target.size()+count*m_uvSize);
-    if(m_uvSize == 2u)
-        for(u32 i=0, j=0; i<count; i++, j+=2){
-            target[start+j] = mesh->mTextureCoords[0][i].x;
-            target[start+j+1] = mesh->mTextureCoords[0][i].y;
+    if(not mesh->mTextureCoords[0]){
+        for(u32 i=0, j=0; i<count and m_uvSize == 2u; i++, j+=2){
+            target[start+j] = 0;
+            target[start+j+1] = 0;
         }
-    else if(m_uvSize == 3u)
-        for(u32 i=0, j=0; i<count; i++, j+=3){
-            target[start+j] = mesh->mTextureCoords[0][i].x;
-            target[start+j+1] = mesh->mTextureCoords[0][i].y;
-            target[start+j+2] = mesh->mTextureCoords[0][i].z;
+        for(u32 i=0, j=0; i<count and m_uvSize == 3u; i++, j+=3){
+            target[start+j] = 0;
+            target[start+j+1] = 0;
+            target[start+j+2] = 0;
         }
+        return;
+    }
+
+    for(u32 i=0, j=0; i<count and m_uvSize == 2u; i++, j+=2){
+        target[start+j] = mesh->mTextureCoords[0][i].x;
+        target[start+j+1] = mesh->mTextureCoords[0][i].y;
+    }
+    for(u32 i=0, j=0; i<count and m_uvSize == 3u; i++, j+=3){
+        target[start+j] = mesh->mTextureCoords[0][i].x;
+        target[start+j+1] = mesh->mTextureCoords[0][i].y;
+        target[start+j+2] = mesh->mTextureCoords[0][i].z;
+    }
 }
 void ModelLoader::copyNormals(aiMesh *mesh, floats &target){
     u32 count = mesh->mNumVertices;
@@ -96,7 +107,7 @@ ModelLoader& ModelLoader::open(const std::string &filename){
     if(scene) close();
     scene = importer.ReadFile(filename.c_str()
         ,
-        (aiProcess_CalcTangentSpace & loadTangents)
+        aiProcess_CalcTangentSpace
         | aiProcess_Triangulate
         | aiProcess_ImproveCacheLocality
         // | aiProcess_PreTransformVertices
@@ -211,6 +222,35 @@ InternalMeshInfo ModelLoader::load(const std::string &name){
 }
 
 InternalMeshInfo ModelLoader::load(const std::vector<std::string> &names){
+
+    InternalMeshInfo info {(u32)vertex.size(), (u32)texcoord.size(), (u32)normal.size(), (u32)tangent.size(), (u32)indices.size()};
+
+    std::vector<aiMesh*> meshes;
+
+    for(auto& name : names){
+        auto f = find(name);
+        meshes.insert(meshes.end(), f.begin(), f.end());
+    }
+
+    if(meshes.empty()){
+        error("no mesh:", names[0]);
+        return {};
+    }
+    for(auto mesh : meshes){
+        InternalMeshInfo subinfo {(u32)vertex.size(), (u32)texcoord.size(), (u32)normal.size(), (u32)tangent.size(), (u32)indices.size()};
+        copyIndices(mesh, indices, vertex.size()/4);
+        copyVertices(mesh, vertex);
+        copyTexcoords(mesh, texcoord);
+        copyNormals(mesh, normal);
+        copyTangents(mesh, tangent);
+
+        info.count = indices.size() - info.iID;
+        info.vertexCount = (vertex.size() - info.vID)/4;
+        subinfo.count = indices.size() - subinfo.iID;
+        subinfo.vertexCount = (vertex.size() - subinfo.vID)/4;
+        if(getLayer) setTextureLayer(subinfo, getLayer(getTextureName(mesh)));
+    }
+    return info;
 
     return {};
 }

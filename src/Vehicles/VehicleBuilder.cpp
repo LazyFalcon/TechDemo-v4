@@ -16,7 +16,7 @@ VehicleBuilder::VehicleBuilder(const std::string& configName, Player& player, Ph
     {}
 
 void VehicleBuilder::openModelFile(){
-    m_modelLoader->loadTangents = true;
+    m_modelLoader->loadTangents = false; // TODO:
     m_modelLoader->open(resPath + "models/" + m_configName + ".dae", assets::layerSearch(assets::getAlbedoArray("Materials")));
     m_modelLoader->m_vertexW = 0u;
 
@@ -32,7 +32,8 @@ void VehicleBuilder::build(){
     // // m_player.eq().compound = new btCompoundShape();
     m_skinnedMesh->mesh = m_modelLoader->beginMesh();
 
-    makeModulesRecursively(m_config["Model"], glm::vec4(0,0,0,1), glm::vec4(0,0,0,0), nullptr);
+    Joint dummyJoint;
+    makeModulesRecursively(m_config["Model"], dummyJoint, nullptr);
     // * collision models are not needed now
     // //buildRigidBody();
 
@@ -41,11 +42,13 @@ void VehicleBuilder::build(){
     m_skinnedMesh->vao = m_modelLoader->build();
 }
 
-void VehicleBuilder::makeModulesRecursively(const Yaml &cfg, glm::vec4 parentToJoint, glm::vec4 jointAxis, IModule *parentModule){
+void VehicleBuilder::makeModulesRecursively(const Yaml &cfg, Joint& connectorJoint, IModule *parentModule){
     if(not cfg["Active"].boolean()) return;
 
     std::string identifier = cfg["Identifier"].string();
     std::string modelName = cfg["Name"].string();
+
+    log("Processing:", modelName);
 
     auto module = m_moduleFactory.createModule(cfg);
     if(not module){
@@ -63,22 +66,26 @@ void VehicleBuilder::makeModulesRecursively(const Yaml &cfg, glm::vec4 parentToJ
     setDecals(*module, cfg);
     setMarkers(*module, cfg);
     setVisual(*module, cfg);
-    setConnection(*module, cfg, parentToJoint, jointAxis);
-    setPhysical(*module, cfg);
-    setArmor(*module, cfg);
+    setConnection(*module, cfg, connectorJoint);
+    // setPhysical(*module, cfg);
+    // setArmor(*module, cfg);
 
     // for(auto& it : modulesToAddLater){
         /// move here this shit from above
     // }
     // modulesToAddLater.clear();
 
-    if(cfg.has("Connector"))
-    for(auto &slot : cfg["Connector"]){
-        auto toJoint = slot["FromParentOrigin"].vec30();
-        auto jointAxis = slot["Axis"].vec30();
+    if(cfg.has("Connector")) for(auto &connector : cfg["Connector"]){
+        log("has connector");
+        auto x = connector["X"].vec30();
+        auto y = connector["Y"].vec30();
+        auto z = connector["Z"].vec30();
+        auto w = connector["W"].vec31();
+        Joint childConnectorJoint(glm::mat4(x, y, z, w));
 
-        if(slot.has("Pinned")) for(int i=0; i<slot["Pinned"].size(); i++){
-            makeModulesRecursively(slot["Pinned"][i], toJoint, jointAxis, module.get());
+        if(connector.has("Pinned")) for(auto& pinned : connector["Pinned"]){
+            log("has pinned");
+            makeModulesRecursively(pinned, childConnectorJoint, module.get());
         }
     }
     return;
@@ -142,12 +149,8 @@ void VehicleBuilder::setVisual(IModule& module, const Yaml& cfg){
 // * creates connection between parent and child module, usually this connection is updated by child
 // * can have different number of dof
 // * lack of limits means that connection is rigid
-void VehicleBuilder::setConnection(IModule& module, const Yaml& cfg, glm::vec4 parentToJoint, glm::vec4 jointAxis){
-    auto x = cfg["X"].vec30();
-    auto y = cfg["Y"].vec30();
-    auto z = cfg["Z"].vec30();
-    auto w = cfg["W"].vec31();
-    module.joint = Joint(glm::mat4(x, y, z, w));
+void VehicleBuilder::setConnection(IModule& module, const Yaml& cfg, Joint& connectorJoint){
+    module.joint = connectorJoint;
     module.joint.toBOrigin = cfg["FromParentToOrigin"].vec30();
     if(cfg.has("Limits"))
         module.joint.compileLimits(cfg["FromParentToOrigin"].floats(), cfg["FromParentToOrigin"].floats(), cfg["FromParentToOrigin"].floats());

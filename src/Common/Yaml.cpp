@@ -35,7 +35,7 @@ struct Stringify : public boost::static_visitor<std::string>
         for(const auto &it : v){
             stream<<it<<" "s;
         }
-        stream<<" ]";
+        stream<<"]";
         return stream.str();
     }
 
@@ -43,9 +43,9 @@ struct Stringify : public boost::static_visitor<std::string>
         std::stringstream stream;
         stream<<"[ ";
         for(const auto &it : v){
-            stream<<it<<" "s;
+            stream<<"'"<<it<<"' "s;
         }
-        stream<<" ]";
+        stream<<"]";
         return stream.str();
     }
 
@@ -88,7 +88,7 @@ struct StringifyWithInfo : public boost::static_visitor<std::string>
         for(const auto &it : v){
             stream<<it<<" "s;
         }
-        stream<<" ]";
+        stream<<"]";
         return "vector "s + stream.str();
     }
 
@@ -96,9 +96,9 @@ struct StringifyWithInfo : public boost::static_visitor<std::string>
         std::stringstream stream;
         stream<<"[ ";
         for(const auto &it : v){
-            stream<<it<<" "s;
+            stream<<"'"<<it<<"' "s;
         }
-        stream<<" ]";
+        stream<<"]";
         return "vector "s + stream.str();
     }
 
@@ -116,12 +116,10 @@ struct Line
     int depth;
     std::string key;
     std::string value;
-    bool isArrayElement {false}; // TODO: rename
+    bool isArrayElement {false};
     Line(const std::string& line){
         countSpaces(line);
         splitLine(line);
-        // if(key.empty()) log("depth:", depth, "value:", value);
-        // else log("depth:", depth, "key:", key, "value:", value);
     }
 
 
@@ -129,7 +127,7 @@ struct Line
         depth = 0;
         for(auto& it : s){
             if(it == '-'){
-                ++depth;
+                //! ++depth; // it's easiet to traverse when array notifier has different depth
                 isArrayElement = true;
             }
             else if(it == ' ') ++depth;
@@ -152,25 +150,6 @@ struct Line
 
 };
 
-class YamlLoader
-{
-private:
-    Yaml& root;
-    std::fstream file;
-    std::vector<Line> lines;
-    int currentLine {};
-public:
-    YamlLoader(const std::string &filename, Yaml& yaml): root(yaml){
-        file.open(filename, std::fstream::in);
-    }
-    ~YamlLoader(){
-        file.close();
-    }
-    bool isCommentOrEmpty(const std::string&) const;
-    void run();
-    void fill(Yaml& node, int nodeDepth=0, bool ignoreArrayElement=false);
-};
-
 std::string Yaml::string() const {
     return boost::apply_visitor(Stringify(), m_value);
 }
@@ -179,6 +158,7 @@ std::string Yaml::debugString() const {
     return boost::apply_visitor(StringifyWithInfo(), m_value);
 }
 
+// ! here! most important function!
 Variants Yaml::decode(std::string s){
     std::regex rFloat(R"(-?[0-9]+\.?[0-9]*)");
     std::regex rColor3("([0-9a-fA-F]{6})");
@@ -197,7 +177,7 @@ Variants Yaml::decode(std::string s){
         }
         return out;
     }
-    if(s.find("'") and (s.front() == '{' and s.back() == '}' or s.front() == '[' and s.back() == ']')){ // * then match array of strings
+    if(s.find("'")!=std::string::npos and (s.front() == '{' and s.back() == '}' or s.front() == '[' and s.back() == ']')){ // * then match array of strings
         stringVec out;
         auto posA = s.find("'");
         while(posA != std::string::npos){ // woho! unsafe
@@ -236,15 +216,6 @@ Variants Yaml::decode(std::string s){
     return s;
 }
 
-void Yaml::load(const std::string& filename)
-try {
-    YamlLoader loader(filename, *this);
-    loader.run();
-}
-catch(...){
-    error("exception caught for:", filename);
-}
-
 void Yaml::save(const std::string& filename) const {
     std::fstream file(filename, std::fstream::out);
     for(auto& it : container){
@@ -254,14 +225,29 @@ void Yaml::save(const std::string& filename) const {
     file.close();
 }
 
-void Yaml::print() const {
+void Yaml::print(bool isPartOfArray) const {
+
     for(auto& it : container){
-        it.printToStream(std::cout, "  ", "", isArray);
+        it.printToStream(std::cout, "    ", "  ", isArray);
+        // printToStream(std::cout, "  ", "  ", isPartOfArray);
     }
 }
 
-void Yaml::printToStream(std::ostream& output, std::string indent, std::string indentation, bool isPartOfArray) const {
-    if(isPartOfArray){
+void Yaml::printOnlyThis(bool isPartOfArray) const {
+    std::cout << (isPartOfArray? "-" : m_key) << ": " <<  string() << "\n";
+    for(auto& it : container){
+        std::cout <<"    "<< it.key() << ": ";
+        if(not it.container.empty()){
+            std::cout<< (it.isArray ? "[]" : "{}");
+        }
+        else std::cout<<it.string();
+        std::cout <<"\n";
+    }
+    std::cout<<std::endl;
+}
+
+void Yaml::printToStream(std::ostream& output, std::string indent, std::string indentation, bool isArrayItem) const {
+    if(isArrayItem){
         auto withMinus = indent;
         withMinus[withMinus.size()-2] = '-';
         output << indentation << withMinus;
@@ -269,7 +255,7 @@ void Yaml::printToStream(std::ostream& output, std::string indent, std::string i
 
         bool printWithoutIndent = string().empty();
         for(auto& it : container){
-            it.printToStream(output, indent, printWithoutIndent ? "" : (indentation + indent), it.isArray);
+            it.printToStream(output, indent, printWithoutIndent ? "" : (indentation + indent), isArray);
             printWithoutIndent = false;
         }
     }
@@ -279,6 +265,34 @@ void Yaml::printToStream(std::ostream& output, std::string indent, std::string i
             it.printToStream(output, indent, indentation + (isArray ? "" : indent), isArray);
         }
     }
+}
+
+class YamlLoader
+{
+private:
+    Yaml& m_root;
+    std::fstream file;
+    std::vector<Line> lines;
+    int m_currentLine {};
+public:
+    YamlLoader(const std::string &filename, Yaml& yaml): m_root(yaml){
+        file.open(filename, std::fstream::in);
+    }
+    ~YamlLoader(){
+        file.close();
+    }
+    bool isCommentOrEmpty(const std::string&) const;
+    void run();
+    void fill(Yaml& node, int expectedDepth=0, bool ignoreArrayElement=false);
+};
+
+void Yaml::load(const std::string& filename)
+try {
+    YamlLoader loader(filename, *this);
+    loader.run();
+}
+catch(...){
+    error("exception caught for:", filename);
 }
 
 bool YamlLoader::isCommentOrEmpty(const std::string& s) const {
@@ -302,51 +316,49 @@ void YamlLoader::run(){
         }
     }
 
-    fill(root);
+    fill(m_root);
 }
 
-void YamlLoader::fill(Yaml& node, int nodeDepth, bool ignoreArrayElement){
+// ! and filler here!
+void YamlLoader::fill(Yaml& nodeToFill, int expectedDepth, bool ignoreArrayElement){
     Yaml* childNode = nullptr;
-    bool thenGetBackOnArray = false;
-    while(currentLine < lines.size()){
-        auto& line = lines[currentLine];
-        // log("\tline:", line.key, ":", line.value, nodeDepth, line.isArrayElement and thenGetBackOnArray ? "t" : "n");
 
-        if(line.depth < nodeDepth or (thenGetBackOnArray and line.isArrayElement)){ // end of indented block
-            currentLine--;
-            // log("\tpop()");
+    bool belongsToArray = lines[m_currentLine].isArrayElement and ignoreArrayElement;
+    int arrayDepth = lines[m_currentLine].depth;
+
+    while(m_currentLine < lines.size()){
+        auto& line = lines[m_currentLine];
+        // log("\n line {", line.key, line.depth, "}", expectedDepth, arrayDepth, ".", line.isArrayElement, ignoreArrayElement);
+
+        if(line.depth < (ignoreArrayElement? expectedDepth-1 : expectedDepth)){ //* finish filling node
             return;
         }
-        else if(line.depth > nodeDepth){ // start of new indendet block
-            // log("\tpush()");
+        else if(line.depth > (ignoreArrayElement? expectedDepth-1 : expectedDepth)){ //* new indent block, fill last child
+            // log("\t fill new node", childNode->key());
             fill(*childNode, line.depth);
         }
         else { // inside current block
-            if(line.key.size() and (ignoreArrayElement or not line.isArrayElement)/* and line.value.size() */){ // key: value
-                childNode = &(node.push(line.key, line.value));
+            if(line.key.size() and (ignoreArrayElement or not line.isArrayElement)/* and line.value.size() */){ //* key: value
+                // log("\t creating:", line.key, line.value, "for ", nodeToFill.key());
+                childNode = &(nodeToFill.push(line.key, line.value));
                 if(ignoreArrayElement){
-                    /*
-                        it's for case:
-                        - uno: uno
-                          due: due
-                        - tres
-                    */
-                    thenGetBackOnArray = true;
                     ignoreArrayElement = false;
                 }
+                m_currentLine++;
             }
-            else if(line.key.empty() and line.isArrayElement){ // - value
-                node.isArray = true;
-                childNode = &(node.push(line.value));
+            else if(line.key.empty() and line.isArrayElement){ //* - value
+                // log("\t simple array element for", nodeToFill.key());
+                nodeToFill.isArray = true;
+                childNode = &(nodeToFill.push(line.value));
+                m_currentLine++;
             }
-            else if(line.key.size() and line.isArrayElement){ // - key: value - unnamed node
-                node.isArray = true;
-                childNode = &(node.push("")); // create node without value, and index as key
-                fill(*childNode, line.depth, true);
+            else if(line.key.size() and line.isArrayElement){ //* - key: value - unnamed node
+                nodeToFill.isArray = true;
+                // log("\t node array() element for", nodeToFill.key());
+                fill((nodeToFill.push("")), line.depth+1, true); //* array nodes have two depths: pne for '-' and second for value
             }
         }
 
-        currentLine++;
     }
 
 }

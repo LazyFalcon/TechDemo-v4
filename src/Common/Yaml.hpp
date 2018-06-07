@@ -68,6 +68,15 @@ public:
         m_key = "root";
         load(filepath);
     }
+    bool isDict() const {
+        return container.size() and not isArray;
+    }
+    // bool isArray() const {
+    //     return container.size() and isArray;
+    // }
+    const std::vector<Yaml>& getContainer() const {
+        return container;
+    }
 
     Yaml& push(const Yaml &node){
         container.push_back(node);
@@ -118,13 +127,13 @@ public:
         return container.begin();
     }
     auto begin() const {
-        return container.begin();
+        return container.cbegin();
     }
     auto end(){
         return container.end();
     }
     auto end() const {
-        return container.end();
+        return container.cend();
     }
     auto size() const {
         return container.size();
@@ -133,7 +142,8 @@ public:
     Variants decode(std::string s);
     void load(const std::string& filepath);
     void save(const std::string& filepath) const;
-    void print() const;
+    void print(bool isPartOfArray=false) const;
+    void printOnlyThis(bool isPartOfArray=false) const;
 
     void operator = (bool val){
         m_value = val;

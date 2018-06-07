@@ -5,6 +5,7 @@
 #include "Player.hpp"
 #include "VehicleBuilder.hpp"
 
+#define logFunc() log(__FUNCTION__, ":", __LINE__);
 
 VehicleBuilder::VehicleBuilder(const std::string& configName, Player& player, PhysicalWorld& physicalWorld, CameraControllerFactory &camFactory) :
     m_configName(configName),
@@ -58,10 +59,7 @@ void VehicleBuilder::makeModulesRecursively(const Yaml &cfg, Joint& connectorJoi
     module->parent = parentModule;
     module->name = modelName;
     m_player.eq().modules.push_back(module);
-
-    // if(module->type == ModuleType::Cannon){
-    //     m_player.eq().weapons.push_back(WeaponHolder(std::dynamic_pointer_cast<ICannon>(module), armory::testBuildWeapon()));
-    // }
+    logFunc();
 
     setDecals(*module, cfg);
     setMarkers(*module, cfg);
@@ -69,14 +67,9 @@ void VehicleBuilder::makeModulesRecursively(const Yaml &cfg, Joint& connectorJoi
     setConnection(*module, cfg, connectorJoint);
     // setPhysical(*module, cfg);
     // setArmor(*module, cfg);
-
-    // for(auto& it : modulesToAddLater){
-        /// move here this shit from above
-    // }
-    // modulesToAddLater.clear();
+    logFunc();
 
     if(cfg.has("Connector")) for(auto &connector : cfg["Connector"]){
-        log("has connector");
         auto x = connector["X"].vec30();
         auto y = connector["Y"].vec30();
         auto z = connector["Z"].vec30();
@@ -84,7 +77,6 @@ void VehicleBuilder::makeModulesRecursively(const Yaml &cfg, Joint& connectorJoi
         Joint childConnectorJoint(glm::mat4(x, y, z, w));
 
         if(connector.has("Pinned")) for(auto& pinned : connector["Pinned"]){
-            log("has pinned");
             makeModulesRecursively(pinned, childConnectorJoint, module.get());
         }
     }
@@ -92,6 +84,7 @@ void VehicleBuilder::makeModulesRecursively(const Yaml &cfg, Joint& connectorJoi
 }
 
 void VehicleBuilder::setDecals(IModule& module, const Yaml& cfg){
+    logFunc();
     if(not cfg.has("Decals")) return;
     auto& decals = cfg["Decals"];
 
@@ -110,6 +103,7 @@ void VehicleBuilder::setDecals(IModule& module, const Yaml& cfg){
 }
 
 void VehicleBuilder::setMarkers(IModule& module, const Yaml& cfg){
+    logFunc();
     if(not cfg.has("Markers")) return;
     auto& markers = cfg["Markers"];
 
@@ -131,6 +125,7 @@ void VehicleBuilder::setMarkers(IModule& module, const Yaml& cfg){
 // * create visual representation of module
 // * combine few models into one, despite that models are split by material(in assimp), they can be splitted in editor(for usefulness)
 void VehicleBuilder::setVisual(IModule& module, const Yaml& cfg){
+    logFunc();
     if(not cfg.has("Models")){
         module.moduleVisualUpdater = std::make_unique<NullModuleVisualUpdater>();
         return;
@@ -150,10 +145,12 @@ void VehicleBuilder::setVisual(IModule& module, const Yaml& cfg){
 // * can have different number of dof
 // * lack of limits means that connection is rigid
 void VehicleBuilder::setConnection(IModule& module, const Yaml& cfg, Joint& connectorJoint){
+    logFunc();
     module.joint = connectorJoint;
     module.joint.toBOrigin = cfg["FromParentToOrigin"].vec30();
-    if(cfg.has("Limits"))
-        module.joint.compileLimits(cfg["FromParentToOrigin"].floats(), cfg["FromParentToOrigin"].floats(), cfg["FromParentToOrigin"].floats());
+    if(cfg.has("Limits")){
+        module.joint.compileLimits(cfg["Limits"].floats(), cfg["Min"].floats(), cfg["Max"].floats());
+    }
     else
         module.joint.setRigidConnection();
 
@@ -163,6 +160,7 @@ void VehicleBuilder::setConnection(IModule& module, const Yaml& cfg, Joint& conn
 
 // * when module has rigidBody created
 void VehicleBuilder::setPhysical(IModule& module, const Yaml& cfg){
+    logFunc();
     if(not cfg.has("Physical")) return;
 
     auto tr = module.getParentTransform() * module.joint.loc();
@@ -184,6 +182,7 @@ void VehicleBuilder::setPhysical(IModule& module, const Yaml& cfg){
 void VehicleBuilder::setArmor(IModule& module, const Yaml& cfg){}
 
 void VehicleBuilder::addToCompound(btCollisionShape* collShape, const glm::mat4& transform, void* owner){
+    logFunc();
     btTransform localTrans = convert(transform);
     collShape->setUserPointer(owner);
     m_player.eq().compound->addChildShape(localTrans, collShape);
@@ -191,6 +190,7 @@ void VehicleBuilder::addToCompound(btCollisionShape* collShape, const glm::mat4&
 
 
 std::shared_ptr<CameraController> VehicleBuilder::createModuleFollower(IModule *module, const std::string &type){
+    logFunc();
     if(type == "Pinned"){
         return m_camFactory.create<ModuleFollower<PinnedCamController>>(module);
     }

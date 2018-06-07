@@ -26,8 +26,7 @@ void ObjectBatchedRender::renderGlossyObjects(Camera &camera){
 void ObjectBatchedRender::renderSkinned(Camera &camera){
     GPU_SCOPE_TIMER();
 
-    auto shader = assets::getShader("ObjectBody");
-    shader.bind();
+    auto shader = assets::bindShader("skinned-model-pbr");
     auto &skinnedMeshes = RenderQueue::get<SkinnedMesh*>();
     int nr(0);
     for(auto toRender : skinnedMeshes)
@@ -52,15 +51,18 @@ void ObjectBatchedRender::renderSkinned(Camera &camera){
         shader.uniform("uProjection", camera.projection);
         shader.uniform("uView", camera.view);
         shader.uniform("uModel", identityMatrix);
-        shader.atlas("uAlbedo", assets::getAlbedoArray("Materials").id, 0);
-        shader.atlas("uNormalMap", assets::getNormalArray("Materials").id, 1);
-        shader.atlas("uRoughnessMap", assets::getRoughnessArray("Materials").id, 2);
-        shader.atlas("uMetallicMap", assets::getMetalic("Materials").id, 3);
+        // shader.atlas("uAlbedo", assets::getAlbedoArray("Materials").id, 0);
+        // shader.atlas("uNormalMap", assets::getNormalArray("Materials").id, 1);
+        // shader.atlas("uRoughnessMap", assets::getRoughnessArray("Materials").id, 2);
+        // shader.atlas("uMetallicMap", assets::getMetalic("Materials").id, 3);
 
         // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
 
+        gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+
         gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, (void*)0);
 
+        gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
         // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
     }
 

@@ -153,6 +153,7 @@ private:
 
     void render(Imgui& ui, float startPosition){
         // ui.panel().image("Logo").position(0.f, 1.f)();
+
         Panel panel(ui);
         panel.width(350).height(1.f)
             .x(startPosition).y(0)
@@ -185,6 +186,9 @@ private:
         }
         panel.button()().text("New Game").action([this]{m_playSelected = !m_playSelected;});
         // panel.button().y(0.6f)().text("New Game").action([this]{m_playSelected = !m_playSelected;});
+        if(panel.onKey("on-esc")){
+            fadeOut([]{event<ExitGame>();});
+        }
 
     }
 

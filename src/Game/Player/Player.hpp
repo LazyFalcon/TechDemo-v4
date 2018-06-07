@@ -33,19 +33,18 @@ private:
     // bool processHit(projectiles::Projectile &p);
     bool doFire = false;
     void fire();
-    // CameraController& addCamera(IModule *module, const std::string &mode);
-    // void nextCamera(){
-    //     // cyclicDecr(cameraId, vehicle.cameras.size());
-    // }
-    // void prevCamera(){
-    //     // cyclicIncr(cameraId, vehicle.cameras.size());
-    // }
-    // Camera& getCamera(){
-    //     // return vehicle.cameras[cameraId]->camera;
-    // }
-    // CameraController& getCameraController(){
-    //     // return *vehicle.cameras[cameraId];
-    // }
+    void nextCamera(){
+        cyclicDecr(cameraId, m_vehicleEq.cameras.size());
+    }
+    void prevCamera(){
+        cyclicIncr(cameraId, m_vehicleEq.cameras.size());
+    }
+    Camera& getCamera(){
+        return m_vehicleEq.cameras[cameraId]->camera;
+    }
+    CameraController& getCameraController(){
+        return *m_vehicleEq.cameras[cameraId];
+    }
     void updateCameras(float dt);
 
     void setTarget(btVector3 t);

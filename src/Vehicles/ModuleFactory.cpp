@@ -7,7 +7,7 @@
 #include "VehicleEquipment.hpp"
 
 ModuleFactory::ModuleFactory(VehicleEquipment &eq, PhysicalWorld &physics, glm::vec4 startPosition)
-: eq(eq), physics(physics), startPosition(convert(startPosition)) {}
+: m_vehicleEq(eq), physics(physics), startPosition(convert(startPosition)) {}
 
 std::shared_ptr<IMotor> ModuleFactory::createDieselMotor(const Yaml &cfg){
     return nullptr;
@@ -25,6 +25,9 @@ std::shared_ptr<IModule> ModuleFactory::createModule(const Yaml &cfg){
     else if(className == "Turret"){
         return createTurret(cfg);
     }
+    else if(className == "Turret-Part"){
+        return std::make_shared<TurretPart>(m_vehicleEq);
+    }
     else if(className == "Addon"){
         return createAddon(cfg);
     }
@@ -36,32 +39,32 @@ std::shared_ptr<IModule> ModuleFactory::createModule(const Yaml &cfg){
     return nullptr;
 }
 std::shared_ptr<IModule> ModuleFactory::createBase(const Yaml &cfg){
-    auto ptr = std::make_shared<Base>(eq);
+    auto ptr = std::make_shared<Base>(m_vehicleEq);
 
     return ptr;
 }
 std::shared_ptr<IModule> ModuleFactory::createTurret(const Yaml &cfg){
-    auto ptr = std::make_shared<Turret>(eq);
+    auto ptr = std::make_shared<Turret>(m_vehicleEq);
 
     return ptr;
 }
 std::shared_ptr<IModule> ModuleFactory::createAddon(const Yaml &cfg){
-    auto ptr = std::make_shared<Addon>(eq);
+    auto ptr = std::make_shared<Addon>(m_vehicleEq);
 
     return ptr;
 }
 std::shared_ptr<IModule> ModuleFactory::createArmor(const Yaml &cfg){
-    auto ptr = std::make_shared<Armor>(eq);
+    auto ptr = std::make_shared<Armor>(m_vehicleEq);
 
     return ptr;
 }
 std::shared_ptr<IModule> ModuleFactory::createPowerShield(const Yaml &cfg){
-    auto ptr = std::make_shared<Armor>(eq);
+    auto ptr = std::make_shared<Armor>(m_vehicleEq);
 
     return ptr;
 }
 std::shared_ptr<IModule> ModuleFactory::createHeadlight(const Yaml &cfg){
-    auto ptr = std::make_shared<Headlight>(eq);
+    auto ptr = std::make_shared<Headlight>(m_vehicleEq);
 
     return ptr;
 }

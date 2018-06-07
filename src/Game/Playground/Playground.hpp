@@ -16,6 +16,10 @@ private:
     std::shared_ptr<Player> m_player;
     std::unique_ptr<PhysicalWorld> m_physical;
     Window& m_window;
+    glm::vec2 m_mousePos;
+    glm::vec2 m_mouseTranslation;
+    glm::vec2 m_mouseTranslationNormalized;
+    bool m_cameraRotate {};
 
 public:
     Playground(Imgui&, InputDispatcher&, Window&);

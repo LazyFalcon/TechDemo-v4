@@ -9,7 +9,7 @@ class TurretPart : public IModule
 
 public:
     TurretPart(VehicleEquipment &eq) : IModule(eq, ModuleType::Part){}
-    void update(float dt) override {}
+    void update(float dt) override;
 };
 
 class Weapon;
@@ -27,7 +27,7 @@ private:
     TurretKinematicLink m_kinematicLinks;
 public:
     Turret(VehicleEquipment &eq) : IModule(eq, ModuleType::Turret){}
-    void update(float dt) override {}
+    void update(float dt) override;
 
 };
 

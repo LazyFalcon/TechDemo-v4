@@ -11,7 +11,7 @@ class Yaml;
 
 class ModuleFactory
 {
-    VehicleEquipment &eq;
+    VehicleEquipment &m_vehicleEq;
     PhysicalWorld &physics;
     btVector3 startPosition;
     int weaponId {0};

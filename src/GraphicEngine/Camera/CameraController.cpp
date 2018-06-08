@@ -3,7 +3,7 @@
 #include "CameraController.hpp"
 #include "Constants.hpp"
 #include "Window.hpp" // TODO: fix camera initialization
-#include "Logging.hpp" // TODO: fix camera initialization
+#include "Logging.hpp"
 #include <glm/gtx/projection.hpp>
 #include <glm/gtx/matrix_query.hpp>
 
@@ -33,6 +33,41 @@ Camera& CameraController::getActiveCamera(){
     return *activeCamera;
 }
 
+
+void CopyOnlyPosition::update(const glm::mat4& parentTransform, float dt){
+    if(not hasFocus()) return;
+
+    Camera::setTargetPivot(parentTransform[3]);
+    Camera::evaluate(dt);
+
+}
+
+// * X axis of camera must be placed in plane XY of parent
+// * With unchanged Z axis
+void CopyPlane::update(const glm::mat4& parentTransform, float dt){
+    if(not hasFocus()) return;
+
+    Camera::setTargetPivot(parentTransform[3]); // * the best is to have this only copying without smoothing
+
+    glm::vec3 x = Camera::x().xyz();
+    glm::vec3 z = Camera::z().xyz();
+
+    glm::vec3 zp = parentTransform[2].xyz();
+
+    //* find angle between x and plane
+    glm::vec3 xInPlane = glm::normalize(glm::cross(zp, z));
+
+    Camera::target.basis *= glm::rotation(x, xInPlane);
+
+    Camera::evaluate(dt);
+}
+
+
+
+
+
+
+
 PinnedCamController::PinnedCamController(){
     // Camera::target.positionSmooth = 1.f;
     // Camera::target.basisSmooth = 0.3f;
@@ -53,6 +88,7 @@ void PinnedCamController::update(float dt){
     //     glm::vec4 y = glm::normalize(Y4 * Camera::target.basis);
     //     glm::vec4 z = glm::normalize(Z4 * Camera::target.basis);
 
+    //     //* uh, what a shit. it calculates new matrix with camera Z, plane normal as camera Y(little moded, to be othogonal)
     //     glm::vec4 zp = glm::normalize(mat * Z4);
     //     glm::vec4 xp = -glm::normalize(cross(z, zp));
     //     glm::vec4 yp = glm::normalize(cross(z, xp));
@@ -70,14 +106,14 @@ void PinnedCamController::update(float dt){
     //     // Camera::target.basis *= glm::angleAxis(angle, z.xyz());
     //     Camera::target.basis = glm::toQuat(glm::affineInverse(m));
     // }
-    // Camera::calc(dt);
+    // Camera::evaluate(dt);
 }
 
 FreeCamController::FreeCamController(){
 }
 void FreeCamController::update(float dt){
     if(not hasFocus()) return;
-    Camera::calc(dt);
+    Camera::evaluate(dt);
 }
 
 FollowingCamController::FollowingCamController(){
@@ -92,7 +128,7 @@ void FollowingCamController::update(float dt){
     if(not hasFocus()) return;
     glm::vec4 position = baseTransform*W;
     Camera::setPosition(position);
-    Camera::calc(dt);
+    Camera::evaluate(dt);
 }
 
 TopdownCamController::TopdownCamController(){
@@ -106,5 +142,5 @@ void TopdownCamController::update(float dt){
     if(not hasFocus()) return;
     glm::vec4 position = baseTransform*W;
     Camera::setPosition(position);
-    Camera::calc(dt);
+    Camera::evaluate(dt);
 }

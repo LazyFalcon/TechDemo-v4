@@ -113,7 +113,7 @@ void VehicleBuilder::setMarkers(IModule& module, const Yaml& cfg){
 
     for(auto& marker : markers){
         if("Camera"s == marker["Type"].string()){
-            auto camera = createModuleFollower(&module, marker["Mode"].string(), marker["Position"].vec31());
+            auto camera = createModuleFollower(&module, marker["Mode"].string(), marker["Position"].vec3());
             camera->offsetPosition = marker["Position"].vec31();
             m_player.eq().cameras.push_back(camera);
         }
@@ -190,15 +190,15 @@ void VehicleBuilder::addToCompound(btCollisionShape* collShape, const glm::mat4&
 }
 
 
-std::shared_ptr<CameraController> VehicleBuilder::createModuleFollower(IModule *module, const std::string& type, glm::vec4 position){
+std::shared_ptr<CameraController> VehicleBuilder::createModuleFollower(IModule *module, const std::string& type, glm::vec3 position){
     if(type == "Pinned"){
-        return m_camFactory.create<ModuleFollower<PinnedCamController>>(module,position);
+        return m_camFactory.create<ModuleFollower<CopyPlane>>(module,position);
     }
     else if(type == "Follow"){
-        return m_camFactory.create<ModuleFollower<FollowingCamController>>(module, position);
+        return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, position);
     }
     else if(type == "TopDown"){
-        return m_camFactory.create<ModuleFollower<FollowOnlyPosition>>(module, position); // TODO: and here go camera settings
+        return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, position); // TODO: and here go camera settings
     }
     else if(type == "Free"){
         return m_camFactory.create<FreeCamController>();

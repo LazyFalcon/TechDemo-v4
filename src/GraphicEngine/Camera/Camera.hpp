@@ -55,7 +55,11 @@ struct Exposure
 
 class Camera
 {
+protected:
+    void update(float dt);
+
 public:
+    void evaluate(float dt);
     Camera(){
 
         auto rot = glm::rotate(euler.y, X3) * glm::rotate(euler.x, Z3);
@@ -72,8 +76,6 @@ public:
     void update(glm::vec4 position);
     void update(glm::mat4 orientation);
     void update(glm::vec4 normal, glm::vec4 perpendicular);
-    void update(float dt);
-    void calc(float dt);
     void calcProjection();
     void applyConstraints();
     void updateOscillator(float dt);
@@ -123,18 +125,25 @@ public:
         return Z * basis;
     }
 
-    // const glm::vec4& x() const {
-    //     return viewInv[0];
-    // }
-    // const glm::vec4& y() const {
-    //     return viewInv[1];
-    // }
-    // const glm::vec4& z() const {
-    //     return viewInv[2];
-    // }
-    // const glm::vec4& w() const {
-    //     return viewInv[3];
-    // }
+    void setTargetPivot(const glm::vec4& targetPivot){
+        target.rotationCenter = targetPivot;
+    }
+    void moveTargetPivot(const glm::vec4& targetPivotMove){
+        target.rotationCenter += targetPivotMove;
+    }
+
+    const glm::vec4 x() const {
+        return glm::row(view, 0);
+    }
+    const glm::vec4 y() const {
+        return glm::row(view, 1);
+    }
+    const glm::vec4 z() const {
+        return glm::row(view, 2);
+    }
+    const glm::vec4 w() const {
+        return glm::row(view, 3);
+    }
     // const glm::vec4& right() const {
     //     return viewInv[0];
     // }

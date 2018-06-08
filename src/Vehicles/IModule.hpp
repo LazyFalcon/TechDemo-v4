@@ -157,14 +157,14 @@ class ModuleFollower : public CC
 {
 private:
     IModule* m_module {nullptr};
-    glm::vec4 m_position;
+    glm::vec3 m_position;
 public:
-    ModuleFollower(IModule *module, glm::vec4 pos) : m_module(module), m_position(pos){}
+    ModuleFollower(IModule *module, glm::vec3 pos) : m_module(module), m_position(pos){}
     template<typename... Args>
-    ModuleFollower(IModule *module, glm::vec4 pos, Args&... args) : m_module(module), m_position(pos), CC(args...){}
+    ModuleFollower(IModule *module, glm::vec3 pos, Args&... args) : m_module(module), m_position(pos), CC(args...){}
 
     void update(float dt) override {
-        CC::updateBaseTransform(m_module->getGlmTransform());
-        CC::update(dt);
+        // CC::updateBaseTransform(m_module->getGlmTransform());
+        CC::update(glm::translate(m_module->getGlmTransform(), m_position), dt);
     }
 };

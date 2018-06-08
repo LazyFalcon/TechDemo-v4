@@ -20,7 +20,8 @@ public:
     }
     void move();
     void rotate();
-    virtual void update(float dt) = 0;
+    virtual void update(float dt){}
+    virtual void update(const glm::mat4& parentTransform, float dt){}
     void focus();
     bool hasFocus() const;
 
@@ -32,20 +33,23 @@ public:
     static std::list<CameraController*> listOf;
 };
 
-class FollowOnlyPosition : public CameraController
+class CopyOnlyPosition : public CameraController
 {
-     void update(float dt) override {}
+public:
+     void update(const glm::mat4& parentTransform, float dt) override;
 };
 
-class FollowPlane : public CameraController
+class CopyPlane : public CameraController
 {
-     void update(float dt) override {}
+public:
+     void update(const glm::mat4& parentTransform, float dt) override;
 };
 
-class FollowFull : public CameraController
-{
-     void update(float dt) override {}
-};
+// class FollowFull : public CameraController
+// {
+// public:
+//      void update(const glm::mat4& parentTransform, float dt) override {}
+// };
 
 
 class FreeCamController : public CameraController

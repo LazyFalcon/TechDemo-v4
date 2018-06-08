@@ -19,7 +19,7 @@ void Camera::update(float dt){
     exposureEvaluator.update(exposure, dt);
 }
 
-void Camera::calc(float dt){
+void Camera::evaluate(float dt){
     update(dt);
     position.w = 1.f;
 

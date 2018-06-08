@@ -24,12 +24,13 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         m_input->action("esc").on([]{
             event<ExitPlayground>();
         });
+        m_input->action("f12").on([this]{ CameraController::getActiveCamera().printDebug(); });
         m_input->action("scrollUp").on([this]{ CameraController::getActiveCamera().zoomFov(+1); });
         m_input->action("scrollDown").on([this]{ CameraController::getActiveCamera().zoomFov(-1); });
-        m_input->action("+").on([=]{ CameraController::getActiveCamera().distanceToOrigin -= 4*defaultCameraVelocity; });
-        m_input->action("-").on([=]{ CameraController::getActiveCamera().distanceToOrigin += 4*defaultCameraVelocity; });
-        m_input->action("shift-+").on([=]{ CameraController::getActiveCamera().distanceToOrigin -= 4*preciseCameraVelocity; });
-        m_input->action("shift--").on([=]{ CameraController::getActiveCamera().distanceToOrigin += 4*preciseCameraVelocity; });
+        m_input->action("+").on([=]{ CameraController::getActiveCamera().offset.z -= 4*defaultCameraVelocity; });
+        m_input->action("-").on([=]{ CameraController::getActiveCamera().offset.z += 4*defaultCameraVelocity; });
+        m_input->action("shift-+").on([=]{ CameraController::getActiveCamera().offset.z -= 4*preciseCameraVelocity; });
+        m_input->action("shift--").on([=]{ CameraController::getActiveCamera().offset.z += 4*preciseCameraVelocity; });
         m_input->action("LMB").on([this]{ m_cameraRotate = true; }).off([this]{ m_cameraRotate = false; });
         m_input->action("MousePosition").on([this](float x, float y){
             m_mousePos = glm::vec2(x,y);

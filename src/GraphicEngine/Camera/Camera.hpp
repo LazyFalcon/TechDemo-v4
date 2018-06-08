@@ -3,7 +3,7 @@
  *  Implementation of camera with gimbal lock, useful for following objects
  *  To remove gimbal locktransform camera basis
  *  ----
- *  origin: center of rotation, camera position is rotated around origin
+ *  rotationCenter: center of rotation, camera position is rotated around rotationCenter
  *  position: position of camera, local
  *  basis: camera local basis
  *
@@ -42,7 +42,7 @@ struct CameraTargetEvaluator
 
     glm::quat basis { 0,0,0,1 };
     glm::vec4 position { 0,0,0,1 };
-    glm::vec4 origin { 0,0,0,1 };
+    glm::vec4 rotationCenter { 0,0,0,1 };
     bool use { true };
 };
 
@@ -60,7 +60,7 @@ public:
 
         auto rot = glm::rotate(euler.y, X3) * glm::rotate(euler.x, Z3);
         target.basis = glm::angleAxis(euler.y, X3) * glm::angleAxis(euler.x, Z3);
-        target.position = origin + glm::vec4(0,0,distanceToOrigin,0)*(glm::rotate(euler.y, X3) * glm::rotate(euler.x, Z3));
+        target.position = rotationCenter + glm::vec4(0,0,offset.z,0)*(glm::rotate(euler.y, X3) * glm::rotate(euler.x, Z3));
 
         basis = target.basis;
         position = target.position;
@@ -86,11 +86,11 @@ public:
 
     void rotate(glm::vec2 v);
     void move(glm::vec4 v);
-    // set origin position, no oscillations
+    // set rotationCenter position, no oscillations
     void setOrigin(glm::vec4 o);
     // targeting
     void setPosition(glm::vec4 o);
-    // set origin position, causes ocillations
+    // set rotationCenter position, causes ocillations
     void moveOriginTo(glm::vec4 o);
 
     void updateSmootPosition(glm::vec4 newOrigin);
@@ -123,6 +123,31 @@ public:
         return Z * basis;
     }
 
+    // const glm::vec4& x() const {
+    //     return viewInv[0];
+    // }
+    // const glm::vec4& y() const {
+    //     return viewInv[1];
+    // }
+    // const glm::vec4& z() const {
+    //     return viewInv[2];
+    // }
+    // const glm::vec4& w() const {
+    //     return viewInv[3];
+    // }
+    // const glm::vec4& right() const {
+    //     return viewInv[0];
+    // }
+    // const glm::vec4& up() const {
+    //     return viewInv[1];
+    // }
+    // glm::vec4 at() const {
+    //     return -viewInv[2];
+    // }
+    // const glm::vec4& pos() const {
+    //     return viewInv[3];
+    // }
+
     State state = PIN_POSITION;
 
     // OGL Utils
@@ -153,11 +178,10 @@ public:
 
     Frustum frustum {};
 
-    float distanceToOrigin { 10.f };
     glm::vec4 postOffset {0,0,0,0};
-    glm::vec4 offset {0,0,0,0};
+    glm::vec4 offset {0,0,10,0};
 
-    glm::vec4 origin {0,0,0,1};
+    glm::vec4 rotationCenter {0,0,0,1};
     glm::vec4 position {0,0,0,1};
     glm::quat basis = qIdentity;
     glm::quat specQuat = qIdentity;
@@ -169,6 +193,7 @@ public:
     Exposure exposureEvaluator {10, 0.9f};
     float exposure {20};
     void calculateExposure(float luminance);
+    void printDebug();
 
     Filters filters;
 };

@@ -1,6 +1,7 @@
 #include "Utils.hpp"
 #include "common.hpp"
 #include "Camera.hpp"
+#include "Logging.hpp"
 
 void Exposure::update(float &exposure, float dt){
     exposure = 5;
@@ -22,15 +23,15 @@ void Camera::calc(float dt){
     update(dt);
     position.w = 1.f;
 
-    origin.x = glm::clamp(origin.x, positionBounds[0], positionBounds[1]);
-    origin.y = glm::clamp(origin.y, positionBounds[2], positionBounds[3]);
-    position = origin + postOffset + glm::vec4(0, offset.y*(1.f + distanceToOrigin/25.f), distanceToOrigin, 0)*basis;
+    rotationCenter.x = glm::clamp(rotationCenter.x, positionBounds[0], positionBounds[1]);
+    rotationCenter.y = glm::clamp(rotationCenter.y, positionBounds[2], positionBounds[3]);
+    position = rotationCenter + postOffset + glm::vec4(offset.x, offset.y*(1.f + offset.z/25.f), offset.z, 0)*basis;
     position.x = glm::clamp(position.x, positionBounds[0], positionBounds[1]);
     position.y = glm::clamp(position.y, positionBounds[2], positionBounds[3]);
 
     if(cropCameraHeight){
          auto newZ = std::max(position.z, referenceHeihgt + 1.f);
-         origin.z += newZ - position.z;
+         rotationCenter.z += newZ - position.z;
          position.z = newZ;
     }
 
@@ -58,7 +59,7 @@ void CameraConstraints::update(Camera &camera, float dt){
         return;
 
     camera.fov = glm::clamp(camera.fov, fov.x, fov.y);
-    camera.distanceToOrigin = glm::clamp(camera.distanceToOrigin, distance.x, distance.y);
+    camera.offset.z = glm::clamp(camera.offset.z, distance.x, distance.y);
     camera.euler.x = period(camera.euler.x, horizontal.x, horizontal.x);
     camera.euler.y = glm::clamp(camera.euler.y, vertical.x, vertical.y);
 
@@ -67,26 +68,26 @@ void CameraConstraints::update(Camera &camera, float dt){
 void CameraTargetEvaluator::update(Camera &camera, float dt){
     if(use){
         camera.basis = glm::slerp(camera.basis, basis, basisSmooth*dt/16.f);
-        camera.origin = glm::mix(camera.origin, origin, positionSmooth*dt/16.f);
-        // camera.origin = origin;
+        camera.rotationCenter = glm::mix(camera.rotationCenter, rotationCenter, positionSmooth*dt/16.f);
+        // camera.rotationCenter = rotationCenter;
     }
     else {
         camera.basis = basis;
     }
 }
 void Camera::updateSmootPosition(glm::vec4 newOrigin){
-    target.origin = newOrigin;
+    target.rotationCenter = newOrigin;
 
     // center of rotation is on horizontal circle, radius 4
     // auto vec = glm::vec4(0,-1,1,0)*target.basis;
     // vec.z = 0;
     // vec = glm::normalize(vec);
-    // vec = postOffset + glm::vec4(0,0,distanceToOrigin,0)*target.basis - vec*4.f;
+    // vec = postOffset + glm::vec4(0,0,offset.z,0)*target.basis - vec*4.f;
     // target.position = newOrigin + offset + vec;
 }
 
 void Camera::setOrigin(glm::vec4 o){
-    origin = o;
+    rotationCenter = o;
 }
 void Camera::setPosition(glm::vec4 o){
     updateSmootPosition(o);
@@ -94,8 +95,8 @@ void Camera::setPosition(glm::vec4 o){
 
 
 void Camera::moveOriginTo(glm::vec4 o){
-    auto delta = origin - o;
-    origin = o;
+    auto delta = rotationCenter - o;
+    rotationCenter = o;
     // position += delta;
     target.position += delta;
 }
@@ -111,12 +112,12 @@ glm::vec4 Camera::directlyMove(glm::vec4 cameraSpaceVelocities, float dt){
 glm::vec4 Camera::directlyMoveConstZ(glm::vec4 cameraSpaceVelocities, float z,  float dt){
     cameraSpaceVelocities = cameraSpaceVelocities * basis;
 
-    auto oz = origin.z;
-    target.origin -= cameraSpaceVelocities * dt;
-    // origin.z = oz;
+    auto oz = rotationCenter.z;
+    target.rotationCenter -= cameraSpaceVelocities * dt;
+    // rotationCenter.z = oz;
     // target.position -= cameraSpaceVelocities * dt;
-    // updateSmootPosition(origin - cameraSpaceVelocities * dt);
-    // updateSmootPosition(origin);
+    // updateSmootPosition(rotationCenter - cameraSpaceVelocities * dt);
+    // updateSmootPosition(rotationCenter);
 
     return cameraSpaceVelocities;
 }
@@ -135,11 +136,11 @@ void Camera::rotate(glm::vec2 vp){
     euler.y += (v.y * 12.f * fov)/pi;
     target.basis = glm::angleAxis(euler.y, X3) *  glm::angleAxis(euler.x, Z3);
     // target.basis = glm::angleAxis(euler.y, (X4*target.basis).xyz()) *  glm::angleAxis(euler.x, (Z4*target.basis).xyz());
-    // updateSmootPosition(origin); // uncoment if something strange will happen, but then freecam will stop moving
+    // updateSmootPosition(rotationCenter); // uncoment if something strange will happen, but then freecam will stop moving
 }
 
 void Camera::zoomDistance(float dy){
-    distanceToOrigin -= 0.5 * dy;
+    offset.z -= 0.5 * dy;
     calcProjection();
 }
 
@@ -150,7 +151,7 @@ void Camera::zoomFov(float dy){
 }
 
 void Camera::calcProjection(){
-    if(abs(distanceToOrigin) < 1.f) nearDistance = 0.1;
+    if(abs(offset.z) < 1.f) nearDistance = 0.1;
     else nearDistance = 1;
     nearDistance = 1;
     farDistance = 2000;
@@ -227,4 +228,12 @@ float Camera::convertDepthToWorld(float depth){
     depth = 2*depth - 1;
     depth = (2 * nearDistance * farDistance) / (nearDistance + farDistance - depth * (farDistance - nearDistance));
     return depth;
+}
+
+void Camera::printDebug(){
+    log("fov:", fov, "\taspect:", aspect);
+    log("nearDistance:", nearDistance, "\tfarDistance:", farDistance);
+    log("rotationCenter:", rotationCenter);
+    log("position:", position);
+    log("euler:", euler);
 }

@@ -36,7 +36,7 @@ private:
     void setArmor(IModule& module, const Yaml& cfg);
 
     void addToCompound(btCollisionShape* collShape, const glm::mat4& transform, void* owner);
-    std::shared_ptr<CameraController> createModuleFollower(IModule *module, const std::string& type);
+    std::shared_ptr<CameraController> createModuleFollower(IModule *module, const std::string& type, glm::vec4 position);
 
 public:
     VehicleBuilder(const std::string& configName, Player& player, PhysicalWorld& physicalWorld, CameraControllerFactory& camFactory);

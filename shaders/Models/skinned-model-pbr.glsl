@@ -52,7 +52,7 @@ in vec3 vBinormalWS;
 // layout(binding=3)uniform sampler2DArray uMetallicMap;
 
 void main(void){
-    outColor.rgb = vec3(0.5);
+    outColor.rgb = vec3(0.8);
     // outColor.rgb = texture2DArray(uAlbedo, vUV).rgb;
     // vec3 normalTS = texture2DArray(uNormalMap, vUV*5).rgb*2.0 - 1.0;
     // outNormal.w = texture2DArray(uRoughnessMap, vUV*5).r*2;

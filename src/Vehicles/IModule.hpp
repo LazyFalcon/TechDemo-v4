@@ -156,14 +156,15 @@ template<typename CC, typename = std::enable_if_t<std::is_base_of<CameraControll
 class ModuleFollower : public CC
 {
 private:
-    IModule *module {nullptr};
+    IModule* m_module {nullptr};
+    glm::vec4 m_position;
 public:
-    ModuleFollower(IModule *module) : module(module){}
+    ModuleFollower(IModule *module, glm::vec4 pos) : m_module(module), m_position(pos){}
     template<typename... Args>
-    ModuleFollower(IModule *module, Args&... args) : module(module), CC(args...){}
+    ModuleFollower(IModule *module, glm::vec4 pos, Args&... args) : m_module(module), m_position(pos), CC(args...){}
 
     void update(float dt) override {
-        CC::updateBaseTransform(module->getGlmTransform());
+        CC::updateBaseTransform(m_module->getGlmTransform());
         CC::update(dt);
     }
 };

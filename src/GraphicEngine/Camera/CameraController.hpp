@@ -6,15 +6,15 @@
 class CommonHUDData;
 class Window;
 
-class CameraController
+class CameraController : public Camera
 {
 private:
     static CameraController *activeCamera;
 public:
     CameraController();
     CameraController(const std::string &smode);
-    ~CameraController();
-    CameraController(const Camera &cam) : camera(cam){}
+    virtual ~CameraController();
+    // CameraController(const Camera &cam) : camera(cam){}
     void updateBaseTransform(const glm::mat4 &tr){
         baseTransform = tr;
     }
@@ -24,7 +24,7 @@ public:
     void focus();
     bool hasFocus() const;
 
-    Camera camera;
+    // Camera camera;
     glm::vec4 offsetPosition;
     glm::vec2 focusPoint;
     glm::mat4 baseTransform;
@@ -32,42 +32,46 @@ public:
     static std::list<CameraController*> listOf;
 };
 
+class FollowOnlyPosition : public CameraController
+{
+     void update(float dt) override {}
+};
+
+class FollowPlane : public CameraController
+{
+     void update(float dt) override {}
+};
+
+class FollowFull : public CameraController
+{
+     void update(float dt) override {}
+};
+
+
 class FreeCamController : public CameraController
 {
 public:
     FreeCamController();
-    FreeCamController(const Camera &cam) : FreeCamController(){
-        camera = cam;
-    }
-    virtual void update(float dt);
+    void update(float dt) override;
 };
 
 class FollowingCamController : public CameraController
 {
 public:
     FollowingCamController();
-    FollowingCamController(const Camera &cam) : FollowingCamController(){
-        camera = cam;
-    }
-    virtual void update(float dt);
+    void update(float dt) override;
 };
 
 class PinnedCamController : public CameraController
 {
 public:
     PinnedCamController();
-    PinnedCamController(const Camera &cam) : PinnedCamController(){
-        camera = cam;
-    }
-    virtual void update(float dt);
+    void update(float dt) override;
 };
 
 class TopdownCamController : public CameraController
 {
 public:
     TopdownCamController();
-    TopdownCamController(const Camera &cam) : TopdownCamController(){
-        camera = cam;
-    }
-    virtual void update(float dt);
+    void update(float dt) override;
 };

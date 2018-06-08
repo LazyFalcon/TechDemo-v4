@@ -30,81 +30,81 @@ bool CameraController::hasFocus() const {
 }
 
 Camera& CameraController::getActiveCamera(){
-    return activeCamera->camera;
+    return *activeCamera;
 }
 
 PinnedCamController::PinnedCamController(){
-    camera.target.positionSmooth = 1.f;
-    camera.target.basisSmooth = 0.3f;
-    // camera.target.basisSmooth = 0.5f;
-    camera.distanceToOrigin = 0.f;
-    camera.offset.y = 0;
-    camera.postOffset.z = 0;
+    // Camera::target.positionSmooth = 1.f;
+    // Camera::target.basisSmooth = 0.3f;
+    // // Camera::target.basisSmooth = 0.5f;
+    // Camera::offset.z = 0.f;
+    // Camera::offset.y = 0;
+    // Camera::postOffset.z = 0;
 }
 void PinnedCamController::update(float dt){
-    if(not hasFocus()) return; // FIX: powinno to stąd wylecieć!
-    auto mat = baseTransform;
-    glm::vec4 position = mat*offsetPosition;
-    camera.setPosition(position);
-    camera.origin = position;
-    camera.rotate({0,0});
-    {
-        glm::vec4 x = glm::normalize(X4 * camera.target.basis);
-        glm::vec4 y = glm::normalize(Y4 * camera.target.basis);
-        glm::vec4 z = glm::normalize(Z4 * camera.target.basis);
+    // if(not hasFocus()) return; // FIX: powinno to stąd wylecieć!
+    // auto mat = baseTransform;
+    // glm::vec4 position = mat*offsetPosition;
+    // Camera::setPosition(position);
+    // Camera::rotationCenter = position;
+    // Camera::rotate({0,0});
+    // {
+    //     glm::vec4 x = glm::normalize(X4 * Camera::target.basis);
+    //     glm::vec4 y = glm::normalize(Y4 * Camera::target.basis);
+    //     glm::vec4 z = glm::normalize(Z4 * Camera::target.basis);
 
-        glm::vec4 zp = glm::normalize(mat * Z4);
-        glm::vec4 xp = -glm::normalize(cross(z, zp));
-        glm::vec4 yp = glm::normalize(cross(z, xp));
-        // xp is orthogonal to camera.at and is in plane of module
-        // new camera.target matrix is xp, yp, z
-        float angle = -acos(glm::dot(xp, x))*glm::sign(glm::dot(cross(x, xp), z));
-        if(std::isnan(angle)){
-            error("CameraController::angle is nan");
-            angle = 0;
-        }
+    //     glm::vec4 zp = glm::normalize(mat * Z4);
+    //     glm::vec4 xp = -glm::normalize(cross(z, zp));
+    //     glm::vec4 yp = glm::normalize(cross(z, xp));
+    //     // xp is orthogonal to Camera::at and is in plane of module
+    //     // new Camera::target matrix is xp, yp, z
+    //     float angle = -acos(glm::dot(xp, x))*glm::sign(glm::dot(cross(x, xp), z));
+    //     if(std::isnan(angle)){
+    //         error("CameraController::angle is nan");
+    //         angle = 0;
+    //     }
 
-        camera.euler.z = angle;
+    //     Camera::euler.z = angle;
 
-        glm::mat4 m = glm::mat4(xp,yp,z, W4);
-        // camera.target.basis *= glm::angleAxis(angle, z.xyz());
-        camera.target.basis = glm::toQuat(glm::affineInverse(m));
-    }
-    camera.calc(dt);
+    //     glm::mat4 m = glm::mat4(xp,yp,z, W4);
+    //     // Camera::target.basis *= glm::angleAxis(angle, z.xyz());
+    //     Camera::target.basis = glm::toQuat(glm::affineInverse(m));
+    // }
+    // Camera::calc(dt);
 }
 
 FreeCamController::FreeCamController(){
 }
 void FreeCamController::update(float dt){
     if(not hasFocus()) return;
-    camera.calc(dt);
+    Camera::calc(dt);
 }
 
 FollowingCamController::FollowingCamController(){
-    camera.distanceToOrigin = 25.f;
-    // camera.target.positionSmooth = 1.0f;
-    camera.target.positionSmooth = 0.09f;
-    camera.offset.y = 3;
-    camera.postOffset.z = -1;
-    camera.euler = glm::vec3(0,1,0);
+    Camera::offset.z = 25.f;
+    // Camera::target.positionSmooth = 1.0f;
+    Camera::target.positionSmooth = 0.09f;
+    Camera::offset.y = 3;
+    Camera::postOffset.z = -1;
+    Camera::euler = glm::vec3(0,1,0);
 }
 void FollowingCamController::update(float dt){
     if(not hasFocus()) return;
     glm::vec4 position = baseTransform*W;
-    camera.setPosition(position);
-    camera.calc(dt);
+    Camera::setPosition(position);
+    Camera::calc(dt);
 }
 
 TopdownCamController::TopdownCamController(){
-    camera.distanceToOrigin = 45.f;
-    camera.constraints.distance = glm::vec2(5,65);
-    camera.target.positionSmooth = 0.09f;
-    camera.offset.y = 3;
-    camera.postOffset.z = -1;
+    Camera::offset.z = 45.f;
+    Camera::constraints.distance = glm::vec2(5,65);
+    Camera::target.positionSmooth = 0.09f;
+    Camera::offset.y = 3;
+    Camera::postOffset.z = -1;
 }
 void TopdownCamController::update(float dt){
     if(not hasFocus()) return;
     glm::vec4 position = baseTransform*W;
-    camera.setPosition(position);
-    camera.calc(dt);
+    Camera::setPosition(position);
+    Camera::calc(dt);
 }

@@ -40,7 +40,7 @@ private:
         cyclicIncr(cameraId, m_vehicleEq.cameras.size());
     }
     Camera& getCamera(){
-        return m_vehicleEq.cameras[cameraId]->camera;
+        return *m_vehicleEq.cameras[cameraId];
     }
     CameraController& getCameraController(){
         return *m_vehicleEq.cameras[cameraId];

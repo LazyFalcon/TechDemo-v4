@@ -93,3 +93,4 @@ src/FontRenderer.cpp
 src/FontRenderer.hpp
 generate_vsc_props.py
 data/Settings.yml
+*.gch

@@ -1,6 +1,6 @@
+#include "core.hpp"
 #include "gl_core_4_5.hpp"
 #include "Camera.hpp"
-#include "common.hpp"
 #include "Scene.hpp"
 #include "ResourceLoader.hpp"
 #include "Yaml.hpp"

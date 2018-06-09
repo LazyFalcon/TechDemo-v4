@@ -1,8 +1,7 @@
-#include "common.hpp"
+#include "core.hpp"
 #include "GpuResources.hpp"
 #include "Constants.hpp"
 #include "Starfield.hpp"
-#include <glm/gtx/polar_coordinates.hpp>
 
 void Starfield::regenerate(){
     std::vector<Star> stars;

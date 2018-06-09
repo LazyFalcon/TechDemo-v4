@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "Assets.hpp"
 #include "CameraControllerFactory.hpp"
 #include "IModule.hpp"

@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "Assets.hpp"
 #include "GpuResources.hpp"
 #include "ResourceLoader.hpp"

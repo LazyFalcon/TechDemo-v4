@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "PhysicalWorld.hpp"
 #include "Logging.hpp"
 #include "Utils.hpp"

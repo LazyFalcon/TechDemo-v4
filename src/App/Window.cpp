@@ -1,9 +1,10 @@
+#include "core.hpp"
 #include "gl_core_4_5.hpp"
 #include <GLFW/glfw3.h>
-#include "Window.hpp"
-#include "Settings.hpp"
-#include "Logging.hpp"
 #include "App.hpp"
+#include "Logging.hpp"
+#include "Settings.hpp"
+#include "Window.hpp"
 
 Window::~Window(){
     log("~Window");

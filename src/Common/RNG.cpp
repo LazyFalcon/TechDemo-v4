@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "RNG.hpp"
 
 RandomNumberGenerator RNG(465);

@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "ui.hpp"
 #include "input.hpp"
 #include "input-dispatcher.hpp"

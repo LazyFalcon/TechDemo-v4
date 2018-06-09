@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "QuadTree.hpp"
 #include "Logging.hpp"
 #include "PerfTimers.hpp"

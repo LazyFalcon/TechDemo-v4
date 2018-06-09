@@ -1,5 +1,5 @@
+#include "core.hpp"
 #include "Environment.hpp"
-#include "common.hpp"
 #include "Logging.hpp"
 #include "ResourceLoader.hpp"
 #include "LightSource.hpp"
@@ -26,14 +26,14 @@ void Environment::load(const std::string &dirPath){
     for(auto &obj : yaml["Objects"]){
         EnviroEntity e {};
         e.physics.position = obj["Position"].vec31();
-        e.physics.transform = glm::translate(e.physics.position.xyz()) * glm::toMat4(obj["Quaternion"].quat());
+        // e.physics.transform = glm::translate(e.physics.position.xyz()) * glm::toMat4(obj["Quaternion"].quat());
         loadMesh(modelLoader, e, obj);
         if(obj.has("Colliders")){
             if(obj["Colliders"].size() != 1){
                 error("Unsupported number of collisders");
             }
             auto colliders = modelLoader.loadCompoundMeshes({obj["Colliders"][0]["Mesh"].string()});
-            e.physics.rgBody = physics->createRigidBody(0, convert(obj["Quaternion"].quat(), e.physics.position), createCompoundMesh(colliders, nullptr));
+            // e.physics.rgBody = physics->createRigidBody(0, convert(obj["Quaternion"].quat(), e.physics.position), createCompoundMesh(colliders, nullptr));
         }
         e.id = entities.size();
         entities.push_back(e);
@@ -49,7 +49,7 @@ void Environment::load(const std::string &dirPath){
         l->m_energy = lamp["Energy"].number();
         l->m_fallof = lamp["Falloff_distance"].number();
         l->m_color = lamp["Color"].vec4();
-        l->setTransform(lamp["Position"].vec4(), lamp["Quaternion"].quat());
+        // l->setTransform(lamp["Position"].vec4(), lamp["Quaternion"].quat());
     }
 }
 

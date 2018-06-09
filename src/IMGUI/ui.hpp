@@ -2,7 +2,6 @@
 #include "ui-core.hpp"
 #include "ui-panel.hpp"
 #include "ui-styler.hpp"
-#include <vector>
 
 class Panel;
 class RenderedUIItems;

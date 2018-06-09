@@ -1,5 +1,5 @@
+#include "core.hpp"
 #include "Utils.hpp"
-#include "common.hpp"
 #include "Camera.hpp"
 #include "Logging.hpp"
 

@@ -1,5 +1,4 @@
 #pragma once
-
 #include <Audio/Audio.hpp>
 #include <boost/core/noncopyable.hpp>
 

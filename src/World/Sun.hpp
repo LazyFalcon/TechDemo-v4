@@ -1,6 +1,4 @@
 #pragma once
-#include "common.hpp"
-#include "Constants.hpp"
 #include "GeoTimePosition.hpp"
 
 class Atmosphere;

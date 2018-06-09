@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "ui-renderer.hpp"
 #include "ui-rendered.hpp"
 #include "ui-text.hpp"

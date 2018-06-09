@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "simplexnoise.h"
 #include "gl_core_4_5.hpp"
 #include "Logging.hpp"

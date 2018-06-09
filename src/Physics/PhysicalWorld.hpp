@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 #include "BaseStructs.hpp"
 #include "BodyUser.hpp"
 #include "Object.hpp"

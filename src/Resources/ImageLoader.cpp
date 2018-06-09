@@ -1,4 +1,5 @@
-﻿#include "gl_core_4_5.hpp"
+﻿#include "core.hpp"
+#include "gl_core_4_5.hpp"
 #include "ImageLoader.hpp"
 #include "Logging.hpp"
 #include <FreeImage.h>

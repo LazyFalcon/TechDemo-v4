@@ -1,11 +1,10 @@
-﻿#include "Utils.hpp"
+﻿#include "core.hpp"
+#include "Utils.hpp"
 
 #include "CameraController.hpp"
 #include "Constants.hpp"
 #include "Window.hpp" // TODO: fix camera initialization
 #include "Logging.hpp"
-#include <glm/gtx/projection.hpp>
-#include <glm/gtx/matrix_query.hpp>
 
 CameraController* CameraController::activeCamera {nullptr};
 std::list<CameraController*> CameraController::listOf;

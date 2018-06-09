@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "Events.hpp"
 #include "EventProcessor.hpp"
 

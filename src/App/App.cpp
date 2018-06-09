@@ -1,8 +1,8 @@
+#include "core.hpp"
 #include <GLFW/glfw3.h>
 
 #include "App.hpp"
 #include "AudioLibrary.hpp"
-#include "common.hpp"
 #include "DebugScreen.hpp"
 #include "EventProcessor.hpp"
 #include "GameState.hpp"

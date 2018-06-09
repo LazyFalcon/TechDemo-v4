@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 #include "Logging.hpp"
 #include "QuadTree.hpp"
 #include "GPUResources.hpp"

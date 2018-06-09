@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "DebugScreen.hpp"
 #include "Colors.hpp"
 

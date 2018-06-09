@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "ObjectBatchedRender.hpp"
 #include "Context.hpp"
 #include "Assets.hpp"

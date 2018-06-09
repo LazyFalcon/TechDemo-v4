@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "ui-items.hpp"
 #include "ui-panel.hpp"
 #include "ui-styler.hpp"

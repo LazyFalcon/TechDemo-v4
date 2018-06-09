@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "App.hpp"
 #include "Playground.hpp"
 #include "LobbyEvents.hpp"

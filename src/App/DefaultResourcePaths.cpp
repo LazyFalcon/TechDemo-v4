@@ -1,4 +1,4 @@
-#include <string>
+#include "core.hpp"
 #include <boost/filesystem.hpp>
 #include "DefaultResourcePaths.hpp"
 #include "Logging.hpp"

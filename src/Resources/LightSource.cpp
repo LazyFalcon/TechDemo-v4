@@ -1,7 +1,5 @@
+#include "core.hpp"
 #include "LightSource.hpp"
-
-#include <glm/gtx/rotate_vector.hpp>
-
 
 LightSource& LightSource::setType(const std::string &type){
     if(type == "POINT"){

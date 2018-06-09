@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "Settings.hpp"
 #include "Yaml.hpp"
 

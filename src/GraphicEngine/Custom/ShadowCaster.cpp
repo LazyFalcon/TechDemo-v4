@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "ShadowCaster.hpp"
 #include "Logging.hpp"
 #include "Camera.hpp"

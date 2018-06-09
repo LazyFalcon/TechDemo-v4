@@ -9,7 +9,6 @@
  *  only face culling
  */
 #pragma once
-#include "common.hpp"
 #include "GPUResources.hpp"
 
 class Camera;

@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "font.hpp"
 #include "Assets.hpp"
 #include "Utils.hpp"

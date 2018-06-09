@@ -1,4 +1,5 @@
-#include "common.hpp"
+#include "core.hpp"
+#include "Color.hpp"
 
 glm::vec4 colorToVec4(u32 color){
     return glm::vec4(

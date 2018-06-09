@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "Context.hpp"
 #include "Assets.hpp"
 #include "VfxEffects.hpp"

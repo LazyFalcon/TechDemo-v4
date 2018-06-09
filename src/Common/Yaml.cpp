@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "Yaml.hpp"
 #include <iostream>
 #include <fstream>

@@ -1,4 +1,6 @@
+#include "core.hpp"
 #include "Logging.hpp"
+#include <fstream>
 
 namespace pmk
 {

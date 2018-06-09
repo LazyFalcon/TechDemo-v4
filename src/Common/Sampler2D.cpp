@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "gl_core_4_5.hpp"
 #include "Sampler2D.hpp"
 #include "ImageLoader.hpp"

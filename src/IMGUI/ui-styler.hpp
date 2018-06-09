@@ -1,5 +1,4 @@
 #pragma once
-#include "ui-core.hpp"
 #include <vector>
 
 class RenderedUIItems;

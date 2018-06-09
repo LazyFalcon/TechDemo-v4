@@ -1,17 +1,4 @@
 #pragma once
-/**
- *  Implementation of camera with gimbal lock, useful for following objects
- *  To remove gimbal locktransform camera basis
- *  ----
- *  rotationCenter: center of rotation, camera position is rotated around rotationCenter
- *  position: position of camera, local
- *  basis: camera local basis
- *
- *
- */
-// take a look at: https://github.com/ocornut/imgui/issues/123
-#include "common.hpp"
-#include "Constants.hpp"
 #include "Frustum.hpp"
 #include "Filters.hpp"
 // TODO: refactor names

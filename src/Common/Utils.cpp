@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "Utils.hpp"
 #include "Logging.hpp"
 #include <boost/filesystem.hpp>
@@ -27,13 +28,13 @@ void setColumn(glm::mat4 &mat, int num, glm::vec4 vec){
 std::string to_string(const btVector3 &v){
     return string_formatted(v[0])+" "+string_formatted(v[1])+" "+string_formatted(v[2]);
 }
-std::string to_string(const btTransform &t){
+// std::string to_string(const btTransform &t){
 
     // static float v[16]={1};
 
     // t.getOpenGLMatrix(v);
-    return glm::to_string(convert(t) );
-}
+//     return glm::to_string(convert(t) );
+// }
 
 #endif
 glm::vec4 cross(glm::vec4 const & x, glm::vec4 const & y){

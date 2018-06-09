@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "gl_core_4_5.hpp"
 #include "FBO.hpp"
 #include "Logging.hpp"

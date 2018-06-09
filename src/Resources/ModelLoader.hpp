@@ -2,7 +2,6 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "common.hpp"
 #include "GPUResources.hpp"
 // TODO: zaoszczedzic na includach!
 #include "PhysicalWorld.hpp"

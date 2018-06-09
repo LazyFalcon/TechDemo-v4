@@ -1,15 +1,11 @@
+#include "core.hpp"
 #include "PMK.hpp"
-#include "common.hpp"
 #include "Sun.hpp"
 #include "Atmosphere.hpp"
 
 #include "SunPos.hpp"
 #include "Yaml.hpp"
 #include "Colors.hpp"
-
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtx/polar_coordinates.hpp>
-#include <glm/gtx/perpendicular.hpp>
 
 Sun::Sun(const Yaml &sett, GeoTimePosition &geoTimePosition) : geoTimePosition(geoTimePosition), lightDirectionVector(glm::normalize(glm::vec4(20,36,-10,0))){
     size = sett["Size"].number();

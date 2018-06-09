@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "SceneGraph.hpp"
 #include "ModelLoader.hpp"
 #include "Assets.hpp"

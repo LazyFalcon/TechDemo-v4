@@ -1,4 +1,4 @@
-﻿#include "common.hpp"
+﻿#include "core.hpp"
 #include "Sun.hpp"
 
 #include "GeoTimePosition.hpp"

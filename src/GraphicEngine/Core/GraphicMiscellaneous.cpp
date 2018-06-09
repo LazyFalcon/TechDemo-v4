@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "GraphicMiscellaneous.hpp"
 #include "Context.hpp"
 

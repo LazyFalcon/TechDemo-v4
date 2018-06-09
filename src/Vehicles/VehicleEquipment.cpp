@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "VehicleEquipment.hpp"
 #include "IModule.hpp"
 

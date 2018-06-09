@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 #include "DecalsAndMarkers.hpp"
 #include "VehicleEquipment.hpp"
 #include "Joint.hpp"

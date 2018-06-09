@@ -1,6 +1,5 @@
 #pragma once
 #include "gl_core_4_5.hpp"
-#include "common.hpp"
 #include "FBO.hpp"
 #include "GPUResources.hpp"
 #include "GraphicMiscellaneous.hpp"

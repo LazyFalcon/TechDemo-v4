@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include <cstddef>
 #include "Grass.hpp"
 #include "PerfCounter.hpp"

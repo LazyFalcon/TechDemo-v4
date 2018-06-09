@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 
 glm::vec4 colorToVec4(u32 color);
 // jest zapisany abgr

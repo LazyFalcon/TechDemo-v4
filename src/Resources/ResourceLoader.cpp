@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include <boost/filesystem.hpp>
 #include "Logging.hpp"
 #include "GPUResources.hpp"

@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 #include "Assets.hpp"
 
 class Yaml;

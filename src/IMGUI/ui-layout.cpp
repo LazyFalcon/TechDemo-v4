@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "ui-layout.hpp"
 #include "Logging.hpp"
 // used with assume that

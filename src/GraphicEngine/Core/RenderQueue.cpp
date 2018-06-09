@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "RenderQueue.hpp"
 #include "ModelLoader.hpp"
 #include "Constants.hpp"

@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 #include "input-utils.hpp"
 
 using Lambda = std::function<void(void)>;

@@ -1,6 +1,6 @@
+#include "core.hpp"
 #include <Audio/Audio.hpp>
 #include "AudioLibrary.hpp"
-#include "common.hpp"
 
 void AudioLibrary::init(){
     listener.position({0,0,0,0});

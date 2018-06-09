@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include <GLFW/glfw3.h>
 #include "input-dispatcher.hpp"
 #include "input-utils.hpp"

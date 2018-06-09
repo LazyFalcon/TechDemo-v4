@@ -1,4 +1,4 @@
-#include <string>
+#include "core.hpp"
 #include "ModuleFactory.hpp"
 #include "Logging.hpp"
 #include "Modules.hpp"

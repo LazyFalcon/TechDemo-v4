@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 
 using LayoutStrategy = std::function<glm::vec4(const glm::vec4&)>;
 

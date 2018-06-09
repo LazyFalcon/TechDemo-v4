@@ -1,6 +1,5 @@
 #pragma once
-#include "common.hpp"
-#include <glm/glm.hpp>
+#include <iostream>
 #include <LinearMath/btVector3.h>
 #include <ctime>
 

@@ -1,4 +1,4 @@
-﻿#include "common.hpp"
+﻿#include "core.hpp"
 #include "Frustum.hpp"
 
 bool Frustum::testSphere(glm::vec4 position, float radius) const {

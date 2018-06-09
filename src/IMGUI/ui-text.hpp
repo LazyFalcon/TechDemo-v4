@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 
 // responsible for generating glyphs that will be rendered from given string
 class Text

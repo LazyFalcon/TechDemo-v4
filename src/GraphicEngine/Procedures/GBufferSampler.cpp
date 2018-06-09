@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "Context.hpp"
 
 #include "Window.hpp"
@@ -5,7 +6,6 @@
 #include "Camera.hpp"
 #include "GBufferSampler.hpp"
 #include "PerfTimers.hpp"
-#include <glm/gtc/packing.hpp>
 
 std::list<GBufferSampler*> GBufferSamplers::samplers;
 void GBufferSamplers::registerMe(GBufferSampler *data){

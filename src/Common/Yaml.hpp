@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 #include "Logging.hpp"
 #include <iosfwd>
 #include <boost/variant.hpp>

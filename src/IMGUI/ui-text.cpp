@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "ui-text.hpp"
 #include "Assets.hpp"
 #include "Utils.hpp"

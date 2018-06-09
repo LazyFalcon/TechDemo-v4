@@ -1,8 +1,6 @@
-#include "common.hpp"
+#include "core.hpp"
 #include "Atmosphere.hpp"
-
 #include "Yaml.hpp"
-#include <glm/gtx/rotate_vector.hpp>
 
 Atmosphere::Atmosphere(const Yaml &sett, GeoTimePosition &geoTimePosition) : geoTimePosition(geoTimePosition){
     groundRadius = sett["PlanetRaduis"].number();

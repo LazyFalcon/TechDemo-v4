@@ -1,5 +1,5 @@
-﻿#include "PMK.hpp"
-#include <glm/gtx/normal.hpp>
+﻿#include "core.hpp"
+#include "PMK.hpp"
 #define BOOST_CHRONO_HEADER_ONLY 1
 #include <boost/chrono.hpp>
 #include "Constants.hpp"

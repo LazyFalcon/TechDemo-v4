@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "gl_core_4_5.hpp"
 #include "simplexnoise.h"
 #include "Foliage.hpp"
@@ -11,8 +12,6 @@
 #include "PhysicalWorld.hpp"
 #include "Colors.hpp"
 #include "Yaml.hpp"
-#include <glm/gtc/noise.hpp>
-#include <glm/gtx/wrap.hpp>
 // const u32 MAX_TREES_PER_NODE = 18u;
 const u32 MAX_TREES_PER_NODE = 8u;
 const u32 MAX_SHRUB_PER_NODE = 23u;

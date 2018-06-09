@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "ui-panel.hpp"
 #include "ui.hpp"
 #include "Logging.hpp"

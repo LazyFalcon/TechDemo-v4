@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "Context.hpp"
 #include "Logging.hpp"
 #include "Assets.hpp"

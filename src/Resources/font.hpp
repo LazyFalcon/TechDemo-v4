@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 
 struct UnicodeSymbolInfo {
     glm::vec3 uv; // [0-1]

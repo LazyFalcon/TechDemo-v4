@@ -1,6 +1,6 @@
+#include "core.hpp"
 #include <GLFW/glfw3.h>
 #include "input-utils.hpp"
-#include "common.hpp"
 #include "Logging.hpp"
 
 std::map<std::string, int> stringToKey = {

@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 
 struct TerrainData;
 struct GrassData;

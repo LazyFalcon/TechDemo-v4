@@ -1,5 +1,4 @@
 #pragma once
-#include "common.hpp"
 #include "CameraController.hpp"
 /**
     Stores informations about vehicle(universal for each type, vehicle is build from modules), can be used in HUD

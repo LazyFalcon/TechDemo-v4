@@ -1,3 +1,4 @@
+#include "core.hpp"
 #include "Context.hpp"
 #include "RendererUtils.hpp"
 #include "Assets.hpp"

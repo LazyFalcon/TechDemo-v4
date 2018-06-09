@@ -1,4 +1,4 @@
-#include <string>
+#include "core.hpp"
 #include "CameraControllerFactory.hpp"
 #include "CameraController.hpp"
 #include "Window.hpp"

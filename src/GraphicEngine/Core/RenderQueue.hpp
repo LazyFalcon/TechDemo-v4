@@ -1,6 +1,5 @@
 #pragma once
 #include "GPUResources.hpp"
-#include "common.hpp"
 #include "RenderStructs.hpp"
 #include <typeindex>
 #include <typeinfo>

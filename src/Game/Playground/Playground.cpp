@@ -26,8 +26,8 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
             event<ExitPlayground>();
         });
         m_input->action("f12").on([this]{ CameraController::getActiveCamera().printDebug(); });
-        m_input->action("scrollUp").on([this]{ CameraController::getActiveCamera().zoomFov(+1); });
-        m_input->action("scrollDown").on([this]{ CameraController::getActiveCamera().zoomFov(-1); });
+        m_input->action("scrollUp").on([this]{ CameraController::getActiveCamera().changeFov(+3*toRad); });
+        m_input->action("scrollDown").on([this]{ CameraController::getActiveCamera().changeFov(-3*toRad); });
         m_input->action("+").on([=]{ CameraController::getActiveCamera().offset.z -= 4*defaultCameraVelocity; });
         m_input->action("-").on([=]{ CameraController::getActiveCamera().offset.z += 4*defaultCameraVelocity; });
         m_input->action("shift-+").on([=]{ CameraController::getActiveCamera().offset.z -= 4*preciseCameraVelocity; });
@@ -55,7 +55,7 @@ void Playground::updateWithHighPrecision(float dt){
 
     auto &currentCamera = CameraController::getActiveCamera();
     // if((KeyState::lClicked or KeyState::mouseReset) and not CTRL_MODE)
-    if(m_cameraRotate) currentCamera.rotate(m_mouseTranslationNormalized * dt/16.f);
+    if(m_cameraRotate) currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f);
 
     // if(freeCam->hasFocus()){
     //     freeCam->camera.directlyMoveConstZ(velocity, 5.f, dt * 0.001f * 53.f*dt/16.f);

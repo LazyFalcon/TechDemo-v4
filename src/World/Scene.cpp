@@ -73,8 +73,8 @@ void Scene::update(float dt, Camera &camera){
     if(geoTimePosition) geoTimePosition->update(dt*10);
     if(graph) graph->cullCells(frustum);
 
-    // if(grass) grass->update(camera.position);
-    // if(foliage) foliage->update(camera.position);
+    // if(grass) grass->update(camera.position());
+    // if(foliage) foliage->update(camera.position());
     if(sun) sun->update(*atmosphere);
     if(atmosphere) atmosphere->update(sun->getVector());
 }

@@ -39,7 +39,7 @@ void LightRendering::renderSun(Scene &scene, Camera &camera){
     shader.uniform("uSplitDistances", camera.frustum.splitDistances);
 
     shader.uniform("uInvPV", camera.invPV);
-    shader.uniform("uEye", camera.position.xyz());
+    shader.uniform("uEye", camera.position().xyz());
     shader.uniform("uPixelSize", window.pixelSize);
     shader.uniform("uShadowMapSize", context.tex.shadows.size);
     shader.uniform("uCSMProjection", context.tex.shadows.matrices);
@@ -78,14 +78,14 @@ void LightRendering::renderLights(Scene &scene, Camera &camera){
         // cullFrontFaces();
         shader.uniform("uPV", camera.PV);
         shader.uniform("uInvPV", camera.invPV);
-        shader.uniform("uEye", camera.position.xyz());
+        shader.uniform("uEye", camera.position().xyz());
         shader.uniform("uPixelSize", window.pixelSize);
 
         shader.texture("uNormal", context.tex.gbuffer.normals, 0);
         shader.texture("uDepth", context.tex.gbuffer.depth, 1);
         auto mesh = assets::getMesh("LightSphere");
         for(auto &light : pointLights){
-            int cameraInside = isCameraInside(camera.position, light);
+            int cameraInside = isCameraInside(camera.position(), light);
             shader.uniform("uSize", light.size);
             shader.uniform("uPosition", light.position);
 
@@ -190,7 +190,7 @@ void LightRendering::compose(Camera &camera){
     auto shader = assets::getShader("ComposeLightAndGBuffer");
     shader.bind();
     shader.uniform("uInvPV", camera.invPV);
-    shader.uniform("uEye", camera.position.xyz());
+    shader.uniform("uEye", camera.position().xyz());
     shader.uniform("uViewDir", camera.at.xyz());
     shader.uniform("uPixelSize", window.pixelSize);
     shader.uniform("uLightScale", 1.f);

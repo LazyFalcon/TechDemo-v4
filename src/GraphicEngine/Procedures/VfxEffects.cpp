@@ -86,7 +86,7 @@ void VfxEffects::drawVolumetricLaserBeams(Camera &camera){
     // if(beams.empty()) return;
 
     // auto shader = assets::getShader("BeamRadiation").bind();
-    // shader.uniform("uEye", camera.position.xyz());
+    // shader.uniform("uEye", camera.position().xyz());
     // shader.uniform("uCamera", camera.at.xyz());
     // shader.uniform("uPixelSize", window.pixelSize);
     // shader.uniform("uWindowSize", window.size);
@@ -128,7 +128,7 @@ void VfxEffects::drawPlasmaProjeciles(Camera &camera){
     //     shader.uniform("uFrom", it.from);
     //     shader.uniform("uTo", it.to);
     //     shader.uniform("uBrightness", 2000.f);
-    //     shader.uniform("uEye", camera.position);
+    //     shader.uniform("uEye", camera.position());
     //     shader.uniform("uPV", camera.PV);
 
     //     gl::DrawArrays(gl::POINTS, 0, 1);
@@ -149,7 +149,7 @@ void VfxEffects::drawPlasmaFlashes(Camera &camera){
     //     shader.uniform("uSizeA", it.sizeA);
     //     shader.uniform("uSizeB", it.sizeB);
     //     shader.uniform("uBrightness", 2000.f);
-    //     shader.uniform("uEye", camera.position);
+    //     shader.uniform("uEye", camera.position());
     //     shader.uniform("uUp", camera.up);
     //     shader.uniform("uRight", camera.right);
     //     shader.uniform("uAt", camera.at);
@@ -196,7 +196,7 @@ void VfxEffects::drawSparks(Camera &camera){
     // auto shader = assets::getShader("Spark").bind();
     // // shader.texture("uColor", toVec4(it.color));
     // shader.uniform("uPV", camera.PV);
-    // shader.uniform("uEye", camera.position);
+    // shader.uniform("uEye", camera.position());
 
     // context.getBuffer().update(sparks)
     //        .attrib(0).pointer_float(1, sizeof(Spark), (void*)offsetof(Spark, lifeLeft)).divisor(0)

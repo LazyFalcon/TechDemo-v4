@@ -49,7 +49,7 @@ void Effects::scattering(Scene &scene, Camera &camera){
 
     shader.uniform("uNear", camera.nearDistance);
     shader.uniform("uFar", camera.farDistance);
-    shader.uniform("uEyePosition", camera.position);
+    shader.uniform("uEyePosition", camera.position());
     shader.uniform("uInvPV", camera.invPV);
 
     gl::Uniform4fv(gl::GetUniformLocation(shader.ID, "uCameraVectors"), 5, (GLfloat *)camera.frustum.cornerVectors.data());
@@ -96,7 +96,7 @@ void Effects::scatteringShadowed(Scene &scene, Camera &camera){
 
     shader.uniform("uNear", camera.nearDistance);
     shader.uniform("uFar", camera.farDistance);
-    shader.uniform("uEyePosition", camera.position);
+    shader.uniform("uEyePosition", camera.position());
     shader.uniform("uInvPV", camera.invPV);
 
     shader.atlas("uCSMCascades", context.tex.shadows.cascade.ID, 2);
@@ -128,7 +128,7 @@ void Effects::sky(Scene &scene, Camera &camera){
     auto shader = assets::getShader("Sky");
     shader.bind();
 
-    auto skyMatrix = glm::translate(identityMatrix, camera.position.xyz());
+    auto skyMatrix = glm::translate(identityMatrix, camera.position().xyz());
 
     shader.uniform("uPV", camera.getPV());
     shader.uniform("uModel", skyMatrix);
@@ -136,8 +136,8 @@ void Effects::sky(Scene &scene, Camera &camera){
 
     auto adjustCameraHeightToWorldScale = [](float h){return h;};
 
-    shader.uniform("uExposure", camera.exposure);
-    shader.uniform("uEye", camera.position);
+    // TODO:  shader.uniform("uExposure", camera.exposure);
+    shader.uniform("uEye", camera.position());
 
     shader.uniform("uLightDirection", -sun.getVector().xyz());
     shader.uniform("uInvWaveLength", 1.f/glm::pow4(atmosphere.invWavelength.xyz()));
@@ -149,7 +149,7 @@ void Effects::sky(Scene &scene, Camera &camera){
     shader.uniform("uGroundRadius", atmosphere.groundRadius);
     shader.uniform("uScale", 1/(atmosphere.skyRadius - atmosphere.groundRadius));
     shader.uniform("uScaleDepth", atmosphere.scaleDepth);
-    shader.uniform("uCameraHeight", adjustCameraHeightToWorldScale(camera.position.z));
+    shader.uniform("uCameraHeight", adjustCameraHeightToWorldScale(camera.position().z));
 
 
     Mesh &mesh = assets::getMesh("FullSkySphere");
@@ -252,7 +252,7 @@ void Effects::SSAO(Camera &camera){
         shader.uniform("uFar", camera.farDistance);
         shader.uniform("uView", camera.view);
         shader.uniform("uInvPV", camera.invPV);
-        shader.uniform("uEyePosition", camera.position);
+        shader.uniform("uEyePosition", camera.position());
         context.drawScreen();
     }
     if(false){
@@ -270,7 +270,7 @@ void Effects::SSAO(Camera &camera){
         shader.uniform("uFar", camera.farDistance);
         shader.uniform("uView", camera.view);
         shader.uniform("uInvPV", camera.invPV);
-        shader.uniform("uEyePosition", camera.position);
+        shader.uniform("uEyePosition", camera.position());
         context.drawScreen();
     }
     context.tex.full.rg16a.genMipmaps();

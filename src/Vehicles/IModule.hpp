@@ -164,6 +164,6 @@ public:
 
     void update(float dt) override {
         // CC::updateBaseTransform(m_module->getGlmTransform());
-        CC::update(glm::translate(m_module->getGlmTransform(), m_position), dt);
+        CC::update(m_module->getGlmTransform()*glm::translate(m_position), dt);
     }
 };

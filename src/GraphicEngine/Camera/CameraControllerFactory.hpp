@@ -7,15 +7,15 @@ class Window;
 class CameraControllerFactory
 {
 private:
-    Window &window;
+    glm::vec2& windowSize;
 public:
-    CameraControllerFactory(Window &window) : window(window){}
+    CameraControllerFactory(Window &window);
 
     template<typename Controller, typename... Args>
     std::shared_ptr<Controller> create(Args&... args){
-        std::shared_ptr<Controller> out(std::make_shared<Controller>(args...));
-        dummyInitCamera(*out);
+        std::shared_ptr<Controller> out(std::make_shared<Controller>(args..., windowSize));
+        // dummyInitCamera(*out);
         return out;
     }
-    void dummyInitCamera(Camera&);
+    // void dummyInitCamera(Camera&);
 };

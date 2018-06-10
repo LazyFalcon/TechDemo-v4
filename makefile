@@ -2,10 +2,23 @@ DIRECTORIES = $(addprefix -I./,$(shell ls -d ./src/*/))
 DIRECTORIES_2 = $(addprefix -I./,$(shell ls -d ./src/*/*/))
 TARGET_NAME = TDv4_0_2
 
-CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) -DBT_USE_DOUBLE_PRECISION=ON -DUSE_BULLET
+DEFINES = \
+-DGLM_ENABLE_EXPERIMENTAL \
+-DGLM_FORCE_SWIZZLE \
+-DGLM_SWIZZLE \
+-DGLM_FORCE_RADIANS \
+-DBT_USE_DOUBLE_PRECISION=ON \
+-DUSE_BULLET
+
+CORE_PCH_FILENAME=./src/core.hpp
+CORE_PCH=$(CORE_PCH_FILENAME).gch
+
+CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DEFINES)
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 ADDITIONAL_FLAGS = \
--Werror=return-type
+-Werror=return-type \
+-Winvalid-pch
+
 # -Wunused-function \
 # -Wswitch-enum \
 
@@ -30,6 +43,13 @@ $(BIN)/$(TARGET_NAME): $(OBJS) ./obj/res.o
 	@echo "Linking: $@"
 	@$(CXX) $^ -o $@ $(LIBS)
 	@echo "Done"
+
+$(CORE_PCH):
+	@echo "Compiling PCH"
+	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) $(CORE_PCH_FILENAME)
+
+# -ftime-report
+#	@powershell -c "Write-Host Compiling $< took: (Measure-Command { $(CXX) $(CXX_FLAGS) $(ADDITIONAL_F LAGS) -MMD -c $< -o $@ | Out-Default }).TotalSeconds"
 
 -include $(DEP)
 

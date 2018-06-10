@@ -34,6 +34,10 @@ namespace pmk {
         out<<"[ "<<val.x<<", "<<val.y<<", "<<val.z<<", "<<val.w<<" ] ";
     }
     template <>
+    inline void toStream(std::ostream& out, glm::quat val){
+        out<<"[ "<<val.x<<", "<<val.y<<", "<<val.z<<", "<<val.w<<" ] ";
+    }
+    template <>
     inline void toStream(std::ostream& out, glm::vec3 val){
         out<<"[ "<<val.x<<", "<<val.y<<", "<<val.z<<" ] ";
     }

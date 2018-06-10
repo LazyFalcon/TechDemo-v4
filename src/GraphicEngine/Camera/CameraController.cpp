@@ -1,24 +1,29 @@
 ﻿#include "core.hpp"
-#include "Utils.hpp"
-
 #include "CameraController.hpp"
 #include "Constants.hpp"
-#include "Window.hpp" // TODO: fix camera initialization
 #include "Logging.hpp"
+#include "Utils.hpp"
 
 CameraController* CameraController::activeCamera {nullptr};
 std::list<CameraController*> CameraController::listOf;
 
-CameraController::CameraController(){
+CameraController::CameraController(glm::vec2 windowSize){
     listOf.push_back(this);
     if(not activeCamera) activeCamera = this;
-}
-CameraController::CameraController(const std::string &smode){
-    listOf.push_back(this);
-    if(not activeCamera) activeCamera = this;
+
+    // * defaults
+    Camera::aspectRatio = windowSize.x/windowSize.y;
+    Camera::nearDistance = 0.10f;
+    Camera::farDistance = 900.f;
+    Camera::fov = 85;
+    Camera::inertia = 1;
+    Camera::offset = glm::vec4(0);
+    Camera::recalucuateProjectionMatrix();
+    Camera::evaluate();
 }
 CameraController::~CameraController(){
     listOf.remove(this);
+    if(activeCamera == this and not listOf.empty()) listOf.front()->focus();
 }
 
 void CameraController::focus(){
@@ -28,45 +33,91 @@ bool CameraController::hasFocus() const {
     return this == activeCamera;
 }
 
-Camera& CameraController::getActiveCamera(){
+CameraController& CameraController::getActiveCamera(){
     return *activeCamera;
 }
 
+CopyOnlyPosition::CopyOnlyPosition(glm::vec2 windowSize) : CameraController(windowSize){
+    euler = glm::vec3(0, -1.5, 0);
+    rotationCenter = glm::vec4(0,0,0,1);
+    target.euler = euler;
+    target.rotationCenter = rotationCenter;
+}
 
+void CopyOnlyPosition::rotateByMouse(float screenX, float screenY){
+    // * take into accout camera roll
+    glm::vec2 v(screenX*cos(euler.z) - screenY*sin(euler.z),
+                screenX*sin(euler.z) + screenY*cos(euler.z));
+
+    target.euler.x += (v.x * 12.f * fov)/pi;
+    target.euler.y += (v.y * 12.f * fov)/pi;
+}
+void CopyOnlyPosition::roll(float angle){
+
+}
+
+void CopyOnlyPosition::applyTransform(float dt){
+    // orientation = glm::slerp(orientation, target.basis, basisSmooth*dt/16.f);
+    euler = glm::mix(euler, target.euler, dt/16.f);
+    orientation = glm::orientate4(euler);
+    rotationCenter = glm::mix(rotationCenter, target.rotationCenter, inertia * dt/16.f);
+
+    orientation[3] = rotationCenter + orientation * glm::vec4(offset.x*(1.f + offset.z/25.f), offset.y*(1.f + offset.z/25.f), offset.z, 0);
+}
 void CopyOnlyPosition::update(const glm::mat4& parentTransform, float dt){
     if(not hasFocus()) return;
 
-    Camera::setTargetPivot(parentTransform[3]);
-    Camera::evaluate(dt);
-
+    target.rotationCenter = parentTransform[3];
+    // applyBounds(target.rotationCenter);
+    applyTransform(dt);
+    Camera::evaluate();
 }
+
+
 
 // * X axis of camera must be placed in plane XY of parent
 // * With unchanged Z axis
 void CopyPlane::update(const glm::mat4& parentTransform, float dt){
     if(not hasFocus()) return;
 
-    Camera::setTargetPivot(parentTransform[3]); // * the best is to have this only copying without smoothing
+    // Camera::setTargetPivot(parentTransform[3]); // * the best is to have this only copying without smoothing
 
-    glm::vec3 x = Camera::x().xyz();
-    glm::vec3 z = Camera::z().xyz();
 
-    glm::vec3 zp = parentTransform[2].xyz();
+    // Camera::target.parentBasis = glm::quat_cast(parentTransform);
 
-    //* find angle between x and plane
-    glm::vec3 xInPlane = glm::normalize(glm::cross(zp, z));
 
-    Camera::target.basis *= glm::rotation(x, xInPlane);
+    // glm::vec3 x = Camera::x().xyz();
+    // glm::vec3 z = Camera::z().xyz();
+    // glm::vec3 x = glm::normalize(X4 * Camera::target.basis).xyz();
+    // glm::vec3 y = glm::normalize(Y4 * Camera::target.basis).xyz();
+    // glm::vec3 z = glm::normalize(Z4 * Camera::target.basis).xyz();
 
-    Camera::evaluate(dt);
+    // glm::vec3 zp = parentTransform[2].xyz();
+
+    // //* find angle between x and plane
+    // glm::vec3 xInPlane = glm::normalize(glm::cross(zp, z));
+
+    // Camera::target.basis *= glm::rotation(x, xInPlane);
+    // Camera::basis *= glm::rotation(x, xInPlane);
+
+    // Camera::evaluate(dt);
 }
 
+void CopyTransorm::update(const glm::mat4& parentTransform, float dt){
+    if(not hasFocus()) return;
 
+    // Camera::setTargetPivot(parentTransform[3]);
+    // Camera::evaluate(dt);
+}
 
+FreeCamController::FreeCamController(glm::vec2 windowSize) : CameraController(windowSize){
+}
+void FreeCamController::update(float dt){
+    if(not hasFocus()) return;
+    // Camera::evaluate(dt);
+}
 
-
-
-
+/*
 PinnedCamController::PinnedCamController(){
     // Camera::target.positionSmooth = 1.f;
     // Camera::target.basisSmooth = 0.3f;
@@ -76,44 +127,38 @@ PinnedCamController::PinnedCamController(){
     // Camera::postOffset.z = 0;
 }
 void PinnedCamController::update(float dt){
-    // if(not hasFocus()) return; // FIX: powinno to stąd wylecieć!
-    // auto mat = baseTransform;
-    // glm::vec4 position = mat*offsetPosition;
-    // Camera::setPosition(position);
-    // Camera::rotationCenter = position;
-    // Camera::rotate({0,0});
-    // {
-    //     glm::vec4 x = glm::normalize(X4 * Camera::target.basis);
-    //     glm::vec4 y = glm::normalize(Y4 * Camera::target.basis);
-    //     glm::vec4 z = glm::normalize(Z4 * Camera::target.basis);
+    if(not hasFocus()) return; // FIX: powinno to stąd wylecieć!
+    auto mat = baseTransform;
+    glm::vec4 position = mat*offsetPosition;
+    Camera::setPosition(position);
+    Camera::rotationCenter = position;
+    Camera::rotate({0,0});
+    {
+        glm::vec4 x = glm::normalize(X4 * Camera::target.basis);
+        glm::vec4 y = glm::normalize(Y4 * Camera::target.basis);
+        glm::vec4 z = glm::normalize(Z4 * Camera::target.basis);
 
-    //     //* uh, what a shit. it calculates new matrix with camera Z, plane normal as camera Y(little moded, to be othogonal)
-    //     glm::vec4 zp = glm::normalize(mat * Z4);
-    //     glm::vec4 xp = -glm::normalize(cross(z, zp));
-    //     glm::vec4 yp = glm::normalize(cross(z, xp));
-    //     // xp is orthogonal to Camera::at and is in plane of module
-    //     // new Camera::target matrix is xp, yp, z
-    //     float angle = -acos(glm::dot(xp, x))*glm::sign(glm::dot(cross(x, xp), z));
-    //     if(std::isnan(angle)){
-    //         error("CameraController::angle is nan");
-    //         angle = 0;
-    //     }
+        //* uh, what a shit. it calculates new matrix with camera Z, plane normal as camera Y(little moded, to be othogonal)
+        glm::vec4 zp = glm::normalize(mat * Z4);
+        glm::vec4 xp = -glm::normalize(cross(z, zp));
+        glm::vec4 yp = glm::normalize(cross(z, xp));
+        // xp is orthogonal to Camera::at and is in plane of module
+        // new Camera::target matrix is xp, yp, z
+        float angle = -acos(glm::dot(xp, x))*glm::sign(glm::dot(cross(x, xp), z));
+        if(std::isnan(angle)){
+            error("CameraController::angle is nan");
+            angle = 0;
+        }
 
-    //     Camera::euler.z = angle;
+        Camera::euler.z = angle;
 
-    //     glm::mat4 m = glm::mat4(xp,yp,z, W4);
-    //     // Camera::target.basis *= glm::angleAxis(angle, z.xyz());
-    //     Camera::target.basis = glm::toQuat(glm::affineInverse(m));
-    // }
-    // Camera::evaluate(dt);
-}
-
-FreeCamController::FreeCamController(){
-}
-void FreeCamController::update(float dt){
-    if(not hasFocus()) return;
+        glm::mat4 m = glm::mat4(xp,yp,z, W4);
+        // Camera::target.basis *= glm::angleAxis(angle, z.xyz());
+        Camera::target.basis = glm::toQuat(glm::affineInverse(m));
+    }
     Camera::evaluate(dt);
 }
+
 
 FollowingCamController::FollowingCamController(){
     Camera::offset.z = 25.f;
@@ -143,3 +188,4 @@ void TopdownCamController::update(float dt){
     Camera::setPosition(position);
     Camera::evaluate(dt);
 }
+*/

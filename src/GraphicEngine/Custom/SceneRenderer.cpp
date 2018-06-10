@@ -89,7 +89,7 @@ void SceneRenderer::renderFoliage(Scene &scene, Camera &camera){
         shader.uniform("uTime",  /*time*/0);
         shader.uniform("uLightDirection", lightDir);
         shader.uniform("uEyeVec", camera.at);
-        shader.uniform("uEye", camera.position.xyz());
+        shader.uniform("uEye", camera.position().xyz());
 
         auto &data = foliage.treeBatchData;
         for(u32 i=0; i<data.count; i++){
@@ -107,7 +107,7 @@ void SceneRenderer::renderFoliage(Scene &scene, Camera &camera){
         shader.uniform("uTime", /*time*/0);
         shader.uniform("uLightDirection", lightDir);
         shader.uniform("uEyeVec", camera.at);
-        shader.uniform("uEye", camera.position.xyz());
+        shader.uniform("uEye", camera.position().xyz());
 
         auto &data = foliage.treeBatchData;
         for(u32 i=0; i<data.count; i++){
@@ -135,7 +135,7 @@ void SceneRenderer::renderGrass(Scene &scene, Camera &camera){
 
     shader.bind();
     shader.uniform("uPV", camera.getPV());
-    shader.uniform("uEye", camera.position.xyz());
+    shader.uniform("uEye", camera.position().xyz());
     shader.uniform("uSunDir", scene.sun->getLightVector().xyz());
     shader.uniform("uTime", /*time*/0);
     shader.uniform("uTerrainSize", scene.graph->size);

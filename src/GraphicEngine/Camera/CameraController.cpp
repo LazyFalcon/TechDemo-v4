@@ -15,7 +15,7 @@ CameraController::CameraController(glm::vec2 windowSize){
     Camera::aspectRatio = windowSize.x/windowSize.y;
     Camera::nearDistance = 0.10f;
     Camera::farDistance = 900.f;
-    Camera::fov = 85;
+    Camera::fov = 85*toRad;
     Camera::inertia = 1;
     Camera::offset = glm::vec4(0);
     Camera::recalucuateProjectionMatrix();
@@ -38,7 +38,7 @@ CameraController& CameraController::getActiveCamera(){
 }
 
 CopyOnlyPosition::CopyOnlyPosition(glm::vec2 windowSize) : CameraController(windowSize){
-    euler = glm::vec3(0, -1.5, 0);
+    euler = glm::vec3(0, 0, 0);
     rotationCenter = glm::vec4(0,0,0,1);
     target.euler = euler;
     target.rotationCenter = rotationCenter;
@@ -46,25 +46,65 @@ CopyOnlyPosition::CopyOnlyPosition(glm::vec2 windowSize) : CameraController(wind
 
 void CopyOnlyPosition::rotateByMouse(float screenX, float screenY){
     // * take into accout camera roll
-    glm::vec2 v(screenX*cos(euler.z) - screenY*sin(euler.z),
-                screenX*sin(euler.z) + screenY*cos(euler.z));
+    glm::vec2 v(screenY*cos(-euler.z) - screenX*sin(-euler.z),
+                screenY*sin(-euler.z) + screenX*cos(-euler.z));
 
-    target.euler.x += (v.x * 12.f * fov)/pi;
-    target.euler.y += (v.y * 12.f * fov)/pi;
+    // TODO: is screenX <> euler.y proper math?
+    target.euler.x -= (v.x * 12.f * fov)/pi;
+    target.euler.y -= (v.y * 12.f * fov)/pi;
 }
 void CopyOnlyPosition::roll(float angle){
-
+    target.euler.z += angle;
 }
 
 void CopyOnlyPosition::applyTransform(float dt){
     // orientation = glm::slerp(orientation, target.basis, basisSmooth*dt/16.f);
-    euler = glm::mix(euler, target.euler, dt/16.f);
-    orientation = glm::orientate4(euler);
-    rotationCenter = glm::mix(rotationCenter, target.rotationCenter, inertia * dt/16.f);
+    euler = glm::mix(euler, target.euler, glm::smoothstep(0.f, 1.f, inertia * dt/16.f));
+    orientation = glm::eulerAngleZ(euler.y) * glm::eulerAngleX(euler.x) * glm::eulerAngleZ(euler.z);
+    rotationCenter = glm::mix(rotationCenter, target.rotationCenter, glm::smoothstep(0.f, 1.f, inertia * dt/16.f));
 
-    orientation[3] = rotationCenter + orientation * glm::vec4(offset.x*(1.f + offset.z/25.f), offset.y*(1.f + offset.z/25.f), offset.z, 0);
+    orientation[3] = rotationCenter + orientation * glm::vec4(offset.x*(0.1f + offset.z/25.f), offset.y*(0.1f + offset.z/25.f), offset.z, 0);
 }
 void CopyOnlyPosition::update(const glm::mat4& parentTransform, float dt){
+    if(not hasFocus()) return;
+
+    target.rotationCenter = parentTransform[3];
+    // applyBounds(target.rotationCenter);
+    applyTransform(dt);
+    Camera::evaluate();
+}
+
+
+
+CopyTransform::CopyTransform(glm::vec2 windowSize) : CameraController(windowSize){
+    euler = glm::vec3(0, 0, 0);
+    rotationCenter = glm::vec4(0,0,0,1);
+    target.euler = euler;
+    target.rotationCenter = rotationCenter;
+}
+
+void CopyTransform::rotateByMouse(float screenX, float screenY){
+    // * take into accout camera roll
+    glm::vec2 v(screenY*cos(-euler.z) - screenX*sin(-euler.z),
+                screenY*sin(-euler.z) + screenX*cos(-euler.z));
+
+    // TODO: is screenX <> euler.y proper math?
+    target.euler.x -= (v.x * 12.f * fov)/pi;
+    target.euler.y -= (v.y * 12.f * fov)/pi;
+}
+void CopyTransform::roll(float angle){
+    target.euler.z += angle;
+}
+
+void CopyTransform::applyTransform(float dt){
+    // orientation = glm::slerp(orientation, target.basis, basisSmooth*dt/16.f);
+    euler = glm::mix(euler, target.euler, glm::smoothstep(0.f, 1.f, inertia * dt/16.f));
+    orientation = glm::eulerAngleZ(euler.y) * glm::eulerAngleX(euler.x) * glm::eulerAngleZ(euler.z);
+    rotationCenter = glm::mix(rotationCenter, target.rotationCenter, glm::smoothstep(0.f, 1.f, inertia * dt/16.f));
+
+    orientation[3] = rotationCenter + orientation * glm::vec4(offset.x*(0.1f + offset.z/25.f), offset.y*(0.1f + offset.z/25.f), offset.z, 0);
+}
+void CopyTransform::update(const glm::mat4& parentTransform, float dt){
     if(not hasFocus()) return;
 
     target.rotationCenter = parentTransform[3];
@@ -100,13 +140,6 @@ void CopyPlane::update(const glm::mat4& parentTransform, float dt){
     // Camera::target.basis *= glm::rotation(x, xInPlane);
     // Camera::basis *= glm::rotation(x, xInPlane);
 
-    // Camera::evaluate(dt);
-}
-
-void CopyTransorm::update(const glm::mat4& parentTransform, float dt){
-    if(not hasFocus()) return;
-
-    // Camera::setTargetPivot(parentTransform[3]);
     // Camera::evaluate(dt);
 }
 

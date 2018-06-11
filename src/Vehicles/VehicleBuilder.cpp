@@ -49,7 +49,7 @@ void VehicleBuilder::build(){
         it->init();
     }
 
-    m_player.eq().cameras[0]->focus();
+    m_player.eq().cameras[1]->focus();
 }
 
 void VehicleBuilder::makeModulesRecursively(const Yaml& cfg, Joint& connectorJoint, IModule *parentModule){
@@ -116,7 +116,7 @@ void VehicleBuilder::setMarkers(IModule& module, const Yaml& cfg){
         if("Camera"s == marker["Type"].string()){
             auto camera = createModuleFollower(&module, marker["Mode"].string(), marker["W"].vec3());
             camera->offset = marker["Offset"].vec31();
-            camera->fov = marker["FOV"].number();
+            camera->fov = marker["FOV"].number()*toRad;
             camera->inertia = marker["Inertia"].number();
             camera->recalucuateProjectionMatrix();
             camera->evaluate();
@@ -204,7 +204,7 @@ std::shared_ptr<CameraController> VehicleBuilder::createModuleFollower(IModule *
         return m_camFactory.create<ModuleFollower<CopyPlane>>(module,position);
     }
     else if(type == "CopyTransform"){
-        return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, position);
+        return m_camFactory.create<ModuleFollower<CopyTransform>>(module, position);
     }
     else if(type == "Free"){
         return m_camFactory.create<FreeCamController>();

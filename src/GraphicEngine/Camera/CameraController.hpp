@@ -59,10 +59,22 @@ public:
 };
 
 // * 2 DoF in object space
-class CopyTransorm : public CameraController
+class CopyTransform : public CameraController
 {
+private:
+    struct {
+        glm::vec4 rotationCenter;
+        glm::vec3 euler;
+    } target;
+
+    glm::vec4 rotationCenter;
+    glm::vec3 euler;
+
+    void applyTransform(float);
 public:
-    CopyTransorm(glm::vec2 windowSize) : CameraController(windowSize){}
+    CopyTransform(glm::vec2 windowSize);
+    void rotateByMouse(float, float);
+    void roll(float);
     void update(const glm::mat4& parentTransform, float dt) override;
 };
 

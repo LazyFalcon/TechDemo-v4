@@ -11,22 +11,15 @@ private:
 public:
     CameraController(glm::vec2 windowSize);
     virtual ~CameraController();
-    // CameraController(const Camera &cam) : camera(cam){}
-    void updateBaseTransform(const glm::mat4 &tr){
-        baseTransform = tr;
-    }
-    void move();
     virtual void rotateByMouse(float, float){}
     virtual void roll(float){}
     virtual void update(float dt){}
     virtual void update(const glm::mat4& parentTransform, float dt){}
+
     void focus();
     bool hasFocus() const;
 
-    // Camera camera;
-    glm::vec4 offsetPosition;
-    glm::vec2 focusPoint;
-    glm::mat4 baseTransform;
+    virtual void printDebug(){}
     static CameraController& getActiveCamera();
     static std::list<CameraController*> listOf;
 };
@@ -34,7 +27,7 @@ public:
 // * 2 DoF in worldspace
 class CopyOnlyPosition : public CameraController
 {
-private:
+protected:
     struct {
         glm::vec4 rotationCenter;
         glm::vec3 euler;
@@ -42,40 +35,24 @@ private:
 
     glm::vec4 rotationCenter;
     glm::vec3 euler;
-
-    void applyTransform(float);
+    CameraConstraints constraints;
 public:
     CopyOnlyPosition(glm::vec2 windowSize);
+    void applyTransform(float);
     void rotateByMouse(float, float);
     void roll(float);
-    void update(const glm::mat4& parentTransform, float dt) override;
-};
-
-class CopyPlane : public CameraController
-{
-public:
-    CopyPlane(glm::vec2 windowSize) : CameraController(windowSize){}
     void update(const glm::mat4& parentTransform, float dt) override;
 };
 
 // * 2 DoF in object space
-class CopyTransform : public CameraController
+class CopyTransform : public CopyOnlyPosition
 {
 private:
-    struct {
-        glm::vec4 rotationCenter;
-        glm::vec3 euler;
-    } target;
-
-    glm::vec4 rotationCenter;
-    glm::vec3 euler;
-
-    void applyTransform(float);
 public:
     CopyTransform(glm::vec2 windowSize);
-    void rotateByMouse(float, float);
-    void roll(float);
+    void applyTransform(const glm::mat4&, float) ;
     void update(const glm::mat4& parentTransform, float dt) override;
+    void printDebug() override;
 };
 
 

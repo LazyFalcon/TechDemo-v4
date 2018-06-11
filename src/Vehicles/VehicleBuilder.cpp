@@ -200,9 +200,6 @@ std::shared_ptr<CameraController> VehicleBuilder::createModuleFollower(IModule *
     if(type == "CopyPosition"){
         return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, position);
     }
-    else if(type == "CopyPlane"){
-        return m_camFactory.create<ModuleFollower<CopyPlane>>(module,position);
-    }
     else if(type == "CopyTransform"){
         return m_camFactory.create<ModuleFollower<CopyTransform>>(module, position);
     }

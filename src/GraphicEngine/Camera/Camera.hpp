@@ -1,37 +1,24 @@
 #pragma once
 #include "Frustum.hpp"
 #include "Filters.hpp"
-// TODO: refactor names
-class Camera;
+
+template<typename T>
+struct constr
+{
+    std::array<T, 2> minMax;
+    bool disabled;
+    void operator() (T& t){
+        if(not disabled) t = glm::clamp(t, minMax[0], minMax[1]);
+    }
+};
 
 struct CameraConstraints
 {
-    void update(Camera &camera, float dt);
-
-    glm::vec2 horizontal { -pi, pi };
-    glm::vec2 vertical { -pi * 0.95f , 0  };
-    glm::vec2 fov { 2.5f * toRad, 150.f * toRad };
-    glm::vec2 distance { 0.f, 35.f };
-    bool use { true };
-};
-
-struct CameraTargetEvaluator
-{
-    void update(Camera &camera, float dt);
-
-    float vertical { 0.2f };
-    float horizontal { 0.2f };
-    float fov { 0.2f };
-    float distance { 0.2f };
-
-    float basisSmooth { 0.09f };
-    float positionSmooth { 0.09f };
-
-    glm::quat basis { 0,0,0,1 };
-    glm::quat parentBasis { 0,0,0,1 };
-    glm::vec4 position { 0,0,0,1 };
-    glm::vec4 rotationCenter { 0,0,0,1 };
-    bool use { true };
+    constr<float> yaw {{ -pi, pi }};
+    constr<float> pitch {{ -pi * 0.95f , 0  }};
+    constr<float> roll {{ -pi * 0.95f , 0  }};
+    constr<float> fov {{ 2.5f * toRad, 150.f * toRad }};
+    constr<glm::vec4> offset {{{ {-5,-5, -5, 0}, {5,5,25, 0} }}};
 };
 
 class Camera

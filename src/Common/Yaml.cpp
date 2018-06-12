@@ -274,7 +274,7 @@ private:
     Yaml& m_root;
     std::fstream file;
     std::vector<Line> lines;
-    int m_currentLine {};
+    int m_currentLine {0};
 public:
     YamlLoader(const std::string &filename, Yaml& yaml): m_root(yaml){
         file.open(filename, std::fstream::in);
@@ -314,22 +314,24 @@ void YamlLoader::run(){
         getline(file, buff);
         if(not isCommentOrEmpty(buff)){
             lines.emplace_back(buff);
+            log(lines.back().key, lines.back().value);
         }
     }
 
-    fill(m_root);
+    if(not lines.empty()){
+        auto& line = lines[m_currentLine];
+        m_root.isArray = line.isArrayElement;
+        fill(m_root, m_root.isArray? 1:0, line.isArrayElement and line.key.size());
+    }
 }
 
 // ! and filler here!
 void YamlLoader::fill(Yaml& nodeToFill, int expectedDepth, bool ignoreArrayElement){
     Yaml* childNode = nullptr;
 
-    bool belongsToArray = lines[m_currentLine].isArrayElement and ignoreArrayElement;
-    int arrayDepth = lines[m_currentLine].depth;
-
     while(m_currentLine < lines.size()){
         auto& line = lines[m_currentLine];
-        // log("\n line {", line.key, line.depth, "}", expectedDepth, arrayDepth, ".", line.isArrayElement, ignoreArrayElement);
+        // log("\n line {", line.key, line.depth, "}", expectedDepth, ".", line.isArrayElement, ignoreArrayElement);
 
         if(line.depth < (ignoreArrayElement? expectedDepth-1 : expectedDepth)){ //* finish filling node
             return;

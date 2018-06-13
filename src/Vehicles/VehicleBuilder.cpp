@@ -49,7 +49,7 @@ void VehicleBuilder::build(){
         it->init();
     }
 
-    m_player.eq().cameras[1]->focus();
+    m_player.eq().cameras[0]->focus();
 }
 
 void VehicleBuilder::makeModulesRecursively(const Yaml& cfg, Joint& connectorJoint, IModule *parentModule){

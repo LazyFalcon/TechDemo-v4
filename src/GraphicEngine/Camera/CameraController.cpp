@@ -39,7 +39,7 @@ CameraController& CameraController::getActiveCamera(){
 
 
 CopyOnlyPosition::CopyOnlyPosition(glm::vec2 windowSize) : CameraController(windowSize){
-    euler = glm::vec3(0, 0, 0);
+    euler = glm::vec3(69*toRad, 14*toRad, 0);
     rotationCenter = glm::vec4(0,0,0,1);
     target.euler = euler;
     target.rotationCenter = rotationCenter;
@@ -89,8 +89,13 @@ void CopyOnlyPosition::update(const glm::mat4& parentTransform, float dt){
     Camera::evaluate();
 }
 
+void CopyOnlyPosition::printDebug(){
+    Camera::printDebug();
+    log("euler:", euler.x*toDeg, euler.y*toDeg, euler.z*toDeg);
+}
 
 CopyTransform::CopyTransform(glm::vec2 windowSize) : CopyOnlyPosition(windowSize){
+    euler = glm::vec3(90*toRad, 0, 0);
     constraints.yaw = {{ -pi, pi }, true};
     constraints.pitch = {{ 0 , 160*toRad }};
     constraints.roll = {{ -90*toRad, 90*toRad }};
@@ -119,10 +124,6 @@ void CopyTransform::update(const glm::mat4& parentTransform, float dt){
     // applyBounds(target.rotationCenter);
     applyTransform(parentTransform, dt);
     Camera::evaluate();
-}
-void CopyTransform::printDebug(){
-    Camera::printDebug();
-    log("euler:", euler.x*toDeg, euler.y*toDeg, euler.z*toDeg);
 }
 
 FreeCamController::FreeCamController(glm::vec2 windowSize) : CameraController(windowSize){

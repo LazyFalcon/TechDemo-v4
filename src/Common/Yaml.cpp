@@ -314,7 +314,6 @@ void YamlLoader::run(){
         getline(file, buff);
         if(not isCommentOrEmpty(buff)){
             lines.emplace_back(buff);
-            log(lines.back().key, lines.back().value);
         }
     }
 

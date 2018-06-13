@@ -231,49 +231,29 @@ void Effects::drawDecals(Camera &camera){
 void Effects::SSAO(Camera &camera){
     GPU_SCOPE_TIMER();
     /// maybe disable if for sky? Enable depth test for not eqial 1?
-    context.fbo.tex(context.tex.full.rg16a)();
+    context.fbo[1].tex(context.tex.full.rg16a)();
     gl::Disable(gl::DEPTH_TEST);
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::BLEND);
     gl::Disable(gl::CULL_FACE);
 
-    if(true){
-        auto shader = assets::getShader("SSAO_WS");
-        shader.bind();
+    auto shader = assets::bindShader("SSAO");
 
-        shader.texture("uDepth", context.tex.gbuffer.depth, 0);
-        shader.texture("uNormal", context.tex.gbuffer.normals, 1);
-        shader.texture("uSSAONoise", assets::getImage("SSAONoise").ID, 2);
+    shader.texture("uDepth", context.tex.gbuffer.depth, 0);
+    shader.texture("uNormal", context.tex.gbuffer.normals, 1);
+    shader.texture("uSSAONoise", assets::getImage("SSAONoise").ID, 2);
 
-        shader.uniform("uWindowSize", window.size);
-        shader.uniform("uPixelSize", window.pixelSize);
-        shader.uniform("uFovTan", (float)tan(camera.fov*0.5f));
-        shader.uniform("uNear", camera.nearDistance);
-        shader.uniform("uFar", camera.farDistance);
-        shader.uniform("uView", camera.view);
-        shader.uniform("uInvPV", camera.invPV);
-        shader.uniform("uEyePosition", camera.position());
-        context.drawScreen();
-    }
-    if(false){
-        auto shader = assets::getShader("HBAO");
-        shader.bind();
+    shader.uniform("uWindowSize", window.size);
+    shader.uniform("uPixelSize", window.pixelSize);
+    shader.uniform("uFovTan", (float)tan(camera.fov*0.5f));
+    shader.uniform("uNear", camera.nearDistance);
+    shader.uniform("uFar", camera.farDistance);
+    shader.uniform("uView", camera.view);
+    shader.uniform("uInvPV", camera.invPV);
+    shader.uniform("uEyePosition", camera.position());
+    context.drawScreen();
 
-        shader.texture("uDepth", context.tex.gbuffer.depth, 0);
-        shader.texture("uNormal", context.tex.gbuffer.normals, 1);
-        shader.texture("uSSAONoise", assets::getImage("SSAONoise").ID, 2);
-
-        shader.uniform("uWindowSize", window.size);
-        shader.uniform("uPixelSize", window.pixelSize);
-        shader.uniform("uFovTan", (float)tan(camera.fov*0.5f));
-        shader.uniform("uNear", camera.nearDistance);
-        shader.uniform("uFar", camera.farDistance);
-        shader.uniform("uView", camera.view);
-        shader.uniform("uInvPV", camera.invPV);
-        shader.uniform("uEyePosition", camera.position());
-        context.drawScreen();
-    }
-    context.tex.full.rg16a.genMipmaps();
+    // context.tex.full.rg16a.genMipmaps();
     auto blured = utils.bilateralAOBlur(context.tex.full.rg16a);
 
     context.errors();

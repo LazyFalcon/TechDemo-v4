@@ -59,11 +59,11 @@ void ObjectBatchedRender::renderSkinned(Camera &camera){
 
         // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
 
-        gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+        // gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
 
         gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, (void*)0);
 
-        gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
+        // gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
         // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
     }
 

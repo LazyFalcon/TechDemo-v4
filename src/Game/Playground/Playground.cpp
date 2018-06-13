@@ -3,6 +3,8 @@
 #include "GraphicEngine.hpp"
 #include "input-dispatcher.hpp"
 #include "input.hpp"
+#include "Effects.hpp"
+#include "LightRendering.hpp"
 #include "ObjectBatchedRender.hpp"
 #include "PhysicalWorld.hpp"
 #include "Player.hpp"
@@ -28,10 +30,10 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         m_input->action("f12").on([this]{ CameraController::getActiveCamera().printDebug(); });
         m_input->action("scrollUp").on([this]{ CameraController::getActiveCamera().changeFov(+15*toRad); });
         m_input->action("scrollDown").on([this]{ CameraController::getActiveCamera().changeFov(-15*toRad); });
-        m_input->action("+").on([=]{ CameraController::getActiveCamera().offset.z -= 4*defaultCameraVelocity; });
-        m_input->action("-").on([=]{ CameraController::getActiveCamera().offset.z += 4*defaultCameraVelocity; });
-        m_input->action("shift-+").on([=]{ CameraController::getActiveCamera().offset.z -= 4*preciseCameraVelocity; });
-        m_input->action("shift--").on([=]{ CameraController::getActiveCamera().offset.z += 4*preciseCameraVelocity; });
+        m_input->action("+").on([=]{ CameraController::getActiveCamera().offset.z -= 1*defaultCameraVelocity; });
+        m_input->action("-").on([=]{ CameraController::getActiveCamera().offset.z += 1*defaultCameraVelocity; });
+        m_input->action("shift-+").on([=]{ CameraController::getActiveCamera().offset.z -= 1*preciseCameraVelocity; });
+        m_input->action("shift--").on([=]{ CameraController::getActiveCamera().offset.z += 1*preciseCameraVelocity; });
         m_input->action("LMB").on([this]{ m_cameraRotate = true; }).off([this]{ m_cameraRotate = false; });
         m_input->action("Q").on([this]{ CameraController::getActiveCamera().roll(-15*toRad); });
         m_input->action("E").on([this]{ CameraController::getActiveCamera().roll(+15*toRad); });
@@ -77,6 +79,16 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     // renderer.sceneRenderer->renderScene(scene, CameraController::getActiveCamera());
     // renderer.utils->drawBackground("nebula2");
     renderer.objectBatchedRender->renderObjects(CameraController::getActiveCamera());
+
+    renderer.context->setupFramebufferForLighting();
+
+    renderer.effects->SSAO(CameraController::getActiveCamera());
+
+    renderer.lightRendering->compose(CameraController::getActiveCamera());
+
+    // renderer.context->setupFramebufferForLDRProcessing();
+    // renderer.effects->toneMapping(1.f/*CameraController::getActiveCamera().exposure*/);
+    renderer.effects->FXAA();
 
     renderer.context->tex.gbuffer.color.genMipmaps();
 

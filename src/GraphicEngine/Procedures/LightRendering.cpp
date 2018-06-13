@@ -201,8 +201,8 @@ void LightRendering::compose(Camera &camera){
     shader.texture("uColor", context.tex.gbuffer.color, 0);
     shader.texture("uLight", context.tex.light.color, 1); // LightIntensity
     shader.texture("uSpecular", context.tex.light.specular, 2);
-    shader.texture("uAO", context.tex.full.rg16a, 3);
     // shader.texture("uAO", context.tex.half.rg16b, 3);
+    shader.texture("uAO", context.tex.full.rg16a, 3);
 
     context.drawScreen();
 

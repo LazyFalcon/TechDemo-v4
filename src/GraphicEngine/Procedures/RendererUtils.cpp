@@ -69,9 +69,9 @@ void RendererUtils::renderBlurred(){
  *
  */
 const Texture& RendererUtils::bilateralAOBlur(const Texture &source, float kernel){
-    context.fbo[2].tex(context.tex.half.rg16a)();
+    context.fbo[1].tex(context.tex.full.rg16b)();
     {
-        auto shader = assets::getShader("Bilateralblur-vertical");
+        auto shader = assets::getShader("BilateralBlurVertical");
         shader.bind();
 
         shader.uniform("uBlurSize", kernel);
@@ -80,14 +80,14 @@ const Texture& RendererUtils::bilateralAOBlur(const Texture &source, float kerne
 
         context.drawScreen();
     }
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.half.rg16b.ID, 0);
+    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.full.rg16a.ID, 0);
     {
-        auto shader = assets::getShader("Bilateralblur-horizontal");
+        auto shader = assets::getShader("BilateralBlurHorizontal");
         shader.bind();
 
         shader.uniform("uBlurSize", kernel);
         shader.uniform("uPixelSize", window.pixelSize);
-        shader.texture("uTexture", context.tex.half.rg16a, 0);
+        shader.texture("uTexture", context.tex.full.rg16b, 0);
 
         context.drawScreen();
     }

@@ -109,6 +109,7 @@ void App::initializeInputDispatcher(){
             log("Reloading shaders");
             Yaml shadersToReload(rootPath + "ShadersToReload.yml");
             for(auto &it : shadersToReload){
+                log("reloading shader: ", it.string());
                 loader.reloadShader(it.string());
             }});
     input->action("ctrl").on([this]{

@@ -42,6 +42,7 @@ public:
     void rotateByMouse(float, float);
     void roll(float);
     void update(const glm::mat4& parentTransform, float dt) override;
+    void printDebug() override;
 };
 
 // * 2 DoF in object space
@@ -52,7 +53,6 @@ public:
     CopyTransform(glm::vec2 windowSize);
     void applyTransform(const glm::mat4&, float) ;
     void update(const glm::mat4& parentTransform, float dt) override;
-    void printDebug() override;
 };
 
 

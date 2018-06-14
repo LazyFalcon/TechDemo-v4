@@ -2,6 +2,8 @@
 #include "GameState.hpp"
 #include "Scene.hpp"
 
+class FreeCamController;
+class GBufferSampler;
 class Imgui;
 class Input;
 class InputDispatcher;
@@ -17,9 +19,14 @@ private:
     std::unique_ptr<PhysicalWorld> m_physical;
     Window& m_window;
     glm::vec2 m_mousePos;
+    glm::vec4 m_mouseWorldPos;
     glm::vec2 m_mouseTranslation;
     glm::vec2 m_mouseTranslationNormalized;
     bool m_cameraRotate {};
+
+    std::shared_ptr<FreeCamController> m_defaultCamera; // TODO: later convert into list of cameras
+
+    std::unique_ptr<GBufferSampler> m_mouseSampler;
 
 public:
     Playground(Imgui&, InputDispatcher&, Window&);

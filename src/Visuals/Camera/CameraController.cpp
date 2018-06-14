@@ -37,7 +37,7 @@ CameraController& CameraController::getActiveCamera(){
     return *activeCamera;
 }
 
-
+// -----------------------------------------------------------------
 CopyOnlyPosition::CopyOnlyPosition(glm::vec2 windowSize) : CameraController(windowSize){
     euler = glm::vec3(69*toRad, 14*toRad, 0);
     rotationCenter = glm::vec4(0,0,0,1);
@@ -51,7 +51,7 @@ CopyOnlyPosition::CopyOnlyPosition(glm::vec2 windowSize) : CameraController(wind
     constraints.offset = {{{{-5,-5,-5, 0}, {5,5,25, 0}}}};
 }
 
-void CopyOnlyPosition::rotateByMouse(float screenX, float screenY){
+void CopyOnlyPosition::rotateByMouse(float screenX, float screenY, const glm::vec4&){
     // * take into accout camera roll
     glm::vec2 v(screenY*cos(-euler.z) - screenX*sin(-euler.z),
                 screenY*sin(-euler.z) + screenX*cos(-euler.z));
@@ -94,6 +94,7 @@ void CopyOnlyPosition::printDebug(){
     log("euler:", euler.x*toDeg, euler.y*toDeg, euler.z*toDeg);
 }
 
+// -----------------------------------------------------------------
 CopyTransform::CopyTransform(glm::vec2 windowSize) : CopyOnlyPosition(windowSize){
     euler = glm::vec3(90*toRad, 0, 0);
     constraints.yaw = {{ -pi, pi }, true};
@@ -126,9 +127,69 @@ void CopyTransform::update(const glm::mat4& parentTransform, float dt){
     Camera::evaluate();
 }
 
+// -----------------------------------------------------------------
 FreeCamController::FreeCamController(glm::vec2 windowSize) : CameraController(windowSize){
+    m_cam = glm::angleAxis(0.f, glm::normalize(glm::vec3(1,0,-0.2)));
+    m_rotationCenter = glm::vec4(0,0,0,1);
+    m_target.rotationCenter = m_rotationCenter;
+    m_target.cam = m_cam;
+    offset = glm::vec4(0,2,15,0);
+    inertia = 0.15;
+    m_target.impulse = {};
+
+    constraints.yaw = {{ -pi, pi }, true};
+    constraints.pitch = {{ 0 , 160*toRad }};
+    constraints.roll = {{ -90*toRad, 90*toRad }};
+    constraints.fov = {{ 30*toRad, 120*toRad }};
+    constraints.offset = {{{{-5,-5,-5, 0}, {5,5,25, 0}}}};
 }
 void FreeCamController::update(float dt){
     if(not hasFocus()) return;
-    // Camera::evaluate(dt);
+    m_target.rotationCenter += m_target.impulse;
+    m_target.impulse = {};
+    m_rotationCenter = glm::mix(m_rotationCenter, m_target.rotationCenter, glm::smoothstep(0.f, 1.f, inertia * dt/16.f));
+    m_cam = glm::slerp(m_cam, m_target.cam, inertia * dt/16.f);
+
+    if(mode == Mode::Around){
+        orientation = glm::toMat4(m_cam);
+        orientation[3] = m_rotationCenter + orientation * glm::vec4(offset.x*(0.1f + offset.z/25.f), offset.y*(0.1f + offset.z/25.f), offset.z, 0);
+    }
+    else {
+
+    }
+
+    // applyTransform(dt);
+    Camera::evaluate();
+}
+
+void FreeCamController::rotateByMouse(float screenX, float screenY, const glm::vec4&){
+    // screenY = abs(screenY) > abs(screenX) ? screenY*4 : 0;
+    // screenX = abs(screenX) > abs(screenY) ? screenX*4 : 0;
+    float intensity = -5;
+
+    m_target.cam = glm::angleAxis(intensity*screenX, glm::vec3(0,0,1)) * glm::angleAxis(intensity*screenY, glm::rotate(m_target.cam, glm::vec3(1,0,0))) * m_target.cam;
+
+    // * this is best for 6dof camera,
+    // m_cam = glm::rotate(m_cam, -screenY, glm::vec3(1,0,0));
+    // m_cam = glm::rotate(m_cam, -screenX, glm::vec3(0,1,0));
+}
+void FreeCamController::roll(float r){}
+
+// * in cameera loc, so z is at
+void FreeCamController::applyImpulse(float x, float y, float z){
+    if(mode == Mode::Around){
+        // * z and x are in horizontal plane
+        // m_target.impulse += glm::vec4(x, y, -z, 0);
+        m_target.impulse += (x*right + z*at)*glm::vec4(1,1,0,0) + glm::vec4(0,0,y*.5f,0);
+    }
+    else {
+        m_target.impulse += x*right + y*up + z*at;
+    }
+}
+
+void FreeCamController::printDebug(){
+    Camera::printDebug();
+    log("right", right);
+    log("up", up);
+    log("at", at);
 }

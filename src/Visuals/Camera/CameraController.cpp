@@ -134,7 +134,7 @@ FreeCamController::FreeCamController(glm::vec2 windowSize) : CameraController(wi
     m_target.rotationCenter = m_rotationCenter;
     m_target.cam = m_cam;
     offset = glm::vec4(0,2,15,0);
-    inertia = 0.15;
+    inertia = 0.2;
     m_target.impulse = {};
 
     constraints.yaw = {{ -pi, pi }, true};
@@ -152,28 +152,76 @@ void FreeCamController::update(float dt){
 
     if(mode == Mode::Around){
         orientation = glm::toMat4(m_cam);
-        orientation[3] = m_rotationCenter + orientation * glm::vec4(offset.x*(0.1f + offset.z/25.f), offset.y*(0.1f + offset.z/25.f), offset.z, 0);
+        orientation[3] = m_rotationCenter + orientation * offset;
+        // orientation[3] = m_rotationCenter + orientation * glm::vec4(offset.x*(0.1f + offset.z/25.f), offset.y*(0.1f + offset.z/25.f), offset.z, 0);
     }
     else {
         orientation = glm::toMat4(m_cam);
-        orientation[3] = m_rotationCenter + orientation * glm::vec4(offset.x*(0.1f + offset.z/25.f), offset.y*(0.1f + offset.z/25.f), offset.z, 0);
+        orientation[3] = m_rotationCenter + orientation * offset;
     }
 
     // applyTransform(dt);
     Camera::evaluate();
 }
 
-void FreeCamController::rotateByMouse(float screenX, float screenY, const glm::vec4&){
+void FreeCamController::releaseRotationCenter(){
+    if(mode == Mode::Around) return;
+    rotationAroundPoint.firstTime = true;
+    m_target.cam = m_cam;
+    m_rotationCenter = m_target.rotationCenter = position();
+    offset = {};
+}
+void FreeCamController::changeMode(){ // * when '[' is pressed for some time on this camera
+    if(mode == Mode::Around){
+        mode = Mode::InPlace;
+
+        rotationAroundPoint.storedOffset = offset;
+        m_rotationCenter = m_target.rotationCenter = position();
+        offset = {};
+    }
+    else {
+        mode = Mode::Around;
+
+        offset = rotationAroundPoint.storedOffset;
+        m_rotationCenter = m_target.rotationCenter = position() - orientation * offset;
+    }
+}
+
+void FreeCamController::zoomToMouse(const glm::vec4& underMousePos){
+    if(mode == Mode::Around){
+        changeFov(-15*toRad);
+    }
+    else {
+        float d = glm::length(underMousePos - position());
+        m_target.rotationCenter += std::max(d*0.1f, 1.f) * (underMousePos - position())/d;
+    }
+}
+void FreeCamController::zoomOutMouse(const glm::vec4& underMousePos){
+    if(mode == Mode::Around){
+        changeFov(+15*toRad);
+    }
+    else {
+        if(glm::distance(position(), underMousePos) < 1.f) m_target.rotationCenter -= at;
+        float d = glm::length(underMousePos - position());
+        m_target.rotationCenter -= std::max(d*0.1f, 1.f) * (underMousePos - position())/d;
+    }
+}
+void FreeCamController::rotateByMouse(float screenX, float screenY, const glm::vec4& underMousePos){
     // screenY = abs(screenY) > abs(screenX) ? screenY*4 : 0;
     // screenX = abs(screenX) > abs(screenY) ? screenX*4 : 0;
+    float intensity = -5;
+    m_target.cam = glm::angleAxis(intensity*screenX, glm::vec3(0,0,1)) * glm::angleAxis(intensity*screenY, glm::rotate(m_target.cam, glm::vec3(1,0,0))) * m_target.cam;
     if(mode == Mode::Around){
-        float intensity = -5;
-        m_target.cam = glm::angleAxis(intensity*screenX, glm::vec3(0,0,1)) * glm::angleAxis(intensity*screenY, glm::rotate(m_target.cam, glm::vec3(1,0,0))) * m_target.cam;
     }
     else {
         // * this is best for 6dof camera,
-        m_cam = glm::rotate(m_cam, -screenY, glm::vec3(1,0,0));
-        m_cam = glm::rotate(m_cam, -screenX, glm::vec3(0,1,0));
+        // m_target.cam = glm::rotate(m_target.cam, intensity*screenY, glm::vec3(1,0,0));
+        // m_target.cam = glm::rotate(m_target.cam, intensity*screenX, glm::vec3(0,1,0));
+        if(rotationAroundPoint.firstTime and glm::distance(position(), underMousePos) < 100.f){
+            rotationAroundPoint.firstTime = false;
+            offset = view * (position() - underMousePos);
+            m_target.rotationCenter = m_rotationCenter = underMousePos;
+        }
     }
 }
 void FreeCamController::roll(float r){}

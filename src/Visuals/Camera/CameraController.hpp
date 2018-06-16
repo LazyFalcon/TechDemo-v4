@@ -68,18 +68,25 @@ private:
     CameraConstraints constraints;
     glm::vec4 m_rotationCenter;
     glm::quat m_cam;
+
+    struct {
+        bool firstTime;
+        glm::vec4 storedRotCeter;
+        glm::vec4 storedOffset;
+    } rotationAroundPoint;
+
     enum class Mode {Around, InPlace} mode {Mode::Around};
 
 public:
     FreeCamController(glm::vec2 windowSize);
     void update(float dt) override;
+    void zoomToMouse(const glm::vec4&);
+    void zoomOutMouse(const glm::vec4&);
     void rotateByMouse(float, float, const glm::vec4&);
+    void releaseRotationCenter();
     void applyImpulse(float, float, float);
     void roll(float);
     void copyFrom(CameraController&); // * when '[' is pressed for some time on different camera
-    void changeMode(){ // * when '[' is pressed for some time on this camera
-        if(mode == Mode::Around) mode = Mode::InPlace;
-        else mode = Mode::Around;
-    }
+    void changeMode();
     void printDebug() override;
 };

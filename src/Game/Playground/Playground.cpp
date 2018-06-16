@@ -36,18 +36,29 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         m_input->action("esc").on([]{
             event<ExitPlayground>();
         });
-        m_input->action("f12").on([this]{ CameraController::getActiveCamera().printDebug(); });
-        m_input->action("scrollUp").on([this]{ CameraController::getActiveCamera().changeFov(+15*toRad); });
-        m_input->action("scrollDown").on([this]{ CameraController::getActiveCamera().changeFov(-15*toRad); });
-        m_input->action("+").on([=]{ CameraController::getActiveCamera().offset.z -= 1*defaultCameraVelocity; });
-        m_input->action("-").on([=]{ CameraController::getActiveCamera().offset.z += 1*defaultCameraVelocity; });
-        m_input->action("shift-+").on([=]{ CameraController::getActiveCamera().offset.z -= 1*preciseCameraVelocity; });
-        m_input->action("shift--").on([=]{ CameraController::getActiveCamera().offset.z += 1*preciseCameraVelocity; });
+        m_input->action("f12").on([this]{
+            CameraController::getActiveCamera().printDebug();
+            log("m_mouseWorldPos", m_mouseWorldPos);
+            });
+        m_input->action("+").on([this]{ CameraController::getActiveCamera().offset.z -= 1.5; });
+        m_input->action("-").on([this]{ CameraController::getActiveCamera().offset.z += 1.5; });
+        m_input->action("scrollUp").on([=]{
+                if(m_useFreecam) m_defaultCamera->zoomToMouse(m_mouseSampler->position);
+                else CameraController::getActiveCamera().changeFov(+15*toRad);
+            });
+        m_input->action("scrollDown").on([=]{
+                if(m_useFreecam) m_defaultCamera->zoomOutMouse(m_mouseSampler->position);
+                else CameraController::getActiveCamera().changeFov(-15*toRad);
+            });
+        m_input->action("RMB").on([this]{
+                // TODO: move freecam, in a way that mouse world position is preserved
+            });
         m_input->action("LMB").on([this]{
                 m_cameraRotate = true;
                 m_mouseWorldPos = m_mouseSampler->position;
             }).off([this]{
                 m_cameraRotate = false;
+                if(m_useFreecam) m_defaultCamera->releaseRotationCenter();
             });
         m_input->action("Q").on([this]{ CameraController::getActiveCamera().roll(-15*toRad); });
         m_input->action("E").on([this]{ CameraController::getActiveCamera().roll(+15*toRad); });
@@ -58,11 +69,27 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         m_input->action("D").hold([this, m_freecamSpeed]{ m_defaultCamera->applyImpulse(m_freecamSpeed,0,0); });
         m_input->action("Z").hold([this, m_freecamSpeed]{ m_defaultCamera->applyImpulse(0,m_freecamSpeed,0); });
         m_input->action("X").hold([this, m_freecamSpeed]{ m_defaultCamera->applyImpulse(0,-m_freecamSpeed,0); });
-        m_input->action("[").hold([this]{
-            if(m_input->currentKey.onHoldTime > 1000){
+        m_input->action("\\").hold([this]{
+            if(m_input->currentKey.onHoldTime > 700 and m_useFreecam){
                 m_input->currentKey.release = true;
                 m_defaultCamera->changeMode();
                 log("state changed");
+            }
+            else if(m_input->currentKey.onHoldTime > 700 and not m_useFreecam){
+                // TODO: create freecam from current camera
+            }
+         });
+        m_input->action("P").hold([this]{
+            if(m_input->currentKey.onHoldTime > 700){
+                if(m_useFreecam){
+                    m_player->focusOn();
+                    m_useFreecam = false;
+                }
+                else {
+                    m_useFreecam = true;
+                    m_player->focusOff();
+                    m_defaultCamera->focus();
+                }
             }
          });
 
@@ -85,6 +112,10 @@ void Playground::update(float dt){
     m_player->graphics.toBeRendered();
 }
 void Playground::updateWithHighPrecision(float dt){
+    if(m_useFreecam and m_defaultCamera->hasFocus()){ // * I hope player doesn't have control over it's cameras
+        m_defaultCamera->focus();
+    }
+
     m_player->update(dt);
 
     auto &currentCamera = CameraController::getActiveCamera();
@@ -109,6 +140,9 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     // renderer.sceneRenderer->renderScene(scene, CameraController::getActiveCamera());
     // renderer.utils->drawBackground("nebula2");
     renderer.objectBatchedRender->renderObjects(CameraController::getActiveCamera());
+
+
+    renderer.gBufferSamplers->sampleGBuffer(CameraController::getActiveCamera());
 
     renderer.context->setupFramebufferForLighting();
 

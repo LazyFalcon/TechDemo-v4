@@ -13,18 +13,18 @@ Window::~Window(){
 bool Window::init(){
     size = app.settings->video.size;
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, gl::FALSE_);
-    glfwWindowHint(GLFW_DECORATED, gl::FALSE_);
-
     if (glfwInit() != 1){
         error("GLFW init fail");
         return false;
     }
 
     const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, gl::FALSE_);
+    glfwWindowHint(GLFW_DECORATED, gl::FALSE_);
+
     screenSize.x = mode->width;
     screenSize.y = mode->height;
 
@@ -35,6 +35,7 @@ bool Window::init(){
         glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
         size.x = mode->width;
         size.y = mode->height;
+        // window = glfwCreateWindow(size.x, size.y, "Tech demo v4", glfwGetPrimaryMonitor(), nullptr);
         window = glfwCreateWindow(size.x, size.y, "Tech demo v4", nullptr, nullptr);
         if(!window){
             error("Window creation failed");
@@ -46,10 +47,9 @@ bool Window::init(){
     else {
         size.x = std::min((int)size.x, mode->width);
         size.y = std::min((int)size.y, mode->height);
-
         app.settings->video.size = size;
 
-        window = glfwCreateWindow(size.x, size.y, "Po-Make-Ka", nullptr, nullptr);
+        window = glfwCreateWindow(size.x, size.y, "Tech demo v4", nullptr, nullptr);
         if(!window){
             error("Window creation failed");
             glfwTerminate();
@@ -59,8 +59,8 @@ bool Window::init(){
     }
     hide();
 
-    glfwSetWindowSize(window, size.x, size.y);
-    glfwSetWindowTitle(window, "Tech demo v4");
+    // glfwSetWindowSize(window, size.x, size.y);
+    // glfwSetWindowTitle(window, "Tech demo v4");
     glfwMakeContextCurrent(window);
 
     pixelSize = 1.f/size;

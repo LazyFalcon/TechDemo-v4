@@ -1,5 +1,6 @@
 #include "core.hpp"
 #include <GLFW/glfw3.h>
+#include <chrono>
 
 #include "App.hpp"
 #include "AudioLibrary.hpp"
@@ -170,35 +171,43 @@ bool App::loadResources(){
     return true;
 }
 void App::run() try {
+    using namespace std::chrono_literals;
+    using clock = std::chrono::high_resolution_clock;
     log("--starting main loop");
 
-    Timer<float, 1000, 1> loopDeltaTime;
-    Timer<u32, 1000, 1> msecLoopDeltaTime;
-    float fixedStepLoopAccumulator = 20;
-    float fixedStepLoopStep = 1000.0/60.0/4.0;
+    auto timeOnStart = clock::now();
+    auto lastTime = timeOnStart;
+    std::chrono::nanoseconds timestep(16ms);
+    std::chrono::nanoseconds lag(0ns);
 
     glfwPollEvents();
     eventProcessor->process();
+
     while(not quit){
         CPU_SCOPE_TIMER("Main loop update");
-        auto dt = loopDeltaTime();
-        auto msdt = msecLoopDeltaTime();
+        auto deltaTime = clock::now() - lastTime;
+        lastTime = clock::now();
+        lag += std::chrono::duration_cast<std::chrono::nanoseconds>(deltaTime);
+
+        uint msTotalTime = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(lastTime - timeOnStart).count();
+        uint msDelta = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(deltaTime).count();
+        float msfDelta = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(deltaTime).count();
+
         CLOG_SPECIAL_VALUE = false;
 
         imgui->restart();
-
+        inputDispatcher->setTime(msTotalTime);
         inputDispatcher->heldUpKeys();
         glfwPollEvents();
 
-        fixedStepLoopAccumulator += dt;
-        while(fixedStepLoopAccumulator > 0.f and not quit){
-            fixedStepLoopAccumulator -= fixedStepLoopStep;
+        while(lag > timestep and not quit){
+            lag -= timestep;
             ONCE_IN_FRAME = false;
         }
         ONCE_IN_FRAME = true;
 
-        if(gameState) gameState->updateWithHighPrecision(dt);
-        if(gameState) gameState->update(dt);
+        if(gameState) gameState->updateWithHighPrecision(msfDelta);
+        if(gameState) gameState->update(msfDelta);
 
         eventProcessor->process();
         // particleProcessor->update(dt);

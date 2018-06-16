@@ -21,14 +21,18 @@ void InputDispatcher::execute(int k, int a, int m){
 
     if(a == GLFW_PRESS){
         currentlyPressedKeys.push_back(k);
+        for(auto& i : m_activeInputHandlers)
+            if(i->active) i->startHoldKey(k, m, m_msFromStart);
     }
     else if(a == GLFW_RELEASE){
         currentlyPressedKeys.remove(k);
+        for(auto& i : m_activeInputHandlers)
+            if(i->active) i->releaseHeldKey(k, m);
     }
 
     m_currentModifierKey = m;
     for(auto& i : m_activeInputHandlers)
-        if(i->active) i->execute(k, a, m);
+        if(i->active) i->execute(k, a, m, m_msFromStart);
 }
 
 InputDispatcher& InputDispatcher::defineBinding(const std::string& name, const std::string& keys){
@@ -40,10 +44,13 @@ const std::string& InputDispatcher::getDefined(const std::string& name){
 }
 
 void InputDispatcher::heldUpKeys(){
-    for(auto &it : currentlyPressedKeys){
-        for(auto& i : m_activeInputHandlers)
-            if(i->active) i->execute(it, GLFW_REPEAT, m_currentModifierKey);
-    }
+    for(auto &key : currentlyPressedKeys) for(auto& handler : m_activeInputHandlers)
+        if(handler->active and handler->execute(key, GLFW_REPEAT, m_currentModifierKey, m_msFromStart)){ // * then release this key from repeating
+            currentlyPressedKeys.remove(key);
+            for(auto& i : m_activeInputHandlers)
+                if(i->active) i->releaseHeldKey(key, m_currentModifierKey);
+        }
+
 }
 void InputDispatcher::scrollCallback(double dx, double dy){
     if(dy > 0) execute(SCROLL_UP, GLFW_PRESS, m_currentModifierKey);

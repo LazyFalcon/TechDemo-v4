@@ -155,7 +155,8 @@ void FreeCamController::update(float dt){
         orientation[3] = m_rotationCenter + orientation * glm::vec4(offset.x*(0.1f + offset.z/25.f), offset.y*(0.1f + offset.z/25.f), offset.z, 0);
     }
     else {
-
+        orientation = glm::toMat4(m_cam);
+        orientation[3] = m_rotationCenter + orientation * glm::vec4(offset.x*(0.1f + offset.z/25.f), offset.y*(0.1f + offset.z/25.f), offset.z, 0);
     }
 
     // applyTransform(dt);
@@ -165,13 +166,15 @@ void FreeCamController::update(float dt){
 void FreeCamController::rotateByMouse(float screenX, float screenY, const glm::vec4&){
     // screenY = abs(screenY) > abs(screenX) ? screenY*4 : 0;
     // screenX = abs(screenX) > abs(screenY) ? screenX*4 : 0;
-    float intensity = -5;
-
-    m_target.cam = glm::angleAxis(intensity*screenX, glm::vec3(0,0,1)) * glm::angleAxis(intensity*screenY, glm::rotate(m_target.cam, glm::vec3(1,0,0))) * m_target.cam;
-
-    // * this is best for 6dof camera,
-    // m_cam = glm::rotate(m_cam, -screenY, glm::vec3(1,0,0));
-    // m_cam = glm::rotate(m_cam, -screenX, glm::vec3(0,1,0));
+    if(mode == Mode::Around){
+        float intensity = -5;
+        m_target.cam = glm::angleAxis(intensity*screenX, glm::vec3(0,0,1)) * glm::angleAxis(intensity*screenY, glm::rotate(m_target.cam, glm::vec3(1,0,0))) * m_target.cam;
+    }
+    else {
+        // * this is best for 6dof camera,
+        m_cam = glm::rotate(m_cam, -screenY, glm::vec3(1,0,0));
+        m_cam = glm::rotate(m_cam, -screenX, glm::vec3(0,1,0));
+    }
 }
 void FreeCamController::roll(float r){}
 

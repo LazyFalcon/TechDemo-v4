@@ -58,6 +58,13 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         m_input->action("D").hold([this, m_freecamSpeed]{ m_defaultCamera->applyImpulse(m_freecamSpeed,0,0); });
         m_input->action("Z").hold([this, m_freecamSpeed]{ m_defaultCamera->applyImpulse(0,m_freecamSpeed,0); });
         m_input->action("X").hold([this, m_freecamSpeed]{ m_defaultCamera->applyImpulse(0,-m_freecamSpeed,0); });
+        m_input->action("[").hold([this]{
+            if(m_input->currentKey.onHoldTime > 1000){
+                m_input->currentKey.release = true;
+                m_defaultCamera->changeMode();
+                log("state changed");
+            }
+         });
 
         m_input->action("MousePosition").on([this](float x, float y){
             m_mousePos = glm::vec2(x,y);

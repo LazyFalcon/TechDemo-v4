@@ -13,6 +13,7 @@ private:
     // TODO: change shared_ptr on weak_ptr or raw pointer, storing input here cannot block destroying of input
     std::list<std::shared_ptr<Input>> m_activeInputHandlers;
     int m_currentModifierKey;
+    uint m_msFromStart;
 public:
     std::shared_ptr<Input> createNew(const std::string&);
     void remove(Input*);
@@ -28,4 +29,8 @@ public:
     void mousePosition(float x, float y);
     void mouseMovement(float x, float y);
     void joyPadDispatch();
+
+    void setTime(uint t){
+        m_msFromStart = t;
+    }
 };

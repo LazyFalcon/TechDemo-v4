@@ -23,7 +23,6 @@ public:
     bool hasTerrain {false};
     Mesh terrainMesh {};
     btRigidBody *cellBoxCollider {nullptr};
-    std::vector<Foliage> foliage;
     std::vector<i32> objects;
 
     SampleResult sample(glm::vec2 position){
@@ -40,7 +39,11 @@ constexpr i32 getCellCount(i32 levels){
     }
     return out;
 }
-
+/*
+* Responsible for culling and visibility of obects, by camera or actors
+* Should have methods to query for such things
+* Update
+*/
 class SceneGraph
 {
 public:
@@ -51,8 +54,8 @@ public:
     Cell root;
     std::vector<Cell> cells;
 
-    std::unordered_map<ObjectID, Object> objects; // na razie uMap wystarczy, najwyżej zamieni sie potem na jakąś zabawę z przesuwanie na wektorze
-    std::map<Type, std::vector<Object>> visibleObjects;
+    std::unordered_map<ObjectID, SceneObject> objects;
+    std::map<Type, std::vector<SceneObject>> visibleObjects;
 
     SceneGraph(PhysicalWorld &physics);
     std::vector<i32> getVisibleCells();

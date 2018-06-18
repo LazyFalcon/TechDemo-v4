@@ -1,3 +1,3 @@
 #include "Object.hpp"
 
-ObjectID Object::ids {0};
+ObjectID SceneObject::ids {0};

@@ -37,5 +37,6 @@ public:
     Scene& getScene();
     void renderProcedure(GraphicEngine&);
 
+    void loadScene(const std::string&);
     void spawnPlayer(const std::string&, glm::vec4);
 };

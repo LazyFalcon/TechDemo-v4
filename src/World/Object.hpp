@@ -9,7 +9,7 @@ enum class Type
 };
 
 using ObjectID = int;
-struct Object
+struct SceneObject
 {
 public:
 

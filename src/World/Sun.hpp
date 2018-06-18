@@ -4,12 +4,12 @@
 class Atmosphere;
 class Yaml;
 
-/**
- *  Aproximated sun position calculation
- *  https://nicoschertler.wordpress.com/2013/04/03/simulating-a-days-sky/
- *  http://www.boost.org/doc/libs/1_55_0/doc/html/date_time/date_time_io.html#date_time.date_facet
- *
- */
+/*
+*  Aproximated sun position calculation
+*  https://nicoschertler.wordpress.com/2013/04/03/simulating-a-days-sky/
+*  http://www.boost.org/doc/libs/1_55_0/doc/html/date_time/date_time_io.html#date_time.date_facet
+*
+*/
 class Sun
 {
 public:

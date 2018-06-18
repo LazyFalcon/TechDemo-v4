@@ -4,16 +4,18 @@
 #include "LightSource.hpp"
 #include "SceneGraph.hpp"
 
-class btRgBody;
 class btCollisionShape;
-class Yaml;
+class btRgBody;
+class ModelLoader;
 class PhysicalWorld;
+class Yaml;
 
 namespace projectiles {class Projectile;}
 
 class EnviroEntity
 {
 public:
+    std::string name;
     struct {
         Mesh mesh;
         u32 lodLevel;
@@ -41,7 +43,7 @@ public:
 class Environment
 {
 public:
-    Environment(SceneGraph &graph, PhysicalWorld *physics) : graph(graph), physics(physics) {}
+    Environment(SceneGraph &graph, PhysicalWorld &physics) : graph(graph), physics(physics) {}
 
     void load(const std::string &dirPath);
 
@@ -54,10 +56,13 @@ public:
     VAO vao;
 private:
     SceneGraph &graph;
-    PhysicalWorld *physics;
+    PhysicalWorld &physics;
 
     // std::map<std::string, Mesh> meshes;
     // std::map<std::string, btCollisionShape*> collsionShapes;
+
+    void loadObject(const Yaml &yaml, ModelLoader& modelLoader);
+    void loadLightSource(const Yaml &yaml);
 
     void loadMesh(ModelLoader &modelLoader, EnviroEntity &e, const Yaml &yaml);
     void createObject(const Yaml &cfg);

@@ -1,50 +1,46 @@
 #include "core.hpp"
 #include "gl_core_4_5.hpp"
+
+#include "Atmosphere.hpp"
 #include "Camera.hpp"
-#include "Scene.hpp"
-#include "ResourceLoader.hpp"
-#include "Yaml.hpp"
+#include "Environment.hpp"
+#include "Foliage.hpp"
+#include "GeoTimePosition.hpp"
+#include "Grass.hpp"
+#include "LightSource.hpp"
 #include "PerfTimers.hpp"
 #include "PhysicalWorld.hpp"
-
-#include "Terrain.hpp"
-#include "Sun.hpp"
+#include "ResourceLoader.hpp"
 #include "Starfield.hpp"
-#include "Grass.hpp"
-#include "Environment.hpp"
-#include "Atmosphere.hpp"
-#include "GeoTimePosition.hpp"
-#include "Foliage.hpp"
-#include "LightSource.hpp"
+#include "Sun.hpp"
+#include "Terrain.hpp"
+#include "Yaml.hpp"
+#include "Scene.hpp"
 
 namespace graphic {void renderTopViewOfTerrain(Scene &scene);}
 
+Scene::Scene(PhysicalWorld &physics) : physics(physics){}
 Scene::~Scene(){
     log("~Scene");
 }
 
-bool Scene::load(const std::string &name, Yaml &cfg){
+bool Scene::load(const std::string &sceneName){
     CPU_SCOPE_TIMER("Scene::load");
 
-    log("---------------");
-    if(not physics){
-        error("no physics");
-    }
+    Yaml settings(resPath + "scenes/" + sceneName + "/SceneSettings.yml");
 
-    Yaml settings(rootPath + "SceneSettings.yml");
-
-    geoTimePosition = std::make_shared<GeoTimePosition>(settings["GeoTime"]);
-    sun = std::make_shared<Sun>(settings["Sun"], *geoTimePosition);
-    starfield = std::make_shared<Starfield>();
+    geoTimePosition = std::make_unique<GeoTimePosition>(settings["GeoTime"]);
+    sun = std::make_unique<Sun>(settings["Sun"], *geoTimePosition);
+    starfield = std::make_unique<Starfield>();
     starfield->regenerate();
-    atmosphere = std::make_shared<Atmosphere>(settings["Atmosphere"], *geoTimePosition);
+    atmosphere = std::make_unique<Atmosphere>(settings["Atmosphere"], *geoTimePosition);
 
-    graph = std::make_shared<SceneGraph>(*physics);
-    graph->loadMap(cfg["Map"]["Dir"].string());
+    graph = std::make_unique<SceneGraph>(physics);
+    // graph->loadMap(cfg["Map"]["Dir"].string());
 
-    environment = std::make_shared<Environment>(*graph, physics);
-    environment->load(cfg["Map"]["Dir"].string());
-    // terrain = std::make_shared<Terrain>(*quadTree);
+    environment = std::make_unique<Environment>(*graph, physics);
+    environment->load(sceneName);
+    // terrain = std::make_unique<Terrain>(*quadTree);
     // terrain->create(cfg["Map"]);
     // terrain->uploadTexture();
     //
@@ -52,14 +48,14 @@ bool Scene::load(const std::string &name, Yaml &cfg){
     // terrain->finalize();
     // quadTree->recalculateNodeZPosition();
     //
-    // grass = std::make_shared<Grass>(*quadTree);
+    // grass = std::make_unique<Grass>(*quadTree);
     // grass->loadData(loader, cfg["Res"]["Grass"]["Common"]);
     //
-    // foliage = std::make_shared<Foliage>(*quadTree, *physics);
+    // foliage = std::make_unique<Foliage>(*quadTree, *physics);
     // foliage->load(Global::m_resources["Foliage"]);
     //
     // grass->initVBO();
-    physics->update(0.1);
+    // physics.update(0.1);
     // Global::sampleGround = [this](glm::vec4 p) -> SampleResult {return sample(p);};
 
     // graphic::renderTopViewOfTerrain(*this);

@@ -10,47 +10,58 @@
 #include "Yaml.hpp"
 #include "Utils.hpp"
 
-void Environment::load(const std::string &dirPath){
+void Environment::load(const std::string &sceneName){
     CPU_SCOPE_TIMER("Environment::load");
+
+    std::string path = resPath + "scenes/" + sceneName + "/" + sceneName;
 
     ModelLoader modelLoader;
     modelLoader.loadTangents = true;
-    modelLoader.open(dirPath + "/map.dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
+    modelLoader.open(path + ".dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
     if(not modelLoader.good){
         error("Unable to load environment");
         return;
     }
 
-    Yaml yaml(dirPath + "/map.yml");
-
-    for(auto &obj : yaml["Objects"]){
-        EnviroEntity e {};
-        e.physics.position = obj["Position"].vec31();
-        // e.physics.transform = glm::translate(e.physics.position.xyz()) * glm::toMat4(obj["Quaternion"].quat());
-        loadMesh(modelLoader, e, obj);
-        if(obj.has("Colliders")){
-            if(obj["Colliders"].size() != 1){
-                error("Unsupported number of collisders");
-            }
-            auto colliders = modelLoader.loadCompoundMeshes({obj["Colliders"][0]["Mesh"].string()});
-            // e.physics.rgBody = physics->createRigidBody(0, convert(obj["Quaternion"].quat(), e.physics.position), createCompoundMesh(colliders, nullptr));
-        }
-        e.id = entities.size();
-        entities.push_back(e);
-        Object object{Type::Enviro, Object::nextID(), nullptr, e.id};
-        if(e.physics.rgBody) e.physics.rgBody->setUserIndex(object.ID);
-        graph.objects[object.ID] = object;
-    }
+    Yaml yaml(path + ".yml");
+    for(auto& it : yaml["Objects"]) loadObject(it, modelLoader);
+    if(yaml.has("LightSources")) for(auto& it : yaml["LightSources"]) loadLightSource(it);
     vao = modelLoader.build();
-    return;
+
     const Yaml &lamps = yaml["LightSources"];
-    for(auto &lamp : lamps){
-        auto &&l = lightSources.emplace(lamp["Type"].string());
-        l->m_energy = lamp["Energy"].number();
-        l->m_fallof = lamp["Falloff_distance"].number();
-        l->m_color = lamp["Color"].vec4();
-        // l->setTransform(lamp["Position"].vec4(), lamp["Quaternion"].quat());
+}
+
+void Environment::loadObject(const Yaml &thing, ModelLoader& modelLoader){
+    EnviroEntity e {};
+    e.name = thing["Name"].string();
+
+    auto x = thing["Position"]["X"].vec4();
+    auto y = thing["Position"]["Y"].vec4();
+    auto z = thing["Position"]["Z"].vec4();
+    auto w = thing["Position"]["W"].vec4();
+
+    e.physics.position = w;
+    e.physics.transform = glm::mat4(x,y,z,w);
+
+    loadMesh(modelLoader, e, thing);
+
+    if(thing["isPhysical"].boolean() and thing["Colliders"].string() != "none"){
+        auto colliders = modelLoader.loadCompoundMeshes({thing["Colliders"].strings()});
+        // e.physics.rgBody = physics->createRigidBody(0, convert(obj["Quaternion"].quat(), e.physics.position), createCompoundMesh(colliders, nullptr));
     }
+    e.id = entities.size();
+    entities.push_back(e);
+    SceneObject object{Type::Enviro, SceneObject::nextID(), nullptr, e.id};
+    if(e.physics.rgBody) e.physics.rgBody->setUserIndex(object.ID);
+    graph.objects[object.ID] = object;
+}
+
+void Environment::loadLightSource(const Yaml &thing){
+    auto &&l = lightSources.emplace(thing["Type"].string());
+    l->m_energy = thing["Energy"].number();
+    l->m_fallof = thing["Falloff_distance"].number();
+    l->m_color = thing["Color"].vec4();
+    // l->setTransform(lamp["Position"].vec4(), lamp["Quaternion"].quat());
 }
 
 // TODO: zrobic tak by convex był pojedynczym modelem, rozbitym przy pomocy materialow, przypiety jako dziecko wlasciwego modelu
@@ -58,10 +69,10 @@ void Environment::load(const std::string &dirPath){
 // duplikacje?
 void Environment::loadMesh(ModelLoader &modelLoader, EnviroEntity &e, const Yaml &yaml){
     e.graphic.mesh = modelLoader.beginMesh();
-    modelLoader.load(yaml["Mesh"].string());
+    modelLoader.load(yaml["Models"].strings());
     modelLoader.endMesh(e.graphic.mesh);
 
-    if(yaml["isCollider"].boolean()){
+    if(yaml["isPhysical"].boolean()){
         for(auto &collider : yaml["Colliders"]){
             // load bullet rgBody
         }
@@ -82,7 +93,7 @@ btRigidBody* Environment::createRgBody(const Yaml &bodyConf){
     tr.setIdentity();
     tr.setOrigin(bodyConf["Position"].btVec());
 
-    return physics->createRigidBody(0, tr, shape);
+    return physics.createRigidBody(0, tr, shape);
 }
 
 void Environment::insertObjectToQt(u32 id){

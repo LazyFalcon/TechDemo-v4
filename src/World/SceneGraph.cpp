@@ -120,7 +120,7 @@ void SceneGraph::loadCollider(ModelLoader &loader, const std::string &name){
     tr.setIdentity();
     collider = physics.createRigidBody(0, tr, colliderShape);
     collider->setUserPointer(this);
-    collider->setUserIndex(Object::nextID());
+    collider->setUserIndex(SceneObject::nextID());
 }
 btRigidBody* SceneGraph::createSimpleCollider(glm::vec4 pos, glm::vec3 dim){
     btTransform tr;
@@ -180,7 +180,7 @@ void SceneGraph::loadMap(const std::string &mapConfigDir){
         cells[i].terrainMesh = loader.insert(intMesh).toMesh();
         cells[i].cellBoxCollider = createSimpleCollider(position, dimension.xyz());
 
-        Object object {Type::TerrainChunk, Object::nextID(), &cells[i], i};
+        SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};
 
         cells[i].cellBoxCollider->setUserIndex(object.ID);
         objects[object.ID] = object;

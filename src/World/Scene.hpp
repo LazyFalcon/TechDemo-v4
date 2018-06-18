@@ -3,38 +3,48 @@
 
 class Atmosphere;
 class Camera;
+class CameraController;
 class Environment;
-class Grass;
-class PhysicalWorld;
-class Sun;
-class Starfield;
-class Terrain;
 class Foliage;
 class GeoTimePosition;
+class Grass;
+class PhysicalWorld;
+class Starfield;
+class Sun;
+class Terrain;
 struct Yaml;
 
-// TODO: add interfaces and use unique_ptrs
 struct Scene
 {
-    Scene(){}
-    Scene(PhysicalWorld &physics) : physics(&physics){}
+    Scene(PhysicalWorld &physics);
     ~Scene();
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
 
-    std::shared_ptr<Atmosphere> atmosphere;
-    std::shared_ptr<Environment> environment;
-    std::shared_ptr<Grass> grass;
-    std::shared_ptr<SceneGraph> graph;
-    std::shared_ptr<Sun> sun;
-    std::shared_ptr<Starfield> starfield;
-    std::shared_ptr<Terrain> terrain;
-    std::shared_ptr<Foliage> foliage;
-    PhysicalWorld *physics { nullptr };
-    std::shared_ptr<GeoTimePosition> geoTimePosition;
+    PhysicalWorld& physics;
+    std::unique_ptr<Atmosphere> atmosphere;
+    std::unique_ptr<Environment> environment;
+    std::unique_ptr<Foliage> foliage;
+    std::unique_ptr<GeoTimePosition> geoTimePosition;
+    std::unique_ptr<Grass> grass;
+    std::unique_ptr<SceneGraph> graph;
+    std::unique_ptr<Starfield> starfield;
+    std::unique_ptr<Sun> sun;
+    std::unique_ptr<Terrain> terrain;
 
-    bool load(const std::string &name, Yaml &cfg);
+    bool load(const std::string &name);
     void update(float dt, Camera &camera);
+
+    struct {
+        struct {
+            glm::vec4 lookDirection;
+            glm::vec4 position;
+        } player;
+
+        std::vector<std::shared_ptr<CameraController>> cameras;
+
+    } output;
+
 
     template<typename T>
     SampleResult sample(T position){

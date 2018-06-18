@@ -2,7 +2,12 @@
 #include "GeoTimePosition.hpp"
 
 class Yaml;
-
+/*
+* Everything that happens in air:
+*   Sky
+*   Fog
+*   Sunlight scattering(probably needs to cooperate with sun)
+*/
 class Atmosphere
 {
 public:

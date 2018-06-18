@@ -13,6 +13,7 @@
 #include "Playground.hpp"
 #include "PlaygroundEvents.hpp"
 #include "RendererUtils.hpp"
+#include "SceneRenderer.hpp"
 #include "Settings.hpp"
 #include "Texture.hpp"
 #include "VehicleBuilder.hpp"
@@ -21,6 +22,7 @@
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window):
     m_input(inputDispatcher.createNew("Playground")),
     m_physical(std::make_unique<PhysicalWorld>()),
+    m_scene(*m_physical),
     m_window(window),
     m_mouseSampler(std::make_unique<GBufferSampler>())
     {
@@ -116,15 +118,12 @@ void Playground::updateWithHighPrecision(float dt){
         m_defaultCamera->focus();
     }
 
+
     m_player->update(dt);
 
-    auto &currentCamera = CameraController::getActiveCamera();
-    // if((KeyState::lClicked or KeyState::mouseReset) and not CTRL_MODE)
-    if(m_cameraRotate) currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f, m_mouseWorldPos);
 
-    // if(freeCam->hasFocus()){
-    //     freeCam->camera.directlyMoveConstZ(velocity, 5.f, dt * 0.001f * 53.f*dt/16.f);
-    // }
+    auto &currentCamera = CameraController::getActiveCamera();
+    if(m_cameraRotate) currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f, m_mouseWorldPos);
 
     for(auto &cam : CameraController::listOf){
         cam->update(dt);
@@ -137,9 +136,9 @@ Scene&Playground:: getScene(){
 void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.context->beginFrame();
     renderer.context->setupFramebufferForGBufferGeneration();
-    // renderer.sceneRenderer->renderScene(scene, CameraController::getActiveCamera());
     // renderer.utils->drawBackground("nebula2");
     renderer.objectBatchedRender->renderObjects(CameraController::getActiveCamera());
+    renderer.sceneRenderer->renderScene(m_scene, CameraController::getActiveCamera());
 
 
     renderer.gBufferSamplers->sampleGBuffer(CameraController::getActiveCamera());
@@ -160,6 +159,10 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.context->endFrame();
 }
 
+void Playground::loadScene(const std::string& configName){
+    m_scene.load("Cycles-PBR");
+    m_player = std::make_shared<Player>(m_input->getDispatcher());
+}
 void Playground::spawnPlayer(const std::string& configName, glm::vec4 position){
     m_player = std::make_shared<Player>(m_input->getDispatcher());
 

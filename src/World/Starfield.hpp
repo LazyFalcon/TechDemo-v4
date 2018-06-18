@@ -1,15 +1,8 @@
 #pragma once
 
-/**
- *  Ok, mamy niebo, dzielimy go na kilka fragment�w by si� leiej renderowa�o
- *
- *  Widoczne fragmenty obszaru wyci�gamy z frustuma
- *
- *  Przy wyszukiwaniu musimy pami�ta� �e obraca si� obserwator,
- *  na razie bez optymalizacji, chcę narysowac gwiazdy
- *
- */
-
+/*
+*  Simple starfield generator
+*/
 union Color
 {
     struct {u8 r; u8 g; u8 b; u8 a;};

@@ -23,4 +23,14 @@ void dumpLogBufferTofile(){
     }
     file.close();
 }
+
+std::string adjustFilename(const std::string& s){
+    return s.substr(s.rfind("/")+1);
+}
+std::string adjustFuncname(const std::string& s){
+    auto to = s.find("(");
+    auto from = s.rfind(" ", to);
+    return s.substr(from+1, to-from-1);
+}
+
 }

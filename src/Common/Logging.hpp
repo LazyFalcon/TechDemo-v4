@@ -61,6 +61,8 @@ namespace pmk {
     extern std::vector<std::string> logBuffer;
     void openLogFile();
     void dumpLogBufferTofile();
+    std::string adjustFilename(const std::string&);
+    std::string adjustFuncname(const std::string&);
 }
 // TODO: overloads for simple types (float , int, etc)
 template <typename... Args>
@@ -100,8 +102,8 @@ void error(const Args &... args){
 }
 
 template <typename... Args>
-void errorWithLine(const std::string& filename, int linenum, const std::string& func, const Args &... args){
-    std::cerr << "[ ERROR ] "<< filename << ":" << linenum<<":" << func <<" ";
+void errorWithLine(int linenum, const std::string& func, const Args &... args){
+    std::cerr << "[ ERROR ] "<< linenum<<": " << pmk::adjustFuncname(func) <<"() ";
     std::stringstream ss;
     pmk::toStream(ss, args...);
     std::cerr << ss.str() << std::endl;
@@ -116,15 +118,22 @@ void info(const T &t, const Args &... args){
 }
 
 template <typename T, typename... Args>
-void infoWithLine(const std::string& filename, int linenum, const std::string& func, const T &t, const Args &... args){
-    std::cout<<"[ "<<t<<" ] " << filename << ":" << linenum<<":" << func << " ";
+void logLine(const std::string& filename, int linenum, const std::string& func, const T &t, const Args &... args){
+    std::cout<< pmk::adjustFilename(filename) << ":" << linenum<<" " << pmk::adjustFuncname(func) << "() ";
     pmk::toStream(std::cout, args...);
     std::cout<<""<<std::endl;
 }
 
-#define LOG_LINE log(__FILE__, __LINE__);
-#define error(...) errorWithLine(__FILE__, __LINE__, __func__, ##__VA_ARGS__)
-#define info(...) infoWithLine(__FILE__, __LINE__, __func__, ##__VA_ARGS__)
+template <typename T, typename... Args>
+void infoWithLine(int linenum, const std::string& func, const T &t, const Args &... args){
+    std::cout<<"[ "<<t<<" ] " << linenum<<": " << pmk::adjustFuncname(func) << "() ";
+    pmk::toStream(std::cout, args...);
+    std::cout<<""<<std::endl;
+}
+
+#define LOG_LINE logLine(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+#define error(...) errorWithLine(__LINE__, __PRETTY_FUNCTION__ , ##__VA_ARGS__)
+#define info(...) infoWithLine(__LINE__, __PRETTY_FUNCTION__ , ##__VA_ARGS__)
 
 inline void hardPause(){
     std::cin.ignore();

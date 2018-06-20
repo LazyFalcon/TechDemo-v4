@@ -1,7 +1,6 @@
 #include "core.hpp"
 #include "Utils.hpp"
 #include "Logging.hpp"
-#include <boost/filesystem.hpp>
 
 glm::vec4 colorHex(uint32_t hexVal){
     return glm::vec4(
@@ -150,41 +149,36 @@ void statement(std::string text, float lifeTime){
 }
 
 const std::string getName(const std::string &name){
-    using namespace boost::filesystem;
-    path p(name);
+    fs::path p(name);
     return p.stem().string();
 }
 const std::string getExt(const std::string &name){
-    using namespace boost::filesystem;
-    path p(name);
+    fs::path p(name);
     return p.extension().string();
 }
 const std::string cutExt(const std::string &name){
-    using namespace boost::filesystem;
-    path p(name);
+    fs::path p(name);
     return p.parent_path().generic_string() + getName(name);
 }
 const std::string getPath(const std::string &name){
-    using namespace boost::filesystem;
-    path p(name);
+    fs::path p(name);
     return p.generic_string();
 }
 
 bool isFile(const std::string &file){
-    return boost::filesystem::exists(file);
+    return fs::exists(file);
 }
 // TODO: przerobic do bardziej strawnego formatu
 bool findFile(const std::string &from, const std::string &name, const std::string &params, std::string &ref){
     bool recursive = std::string::npos != params.find("-r"s);
     bool cutExt = std::string::npos == params.find("-ext"s);
     const std::string exactName = cutExt ? getName(name) : name;
-    using namespace boost::filesystem;
     try {
-        path p(from);
+        fs::path p(from);
         if(recursive){
-            auto dir_it = recursive_directory_iterator(p);
-            for(dir_it; dir_it != recursive_directory_iterator(); dir_it++){
-                if( is_directory(dir_it->status()) ) continue;
+            auto dir_it = fs::recursive_directory_iterator(p);
+            for(dir_it; dir_it != fs::recursive_directory_iterator(); dir_it++){
+                if(fs::is_directory(dir_it->status()) ) continue;
                 if(cutExt and exactName == (*dir_it).path().stem().string()){
                     ref = (*dir_it).path().generic_string();
                     return true;
@@ -196,8 +190,8 @@ bool findFile(const std::string &from, const std::string &name, const std::strin
             }
         }
         else {
-            auto dir_it = directory_iterator(p);
-            for(dir_it; dir_it != directory_iterator(); dir_it++){
+            auto dir_it = fs::directory_iterator(p);
+            for(dir_it; dir_it != fs::directory_iterator(); dir_it++){
                 if(exactName == (*dir_it).path().stem().string()){
                     ref = (*dir_it).path().generic_string();
                     return true;
@@ -206,8 +200,8 @@ bool findFile(const std::string &from, const std::string &name, const std::strin
         }
         return false;
     }
-    catch (const filesystem_error& ex){
-        error("boost::filesystem ex: ", ex.what());
+    catch (const fs::filesystem_error& ex){
+        error("fs::ex: ", ex.what());
         std::cin.ignore();
     }
     return false;
@@ -224,18 +218,17 @@ std::vector<std::string> filter(const std::vector<std::string>& what, const std:
 
 std::vector<std::string> listDirectory(const std::string& dir){
     std::vector<std::string> out;
-    using namespace boost::filesystem;
     // log("[ sDFs ] ", name, p.parent_path().string());
     try {
-        path p(dir);
-        auto dir_it = directory_iterator(p);
-        for(dir_it; dir_it != directory_iterator(); dir_it++){
+        fs::path p(dir);
+        auto dir_it = fs::directory_iterator(p);
+        for(dir_it; dir_it != fs::directory_iterator(); dir_it++){
             out.push_back((*dir_it).path().filename().string());
         }
         return out;
     }
-    catch (const filesystem_error& ex){
-        error("boost::filesystem ex: ", ex.what());
+    catch (const fs::filesystem_error& ex){
+        error("fs:: ex: ", ex.what());
         std::cin.ignore();
     }
     return out;

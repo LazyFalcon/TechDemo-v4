@@ -39,6 +39,6 @@ public:
     void printShaderInfoLog(i32 shader);
     void fillBuffers();
 
-    assets::TextureArray loadTextureArray(const std::string &folder);
+    assets::TextureArray loadTextureArray(const std::string &folder, const std::string &containerName);
     assets::TextureArray loadCubeMap(const std::string &folder);
 };

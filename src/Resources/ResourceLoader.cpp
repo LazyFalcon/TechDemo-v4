@@ -1,5 +1,4 @@
 #include "core.hpp"
-#include <boost/filesystem.hpp>
 #include "Logging.hpp"
 #include "GPUResources.hpp"
 #include "Yaml.hpp"
@@ -11,6 +10,7 @@
 #include "DecalsAndMarkers.hpp"
 #include "Utils.hpp"
 #include "font.hpp"
+
 
 u32 ResourceLoader::s_id = 0;
 
@@ -33,20 +33,20 @@ void ResourceLoader::loadResources(const Yaml &cfg){
     if(cfg.has("ImageSets")) for(auto &set : cfg["ImageSets"]){
         loadImageSet(set);
     }
+    if(isFile(resPath + "materials/")) loadTextureArray(resPath + "materials/", "Materials");
 
-    if(isFile(resPath + "/atlases/")){
-        loadTextureArray("Decals");
-        loadTextureArray("Materials");
+    if(isFile(resPath + "decals/")){
+        loadTextureArray(resPath + "/decals/", "Decals");
         // loadTextureArray("Terrain");
         // loadTextureArray("Foliage");
         // loadTextureArray("Vfx256");
         // loadCubeMap("Park");
     }
 
-    if(isFile(resPath + "/images/")){
+    if(isFile(resPath + "images/")){
         loadImages(resPath + "/images/");
     }
-    if(isFile(resPath + "/models/")){
+    if(isFile(resPath + "models/")){
         ModelLoader modelLoader;
         modelLoader.loadTangents = true;
         modelLoader.open(resPath + "/models/CommonModels.dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
@@ -64,18 +64,17 @@ void ResourceLoader::loadResources(const Yaml &cfg){
 }
 
 void ResourceLoader::loadImages(const std::string& dir){
-    using namespace boost::filesystem;
     try {
-        path p(dir);
-        auto dir_it = recursive_directory_iterator(p);
-        for(dir_it; dir_it != recursive_directory_iterator(); dir_it++){
-            if ( is_directory(dir_it->status()) ) continue;
+        fs::path p(dir);
+        auto dir_it = fs::recursive_directory_iterator(p);
+        for(dir_it; dir_it != fs::recursive_directory_iterator(); dir_it++){
+            if(fs::is_directory(dir_it->status()) ) continue;
 
             loadImage((*dir_it).path().generic_string());
         }
     }
-    catch (const filesystem_error& ex){
-        error("boost::filesystem ex: ", ex.what());
+    catch (const fs::filesystem_error& ex){
+        error("fs::filesystem ex: ", ex.what());
     }
 }
 
@@ -84,12 +83,11 @@ void ResourceLoader::loadImages(const std::string& dir){
  */
 bool ResourceLoader::loadShaders(){
     log("---shaders");
-    using namespace boost::filesystem;
     try {
-        path p(shaderPath);
-        auto dir_it = recursive_directory_iterator(p);
-        for(dir_it; dir_it != recursive_directory_iterator(); dir_it++){
-            if ( is_directory(dir_it->status()) ) continue;
+        fs::path p(shaderPath);
+        auto dir_it = fs::recursive_directory_iterator(p);
+        for(dir_it; dir_it != fs::recursive_directory_iterator(); dir_it++){
+            if(fs::is_directory(dir_it->status()) ) continue;
 
             std::string localShaderPath = (*dir_it).path().generic_string();
 
@@ -99,8 +97,8 @@ bool ResourceLoader::loadShaders(){
         }
     return true;
     }
-    catch (const filesystem_error& ex){
-        error("boost::filesystem ex: ", ex.what());
+    catch (const fs::filesystem_error& ex){
+        error("fs::filesystem ex: ", ex.what());
     }
     return false;
 }
@@ -253,9 +251,10 @@ bool ResourceLoader::loadFonts(){
         loadFont(font, imagesToLoad);
     }
 
-    for(auto &it : imagesToLoad) it = resPath + "/fonts/" + it;
+    std::vector<fs::path> imagesToLoad_fs;
+    for(auto &it : imagesToLoad) imagesToLoad_fs.emplace_back(it = resPath + "/fonts/" + it);
     assets::TextureArray out;
-    out.id = ImageUtils::loadArrayToGpu(imagesToLoad).id;
+    out.id = ImageUtils::loadArrayToGpu(imagesToLoad_fs).id;
     assets::addAlbedoArray(id, out, "Fonts");
 
     return true;
@@ -271,8 +270,7 @@ bool ResourceLoader::loadImage(const Yaml &cfg){
     return loadImage(resPath+"/textures/"+name).ID;
 }
 Image ResourceLoader::loadImage(const std::string &filePath){
-    using namespace boost::filesystem;
-    path p(filePath);
+    fs::path p(filePath);
 
     std::string exactName = getName(filePath);
     Image image = assets::getImage(exactName);
@@ -329,74 +327,86 @@ bool ResourceLoader::loadImageSet(const Yaml &cfg){
     return true;
 }
 
-// loads albedo, normal, metalic and roughness maps
-assets::TextureArray ResourceLoader::loadTextureArray(const std::string &folder){
-    bool found = false;
-    auto extract = [&](std::vector<std::string> &files, std::string ext){
-        std::vector<std::string> out;
-        for(auto &file : files)
-            if(file.find(ext) != std::string::npos){
-                out.push_back(file);
-                found = true;
-            }
+namespace {
+    template<typename T>
+    void forEachFileInDirectory(fs::path root, T&&func){
+        for(auto it = fs::recursive_directory_iterator(root); it != fs::recursive_directory_iterator(); it++){
+        // for(auto& it : fs::recursive_directory_iterator(root)){
+            if(not fs::is_regular_file(it->status()) ) continue;
 
-        return out;
-    };
-    auto cutExt = [](std::vector<std::string> &files){
-        for(auto &it : files) it = getName(it);
-    };
-    std::vector<std::string> files;
-    if(isFile(resPath + "/atlases/" + folder + "/order.yml")){
-        Yaml order(resPath + "/atlases/" + folder + "/order.yml");
-        auto allfiles = listDirectory(resPath + "/atlases/" + folder);
-
-        for(auto &it : order){
-            for(auto &file : allfiles){
-                if(file.find(it.string()) != std::string::npos)
-                    files.push_back(file);
-            }
+            func(it->path());
         }
     }
-    else {
-        files = listDirectory(resPath + "/atlases/" + folder);
-    }
-    for(auto &it : files){
-        it = resPath + "/atlases/" + folder + "/"s + it;
+
+    // * if something is not found: error is printed and material is not loaded
+    auto extractAlbedoRoughnessMetallic(const std::string& dir){
+        std::vector<fs::path> roughness;
+        std::vector<fs::path> metallic;
+        std::vector<fs::path> albedo;
+        try {
+            std::vector<fs::path> albedo_unmatched;
+            std::vector<fs::path> roughness_unmatched;
+            std::vector<fs::path> metallic_unmatched;
+            forEachFileInDirectory(fs::path(dir), [&](fs::path p){
+                if(p.stem().string().find("metallic") != std::string::npos) metallic_unmatched.push_back(p);
+                else if(p.stem().string().find("roughness") != std::string::npos) roughness_unmatched.push_back(p);
+                else if(p.stem().string().find("albedo") != std::string::npos or p.stem().string().find("basecolor") != std::string::npos) albedo_unmatched.push_back(p);
+            });
+
+            for(auto& base : albedo_unmatched){
+                std::string basename = base.stem().string();
+                auto pos = basename.find("albedo");
+                pos = (pos != std::string::npos) ? pos : basename.find("basecolor");
+                basename = basename.substr(0, pos-1);
+
+                auto r = std::find_if(roughness_unmatched.begin(), roughness_unmatched.end(), [&basename](fs::path& p){
+                    return p.stem().string().find(basename) != std::string::npos;
+                });
+                auto m = std::find_if(metallic_unmatched.begin(), metallic_unmatched.end(), [&basename](fs::path& p){
+                    return p.stem().string().find(basename) != std::string::npos;
+                });
+                if(r!=roughness_unmatched.end() and m!=metallic_unmatched.end()){
+                    albedo.push_back(base);
+                    roughness.push_back(*r);
+                    metallic.push_back(*m);
+                }
+                else {
+                    error("Cannot find roughness or metallic material for:", base.string(), basename);
+                }
+            }
+        }
+        catch (const fs::filesystem_error& ex){
+            error("fs::filesystem ex: ", ex.what());
+        }
+        return std::tuple(albedo, metallic, roughness);
     }
 
-    std::vector<std::string> albedo = extract(files, "_a.");
-    std::vector<std::string> normal = extract(files, "_n.");
-    std::vector<std::string> metallic = extract(files, "_m.");
-    std::vector<std::string> roughness = extract(files, "_r.");
+}
 
-    if(not found) albedo = files;
+// loads albedo, normal, metalic and roughness maps
+assets::TextureArray ResourceLoader::loadTextureArray(const std::string &folder, const std::string &containerName){
+    auto [albedo, metallic, roughness] = extractAlbedoRoughnessMetallic(folder);
+
+    auto convertAndGetName = [](std::vector<fs::path> &files, std::vector<std::string> &out){
+        for(auto &it : files) out.push_back(it.stem().string());
+    };
 
     {
         assets::TextureArray out;
         out.id = ImageUtils::loadArrayToGpu(albedo).id;
-        out.content = albedo;
-        cutExt(out.content);
+        convertAndGetName(albedo, out.content);
         assets::addAlbedoArray(id, out, folder);
     }
-    if(not normal.empty()){
-        assets::TextureArray out;
-        out.id = ImageUtils::loadArrayToGpu(normal).id;
-        out.content = normal;
-        cutExt(out.content);
-        assets::addNormalArray(id, out, folder);
-    }
-    if(not metallic.empty()){
+    {
         assets::TextureArray out;
         out.id = ImageUtils::loadArrayToGpu(metallic).id;
-        out.content = metallic;
-        cutExt(out.content);
+        convertAndGetName(metallic, out.content);
         assets::addMetallicArray(id, out, folder);
     }
-    if(not roughness.empty()){
+    {
         assets::TextureArray out;
         out.id = ImageUtils::loadArrayToGpu(roughness).id;
-        out.content = roughness;
-        cutExt(out.content);
+        convertAndGetName(roughness, out.content);
         assets::addRoughnessArray(id, out, folder);
     }
 

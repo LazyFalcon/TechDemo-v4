@@ -15,6 +15,8 @@
 #include <set>
 #include <vector>
 
+#include <boost/filesystem.hpp>
+
 #include <glm/glm.hpp>
 
 #include <glm/gtc/matrix_access.hpp>
@@ -52,3 +54,5 @@
 #include "DefaultResourcePaths.hpp"
 
 using namespace std::literals;
+
+namespace fs = boost::filesystem;

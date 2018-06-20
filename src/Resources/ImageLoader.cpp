@@ -21,6 +21,7 @@ bool checkErrors(const std::string &text, const std::string &file, int line, con
 
 // TODO: add hint for mipmaps
 // TODO: add validation of loadToMemory
+// TODO: add hints for loading images(expected size and format)
 ImageParams loadImageToGpu(const std::string &filePath){
     CPU_SCOPE_TIMER("Loading image");
 
@@ -58,14 +59,14 @@ ImageParams loadImageToGpu(const std::string &filePath){
     data.data = nullptr;
     return data;
 }
-ImageParams loadArrayToGpu(const std::vector<std::string> &filePathes){
+ImageParams loadArrayToGpu(const std::vector<fs::path> &files){
     CPU_SCOPE_TIMER("Loading image array");
     ImageParams data {};
-    u32 layers = filePathes.size();
+    u32 layers = files.size();
     ImageParams tmp[layers];
 
     for(u32 i=0; i<layers; i++){
-        tmp[i] = loadToMemory(filePathes[i], ImageDataType::RGBA8);
+        tmp[i] = loadToMemory(files[i].string(), ImageDataType::RGBA8);
     }
 
     data = tmp[0];
@@ -74,7 +75,7 @@ ImageParams loadArrayToGpu(const std::vector<std::string> &filePathes){
 
     for(u32 i=0; i<layers; i++){
         if(data.dataSize != tmp[i].dataSize){
-            error(filePathes[i], "wrong image size:", tmp[i].dataSize, "expected:", data.dataSize);
+            error(files[i], "wrong image size:", tmp[i].dataSize, "expected:", data.dataSize);
             delete [] (u8*)tmp[i].data;
             tmp[i].data = nullptr;
             continue;
@@ -101,7 +102,7 @@ ImageParams loadArrayToGpu(const std::vector<std::string> &filePathes){
     delete [] (u8*)data.data;
     data.data = nullptr;
 
-    CHECK_FOR_ERRORS(filePathes[0])
+    CHECK_FOR_ERRORS(files[0].string())
 
     return data;
 }
@@ -152,6 +153,7 @@ ImageParams loadCubemapToGpu(const std::vector<std::string> &filePathes){
 // http://freeimage.sourceforge.net/fip/classfipImage.html
 // by default fi is storing in bgra format
 // http://freeimage.sourceforge.net/fnet/html/7E93CA66.htm
+// TODO: make convert more readable -> convert to cpp version?
 ImageParams loadToMemory(const std::string &filePath, ImageDataType targetType){
     FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 
@@ -234,12 +236,24 @@ ImageParams loadToMemory(const std::string &filePath, ImageDataType targetType){
             break;
         }
         case FIT_UINT16 : {
-            log("FIT_UINT16");
+            log("FIT_UINT16", filePath, bitsPerPixel);
             if(targetType == R16){
                 bitsPerPixel = 16;
                 data.internalFormat = gl::R16;
                 data.format = gl::RED;
                 data.type = gl::UNSIGNED_SHORT;
+            }
+            else if(targetType == RGBA8){
+                bitsPerPixel = 8;
+
+                FIBITMAP *tmp = dib;
+                dib = FreeImage_ConvertToType(dib, FIT_BITMAP);
+                FreeImage_Unload(tmp);
+
+                bitmap = FreeImage_ConvertTo32Bits(dib);
+                data.internalFormat = gl::RGBA8;
+                data.format = gl::BGRA;
+                data.type = gl::UNSIGNED_BYTE;
             }
             break;
         }

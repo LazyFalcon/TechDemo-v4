@@ -66,7 +66,7 @@ struct ImageParams
 };
 
 ImageParams loadImageToGpu(const std::string &filePath);
-ImageParams loadArrayToGpu(const std::vector<std::string> &filePathes);
+ImageParams loadArrayToGpu(const std::vector<fs::path> &files);
 ImageParams loadCubemapToGpu(const std::vector<std::string> &filePathes);
 ImageParams loadToMemory(const std::string &filePath, ImageDataType targetType);
 bool saveFromMemory(const std::string &filePath, ImageDataType targetType, ImageParams image);

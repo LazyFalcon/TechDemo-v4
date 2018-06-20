@@ -56,3 +56,6 @@
 using namespace std::literals;
 
 namespace fs = boost::filesystem;
+
+
+uint frame(); // * returns frame number, should be defined elsewhere

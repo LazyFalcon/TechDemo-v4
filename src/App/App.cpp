@@ -31,6 +31,16 @@ bool ALT_MODE = false;
 bool SHIFT_MODE = false;
 bool CTRL_MODE = false;
 
+uint g_frameNumber;
+
+void incrFrame(){
+    ++g_frameNumber;
+}
+
+uint frame(){
+    return g_frameNumber;
+}
+
 App* App::self = nullptr;
 
 App::App() : inputDispatcher(std::make_unique<InputDispatcher>()), input(inputDispatcher->createNew("App")), settings(std::make_unique<Settings>()){
@@ -184,6 +194,7 @@ void App::run() try {
     eventProcessor->process();
 
     while(not quit){
+        incrFrame();
         CPU_SCOPE_TIMER("Main loop update");
         auto deltaTime = clock::now() - lastTime;
         lastTime = clock::now();

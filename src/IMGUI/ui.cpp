@@ -9,8 +9,8 @@ Imgui::Imgui(int width, int height, const std::string& name):
     m_width(width),
     m_height(height),
     m_renderedUIItems(std::make_unique<RenderedUIItems>()),
-    basicStyle(*m_renderedUIItems),
-    m_defaultPanel(this, &basicStyle, nullptr)
+    m_defaultPanel(this, &basicStyle, nullptr),
+    basicStyle(*m_renderedUIItems)
 {
     m_defaultPanel.width(m_width).height(m_height).layout().dummy();
 }

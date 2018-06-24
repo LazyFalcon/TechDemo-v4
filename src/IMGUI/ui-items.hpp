@@ -90,8 +90,8 @@ private:
     Imgui& m_ui;
     Panel& m_panel;
 
-    int m_id;
     float m_depth;
+    int m_id;
     PointerActions m_action {PointerActions::None};
     bool m_hovered;
 

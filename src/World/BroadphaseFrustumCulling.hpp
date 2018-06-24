@@ -1,6 +1,6 @@
 #pragma once
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
-#include "Object.hpp"
+#include "SceneObject.hpp"
 #include <vector>
 
 

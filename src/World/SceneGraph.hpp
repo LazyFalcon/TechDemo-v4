@@ -1,7 +1,7 @@
 #pragma once
 #include "GPUResources.hpp"
 #include "Foliage.hpp"
-#include "Object.hpp"
+#include "SceneObject.hpp"
 
 static const i32 NoOfLevels = 5;
 class btBvhTriangleMeshShape;

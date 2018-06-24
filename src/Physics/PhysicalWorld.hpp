@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseStructs.hpp"
 #include "BodyUser.hpp"
-#include "Object.hpp"
+#include "SceneObject.hpp"
 #include "CloseHitResult.hpp"
 
 struct ConvexMesh

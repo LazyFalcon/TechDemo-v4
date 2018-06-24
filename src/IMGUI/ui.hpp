@@ -56,9 +56,9 @@ struct ItemActions {
 class Imgui
 {
 private:
-    Panel m_defaultPanel;
     int m_width, m_height;
     std::unique_ptr<RenderedUIItems> m_renderedUIItems;
+    Panel m_defaultPanel;
 public:
     // handling mouse actions for proper actions
     ItemActions input, panelInput;

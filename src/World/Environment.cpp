@@ -16,7 +16,7 @@ void Environment::load(const std::string &sceneName){
     std::string path = resPath + "scenes/" + sceneName + "/" + sceneName;
 
     ModelLoader modelLoader;
-    modelLoader.loadTangents = true;
+    modelLoader.loadTangents = false; // ! TODO: co jest nie tak z tangentami?
     modelLoader.m_uvSize = 3;
     modelLoader.open(path + ".dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
     if(not modelLoader.good){

@@ -3,7 +3,7 @@
 layout(location=0)in vec4 mVertex;
 layout(location=1)in vec3 mUV;
 layout(location=2)in vec4 mNormal;
-layout(location=3)in vec4 mTangent;
+// layout(location=3)in vec4 mTangent;
 
 uniform mat4 uPV;
 uniform mat4 uModel;

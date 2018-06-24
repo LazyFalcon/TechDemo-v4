@@ -18,7 +18,7 @@ Panel& Panel::operator()(){
 
     return *this;
 }
-Panel::Panel(Imgui* imgui, Styler* style, Panel* parentPanel) : m_imgui(imgui), m_style(style),  m_parent(parentPanel){}
+Panel::Panel(Imgui* imgui, Styler* style, Panel* parentPanel) : m_imgui(imgui), m_parent(parentPanel), m_style(style){}
 Panel::Panel(Panel& parent) : Panel(parent.m_imgui, &parent.getStyler(), &parent){
     parent.m_childCount++;
     m_depth = m_depth + 0.1f + 0.001f*m_childCount;

@@ -1,5 +1,5 @@
 #pragma once
-#include "Object.hpp"
+#include "SceneObject.hpp"
 
 struct CloseHitResult
 {

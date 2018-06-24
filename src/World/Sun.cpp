@@ -7,7 +7,11 @@
 #include "Yaml.hpp"
 #include "Colors.hpp"
 
-Sun::Sun(const Yaml &sett, GeoTimePosition &geoTimePosition) : geoTimePosition(geoTimePosition), lightDirectionVector(glm::normalize(glm::vec4(20,36,-10,0))){
+Sun::Sun(const Yaml &sett, GeoTimePosition &geoTimePosition) :
+    lightDirectionVector(glm::normalize(glm::vec4(20,36,-10,0))),
+    geoTimePosition(geoTimePosition)
+{
+
     size = sett["Size"].number();
     power = sett["Power"].number();
     tweak = sett["Tweak"].boolean();

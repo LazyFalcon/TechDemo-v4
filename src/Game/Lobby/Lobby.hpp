@@ -10,8 +10,8 @@ class Settings;
 class Lobby : public GameState
 {
 private:
-    std::shared_ptr<Input> m_input;
     Imgui& m_ui;
+    std::shared_ptr<Input> m_input;
     std::unique_ptr<LobbyUI> m_view;
 public:
     Lobby(Imgui&, InputDispatcher&, Settings&);

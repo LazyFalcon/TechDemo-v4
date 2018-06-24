@@ -10,7 +10,6 @@ class Imgui;
 class Input;
 class InputDispatcher;
 class ParticleProcessor;
-class PhysicalWorld;
 class Settings;
 class Window;
 
@@ -27,7 +26,6 @@ public:
     std::shared_ptr<GameState> gameState;
     std::unique_ptr<EventProcessor> eventProcessor;
     // std::unique_ptr<ParticleProcessor> particleProcessor;
-    // std::unique_ptr<PhysicalWorld> physics;
     // std::unique_ptr<UI::Updater> uiUpdater;
     std::unique_ptr<Imgui> imgui;
     std::unique_ptr<InputDispatcher> inputDispatcher;

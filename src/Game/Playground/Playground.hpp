@@ -1,6 +1,5 @@
 #pragma once
 #include "GameState.hpp"
-#include "Scene.hpp"
 
 class FreeCamController;
 class GBufferSampler;
@@ -8,15 +7,17 @@ class Imgui;
 class Input;
 class InputDispatcher;
 class Player;
+class PhysicalWorld;
+class Scene;
 class Window;
 
 class Playground : public GameState
 {
 private:
-    Scene m_scene;
     std::shared_ptr<Input> m_input;
     std::shared_ptr<Player> m_player;
     std::unique_ptr<PhysicalWorld> m_physical;
+    std::unique_ptr<Scene> m_scene;
     Window& m_window;
     glm::vec2 m_mousePos;
     glm::vec4 m_mouseWorldPos;
@@ -34,7 +35,6 @@ public:
     ~Playground();
     void update(float dt);
     void updateWithHighPrecision(float dt);
-    Scene& getScene();
     void renderProcedure(GraphicEngine&);
 
     void loadScene(const std::string&);

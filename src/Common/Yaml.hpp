@@ -93,7 +93,6 @@ public:
     Yaml& operator [] (const std::string &s){
         for(auto &it : container)
             if(it.m_key == s) return it;
-
         return push(s, "");
     }
     Yaml& operator [] (u32 i){ // what if i is far bigger than the size?
@@ -104,7 +103,8 @@ public:
     const Yaml& operator [] (const std::string &s) const {
         for(const auto &it : container)
             if(it.m_key == s) return it;
-        // error(s, "in", m_key, "doesn't exist");
+
+        error(s, "doesn't exists in", m_key);
         return *this;
     }
     const Yaml& operator [] (u32 i) const {

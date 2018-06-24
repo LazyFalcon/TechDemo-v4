@@ -11,7 +11,7 @@ void TimeRecord::update(timeType dt){
     if(CLOG_SPECIAL_VALUE) captured = dt;
     ++count;
 }
-
+// TODO: convert strings to ints
 CpuTimerScoped::CpuTimerScoped(const std::string &name) : name(name){
     timer.start();
 }
@@ -50,7 +50,7 @@ void CpuTimerScoped::writeToFile(){
 }
 
 std::map<std::string, TimeRecord> CpuTimerScoped::cpuRecords;
-bool CpuTimerScoped::printRecords {true};
+bool CpuTimerScoped::printRecords {false};
 bool CpuTimerScoped::saveRecords {true};
 
 GpuTimerScoped::GpuTimerScoped(const std::string &function){

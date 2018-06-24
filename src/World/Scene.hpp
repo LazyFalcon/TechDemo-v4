@@ -14,7 +14,7 @@ class Sun;
 class Terrain;
 struct Yaml;
 
-struct Scene
+struct Scene : private boost::noncopyable
 {
     Scene(PhysicalWorld &physics);
     ~Scene();

@@ -74,8 +74,6 @@ bool App::initialize(){
         // lastCursorPos = glm::vec2(window->size.x/2, window->size.y/2);
         // glfwSetCursorPos(window->window, window->size.x/2, window->size.y/2);
     }
-    // physics = std::make_unique<PhysicalWorld>();
-    // physics->init();
     eventProcessor = std::make_unique<EventProcessor>(*this);
     // particleProcessor = std::make_unique<ParticleProcessor>(*physics);
 

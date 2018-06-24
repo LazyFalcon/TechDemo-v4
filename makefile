@@ -7,18 +7,20 @@ DEFINES = \
 -DGLM_FORCE_SWIZZLE \
 -DGLM_SWIZZLE \
 -DGLM_FORCE_RADIANS \
--DBT_USE_DOUBLE_PRECISION=ON \
 -DUSE_BULLET
+# -DBT_USE_DOUBLE_PRECISION=ON
 
-CORE_PCH_FILENAME=./src/core.hpp
+CORE_PCH_FILENAME=./src/core_pch.hpp
 CORE_PCH=$(CORE_PCH_FILENAME).gch
 
 CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DEFINES)
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 ADDITIONAL_FLAGS = \
 -Werror=return-type \
+-Werror=reorder \
+-Wmaybe-uninitialized \
 -Winvalid-pch
-
+# -Wall
 # -Wunused-function \
 # -Wswitch-enum \
 
@@ -60,6 +62,10 @@ $(OBJ_DIR)/%.o : %.cpp
 
 $(OBJ_DIR)/res.o: ./resource.rc ./icon.ico
 	windres ./resource.rc ./obj/res.o
+
+pch:
+	@echo "Compiling PCH"
+	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) $(CORE_PCH_FILENAME)
 
 clean:
 	rm -rf $(OBJ_DIR)

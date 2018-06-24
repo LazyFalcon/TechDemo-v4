@@ -13,6 +13,7 @@
 #include "Playground.hpp"
 #include "PlaygroundEvents.hpp"
 #include "RendererUtils.hpp"
+#include "Scene.hpp"
 #include "SceneRenderer.hpp"
 #include "Settings.hpp"
 #include "Texture.hpp"
@@ -22,7 +23,7 @@
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window):
     m_input(inputDispatcher.createNew("Playground")),
     m_physical(std::make_unique<PhysicalWorld>()),
-    m_scene(*m_physical),
+    m_scene(std::make_unique<Scene>(*m_physical)),
     m_window(window),
     m_mouseSampler(std::make_unique<GBufferSampler>())
     {
@@ -114,15 +115,16 @@ void Playground::update(float dt){
     m_player->graphics.toBeRendered();
 }
 void Playground::updateWithHighPrecision(float dt){
+    auto& currentCamera = CameraController::getActiveCamera();
     if(m_useFreecam and m_defaultCamera->hasFocus()){ // * I hope player doesn't have control over it's cameras
         m_defaultCamera->focus();
     }
 
 
     m_player->update(dt);
+    m_scene->update(dt, currentCamera);
 
 
-    auto &currentCamera = CameraController::getActiveCamera();
     if(m_cameraRotate) currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f, m_mouseWorldPos);
 
     for(auto &cam : CameraController::listOf){
@@ -130,15 +132,13 @@ void Playground::updateWithHighPrecision(float dt){
     }
     m_mouseTranslationNormalized = {};
 }
-Scene&Playground:: getScene(){
-    return m_scene;
-}
+
 void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.context->beginFrame();
     renderer.context->setupFramebufferForGBufferGeneration();
     // renderer.utils->drawBackground("nebula2");
     renderer.objectBatchedRender->renderObjects(CameraController::getActiveCamera());
-    renderer.sceneRenderer->renderScene(m_scene, CameraController::getActiveCamera());
+    renderer.sceneRenderer->renderScene(*m_scene, CameraController::getActiveCamera());
 
 
     renderer.gBufferSamplers->sampleGBuffer(CameraController::getActiveCamera());
@@ -160,7 +160,7 @@ void Playground::renderProcedure(GraphicEngine& renderer){
 }
 
 void Playground::loadScene(const std::string& configName){
-    m_scene.load("Cycles-PBR");
+    m_scene->load("Cycles-PBR");
     m_player = std::make_shared<Player>(m_input->getDispatcher());
 }
 void Playground::spawnPlayer(const std::string& configName, glm::vec4 position){

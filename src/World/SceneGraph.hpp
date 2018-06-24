@@ -4,12 +4,13 @@
 #include "Object.hpp"
 
 static const i32 NoOfLevels = 5;
-class Frustum;
-class btRigidBody;
 class btBvhTriangleMeshShape;
+class btRigidBody;
 class btTriangleMesh;
+class Frustum;
 class ModelLoader;
 class PhysicalWorld;
+class Yaml;
 
 class Cell
 {
@@ -23,7 +24,8 @@ public:
     bool hasTerrain {false};
     Mesh terrainMesh {};
     btRigidBody *cellBoxCollider {nullptr};
-    std::vector<i32> objects;
+    // TODO: tuple na różne typy
+    std::vector<ObjectID> objects;
 
     SampleResult sample(glm::vec2 position){
         // allhitRaycast i porownanie pointerow
@@ -47,15 +49,18 @@ constexpr i32 getCellCount(i32 levels){
 class SceneGraph
 {
 public:
-    glm::vec4 size {1500, 1500,0,0};
+    glm::vec4 size {1500, 1500,0,0}, min, max;
     glm::vec4 center {0,0,0,0};
     glm::vec2 nodes {32, 32};
+    glm::vec2 cellSize;
+    glm::vec2 cellsInTheScene;
 
     Cell root;
     std::vector<Cell> cells;
 
+    // TODO: Tuple nie byłby lepszy?
     std::unordered_map<ObjectID, SceneObject> objects;
-    std::map<Type, std::vector<SceneObject>> visibleObjects;
+    std::map<Type, std::vector<SceneObject>> visibleObjectsByType;
 
     SceneGraph(PhysicalWorld &physics);
     std::vector<i32> getVisibleCells();
@@ -66,10 +71,10 @@ public:
     }
     SampleResult sample(glm::vec4 position);
 
-    void create();
-    void loadMap(const std::string &mapConfigPath);
-
+    void initAndLoadMap(const Yaml& yaml);
     void cullCells(const Frustum &frstum);
+
+    void insertObject(SceneObject& obj, const glm::vec4& position);
 
     // wszystkie lodLevele na raz, posortowane po lod i odleglosci
     std::vector<i32> visibleCells;
@@ -82,6 +87,9 @@ public:
     btSphereShape *defaultSphereCollider {nullptr};
 private:
     PhysicalWorld &physics;
+    Cell* findCellUnderPosition(const glm::vec4& pos);
+    void initCellsToDefaults();
+    void loadMap(const std::string &mapConfigDir);
     void cullWithPhysicsEngine(const Frustum &frustum);
     void diffBetweenFrames();
     void setLodForVisible(glm::vec4 eye);

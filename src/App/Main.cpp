@@ -4,14 +4,21 @@
 #include "Audio/Audio.hpp"
 #include "DefaultResourcePaths.hpp"
 #include "LobbyEvents.hpp"
-#include "PerfTimers.hpp"
 #include "Logging.hpp"
+#include "PerfTimers.hpp"
 
 void initialEvent(){
     auto startGame = event<StartLobby>();
 }
 
 int main(int argc, char** argv){
+    // std::atexit(pmk::dumpLogBufferTofile);
+    // std::atexit(GpuTimerScoped::writeToFile);
+    // std::atexit(CpuTimerScoped::writeToFile);
+
+    CpuTimerScoped::printRecords = false;
+    CpuTimerScoped::saveRecords = true;
+
     resolvePaths(argv[0]);
 
     Audio::Device device;
@@ -25,9 +32,6 @@ int main(int argc, char** argv){
     }
 
     app.setCommonCallbacks();
-
-    CpuTimerScoped::printRecords = false;
-    CpuTimerScoped::saveRecords = true;
 
     app.loadResources();
 

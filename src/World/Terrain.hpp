@@ -55,11 +55,11 @@ protected:
     bool load(const std::string &name);
     void save(const std::string &name);
 
+    QuadTree &qt;
     btCompoundShape* compound {nullptr};
     btRigidBody* rgBody {nullptr};
     Map map {};
     std::vector<float> physicHeightData;
-    QuadTree &qt;
     float *bulletDataIterator;
     void deleteTexture();
     void copyElevationData(QTNode &node);

@@ -36,7 +36,7 @@ bool Scene::load(const std::string &sceneName){
     atmosphere = std::make_unique<Atmosphere>(settings["Atmosphere"], *geoTimePosition);
 
     graph = std::make_unique<SceneGraph>(physics);
-    // graph->loadMap(cfg["Map"]["Dir"].string());
+    graph->initAndLoadMap(settings["Scene"]);
 
     environment = std::make_unique<Environment>(*graph, physics);
     environment->load(sceneName);
@@ -66,11 +66,11 @@ bool Scene::load(const std::string &sceneName){
 void Scene::update(float dt, Camera &camera){
     CPU_SCOPE_TIMER("Scene::update");
     const Frustum &frustum = camera.getFrustum();
-    if(geoTimePosition) geoTimePosition->update(dt*10);
+    // if(geoTimePosition) geoTimePosition->update(dt*10);
     if(graph) graph->cullCells(frustum);
 
     // if(grass) grass->update(camera.position());
     // if(foliage) foliage->update(camera.position());
-    if(sun) sun->update(*atmosphere);
-    if(atmosphere) atmosphere->update(sun->getVector());
+    // if(sun) sun->update(*atmosphere);
+    // if(atmosphere) atmosphere->update(sun->getVector());
 }

@@ -162,7 +162,7 @@ std::vector<ConvexMesh> ModelLoader::loadCompoundMeshes(const std::vector<std::s
             return {};
         }
         for(auto mesh : meshes){
-            std::vector<double> data;
+            std::vector<btScalar> data;
             data.resize(mesh->mNumVertices*3);
             for(u32 i=0, j=0; i<mesh->mNumVertices; i++){
                 data[j++] = mesh->mVertices[i].x;

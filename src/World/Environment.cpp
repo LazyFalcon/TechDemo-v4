@@ -17,6 +17,7 @@ void Environment::load(const std::string &sceneName){
 
     ModelLoader modelLoader;
     modelLoader.loadTangents = true;
+    modelLoader.m_uvSize = 3;
     modelLoader.open(path + ".dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
     if(not modelLoader.good){
         error("Unable to load environment");
@@ -38,7 +39,7 @@ void Environment::loadObject(const Yaml &thing, ModelLoader& modelLoader){
     auto x = thing["Position"]["X"].vec4();
     auto y = thing["Position"]["Y"].vec4();
     auto z = thing["Position"]["Z"].vec4();
-    auto w = thing["Position"]["W"].vec4();
+    auto w = thing["Position"]["W"].vec31();
 
     e.physics.position = w;
     e.physics.transform = glm::mat4(x,y,z,w);
@@ -53,7 +54,8 @@ void Environment::loadObject(const Yaml &thing, ModelLoader& modelLoader){
     entities.push_back(e);
     SceneObject object{Type::Enviro, SceneObject::nextID(), nullptr, e.id};
     if(e.physics.rgBody) e.physics.rgBody->setUserIndex(object.ID);
-    graph.objects[object.ID] = object;
+
+    graph.insertObject(object, e.physics.position);
 }
 
 void Environment::loadLightSource(const Yaml &thing){
@@ -86,7 +88,7 @@ void Environment::loadMesh(ModelLoader &modelLoader, EnviroEntity &e, const Yaml
   Convex: Rock.convex
 */
 btRigidBody* Environment::createRgBody(const Yaml &bodyConf){
-    btCollisionShape *shape;
+    btCollisionShape *shape = nullptr;
     // jak tam bylo z raycastem na compound mesh? kto byl logowany jako owner? ptr ustawiony w rgBody, nie?
 
     btTransform tr;

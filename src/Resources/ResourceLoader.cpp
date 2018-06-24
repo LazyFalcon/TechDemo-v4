@@ -395,19 +395,19 @@ assets::TextureArray ResourceLoader::loadTextureArray(const std::string &folder,
         assets::TextureArray out;
         out.id = ImageUtils::loadArrayToGpu(albedo).id;
         convertAndGetName(albedo, out.content);
-        assets::addAlbedoArray(id, out, folder);
+        assets::addAlbedoArray(id, out, containerName);
     }
     {
         assets::TextureArray out;
         out.id = ImageUtils::loadArrayToGpu(metallic).id;
         convertAndGetName(metallic, out.content);
-        assets::addMetallicArray(id, out, folder);
+        assets::addMetallicArray(id, out, containerName);
     }
     {
         assets::TextureArray out;
         out.id = ImageUtils::loadArrayToGpu(roughness).id;
         convertAndGetName(roughness, out.content);
-        assets::addRoughnessArray(id, out, folder);
+        assets::addRoughnessArray(id, out, containerName);
     }
 
     return assets::getAlbedoArray(folder);

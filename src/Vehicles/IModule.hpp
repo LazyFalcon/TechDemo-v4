@@ -115,7 +115,7 @@ public:
     }
     virtual void updateTargetPoint(glm::vec4){}
 
-    IModule(VehicleEquipment &eq, ModuleType type) : eq(eq), type(type), moduleVisualUpdater(std::make_unique<NullModuleVisualUpdater>()), moduleCompoundUpdater(std::make_unique<NullModuleCompoundUpdater>()){}
+    IModule(VehicleEquipment &eq, ModuleType type) : type(type), eq(eq), moduleVisualUpdater(std::make_unique<NullModuleVisualUpdater>()), moduleCompoundUpdater(std::make_unique<NullModuleCompoundUpdater>()){}
 
     // ustawia jednocześnie transformację dla kości, dla potomków(również wzgledm świata) i tr compound mesha
     // transformacja jest względem rodzica
@@ -160,7 +160,7 @@ private:
 public:
     ModuleFollower(IModule *module, glm::vec3 pos) : m_module(module), m_position(pos){}
     template<typename... Args>
-    ModuleFollower(IModule *module, glm::vec3 pos, Args&... args) : m_module(module), m_position(pos), CC(args...){}
+    ModuleFollower(IModule *module, glm::vec3 pos, Args&... args) : CC(args...), m_module(module), m_position(pos){}
 
     void update(float dt) override {
         // CC::updateBaseTransform(m_module->getGlmTransform());

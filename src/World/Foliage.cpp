@@ -104,7 +104,7 @@ bool Foliage::load(const Yaml &c){
     treeCapsuleCompoundShape->recalculateLocalAabb();
 
     RenderData::removeTreeFromPhysics = [this](btRigidBody *&body, btTypedConstraint *constraint){
-        physics.dynamicsWorld->removeConstraint(constraint);
+        physics.m_dynamicsWorld->removeConstraint(constraint);
         physics.removeBody(body);
         body = nullptr;
     };
@@ -327,7 +327,7 @@ void RenderData::updatePhysics(glm::vec4 reference, PhysicalWorld &p){
         // f.rgJoint->setServoTarget(4, 0);
         // f.rgJoint->setServoTarget(5, 0);
 
-        p.dynamicsWorld->addConstraint(f.rgJoint);
+        p.m_dynamicsWorld->addConstraint(f.rgJoint);
     };
     auto getLod = [&](float distance) -> i32 {
         return 0;

@@ -14,13 +14,14 @@ class SkinnedMesh;
 class VehicleBuilder
 {
 private:
-    ModuleFactory m_moduleFactory;
-    PhysicalWorld& m_physicalWorld;
-    CameraControllerFactory& m_camFactory;
-    Player& m_player;
-    std::shared_ptr<SkinnedMesh> m_skinnedMesh;
     std::string m_configName;
     std::unique_ptr<ModelLoader> m_modelLoader;
+    PhysicalWorld& m_physicalWorld;
+    ModuleFactory m_moduleFactory;
+    Player& m_player;
+    CameraControllerFactory& m_camFactory;
+
+    std::shared_ptr<SkinnedMesh> m_skinnedMesh;
     uint m_boneMatrixIndex {};
     uint m_compoundIndex {};
     Yaml m_config;

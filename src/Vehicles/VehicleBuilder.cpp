@@ -19,6 +19,7 @@ VehicleBuilder::VehicleBuilder(const std::string& configName, Player& player, Ph
 
 void VehicleBuilder::openModelFile(){
     m_modelLoader->loadTangents = false; // TODO:
+    m_modelLoader->m_uvSize = 3;
     m_modelLoader->open(resPath + "models/" + m_configName + ".dae", assets::layerSearch(assets::getAlbedoArray("Materials")));
     m_modelLoader->m_vertexW = 0u;
 

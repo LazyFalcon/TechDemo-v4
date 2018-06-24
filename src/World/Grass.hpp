@@ -28,7 +28,7 @@ typedef std::array<SingleGrassPatch, NO_OF_GRASS_PATCHES_IN_FIELD> GrassPatchPos
 class GrassField
 {
 public:
-    GrassField(i32 fieldInChunkId, QTNode *owner) : fieldInChunkId(fieldInChunkId),  owner(owner), lod(LOD_OUT_OF_VIEW) {
+    GrassField(i32 fieldInChunkId, QTNode *owner) : lod(LOD_OUT_OF_VIEW), fieldInChunkId(fieldInChunkId), owner(owner) {
         owner->payload.grassData->fields[fieldInChunkId] = this;
         switch(fieldInChunkId){
             case 0u : {
@@ -66,9 +66,9 @@ public:
         return &gf == this;
     }
 private:
+    i32 fieldInChunkId;
     QTNode *owner;
     std::array<i32, 4> fieldIds {{-1, -1, -1, -1}}; // form lowest to highest level
-    i32 fieldInChunkId;
 
     void plantGrass(i32 lod, QuadTree &QT);
 

@@ -1,12 +1,13 @@
 #include "core.hpp"
-#include "SceneGraph.hpp"
-#include "ModelLoader.hpp"
 #include "Assets.hpp"
-#include "PhysicalWorld.hpp"
-#include "Yaml.hpp"
-#include "Utils.hpp"
-#include "PerfTimers.hpp"
 #include "BroadphaseFrustumCulling.hpp"
+#include "ModelLoader.hpp"
+#include "PerfTimers.hpp"
+#include "PhysicalWorld.hpp"
+#include "SceneGraph.hpp"
+#include "Utils.hpp"
+#include "Yaml.hpp"
+#include "Yaml.hpp"
 
 
 const float manhattanLodDistances[4] = {15,60,100,900};
@@ -15,7 +16,86 @@ SceneGraph::SceneGraph(PhysicalWorld &physics) : cells(pow(4, NoOfLevels)), phys
     defaultSphereCollider = new btSphereShape(3);
 }
 
+void SceneGraph::initAndLoadMap(const Yaml& yaml){
+    min = yaml["Bounds"]["Min"].vec4();
+    max = yaml["Bounds"]["Max"].vec4();
+    size = max - min;
+    center = (min + max)/2.f;
+    initCellsToDefaults();
+
+    if(yaml["hasTerrainHeightmap"].boolean()) loadMap("");
+}
+
+void SceneGraph::initCellsToDefaults(){
+    // * adjust cell sie to fit in world
+    auto idealCellSize = glm::vec2(32);
+    cellsInTheScene = glm::clamp(glm::floor(size.xy()/idealCellSize), glm::vec2(1), glm::vec2(256));
+    cellSize = size.xy()/cellsInTheScene;
+
+    cells.resize(cellsInTheScene.x * cellsInTheScene.y);
+
+    log("dim:", size.xy());
+    log("cellSize:", cellSize);
+    log("cellsInTheScene:", cellsInTheScene);
+    int i = 0;
+    for(int x=0; x<cellsInTheScene.x; x++) for(int y=0; y<cellsInTheScene.y; y++){
+        glm::vec4 position = min + glm::vec4(cellSize.x*(0.5f + x), cellSize.y*(0.5f+y), center.z, 0);
+        cells[i].position = position;
+        cells[i].size = glm::vec4(cellSize, 100.f, 0.f);
+        cells[i].level = 0;
+        cells[i].id = i;
+        cells[i].hasTerrain = false;
+        cells[i].cellBoxCollider = createSimpleCollider(cells[i].position, cells[i].size.xyz());
+
+        SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};
+
+        cells[i].cellBoxCollider->setUserIndex(object.ID);
+        objects[object.ID] = object;
+        i++;
+    }
+}
+
+btRigidBody* SceneGraph::createSimpleCollider(glm::vec4 pos, glm::vec3 dim){
+    btTransform tr;
+    tr.setIdentity();
+    tr.setOrigin(convert(pos));
+    int group = COL_FOR_CULLING;
+    int collideWith = COL_NOTHING;
+    auto body = physics.createRigidBodyWithMasks(0, tr, new btBoxShape(btVector3(dim.x*0.5f, dim.y*0.5f, dim.z*0.8f)), nullptr, group, collideWith);
+
+    return body;
+}
+
+
+void SceneGraph::insertObject(SceneObject& object, const glm::vec4& position){
+    auto cell = findCellUnderPosition(position);
+    if(not cell){
+        log("cell under", position, "doesn't exists");
+    }
+    cell->objects.push_back(object.ID);
+    objects[object.ID] = object;
+}
+
+Cell* SceneGraph::findCellUnderPosition(const glm::vec4& pos){
+    if(pos.x<min.x or pos.x>max.x or pos.y<min.y or pos.y>max.y) return nullptr;
+
+    glm::vec2 p = pos.xy() - min.xy();
+    p /= cellSize;
+
+    return &(cells[int(p.x) + int(p.y)*cellsInTheScene.x]);
+}
+
+
+
 void SceneGraph::diffBetweenFrames(){
+
+    for(auto& i : visibleObjectsByType[Type::TerrainChunk]){
+        clog(cells[objects[i.ID].userID].id);
+        for(auto& o : cells[objects[i.ID].userID].objects)
+            visibleObjectsByType[Type::Enviro].push_back( objects[o] );
+    }
+    return;
+
     std::sort(addedCells.begin(), addedCells.end());
     std::vector<i32> justAddedCells;
     justAddedCells.swap(addedCells);
@@ -66,12 +146,7 @@ void SceneGraph::setLodForVisible(glm::vec4 eye){
 
 void SceneGraph::cullWithPhysicsEngine(const Frustum &frustum){
     CPU_SCOPE_TIMER("cullWithPhysicsEngine");
-    btDbvtBroadphase *dbvtBroadphase = dynamic_cast<btDbvtBroadphase*>(physics.broadphase);
-    if(not dbvtBroadphase){
-        error("wrong broadphase type or uninitialized");
-        return;
-    }
-
+    btDbvtBroadphase *dbvtBroadphase = physics.m_broadphase;
     DbvtBroadphaseFrustumCulling culling;
 
     btVector3 normals[] = {
@@ -91,10 +166,10 @@ void SceneGraph::cullWithPhysicsEngine(const Frustum &frustum){
     bool cullFarPlane = false;
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[1].m_root, normals, offsets, cullFarPlane ? 5 : 4, culling); // with static
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[0].m_root, normals, offsets, cullFarPlane ? 5 : 4, culling); // with dynamic
-    visibleObjects.clear();
+    visibleObjectsByType.clear();
     for(auto &it : culling.objectsInsideFrustum){
         auto obj = objects[it];
-        visibleObjects[obj.type].push_back(obj);
+        visibleObjectsByType[obj.type].push_back(obj);
     }
 }
 
@@ -122,27 +197,19 @@ void SceneGraph::loadCollider(ModelLoader &loader, const std::string &name){
     collider->setUserPointer(this);
     collider->setUserIndex(SceneObject::nextID());
 }
-btRigidBody* SceneGraph::createSimpleCollider(glm::vec4 pos, glm::vec3 dim){
-    btTransform tr;
-    tr.setIdentity();
-    tr.setOrigin(convert(pos));
-    auto body = physics.createRigidBodyWithMasks(0, tr, new btBoxShape(btVector3(dim.x*0.5f, dim.y*0.5f, dim.z*0.8f)), nullptr, 2, 0);
 
-    return body;
-}
 
 /*
-    Wyciąga i przesuwa submeshe w odpowiednie miejsca, dodaje do vao
-    */
+* Check if config is image, that means terrain class will be(should be was) created
+*   and hope that terrain could be splitted evenly -> TODO: this
+* If not image then it's composed from 3D model; they are treated little differently than regular 3D models : dedicated lod, contaier and shaders
+* -> meshes have LOD
+* -> ? distributed on per cell(strange cuts) or many per cell and non unique?, second option looks better especially with uniqueness(uniqueness by frame number)
+*/
 void SceneGraph::loadMap(const std::string &mapConfigDir){
     Yaml map(mapConfigDir + "/map.yml");
 
-    glm::vec4 min = map["Terrain"]["Min"].vec4();
-    glm::vec4 max = map["Terrain"]["Max"].vec4();
-    center = (min + max)/2.f;
-
-    auto dim = std::max(max.x-min.x, max.y-min.y) + 4;
-
+    auto dim = std::max(max.x-min.x, max.y-min.y);
     nodes = glm::vec2(32);
     size = glm::vec4(dim, dim, max.z - min.z, 0);
 
@@ -153,7 +220,7 @@ void SceneGraph::loadMap(const std::string &mapConfigDir){
     loader.debug = false;
     loader.open(mapConfigDir + "/map.dae");
 
-    cells.resize(map["Terrain"]["Chunks"].size());
+    // TODO: completly rework this according to decription above func definition
     int i=0;
     for(auto &it : map["Terrain"]["Chunks"]){
         if(it["isCollider"].boolean()){
@@ -173,17 +240,17 @@ void SceneGraph::loadMap(const std::string &mapConfigDir){
             intMesh.vertex[i+3] += position[3]*0;
         }
 
-        cells[i].position = position;
-        cells[i].size = dimension;
-        cells[i].level = 0;
+        // cells[i].position = position;
+        // cells[i].size = dimension;
+        // cells[i].level = 0;
         cells[i].hasTerrain = true;
         cells[i].terrainMesh = loader.insert(intMesh).toMesh();
-        cells[i].cellBoxCollider = createSimpleCollider(position, dimension.xyz());
+        // cells[i].cellBoxCollider = createSimpleCollider(position, dimension.xyz());
 
-        SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};
+        // SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};
 
-        cells[i].cellBoxCollider->setUserIndex(object.ID);
-        objects[object.ID] = object;
+        // cells[i].cellBoxCollider->setUserIndex(object.ID);
+        // objects[object.ID] = object;
         i++;
     }
 
@@ -198,7 +265,7 @@ SampleResult SceneGraph::sample(glm::vec4 position){
     btVector3 to(double(position.x), double(position.y), double(position.z - 500.f));
 
     btCollisionWorld::AllHitsRayResultCallback allResults(from, to);
-    physics.dynamicsWorld->rayTest(from, to, allResults);
+    physics.m_dynamicsWorld->rayTest(from, to, allResults);
 
     if(allResults.hasHit()){
         u32 minI=0;

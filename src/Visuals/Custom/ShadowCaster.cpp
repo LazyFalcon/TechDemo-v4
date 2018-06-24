@@ -68,7 +68,7 @@ void ShadowCaster::renderScene(Scene &scene, Camera &camera){
 
     scene.environment->vao.bind();
 
-    for(auto &obj : scene.graph->visibleObjects[Type::Enviro]){
+    for(auto &obj : scene.graph->visibleObjectsByType[Type::Enviro]){
         auto &env = scene.environment->entities[obj.userID];
         auto &mesh = env.graphic.mesh;
         shader.uniform(uModel, env.physics.transform);

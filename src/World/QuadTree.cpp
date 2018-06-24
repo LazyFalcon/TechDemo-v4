@@ -291,7 +291,7 @@ SampleResult QuadTree::sample(glm::vec4 position){
     btVector3 to(position.x, position.y, position.z - 500.f);
 
     btCollisionWorld::ClosestRayResultCallback    closestResults(from, to);
-    physics.dynamicsWorld->rayTest(from, to, closestResults);
+    physics.m_dynamicsWorld->rayTest(from, to, closestResults);
 
     if(closestResults.hasHit()){
         return {convert(closestResults.m_hitPointWorld, 1), convert(closestResults.m_hitNormalWorld, 0), true};
@@ -305,7 +305,7 @@ SampleResult QuadTree::sampleTerrain(glm::vec4 position){
     btVector3 to(double(position.x), double(position.y), double(position.z - 1500.f));
 
     btCollisionWorld::AllHitsRayResultCallback    allResults(from, to);
-    physics.dynamicsWorld->rayTest(from, to, allResults);
+    physics.m_dynamicsWorld->rayTest(from, to, allResults);
 
     if(allResults.hasHit()){
         u32 minI=0;

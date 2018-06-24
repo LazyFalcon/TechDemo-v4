@@ -25,7 +25,7 @@ public:
     Mesh terrainMesh {};
     btRigidBody *cellBoxCollider {nullptr};
     // TODO: tuple na różne typy
-    std::vector<ObjectID> objects;
+    std::vector<uint> objects;
 
     SampleResult sample(glm::vec2 position){
         // allhitRaycast i porownanie pointerow
@@ -59,7 +59,7 @@ public:
     std::vector<Cell> cells;
 
     // TODO: Tuple nie byłby lepszy?
-    std::unordered_map<ObjectID, SceneObject> objects;
+    std::unordered_map<uint, SceneObject> objects;
     std::map<Type, std::vector<SceneObject>> visibleObjectsByType;
 
     SceneGraph(PhysicalWorld &physics);

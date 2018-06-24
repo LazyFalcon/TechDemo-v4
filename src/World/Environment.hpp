@@ -12,7 +12,7 @@ class Yaml;
 
 namespace projectiles {class Projectile;}
 
-class EnviroEntity
+class EnviroEntity : public SceneObject
 {
 public:
     std::string name;
@@ -49,9 +49,9 @@ public:
 
     LightSourcesContainer lightSources;
     std::vector<EnviroEntity> glossyObjects;
-    std::vector<EnviroEntity> entities;
+    std::vector<EnviroEntity> m_entities;
     EnviroEntity& getObject(u32 id){
-        return entities[id];
+        return m_entities[id];
     }
     VAO vao;
 private:

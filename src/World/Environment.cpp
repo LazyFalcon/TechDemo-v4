@@ -50,8 +50,8 @@ void Environment::loadObject(const Yaml &thing, ModelLoader& modelLoader){
         auto colliders = modelLoader.loadCompoundMeshes({thing["Colliders"].strings()});
         // e.physics.rgBody = physics->createRigidBody(0, convert(obj["Quaternion"].quat(), e.physics.position), createCompoundMesh(colliders, nullptr));
     }
-    e.id = entities.size();
-    entities.push_back(e);
+    e.id = m_entities.size();
+    m_entities.push_back(e);
     SceneObject object{Type::Enviro, SceneObject::nextID(), nullptr, e.id};
     if(e.physics.rgBody) e.physics.rgBody->setUserIndex(object.ID);
 

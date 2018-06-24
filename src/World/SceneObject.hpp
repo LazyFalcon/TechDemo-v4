@@ -18,18 +18,45 @@ enum BulletCollisionMasks
 };
 #undef BIT
 
-using ObjectID = int;
-struct SceneObject
+class ObjectHandler;
+/*
+* When Scene Object can be stored by value, there is a need to provide handler to it to various subsystems(bullet, HUD, scene raycasts, rendering)
+* It's nice because ObjectHandler has always the same address when SO can be moved
+* So in this cases SO has to update own address in handler
+*/
+struct SceneObjectInterface
 {
 public:
 
-    Type type;
-    ObjectID ID;
-    void *userPointer {nullptr}; // ! of course when user container will be changed this pointer is going to hell
-    int userID {0}; // ! this can go to hell too
-    static ObjectID nextID(){ // TODO: spójne zapisywanie ID id Id!??!
-        return ++ids;
+    SceneObject();
+    virtual ~SceneObject() = default;
+    virtual void actionVhenVisible() = 0;
+
+    uint id(){
+        return m_id;
     }
-private:
-    static ObjectID ids;
+
+    Type type;
+    void *userPointer {nullptr};
+    int userId {0};
+
+    std::shared_ptr<ObjectHandler_> handlerToObject;
+
+protected:
+    uint m_id;
 };
+
+// struct DummySceneObjectInterface : public SceneObjectInterface
+// {};
+
+
+/*
+* It's only job is to provide current address of object that is hold elsewhere
+* Using this via shared ptr
+*/
+struct SceneObjectProvider_
+{
+    SceneObjectInterface* handlee;
+};
+
+using ObjectProvider = std::shared_ptr<SceneObjectProvider_>;

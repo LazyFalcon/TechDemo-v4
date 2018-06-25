@@ -90,6 +90,7 @@ struct ObjectWrapper
     void init(){
         arrayIndex = storeAddress();
     }
+
     void kill(){
         releaseAddress();
     }

@@ -52,10 +52,10 @@ void Environment::loadObject(const Yaml &thing, ModelLoader& modelLoader){
     }
     e.id = m_entities.size();
     m_entities.push_back(e);
-    SceneObject object{Type::Enviro, SceneObject::nextID(), nullptr, e.id};
-    if(e.physics.rgBody) e.physics.rgBody->setUserIndex(object.ID);
+    // SceneObject object{Type::Enviro, SceneObject::nextID(), nullptr, e.id};
+    // if(e.physics.rgBody) e.physics.rgBody->setUserIndex(object.ID);
 
-    graph.insertObject(object, e.physics.position);
+    // graph.insertObject(object, e.physics.position);
 }
 
 void Environment::loadLightSource(const Yaml &thing){

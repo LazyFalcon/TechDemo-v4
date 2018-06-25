@@ -31,7 +31,7 @@ void SceneRenderer::renderScene(Scene &scene, Camera &camera){
     // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
     // TODO: scene renderer should have known nothing about scene and other, scene objects should add itself to proper queue. this will allow to have different materials systems in scene
     for(auto &obj : scene.graph->visibleObjectsByType[Type::Enviro]){
-        auto &env = scene.environment->entities[obj.userID];
+        auto &env = scene.environment->m_entities[0];
         auto &mesh = env.graphic.mesh;
         shader.uniform(uModel, env.physics.transform);
         gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, mesh.offset());
@@ -58,7 +58,7 @@ void SceneRenderer::renderTerrain(Scene &scene, Camera &camera){
     // TODO: use array to render
     // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
     for(auto &it : scene.graph->visibleObjectsByType[Type::TerrainChunk]){
-        scene.graph->cells[it.userID].terrainMesh.render();
+        scene.graph->cells[0].terrainMesh.render(); // !!!!!!!!!!!!!!!!!!!!!
     }
     // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
 

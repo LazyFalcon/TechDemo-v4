@@ -47,10 +47,10 @@ void SceneGraph::initCellsToDefaults(){
         cells[i].hasTerrain = false;
         cells[i].cellBoxCollider = createSimpleCollider(cells[i].position, cells[i].size.xyz());
 
-        SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};
+        // SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};
 
-        cells[i].cellBoxCollider->setUserIndex(object.ID);
-        objects[object.ID] = object;
+        // cells[i].cellBoxCollider->setUserIndex(object.ID);
+        // objects[object.ID] = object;
         i++;
     }
 }
@@ -67,13 +67,13 @@ btRigidBody* SceneGraph::createSimpleCollider(glm::vec4 pos, glm::vec3 dim){
 }
 
 
-void SceneGraph::insertObject(SceneObject& object, const glm::vec4& position){
+void SceneGraph::insertObject(ObjectProvider& object, const glm::vec4& position){
     auto cell = findCellUnderPosition(position);
     if(not cell){
         log("cell under", position, "doesn't exists");
     }
-    cell->objects.push_back(object.ID);
-    objects[object.ID] = object;
+    // cell->objects.push_back(object.ID);
+    // objects[object.ID] = object;
 }
 
 Cell* SceneGraph::findCellUnderPosition(const glm::vec4& pos){
@@ -89,11 +89,11 @@ Cell* SceneGraph::findCellUnderPosition(const glm::vec4& pos){
 
 void SceneGraph::diffBetweenFrames(){
 
-    for(auto& i : visibleObjectsByType[Type::TerrainChunk]){
-        clog(cells[objects[i.ID].userID].id);
-        for(auto& o : cells[objects[i.ID].userID].objects)
-            visibleObjectsByType[Type::Enviro].push_back( objects[o] );
-    }
+    // for(auto& i : visibleObjectsByType[Type::TerrainChunk]){
+    //     clog(cells[objects[i.ID].userID].id);
+    //     for(auto& o : cells[objects[i.ID].userID].objects)
+    //         visibleObjectsByType[Type::Enviro].push_back( objects[o] );
+    // }
     return;
 
     std::sort(addedCells.begin(), addedCells.end());
@@ -169,7 +169,7 @@ void SceneGraph::cullWithPhysicsEngine(const Frustum &frustum){
     visibleObjectsByType.clear();
     for(auto &it : culling.objectsInsideFrustum){
         auto obj = objects[it];
-        visibleObjectsByType[obj.type].push_back(obj);
+        // visibleObjectsByType[obj.type].push_back(obj);
     }
 }
 
@@ -195,7 +195,7 @@ void SceneGraph::loadCollider(ModelLoader &loader, const std::string &name){
     tr.setIdentity();
     collider = physics.createRigidBody(0, tr, colliderShape);
     collider->setUserPointer(this);
-    collider->setUserIndex(SceneObject::nextID());
+    // collider->setUserIndex(SceneObject::nextID());
 }
 
 

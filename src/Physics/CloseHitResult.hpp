@@ -3,7 +3,7 @@
 
 struct CloseHitResult
 {
-    ObjectID objectID;
+    int objectID;
 
     bool success;
     glm::vec4 position;

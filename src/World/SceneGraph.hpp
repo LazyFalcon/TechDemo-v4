@@ -59,8 +59,8 @@ public:
     std::vector<Cell> cells;
 
     // TODO: Tuple nie byłby lepszy?
-    std::unordered_map<uint, SceneObject> objects;
-    std::map<Type, std::vector<SceneObject>> visibleObjectsByType;
+    std::unordered_map<uint, ObjectProvider> objects;
+    std::map<Type, std::vector<ObjectProvider>> visibleObjectsByType;
 
     SceneGraph(PhysicalWorld &physics);
     std::vector<i32> getVisibleCells();
@@ -74,7 +74,7 @@ public:
     void initAndLoadMap(const Yaml& yaml);
     void cullCells(const Frustum &frstum);
 
-    void insertObject(SceneObject& obj, const glm::vec4& position);
+    void insertObject(ObjectProvider& obj, const glm::vec4& position);
 
     // wszystkie lodLevele na raz, posortowane po lod i odleglosci
     std::vector<i32> visibleCells;

@@ -12,7 +12,7 @@ class Yaml;
 
 namespace projectiles {class Projectile;}
 
-class EnviroEntity : public SceneObject
+class EnviroEntity : public ObjectInterface
 {
 public:
     std::string name;
@@ -37,6 +37,7 @@ public:
     };
     void printStatus(){};
     void update(float dt);
+    void actionVhenVisible() override {};
 };
 
 

@@ -7,7 +7,7 @@
 class DbvtBroadphaseFrustumCulling : public btDbvt::ICollide
 {
 public:
-    std::vector<ObjectID> objectsInsideFrustum;
+    std::vector<int> objectsInsideFrustum;
     std::vector<int> cellsInsideFrustum;
     short int collisionFilterMask;
 

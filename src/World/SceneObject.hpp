@@ -40,23 +40,53 @@ public:
     void *userPointer {nullptr};
     int userId {0};
 
-    std::shared_ptr<ObjectHandler_> handlerToObject;
+    ObjectStoreProvider handlerToStore;
 
 protected:
     uint m_id;
 };
 
-// struct DummySceneObjectInterface : public SceneObjectInterface
-// {};
-
-
-/*
-* It's only job is to provide current address of object that is hold elsewhere
-* Using this via shared ptr
-*/
-struct SceneObjectProvider_
+ObjectStoreProvider
 {
-    SceneObjectInterface* handlee;
+    int index;
+    void update(SceneObjectInterface*);
 };
 
-using ObjectProvider = std::shared_ptr<SceneObjectProvider_>;
+StoreRecord
+{
+    SceneObjectInterface* o;
+    int selfIndex;
+};
+
+// * container for pointers to objects, handler index in this container never changes
+SceneObjectPointerStore
+{
+    static std::list<int> freeIndices;
+    static std::vector<StoreRecord> container;
+
+    void resizeContainer(int increase=1000){
+        size_t from  =g_objectPointerStore.size();
+        g_objectPointerStore.resize(from + increase);
+
+        for(int i=from; i<from+increase; i++){
+            g_freeStoreIndices.push_back(i);
+        }
+    }
+    ObjectStoreProvider getNext(SceneObjectInterface*); 
+};
+
+// * Copyable provider of object, gets it via index from store
+struct SceneObjectProvider
+{
+    SceneObjectProvider(int i) : index(i){}
+    const int index;
+    SceneObject& operator -> (){
+        return SceneObjectPointerStore::get(index);
+    }
+    
+    static SceneObjectProvider get(int i){
+        return SceneObjectProvider(i);
+    }
+    
+};
+

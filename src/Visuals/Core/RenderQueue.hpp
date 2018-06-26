@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include <boost/any.hpp>
 
+// ! when inserts will be too costly, convert this precious thing to tuple of known structures, however pros of 'any' is that now types shouldn't be known
 class RenderQueue
 {
 public:

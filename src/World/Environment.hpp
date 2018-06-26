@@ -3,6 +3,7 @@
 #include "BaseStructs.hpp"
 #include "LightSource.hpp"
 #include "SceneGraph.hpp"
+#include "SceneObject.hpp"
 
 class btCollisionShape;
 class btRgBody;
@@ -37,7 +38,7 @@ public:
     };
     void printStatus(){};
     void update(float dt);
-    void actionVhenVisible() override {};
+    void actionVhenVisible() override;
 };
 
 
@@ -50,9 +51,9 @@ public:
 
     LightSourcesContainer lightSources;
     std::vector<EnviroEntity> glossyObjects;
-    std::vector<EnviroEntity> m_entities;
+    std::vector<ObjectWrapper<EnviroEntity>> m_entities;
     EnviroEntity& getObject(u32 id){
-        return m_entities[id];
+        return *m_entities[id];
     }
     VAO vao;
 private:

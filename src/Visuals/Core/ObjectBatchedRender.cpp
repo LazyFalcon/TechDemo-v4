@@ -7,14 +7,16 @@
 #include "Logging.hpp"
 #include "Camera.hpp"
 #include "PerfTimers.hpp"
+#include "Environment.hpp"
 // #include "TrackSim.hpp"
 // #include "TankDriveSystem.hpp"
 #include "Scene.hpp"
 #include "Sun.hpp"
 #include "RenderQueue.hpp"
 
-void ObjectBatchedRender::renderObjects(Camera &camera){
+void ObjectBatchedRender::renderObjects(Scene &scene, Camera &camera){
     renderSkinned(camera);
+    render_SimpleModelPbr(scene, camera);
     // renderTracks(camera);
 }
 void ObjectBatchedRender::renderShadows(Scene &scene, Camera &camera){
@@ -82,7 +84,7 @@ void ObjectBatchedRender::renderSkinnedShadows(Scene &scene, Camera &camera){
     if(scene.sun) lightDir = scene.sun->getVector();
     auto shader = assets::getShader("ObjectShadow").bind();
 
-    auto &     skinnedMeshes = RenderQueue::get<SkinnedMesh*>();
+    auto &skinnedMeshes = RenderQueue::get<SkinnedMesh*>();
     for(auto toRender : skinnedMeshes)
     {
         auto &mesh = toRender->mesh;
@@ -107,3 +109,36 @@ void ObjectBatchedRender::renderSkinnedShadows(Scene &scene, Camera &camera){
     gl::BindVertexArray(0);
     context.errors();
 };
+
+void ObjectBatchedRender::render_SimpleModelPbr(Scene &scene, Camera &camera){
+    // GPU_SCOPE_TIMER();
+    gl::Enable(gl::CULL_FACE);
+
+    auto shader = assets::bindShader("simple-model-pbr");
+
+    auto uModel = shader.location("uModel");
+    shader.uniform("uPV", (camera.getPV()));
+    shader.atlas("uAlbedo", assets::getAlbedoArray("Materials").id, 0);
+    shader.atlas("uRoughnessMap", assets::getRoughnessArray("Materials").id, 1);
+    shader.atlas("uMetallicMap", assets::getMetalic("Materials").id, 2);
+
+    scene.environment->vao.bind();
+
+    // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+    auto &meshes = RenderQueue::get<SimpleModelPbr>();
+    clog("-> Visible objects:", meshes.size());
+
+    for(auto& it : meshes){
+        shader.uniform(uModel, it.transform);
+        gl::DrawElements(gl::TRIANGLES, it.mesh.count, gl::UNSIGNED_INT, it.mesh.offset());
+    }
+
+    meshes.clear();
+
+    // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
+    gl::BindVertexArray(0);
+    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+    gl::BindTexture(gl::TEXTURE_2D, 0);
+
+    context.errors();
+}

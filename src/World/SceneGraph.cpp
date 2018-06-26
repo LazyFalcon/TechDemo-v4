@@ -10,6 +10,13 @@
 #include "Yaml.hpp"
 
 
+void Cell::actionVhenVisible(){
+    clog("cell is visible");
+    for(auto& it : objects){
+        it->actionVhenVisible();
+    }
+}
+
 const float manhattanLodDistances[4] = {15,60,100,900};
 
 SceneGraph::SceneGraph(PhysicalWorld &physics) : cells(pow(4, NoOfLevels)), physics(physics){
@@ -40,17 +47,16 @@ void SceneGraph::initCellsToDefaults(){
     int i = 0;
     for(int x=0; x<cellsInTheScene.x; x++) for(int y=0; y<cellsInTheScene.y; y++){
         glm::vec4 position = min + glm::vec4(cellSize.x*(0.5f + x), cellSize.y*(0.5f+y), center.z, 0);
-        cells[i].position = position;
-        cells[i].size = glm::vec4(cellSize, 100.f, 0.f);
-        cells[i].level = 0;
-        cells[i].id = i;
-        cells[i].hasTerrain = false;
-        cells[i].cellBoxCollider = createSimpleCollider(cells[i].position, cells[i].size.xyz());
+        cells[i]->position = position;
+        cells[i]->size = glm::vec4(cellSize, 100.f, 0.f);
+        cells[i]->level = 0;
+        cells[i]->id = i;
+        cells[i]->hasTerrain = false;
+        cells[i]->cellBoxCollider = createSimpleCollider(cells[i]->position, cells[i]->size.xyz());
 
         // SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};
 
-        // cells[i].cellBoxCollider->setUserIndex(object.ID);
-        // objects[object.ID] = object;
+        cells[i]->cellBoxCollider->setUserIndex(cells[i].id());
         i++;
     }
 }
@@ -67,13 +73,12 @@ btRigidBody* SceneGraph::createSimpleCollider(glm::vec4 pos, glm::vec3 dim){
 }
 
 
-void SceneGraph::insertObject(ObjectProvider& object, const glm::vec4& position){
+void SceneGraph::insertObject(ObjectProvider object, const glm::vec4& position){
     auto cell = findCellUnderPosition(position);
     if(not cell){
         log("cell under", position, "doesn't exists");
     }
-    // cell->objects.push_back(object.ID);
-    // objects[object.ID] = object;
+    cell->objects.push_back(object);
 }
 
 Cell* SceneGraph::findCellUnderPosition(const glm::vec4& pos){
@@ -82,7 +87,7 @@ Cell* SceneGraph::findCellUnderPosition(const glm::vec4& pos){
     glm::vec2 p = pos.xy() - min.xy();
     p /= cellSize;
 
-    return &(cells[int(p.x) + int(p.y)*cellsInTheScene.x]);
+    return &(*cells[int(p.x) + int(p.y)*cellsInTheScene.x]);
 }
 
 
@@ -132,14 +137,14 @@ void SceneGraph::setLodForVisible(glm::vec4 eye){
     for(auto &i : visibleCells){
         auto &cell = cells.at(i);
 
-        auto vec = glm::abs(cell.position - glm::ceil(eye/cell.size.x*10.f)*cell.size.x/10.f);
+        auto vec = glm::abs(cell->position - glm::ceil(eye/cell->size.x*10.f)*cell->size.x/10.f);
         auto distance = std::max(vec.x, vec.y);
 
-        if(distance < manhattanLodDistances[0]) cell.level = 0;
-        else if(distance < manhattanLodDistances[1]) cell.level = 1;
-        else if(distance < manhattanLodDistances[2]) cell.level = 2;
-        else if(distance < manhattanLodDistances[3]) cell.level = 3;
-        else cell.level = -1;
+        if(distance < manhattanLodDistances[0]) cell->level = 0;
+        else if(distance < manhattanLodDistances[1]) cell->level = 1;
+        else if(distance < manhattanLodDistances[2]) cell->level = 2;
+        else if(distance < manhattanLodDistances[3]) cell->level = 3;
+        else cell->level = -1;
     }
 }
 
@@ -168,7 +173,7 @@ void SceneGraph::cullWithPhysicsEngine(const Frustum &frustum){
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[0].m_root, normals, offsets, cullFarPlane ? 5 : 4, culling); // with dynamic
     visibleObjectsByType.clear();
     for(auto &it : culling.objectsInsideFrustum){
-        auto obj = objects[it];
+        // auto obj = objects[it];
         // visibleObjectsByType[obj.type].push_back(obj);
     }
 }
@@ -243,8 +248,8 @@ void SceneGraph::loadMap(const std::string &mapConfigDir){
         // cells[i].position = position;
         // cells[i].size = dimension;
         // cells[i].level = 0;
-        cells[i].hasTerrain = true;
-        cells[i].terrainMesh = loader.insert(intMesh).toMesh();
+        cells[i]->hasTerrain = true;
+        cells[i]->terrainMesh = loader.insert(intMesh).toMesh();
         // cells[i].cellBoxCollider = createSimpleCollider(position, dimension.xyz());
 
         // SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};

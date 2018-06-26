@@ -18,11 +18,14 @@ private:
     void renderSkinned(Camera &camera);
     void renderTracks(Camera &camera);
     void renderSkinnedShadows(Scene &scene, Camera &camera);
+
+    void render_SimpleModelPbr(Scene &scene, Camera &camera);
 public:
     ObjectBatchedRender(Window &window, Context &context) : window(window), context(context)
         {}
 
-    void renderObjects(Camera &camera);
+    void renderObjects(Scene &scene, Camera &camera);
     void renderShadows(Scene &scene, Camera &camera);
     void renderGlossyObjects(Camera &camera);
+
 };

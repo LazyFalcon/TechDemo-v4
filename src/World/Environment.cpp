@@ -1,14 +1,23 @@
 #include "core.hpp"
 #include "Environment.hpp"
-#include "Logging.hpp"
-#include "ResourceLoader.hpp"
-#include "LightSource.hpp"
-#include "ModelLoader.hpp"
 #include "GPUResources.hpp"
+#include "LightSource.hpp"
+#include "Logging.hpp"
+#include "ModelLoader.hpp"
 #include "PerfTimers.hpp"
 #include "PhysicalWorld.hpp"
-#include "Yaml.hpp"
+#include "RenderQueue.hpp"
+#include "ResourceLoader.hpp"
 #include "Utils.hpp"
+#include "Yaml.hpp"
+
+void EnviroEntity::actionVhenVisible(){
+    if(lastFrame==frame()) return; // * to be sure that object will be inserted once per frame :)
+    lastFrame = frame();
+
+    RenderQueue::insert(SimpleModelPbr {graphic.mesh, physics.transform});
+}
+
 
 void Environment::load(const std::string &sceneName){
     CPU_SCOPE_TIMER("Environment::load");
@@ -55,7 +64,7 @@ void Environment::loadObject(const Yaml &thing, ModelLoader& modelLoader){
     // SceneObject object{Type::Enviro, SceneObject::nextID(), nullptr, e.id};
     // if(e.physics.rgBody) e.physics.rgBody->setUserIndex(object.ID);
 
-    // graph.insertObject(object, e.physics.position);
+    graph.insertObject(m_entities.back().getProvider(), e.physics.position);
 }
 
 void Environment::loadLightSource(const Yaml &thing){

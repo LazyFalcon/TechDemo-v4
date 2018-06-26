@@ -70,8 +70,8 @@ void ShadowCaster::renderScene(Scene &scene, Camera &camera){
 
     for(auto &obj : scene.graph->visibleObjectsByType[Type::Enviro]){
         auto &env = scene.environment->m_entities[0]; // !!!!!!!
-        auto &mesh = env.graphic.mesh;
-        shader.uniform(uModel, env.physics.transform);
+        auto &mesh = env->graphic.mesh;
+        shader.uniform(uModel, env->physics.transform);
         gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, mesh.offset());
     }
 
@@ -121,7 +121,7 @@ std::vector<Mesh> ShadowCaster::getTerrainToRender(SceneGraph &sg){
 
     // TODO: przerobić tak by były renderowane te które mogą zasłonić
     for(auto &it : sg.cells){
-        out.push_back(it.terrainMesh);
+        out.push_back(it->terrainMesh);
     }
 
     return out;

@@ -12,7 +12,7 @@ class ModelLoader;
 class PhysicalWorld;
 class Yaml;
 
-class Cell
+class Cell : public ObjectInterface
 {
 public:
     glm::vec4 position;
@@ -24,13 +24,14 @@ public:
     bool hasTerrain {false};
     Mesh terrainMesh {};
     btRigidBody *cellBoxCollider {nullptr};
-    // TODO: tuple na różne typy
-    std::vector<uint> objects;
+    std::vector<ObjectProvider> objects;
 
     SampleResult sample(glm::vec2 position){
         // allhitRaycast i porownanie pointerow
         return {};
     }
+
+    void actionVhenVisible() override;
 };
 
 constexpr i32 getCellCount(i32 levels){
@@ -56,10 +57,8 @@ public:
     glm::vec2 cellsInTheScene;
 
     Cell root;
-    std::vector<Cell> cells;
+    std::vector<ObjectWrapper<Cell>> cells;
 
-    // TODO: Tuple nie byłby lepszy?
-    std::unordered_map<uint, ObjectProvider> objects;
     std::map<Type, std::vector<ObjectProvider>> visibleObjectsByType;
 
     SceneGraph(PhysicalWorld &physics);
@@ -74,7 +73,7 @@ public:
     void initAndLoadMap(const Yaml& yaml);
     void cullCells(const Frustum &frstum);
 
-    void insertObject(ObjectProvider& obj, const glm::vec4& position);
+    void insertObject(ObjectProvider obj, const glm::vec4& position);
 
     // wszystkie lodLevele na raz, posortowane po lod i odleglosci
     std::vector<i32> visibleCells;

@@ -17,3 +17,9 @@ struct PlasmaProjectile
     glm::vec4 to;
     u32 color;
 };
+
+struct SimpleModelPbr
+{
+    Mesh mesh;
+    glm::mat4 transform;
+};

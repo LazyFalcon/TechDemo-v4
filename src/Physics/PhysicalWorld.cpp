@@ -93,6 +93,7 @@ btRigidBody* PhysicalWorld::createRigidBodyWithMasks(float mass, const btTransfo
     if(not bodyUser) bodyUser = new BodyUser();
     m_dynamicsWorld->addRigidBody(body, group, collideWith);
     body->setUserPointer(bodyUser);
+    body->setUserIndex(0);
     bodies.push_back(body);
     shapes.push_back(shape);
     motionStates.push_back(motionState);

@@ -137,8 +137,8 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.context->beginFrame();
     renderer.context->setupFramebufferForGBufferGeneration();
     // renderer.utils->drawBackground("nebula2");
-    renderer.objectBatchedRender->renderObjects(CameraController::getActiveCamera());
-    renderer.sceneRenderer->renderScene(*m_scene, CameraController::getActiveCamera());
+    renderer.objectBatchedRender->renderObjects(*m_scene, CameraController::getActiveCamera());
+    // renderer.sceneRenderer->renderScene(*m_scene, CameraController::getActiveCamera());
 
 
     renderer.gBufferSamplers->sampleGBuffer(CameraController::getActiveCamera());

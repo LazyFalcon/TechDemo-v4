@@ -23,7 +23,7 @@ public:
         btCollisionObject *co = static_cast<btCollisionObject*>(proxy->m_clientObject);
 
         if((proxy->m_collisionFilterGroup & collisionFilterMask) != 0){
-            if(co->getUserIndex()>0) objectsInsideFrustum.push_back(co->getUserIndex());
+            if(co->getUserIndex()) derefIndex(co->getUserIndex())->actionVhenVisible();
         }
     }
 };

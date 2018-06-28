@@ -19,7 +19,7 @@ private:
     void renderTracks(Camera &camera);
     void renderSkinnedShadows(Scene &scene, Camera &camera);
 
-    void render_SimpleModelPbr(Scene &scene, Camera &camera);
+    void render_SimpleModelPbr(Camera &camera);
 public:
     ObjectBatchedRender(Window &window, Context &context) : window(window), context(context)
         {}

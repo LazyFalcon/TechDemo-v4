@@ -16,7 +16,7 @@
 
 void ObjectBatchedRender::renderObjects(Scene &scene, Camera &camera){
     renderSkinned(camera);
-    render_SimpleModelPbr(scene, camera);
+    render_SimpleModelPbr(camera);
     // renderTracks(camera);
 }
 void ObjectBatchedRender::renderShadows(Scene &scene, Camera &camera){
@@ -92,13 +92,14 @@ void ObjectBatchedRender::renderSkinnedShadows(Scene &scene, Camera &camera){
 
         { // passing bones
             GLuint UBOBindingIndex = 0;
-            // update buffer
-            gl::BindBuffer(gl::UNIFORM_BUFFER, context.ubo.matrices);
-            gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->bones.size(), toRender->bones.data());
-            gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
+            // // update buffer
+            // gl::BindBuffer(gl::UNIFORM_BUFFER, context.ubo.matrices);
+            // gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->bones.size(), toRender->bones.data());
+            // gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
 
             // use buffer
-            shader.ubo("uBones", context.ubo.matrices, UBOBindingIndex, sizeof(glm::mat4) * 150);
+            context.ubo.update(toRender->bones);
+            shader.ubo("uBones", context.ubo.matrices, UBOBindingIndex, sizeof(glm::mat4) * context.ubo.size);
         }
 
         shader.uniform("uMatrices",  context.tex.shadows.matrices);
@@ -110,30 +111,30 @@ void ObjectBatchedRender::renderSkinnedShadows(Scene &scene, Camera &camera){
     context.errors();
 };
 
-void ObjectBatchedRender::render_SimpleModelPbr(Scene &scene, Camera &camera){
+void ObjectBatchedRender::render_SimpleModelPbr(Camera &camera){
     // GPU_SCOPE_TIMER();
     gl::Enable(gl::CULL_FACE);
 
     auto shader = assets::bindShader("simple-model-pbr");
 
-    auto uModel = shader.location("uModel");
     shader.uniform("uPV", (camera.getPV()));
     shader.atlas("uAlbedo", assets::getAlbedoArray("Materials").id, 0);
     shader.atlas("uRoughnessMap", assets::getRoughnessArray("Materials").id, 1);
     shader.atlas("uMetallicMap", assets::getMetalic("Materials").id, 2);
 
-    scene.environment->vao.bind();
+    // TODO: in loop
+    context.ubo.update(RenderQueue::enviro.transforms.data(), RenderQueue::enviro.size);
+    shader.ubo("uBones", context.ubo.matrices, 0, sizeof(glm::mat4) * context.ubo.size);
+
+    RenderQueue::enviro.vao.bind();
 
     // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
-    auto &meshes = RenderQueue::get<SimpleModelPbr>();
-    clog("-> Visible objects:", meshes.size());
+    clog("-> Visible objects:", RenderQueue::enviro.size);
 
-    for(auto& it : meshes){
-        shader.uniform(uModel, it.transform);
-        gl::DrawElements(gl::TRIANGLES, it.mesh.count, gl::UNSIGNED_INT, it.mesh.offset());
-    }
+    // gl::MultiDrawElementsIndirect(gl::TRIANGLES, gl::UNSIGNED_INT, RenderQueue::enviro.array.data(), RenderQueue::enviro.size, sizeof(DrawElementsIndirectCommand));
+    gl::MultiDrawElements(gl::TRIANGLES, RenderQueue::enviro.count.data(), gl::UNSIGNED_INT, RenderQueue::enviro.indices.data(), RenderQueue::enviro.size);
 
-    meshes.clear();
+    RenderQueue::enviro.clear();
 
     // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
     gl::BindVertexArray(0);

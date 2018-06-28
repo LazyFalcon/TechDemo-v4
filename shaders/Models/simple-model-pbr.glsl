@@ -6,16 +6,19 @@ layout(location=2)in vec4 mNormal;
 // layout(location=3)in vec4 mTangent;
 
 uniform mat4 uPV;
-uniform mat4 uModel;
+
+layout(std140) uniform uBones {
+    mat4 bones[256];
+};
 
 out vec3 vUV;
 out vec3 vNormalWS;
 
 void main(){
     vUV = mUV;
-    vNormalWS = (uModel*mNormal).xyz;
+    vNormalWS = (bones[gl_DrawID]*mNormal).xyz;
 
-    gl_Position = uPV*(uModel*mVertex);
+    gl_Position = uPV*(bones[gl_DrawID]*mVertex);
 }
 
 #endif

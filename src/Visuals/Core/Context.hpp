@@ -68,8 +68,11 @@ public:
         Texture terrainTopdownView;
         Texture terrainTopdownViewNormals;
     } tex;
-    struct {
+    struct UBOs{
         u32 matrices;
+        const u32 size = 256;
+        void update(std::vector<glm::mat4>&);
+        void update(glm::mat4*, int);
     } ubo;
     // struct {
     //     GLenum drawBuffers[5];

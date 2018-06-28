@@ -15,7 +15,7 @@ void EnviroEntity::actionVhenVisible(){
     if(lastFrame==frame()) return; // * to be sure that object will be inserted once per frame :)
     lastFrame = frame();
 
-    RenderQueue::insert(SimpleModelPbr {graphic.mesh, physics.transform});
+    RenderQueue::enviro.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
 }
 
 
@@ -37,6 +37,7 @@ void Environment::load(const std::string &sceneName){
     for(auto& it : yaml["Objects"]) loadObject(it, modelLoader);
     if(yaml.has("LightSources")) for(auto& it : yaml["LightSources"]) loadLightSource(it);
     vao = modelLoader.build();
+    RenderQueue::enviro.vao = vao;
 
     const Yaml &lamps = yaml["LightSources"];
 }

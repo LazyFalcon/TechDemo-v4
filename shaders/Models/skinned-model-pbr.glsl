@@ -10,7 +10,7 @@ uniform mat4 uView;
 uniform mat4 uModel;
 
 layout(std140) uniform uBones {
-    mat4 bones[150];
+    mat4 bones[256];
 };
 
 out vec3 vUV;

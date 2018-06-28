@@ -108,11 +108,22 @@ void Context::resetBuffers(){
     gl::GenBuffers(1, &ubo.matrices);
     gl::BindBuffer(gl::UNIFORM_BUFFER, ubo.matrices);
 
-    gl::BufferData(gl::UNIFORM_BUFFER, sizeof(glm::mat4)*150, nullptr, gl::DYNAMIC_DRAW);
+    gl::BufferData(gl::UNIFORM_BUFFER, sizeof(glm::mat4)*ubo.size, nullptr, gl::DYNAMIC_DRAW);
     // gl::BindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, ubo.matrices);
     gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
 
 }
+void Context::UBOs::update(std::vector<glm::mat4>& m){
+    gl::BindBuffer(gl::UNIFORM_BUFFER, matrices);
+    gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*m.size(), m.data());
+    gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
+}
+void Context::UBOs::update(glm::mat4* data, int size){
+    gl::BindBuffer(gl::UNIFORM_BUFFER, matrices);
+    gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*size, data);
+    gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
+}
+
 void Context::resetShapes(){ // TODO: zwalidować użycia tego
     log("--shapes");
     float point[] = {0.0f, 0.0f, 0.5f, 1.f};

@@ -3,4 +3,6 @@
 #include "ModelLoader.hpp"
 #include "Constants.hpp"
 
-std::map<std::type_index, boost::any> RenderQueue::collection;
+RenderQueue::tupleOfContainers RenderQueue::collection;
+CommandArray RenderQueue::enviro;
+CommandArray RenderQueue::foliage;

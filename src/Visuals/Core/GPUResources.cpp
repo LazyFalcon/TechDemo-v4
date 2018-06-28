@@ -391,9 +391,9 @@ void Shader::loadFromFile(const std::string pathTo, const std::string name){
     resolvecommon(shaderSource);
 
     // TODO: maybe make defines global? then we can put functions there
-    std::string vertexSource = "#version 420\n"s + defines(name) + "#define VERTEX_SHADER\n"s + shaderSource;
-    std::string geometrySource = "#version 420\n"s + defines(name) + "#define GEOMETRY_SHADER\n"s + shaderSource;
-    std::string fragmentSource = "#version 420\n"s + defines(name) + "#define FRAGMENT_SHADER\n"s + shaderSource;
+    std::string vertexSource = "#version 460\n"s + defines(name) + "#define VERTEX_SHADER\n"s + shaderSource;
+    std::string geometrySource = "#version 460\n"s + defines(name) + "#define GEOMETRY_SHADER\n"s + shaderSource;
+    std::string fragmentSource = "#version 460\n"s + defines(name) + "#define FRAGMENT_SHADER\n"s + shaderSource;
 
     vertexS = gl::CreateShader(gl::VERTEX_SHADER);
     geometryS = findGeometryShader(shaderSource) ? gl::CreateShader(gl::GEOMETRY_SHADER) : 0;

@@ -113,29 +113,6 @@ bool ResourceLoader::reloadShader(const std::string &name){
     return true;
 }
 
-Mesh ResourceLoader::loadMesh(std::string meshName){
-    std::string fileName = resPath+"/models/"+meshName+".obj";
-
-    Mesh mesh;
-    std::fstream file;
-    file.open(fileName, std::ios::in);
-
-    if(!file.is_open()){
-        error(fileName, "not exist");
-        return {};
-    }
-
-    mesh.begin = model_indices.size();
-    loadObj(file);
-    mesh.end = model_indices.size();
-    mesh.count = mesh.end - mesh.begin;
-
-    file.close();
-    assets::addMesh(mesh, meshName);
-
-    log("[ MESH ]", meshName);
-    return mesh;
-}
 bool ResourceLoader::loadFonts(){
     log("---fonts");
     std::vector<std::string> imagesToLoad;
@@ -289,6 +266,9 @@ assets::TextureArray ResourceLoader::loadTextureArray(const std::string &folder,
         out.id = ImageUtils::loadArrayToGpu(albedo).id;
         convertAndGetName(albedo, out.content);
         assets::addAlbedoArray(id, out, containerName);
+        log(containerName);
+        for(auto& it : out.content)
+            log("\t", it);
     }
     {
         assets::TextureArray out;

@@ -44,7 +44,7 @@ struct InternalMesh
 class ModelLoader
 {
 public:
-    u32 m_uvSize {2};
+    u32 m_uvSize {3};
     float m_vertexW { 1.f };
     bool good { false };
     bool loadTangents { false };

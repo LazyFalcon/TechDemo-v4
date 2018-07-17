@@ -25,6 +25,7 @@ void ModelLoader::copyVertices(aiMesh *mesh, floats &target){
         target[start+j+3] = m_vertexW;
     }
 }
+// * always 3 coords
 void ModelLoader::copyTexcoords(aiMesh *mesh, floats &target){
     u32 count = mesh->mNumVertices;
     u32 start = target.size();
@@ -35,6 +36,7 @@ void ModelLoader::copyTexcoords(aiMesh *mesh, floats &target){
         for(u32 i=0, j=0; i<count; i++, j+=2){
             target[start+j] = 0;
             target[start+j+1] = 0;
+            target[start+j+2] = 0;
         }
         return;
     }
@@ -188,9 +190,9 @@ std::vector<std::string> ModelLoader::findInstances(const std::string &pattern){
     return out;
 }
 
-/**
-loads specified mesh from file. If loading of 3 uvs is selected then layer of atlas is
-
+/*
+* loads specified mesh from file.
+* there is only one diffuse texture per material, so models are split by materials, need to be combined
 */
 InternalMeshInfo ModelLoader::load(const std::string &name){
     if(not scene){

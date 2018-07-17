@@ -24,17 +24,12 @@ public:
     bool loadShaders();
     bool reloadShader(const std::string &filename);
 
-    // TODO: remove
-    Mesh loadMesh(std::string meshName);
-    bool loadMesh(const Yaml &cfg);
-
     Image loadImage(const std::string &name);
     bool loadImage(const Yaml &cfg);
     void loadImages(const std::string& dir);
     bool loadFonts();
     bool loadFont(const std::string &font, std::vector<std::string> &imagesToLoad);
     bool loadImageSet(const Yaml &cfg);
-    bool loadObj(std::fstream &file);
     std::string loadFile(std::string fname);
     void printShaderInfoLog(i32 shader);
     void fillBuffers();

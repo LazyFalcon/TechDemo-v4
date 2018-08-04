@@ -81,7 +81,7 @@ void ObjectBatchedRender::renderSkinned(Camera &camera){
 void ObjectBatchedRender::renderSkinnedShadows(Scene &scene, Camera &camera){
     GPU_SCOPE_TIMER();
     glm::vec4 lightDir(1,1,-1, 0);
-    if(scene.sun) lightDir = scene.sun->getVector();
+    if(scene.sun) lightDir = scene.sun->direction;
     auto shader = assets::getShader("ObjectShadow").bind();
 
     auto &skinnedMeshes = RenderQueue::get<SkinnedMesh*>();

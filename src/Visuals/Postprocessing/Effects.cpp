@@ -33,7 +33,7 @@ void Effects::scattering(Scene &scene, Camera &camera){
     auto shader = assets::getShader("Scattering");
     shader.bind();
 
-    shader.uniform("uLightDirection", sun.getLightVector());
+    shader.uniform("uLightDirection", sun.direction.xyz());
     shader.uniform("uWaveLength", 1.f/glm::pow4(atmosphere.invWavelength));
     shader.uniform("uRayleigh", atmosphere.rayleigh*4*pi);
     shader.uniform("uMie", atmosphere.mie*4*pi);
@@ -80,7 +80,7 @@ void Effects::scatteringShadowed(Scene &scene, Camera &camera){
     auto shader = assets::getShader("ScatteringShadowed");
     shader.bind();
 
-    shader.uniform("uLightDirection", sun.getLightVector());
+    shader.uniform("uLightDirection", sun.direction.xyz());
     shader.uniform("uWaveLength", 1.f/glm::pow4(atmosphere.invWavelength));
     shader.uniform("uRayleigh", atmosphere.rayleigh*4*pi);
     shader.uniform("uMie", atmosphere.mie*4*pi);
@@ -139,7 +139,7 @@ void Effects::sky(Scene &scene, Camera &camera){
     // TODO:  shader.uniform("uExposure", camera.exposure);
     shader.uniform("uEye", camera.position());
 
-    shader.uniform("uLightDirection", -sun.getVector().xyz());
+    shader.uniform("uLightDirection", -sun.direction.xyz());
     shader.uniform("uInvWaveLength", 1.f/glm::pow4(atmosphere.invWavelength.xyz()));
     shader.uniform("uKr4Pi", atmosphere.rayleigh*4*pi);
     shader.uniform("uKm4Pi", atmosphere.mie*4*pi);
@@ -178,7 +178,7 @@ void Effects::starfield(Scene &scene, Camera &camera){
     view[3] = glm::vec4(0,0,0,1);
 
     shader.uniform("uPV", camera.PV);
-    shader.uniform("uSunColor", scene.sun->getColor());
+    shader.uniform("uSunColor", scene.sun->color);
 
     scene.starfield->starsOnGpu.bind();
     gl::DrawArrays(gl::POINTS, 0, scene.starfield->starCount);

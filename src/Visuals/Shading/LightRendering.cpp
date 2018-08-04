@@ -19,33 +19,39 @@ int isCameraInside(const glm::vec4& position, const PointLightSource& light){
 }
 }
 
-void LightRendering::renderSun(Scene &scene, Camera &camera){
+void LightRendering::lightPass(Scene &scene, Camera &camera){
+    if(scene.sun) renderSun(*scene.sun, camera);
+}
+
+void LightRendering::renderSun(Sun& sun, Camera &camera){
     GPU_SCOPE_TIMER();
     gl::Enable(gl::BLEND);
     gl::BlendFunc(gl::ONE, gl::ONE);
     gl::Disable(gl::DEPTH_TEST);
     gl::Disable(gl::CULL_FACE);
     gl::DepthMask(gl::FALSE_);
-    auto &sun = *scene.sun;
-    auto shader = assets::getShader("LightSource_SUN");
-    shader.bind();
+    auto shader = assets::bindShader("Sun+Ambient+Shadow");
 
     shader.texture("uNormal", context.tex.gbuffer.normals, 0);
     shader.texture("uDepth", context.tex.gbuffer.depth, 1);
     shader.texture("uAlbedo", context.tex.gbuffer.color, 2);
-    shader.cubeMap("uCubemap", assets::getCubeMap("Park").id, 3);
+    // shader.cubeMap("uCubemap", assets::getCubeMap("Park").id, 3);
 
-    shader.atlas("uCSMCascades", context.tex.shadows.cascade.ID, 4);
-    shader.uniform("uSplitDistances", camera.frustum.splitDistances);
+    // shader.atlas("uCSMCascades", context.tex.shadows.cascade.ID, 4);
+    // shader.uniform("uSplitDistances", camera.frustum.splitDistances);
 
     shader.uniform("uInvPV", camera.invPV);
     shader.uniform("uEye", camera.position().xyz());
     shader.uniform("uPixelSize", window.pixelSize);
-    shader.uniform("uShadowMapSize", context.tex.shadows.size);
-    shader.uniform("uCSMProjection", context.tex.shadows.matrices);
+    // shader.uniform("uShadowMapSize", context.tex.shadows.size);
+    // shader.uniform("uCSMProjection", context.tex.shadows.matrices);
 
-    shader.uniform("light.direction", sun.getLightVector().xyz());
-    shader.uniform("light.color", sun.getColor());
+    clog(camera.invPV[0], camera.invPV[1], camera.invPV[2], camera.invPV[3]);
+    clog(camera.position().xyz());
+    clog(window.pixelSize);
+
+    shader.uniform("light.direction", sun.direction.xyz());
+    shader.uniform("light.color", sun.color.xyz());
     shader.uniform("light.energy", 100.f);
     shader.uniform("light.lightScale", 1.f);
 
@@ -199,7 +205,7 @@ void LightRendering::compose(Camera &camera){
     // shader.texture("uNormal", Textures::normalBuffer, 0);
     // shader.texture("uDepth", Textures::depthBuffer, 1);
     shader.texture("uColor", context.tex.gbuffer.color, 0);
-    shader.texture("uLight", context.tex.light.color, 1); // LightIntensity
+    shader.texture("uLight", context.tex.light.color, 1);
     shader.texture("uSpecular", context.tex.light.specular, 2);
     // shader.texture("uAO", context.tex.half.rg16b, 3);
     shader.texture("uAO", context.tex.full.rg16a, 3);

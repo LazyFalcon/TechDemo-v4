@@ -143,10 +143,11 @@ void Playground::renderProcedure(GraphicEngine& renderer){
 
     renderer.gBufferSamplers->sampleGBuffer(CameraController::getActiveCamera());
 
+    renderer.effects->SSAO(CameraController::getActiveCamera());
     renderer.context->setupFramebufferForLighting();
 
-    renderer.effects->SSAO(CameraController::getActiveCamera());
 
+    renderer.lightRendering->lightPass(*m_scene, CameraController::getActiveCamera());
     renderer.lightRendering->compose(CameraController::getActiveCamera());
 
     // renderer.context->setupFramebufferForLDRProcessing();

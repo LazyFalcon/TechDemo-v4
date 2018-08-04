@@ -16,23 +16,23 @@ public:
     Sun(const Yaml &sett, GeoTimePosition &geoTimePosition);
     ~Sun();
     void update(Atmosphere &atm);
-    glm::vec4 getVector(){
-        return lightDirectionVector;
-    }
-    glm::vec4 getLightVector();
-    glm::vec3 getColor();
 
-    glm::vec4 lightDirectionVector {}; // to or from sun? **to**
-    glm::mat4 lightTransform {};
-    glm::vec3 lightColor {};
-    float size;
+    enum {Alone, WithAmbient, WithIR} shader {Sun::WithAmbient};
+
+    glm::mat4 transform;
+    glm::vec4 direction;
+    glm::vec4 color;
     float power;
+    float size;
+
 private:
+    GeoTimePosition &m_geoTimePosition;
+
     glm::vec4 polarToVector();
     void calcSunPosition();
-    glm::vec3 calcSunColor(Atmosphere &atmosphere);
-    GeoTimePosition &geoTimePosition;
-    // sun position, on sky, polar
+    glm::vec4 calcSunColor(Atmosphere &atmosphere);
+
+    // * sun position, on sky, polar calculated from geoTime
     float azimuth {pi}; // horizontal, radians, north has 0, south pi
     float elevation {pi}; // vertical, radians
     float zenithAngle {0}; // between sunDir and Z vector
@@ -41,5 +41,4 @@ private:
     bool tweak;
 
     float radialSize {0.15};
-    HexColor color;
 };

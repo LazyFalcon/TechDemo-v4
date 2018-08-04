@@ -11,11 +11,11 @@
 #include "PerfTimers.hpp"
 #include "PhysicalWorld.hpp"
 #include "ResourceLoader.hpp"
+#include "Scene.hpp"
 #include "Starfield.hpp"
 #include "Sun.hpp"
 #include "Terrain.hpp"
 #include "Yaml.hpp"
-#include "Scene.hpp"
 
 namespace graphic {void renderTopViewOfTerrain(Scene &scene);}
 
@@ -71,6 +71,6 @@ void Scene::update(float dt, Camera &camera){
 
     // if(grass) grass->update(camera.position());
     // if(foliage) foliage->update(camera.position());
-    // if(sun) sun->update(*atmosphere);
+    if(sun) sun->update(*atmosphere);
     // if(atmosphere) atmosphere->update(sun->getVector());
 }

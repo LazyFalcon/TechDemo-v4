@@ -72,7 +72,7 @@ void SceneRenderer::renderFoliage(Scene &scene, Camera &camera){
     GPU_SCOPE_TIMER();
     if(not scene.foliage) return;
     glm::vec4 lightDir(1,1,-1, 0);
-    if(scene.sun) lightDir = scene.sun->getVector();
+    if(scene.sun) lightDir = scene.sun->direction;
 
     gl::Disable(gl::BLEND);
     gl::Disable(gl::CULL_FACE);
@@ -135,7 +135,7 @@ void SceneRenderer::renderGrass(Scene &scene, Camera &camera){
     shader.bind();
     shader.uniform("uPV", camera.getPV());
     shader.uniform("uEye", camera.position().xyz());
-    shader.uniform("uSunDir", scene.sun->getLightVector().xyz());
+    shader.uniform("uSunDir", scene.sun->direction.xyz());
     shader.uniform("uTime", /*time*/0);
     shader.uniform("uTerrainSize", scene.graph->size);
     shader.texture("uTexture", grass.texture.ID, 0);

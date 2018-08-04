@@ -28,9 +28,9 @@ public:
     template<typename T>
     static void insert(const T& t){
         std::get<std::vector<T>>(collection).push_back(t);
-    } ;
+    };
     template<typename T>
     static void insert(T* t){
         std::get<std::vector<T*>>(collection).push_back(t);
-    } ;
+    };
 };

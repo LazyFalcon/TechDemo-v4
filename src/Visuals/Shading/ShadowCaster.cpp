@@ -40,7 +40,7 @@ void ShadowCaster::prepareForDirectionalShadows(Scene &scene, Camera &camera){
 
 
     auto cornersOfSplittedFrustum = camera.frustum.splitForCSM(numberOfFrustumSplits);
-    calculateShadowProjectionMatrices(cornersOfSplittedFrustum, scene.sun->lightDirectionVector, *scene.sun, camera);
+    calculateShadowProjectionMatrices(cornersOfSplittedFrustum, scene.sun->direction, *scene.sun, camera);
 
     context.errors();
 }
@@ -140,7 +140,7 @@ glm::mat4 ShadowCaster::fitShadowProjectionAroundBoundingBox(FrustmCorners &corn
         pmk::sunSpaceViewBox(bbMin, bbMax, corners.array[i]);
     }
 
-    auto mat = glm::ortho(bbMin.x, bbMax.x, bbMin.y, bbMax.y, -bbMax.z, -bbMin.z) * sun.lightTransform;
+    auto mat = glm::ortho(bbMin.x, bbMax.x, bbMin.y, bbMax.y, -bbMax.z, -bbMin.z) * sun.transform;
 
     return mat;
 }

@@ -39,6 +39,7 @@ TARGETS = $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(wildcard src/*/*/*.cpp
 OBJS = $(TARGETS:%.cpp=$(OBJ_DIR)/%.o)
 
 DEP = $(OBJS:%.o=%.d)
+# include($(shell find . -type f -name \*.d))
 
 $(BIN)/$(TARGET_NAME): $(OBJS) ./obj/res.o
 	@mkdir -p ./bin
@@ -58,7 +59,7 @@ $(CORE_PCH):
 $(OBJ_DIR)/%.o : %.cpp
 	@echo "Compiling: $< "
 	@mkdir -p $(@D)
-	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) -MMD -c $< -o $@
+	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) -MMD -MP -c $< -o $@
 
 $(OBJ_DIR)/res.o: ./resource.rc ./icon.ico
 	windres ./resource.rc ./obj/res.o

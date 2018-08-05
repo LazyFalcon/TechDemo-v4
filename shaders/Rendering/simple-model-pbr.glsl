@@ -16,7 +16,7 @@ out vec3 vNormalWS;
 
 void main(){
     vUV = mUV;
-    vUV.z = 3;
+    vUV.z = 0;
     vNormalWS = (bones[gl_DrawID]*mNormal).xyz;
 
     gl_Position = uPV*(bones[gl_DrawID]*mVertex);
@@ -41,9 +41,8 @@ in vec3 vNormalWS;
 void main(void){
     outColor.rgb = vec3(1);
     outColor.rgb = texture2DArray(uAlbedo, vUV).rgb;
-    outNormal.w = texture2DArray(uRoughnessMap, vUV).r;
     outColor.a = texture2DArray(uMetallicMap, vUV).r;
-
+    outNormal.w = texture2DArray(uRoughnessMap, vUV).r;
     outNormal.xyz = normalize(vNormalWS + vNormalWS.zxy*outNormal.w*0.3);
 }
 

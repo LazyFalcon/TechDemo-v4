@@ -236,7 +236,7 @@ ImageParams loadToMemory(const std::string &filePath, ImageDataType targetType){
             break;
         }
         case FIT_UINT16 : {
-            log("FIT_UINT16", filePath, bitsPerPixel);
+            // log("FIT_UINT16", filePath, bitsPerPixel);
             if(targetType == R16){
                 bitsPerPixel = 16;
                 data.internalFormat = gl::R16;

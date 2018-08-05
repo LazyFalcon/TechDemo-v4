@@ -28,7 +28,7 @@
     uniform sampler2D uNormal;
     uniform sampler2D uDepth;
     uniform sampler2D uAlbedo;
-    // uniform samplerCube uCubemap;
+    uniform samplerCube uCubemap;
     // uniform sampler2DArrayShadow uCSMCascades;
 
     uniform LightSource light;
@@ -86,9 +86,9 @@
         return mix(F0, vec3(1.0), pow(1.0 - cosT, 5.0));
     }
     vec3 sampleEnviroMap(vec3 N, vec3 V, float roughness){
-    //     vec3 reflection = reflect(-V, N);
-        return vec3(1);
-    //     return texture(uCubemap, reflection*vec3(-1,-1,1), roughness*7).rgb;
+        vec3 reflection = reflect(-V, N);
+        // return vec3(1);
+        return texture(uCubemap, reflection*vec3(-1,-1,1), roughness*7).rgb;
     }
     // vec3 samplePrefilteredEnviroMap(vec3 N, float roughness){
     //     return texture(uCubemap, N, 5).rgb;
@@ -121,7 +121,7 @@
         float light = max(dot(L, N), 0.01);
         light = 1-exp(-pow((5*light),4));
 
-        return F*G/denominator*(D*light*lightPowerScale) + sampleEnviroMap(N.xzy, V.xzy, roughness)*exp(-0.1*lightPowerScale)*Fresnel_Schlick(NdotV, F0)*0.1*0;
+        return F*G/denominator*(D*light*lightPowerScale) + sampleEnviroMap(N.xzy, V.xzy, roughness)*exp(-0.1*lightPowerScale)*Fresnel_Schlick(NdotV, F0);
     }
 
     vec3 OrenNayar(vec3 L, vec3 V, vec3 N, float roughness, float albedo){
@@ -223,10 +223,11 @@
         vec3 P = getPosition(uv);
         vec4 normal = getNormal(uv);
         vec4 albedo = getAlbedo(uv);
+        float metallic = albedo.w;
         vec3 N = normalize(normal.xyz);
         /// TODO: pack in single hfolat
         float roughness = max(normal.w, 0.01);
-        float metallic = albedo.w;
+        roughness *= roughness;
 
         vec3 V = normalize(uEye - P);
         vec3 L = -normalize(light.direction);
@@ -236,11 +237,12 @@
         vec3 specular = calculateSpecular(V, N, L, roughness, metallic, albedo.rgb, kS);
         // vec3 irradiance = samplePrefilteredEnviroMap(-N.yzx, roughness)*0.3;
         // vec3 diffusePart = light.color*max(dot(N,L), 0)*lightPowerScale + irradiance*exp(-0.1*lightPowerScale)*0; /// *ks?
-        vec3 diffusePart = 10*light.color*OrenNayar(L, V, N, roughness, 1)*lightPowerScale;// + irradiance*exp(-0.1*lightPowerScale)*0; /// *ks?
+        vec3 diffusePart = 1*light.color*OrenNayar(L, V, N, roughness, 1)*lightPowerScale;// + irradiance*exp(-0.1*lightPowerScale)*0; /// *ks?
 
         float shadow = 1;// pow(CombineCSM(P, uv, dot(N, L), N), 2);
 
         outLight = vec4(diffusePart*(1-kS)*shadow + light.color, 1);
+        // outLight = vec4(metallic);
         outSpecular = vec4(specular*light.color*shadow*kS, 1);
         // outSpecular = vec4(1);
     }

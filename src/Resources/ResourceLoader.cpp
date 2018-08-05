@@ -35,12 +35,12 @@ void ResourceLoader::loadResources(const Yaml &cfg){
     }
     if(isFile(resPath + "materials/")) loadTextureArray(resPath + "materials/", "Materials");
 
-    if(isFile(resPath + "decals/")){
-        loadTextureArray(resPath + "/decals/", "Decals");
+    if(isFile(resPath + "cubemaps/")){
+        // loadTextureArray(resPath + "/decals/", "Decals");
         // loadTextureArray("Terrain");
         // loadTextureArray("Foliage");
         // loadTextureArray("Vfx256");
-        // loadCubeMap("Park");
+        loadCubeMap("Park");
     }
 
     if(isFile(resPath + "images/")){
@@ -301,9 +301,10 @@ assets::TextureArray ResourceLoader::loadCubeMap(const std::string &folder){
         for(auto &it : files) it = getName(it);
     };
 
-    std::vector<std::string> files = listDirectory(resPath + "/atlases/" + folder);
+    std::vector<std::string> files = listDirectory(resPath + "/cubemaps/" + folder);
     for(auto &it : files){
-        it = resPath + "/atlases/" + folder + "/"s + it;
+        it = resPath + "/cubemaps/" + folder + "/"s + it;
+        log("cube:", it);
     }
 
     assets::TextureArray out;

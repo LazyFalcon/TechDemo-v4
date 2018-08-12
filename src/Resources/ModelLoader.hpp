@@ -2,6 +2,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <glm/gtc/half_float.hpp>
 #include "GPUResources.hpp"
 // TODO: zaoszczedzic na includach!
 #include "PhysicalWorld.hpp"
@@ -34,6 +35,31 @@ struct InternalMesh
 
     void join(InternalMesh&);
 };
+
+struct VertexSimple
+{
+    glm::vec3 positon;
+    glm::vec3 normal;
+    glm::vec3 uv;
+}
+
+struct VertexWithMaterialData
+{
+    glm::vec3 positon;
+    glm::vec3 normal;
+    glm::vec3 uv;
+    glm::vec3 color;
+};
+
+struct VertexWithMaterialDataAndBones
+{
+    glm::vec3 positon;
+    glm::vec3 normal;
+    glm::vec3 uv;
+    int boneId;
+    glm::vec3 color;
+};
+
 /**
   *  next lod levels has suffix _lod<level[1:3]>
   *  loading inserts in collection, position in collecion is returned
@@ -41,15 +67,32 @@ struct InternalMesh
   *
   *
 */
+// template<typename VertexFormat>
 class ModelLoader
 {
 public:
-    u32 m_uvSize {3};
-    float m_vertexW { 1.f };
+    // u32 m_uvSize {3};
+    // float m_vertexW { 1.f };
     bool good { false };
-    bool loadTangents { false };
-    bool loadUV { true };
+    // bool loadTangents { false };
+    // bool loadUV { true };
     bool debug { false };
+
+    struct {
+        float vertex4comonent;
+        std::optional<int> uvComponents;
+        std::optional<int> tangents;
+        std::optional<float> roughness;
+        std::optional<float> metallic;
+        std::optional<float> reflectivity; // * not sure if really needed
+        std::optional<glm::vec2> clearCoat; // * color is none, but strenght of layer and roughnes
+        std::optional<glm::vec3> emissive; // * color with intensity, directly to light
+        std::optional<std::string> detailTexture;
+    } defaults;
+    ModelLoader(){
+        defaults.vertex4comonent = 1;
+        defaults.uvComponents = 3;
+    }
 
     ModelLoader& open(const std::string &filename, std::function<float(const std::string&)> getLayer);
     ModelLoader& open(const std::string &filename);

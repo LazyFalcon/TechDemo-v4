@@ -161,7 +161,7 @@ void Playground::renderProcedure(GraphicEngine& renderer){
 }
 
 void Playground::loadScene(const std::string& configName){
-    m_scene->load("Cycles-PBR");
+    m_scene->load(configName);
     m_player = std::make_shared<Player>(m_input->getDispatcher());
 }
 void Playground::spawnPlayer(const std::string& configName, glm::vec4 position){

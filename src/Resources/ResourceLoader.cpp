@@ -48,7 +48,7 @@ void ResourceLoader::loadResources(const Yaml &cfg){
     }
     if(isFile(resPath + "models/")){
         ModelLoader modelLoader;
-        modelLoader.loadTangents = true;
+        // modelLoader.tangents = 4;
         modelLoader.open(resPath + "/models/CommonModels.dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
         auto names = modelLoader.getNames();
         for(auto &name : names){

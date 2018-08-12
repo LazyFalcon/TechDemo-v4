@@ -22,16 +22,16 @@ void ModelLoader::copyVertices(aiMesh *mesh, floats &target){
         target[start+j] = mesh->mVertices[i].x;
         target[start+j+1] = mesh->mVertices[i].y;
         target[start+j+2] = mesh->mVertices[i].z;
-        target[start+j+3] = m_vertexW;
+        target[start+j+3] = defaults.vertex4comonent;
     }
 }
 // * always 3 coords
 void ModelLoader::copyTexcoords(aiMesh *mesh, floats &target){
     u32 count = mesh->mNumVertices;
     u32 start = target.size();
-    if(not loadUV){
+    if(not defaults.uvComponents){
         count = mesh->mNumVertices;
-        target.resize(target.size()+count*m_uvSize);
+        target.resize(target.size()+count * (*defaults.uvComponents));
 
         for(u32 i=0, j=0; i<count; i++, j+=2){
             target[start+j] = 0;
@@ -41,13 +41,13 @@ void ModelLoader::copyTexcoords(aiMesh *mesh, floats &target){
         return;
     }
 
-    target.resize(target.size()+count*m_uvSize);
+    target.resize(target.size()+count*(*defaults.uvComponents));
     if(not mesh->mTextureCoords[0]){
-        for(u32 i=0, j=0; i<count and m_uvSize == 2u; i++, j+=2){
+        if((*defaults.uvComponents) == 2u) for(u32 i=0, j=0; i<count; i++, j+=2){
             target[start+j] = 0;
             target[start+j+1] = 0;
         }
-        for(u32 i=0, j=0; i<count and m_uvSize == 3u; i++, j+=3){
+        if((*defaults.uvComponents) == 3u) for(u32 i=0, j=0; i<count; i++, j+=3){
             target[start+j] = 0;
             target[start+j+1] = 0;
             target[start+j+2] = 0;
@@ -55,11 +55,11 @@ void ModelLoader::copyTexcoords(aiMesh *mesh, floats &target){
         return;
     }
 
-    for(u32 i=0, j=0; i<count and m_uvSize == 2u; i++, j+=2){
+    if((*defaults.uvComponents) == 2u) for(u32 i=0, j=0; i<count; i++, j+=2){
         target[start+j] = mesh->mTextureCoords[0][i].x;
         target[start+j+1] = mesh->mTextureCoords[0][i].y;
     }
-    for(u32 i=0, j=0; i<count and m_uvSize == 3u; i++, j+=3){
+    if((*defaults.uvComponents) == 3u) for(u32 i=0, j=0; i<count; i++, j+=3){
         target[start+j] = mesh->mTextureCoords[0][i].x;
         target[start+j+1] = mesh->mTextureCoords[0][i].y;
         target[start+j+2] = mesh->mTextureCoords[0][i].z;
@@ -77,7 +77,7 @@ void ModelLoader::copyNormals(aiMesh *mesh, floats &target){
     }
 }
 void ModelLoader::copyTangents(aiMesh *mesh, floats &target){
-    if(not loadTangents) return;
+    if(not defaults.tangents) return;
     u32 count = mesh->mNumVertices;
     u32 start = target.size();
     target.resize(target.size()+count*4);
@@ -102,8 +102,6 @@ void ModelLoader::copyIndices(aiMesh *mesh, uints &target, u32 offset){
 
 ModelLoader& ModelLoader::open(const std::string &filename, std::function<float(const std::string&)> getLayerFunction){
     getLayer = getLayerFunction;
-    m_uvSize = 3;
-
     return open(filename);
 }
 ModelLoader& ModelLoader::open(const std::string &filename){
@@ -120,7 +118,7 @@ ModelLoader& ModelLoader::open(const std::string &filename){
     vertex.reserve(600000);
     texcoord.reserve(400000);
     normal.reserve(600000);
-    if(loadTangents) tangent.reserve(600000);
+    if(defaults.tangents) tangent.reserve(600000);
     indices.reserve(600000);
 
     good = (bool)scene;
@@ -136,10 +134,9 @@ void ModelLoader::close(){
 }
 VAO ModelLoader::build(){
     VAO vao {};
-    vao.setup()
-        .addBuffer(vertex, 4)
-        .addBuffer(texcoord, m_uvSize)
-        .addBuffer(normal, 4);
+    vao.setup().addBuffer(vertex, 4);
+        if(defaults.uvComponents) vao.addBuffer(texcoord, *defaults.uvComponents);
+        vao.addBuffer(normal, 4);
         if(loadTangents) vao.addBuffer(tangent, 4);
         vao.addBuffer(indices)();
     return vao;
@@ -266,9 +263,9 @@ InternalMeshInfo ModelLoader::insert(InternalMesh &intMesh){
 
     indices.insert(indices.end(), intMesh.indices.begin(), intMesh.indices.end());
     vertex.insert(vertex.end(), intMesh.vertex.begin(), intMesh.vertex.end());
-    if(loadUV) texcoord.insert(vertex.end(), intMesh.texcoord.begin(), intMesh.texcoord.end());
+    if(defaults.uvComponents) texcoord.insert(vertex.end(), intMesh.texcoord.begin(), intMesh.texcoord.end());
     normal.insert(normal.end(), intMesh.normal.begin(), intMesh.normal.end());
-    if(loadTangents) tangent.insert(tangent.end(), intMesh.tangent.begin(), intMesh.tangent.end());
+    if(defaults.tangents) tangent.insert(tangent.end(), intMesh.tangent.begin(), intMesh.tangent.end());
 
     info.count = indices.size() - info.iID;
     info.vertexCount = (vertex.size() - info.vID)/4;

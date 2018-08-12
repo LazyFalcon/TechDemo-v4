@@ -18,10 +18,13 @@ VehicleBuilder::VehicleBuilder(const std::string& configName, Player& player, Ph
     {}
 
 void VehicleBuilder::openModelFile(){
-    m_modelLoader->loadTangents = false; // TODO:
-    m_modelLoader->m_uvSize = 3;
+    // m_modelLoader->tangents = 3; // TODO:
+    m_modelLoader->defaults.uvComponents = 3;
+    m_modelLoader->defautls.vertex4comonent = 0u;
+    m_modelLoader->defautls.roughness = 0.5f;
+    m_modelLoader->defautls.metallic = 0.0f;
+    m_modelLoader->defautls.reflectivity = 0.04f;
     m_modelLoader->open(resPath + "models/" + m_configName + ".dae", assets::layerSearch(assets::getAlbedoArray("Materials")));
-    m_modelLoader->m_vertexW = 0u;
 
     m_config = Yaml(resPath + "models/" + m_configName + ".yml");
 }

@@ -1,18 +1,18 @@
-Video:
+Video: 
     Fullscreen: no
     Size: < 1440 900 0 0 >
     Gamma: 2.2
-    Camera:
+    Camera: 
         Fov: 1
         Inertia: 1
-Audio:
+Audio: 
     MasterVolume: 100
     MusicVolume: 97
-    EffectsVolume: 57
+    EffectsVolume: 69.6
     VoiceVolume: 67
-Controls:
+Controls: 
     MouseSensitivity: 0
-Keybindings:
+Keybindings: 
     Fire: RMB
     MoveBackward: S
     MoveDown: Z

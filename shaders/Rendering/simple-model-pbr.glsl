@@ -15,8 +15,8 @@ out vec3 vUV;
 out vec3 vNormalWS;
 
 void main(){
-    vUV = mUV;
-    vUV.z = 0;
+    vUV = mUV*5;
+    vUV.z = gl_DrawID%7;
     vNormalWS = (bones[gl_DrawID]*mNormal).xyz;
 
     gl_Position = uPV*(bones[gl_DrawID]*mVertex);

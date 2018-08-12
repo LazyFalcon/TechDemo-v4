@@ -176,13 +176,13 @@ private:
         panel.button()().text("Continue");
         if(m_playSelected){
             panel.button().w(0.8f).h(40)().text("Demo With Drones").action([]{
-                log("not implemented yet");
+                event<StartPlayground>("Turret");
             });
             panel.button().w(0.8f).h(40)().text("Void Rendering").action([]{
                 log("not implemented yet");
             });
             panel.button().w(0.8f).h(40)().text("Graphic Testing").action([]{
-                event<StartPlayground>();
+                event<StartPlayground>("Cycles-PBR");
             });
         }
         panel.button()().text("New Game").action([this]{m_playSelected = !m_playSelected;});

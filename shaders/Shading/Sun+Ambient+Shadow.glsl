@@ -87,7 +87,6 @@
     }
     vec3 sampleEnviroMap(vec3 N, vec3 V, float roughness){
         vec3 reflection = reflect(-V, N);
-        // return vec3(1);
         return texture(uCubemap, reflection*vec3(-1,-1,1), roughness*7).rgb;
     }
     // vec3 samplePrefilteredEnviroMap(vec3 N, float roughness){
@@ -121,7 +120,7 @@
         float light = max(dot(L, N), 0.01);
         light = 1-exp(-pow((5*light),4));
 
-        return F*G/denominator*(D*light*lightPowerScale) + sampleEnviroMap(N.xzy, V.xzy, roughness)*exp(-0.1*lightPowerScale)*Fresnel_Schlick(NdotV, F0);
+        return F*G/denominator*(D*light*lightPowerScale) + 3* sampleEnviroMap(N.xzy, V.xzy, roughness)*exp(-0.1*lightPowerScale)*Fresnel_Schlick(NdotV, F0);
     }
 
     vec3 OrenNayar(vec3 L, vec3 V, vec3 N, float roughness, float albedo){
@@ -227,7 +226,7 @@
         vec3 N = normalize(normal.xyz);
         /// TODO: pack in single hfolat
         float roughness = max(normal.w, 0.01);
-        roughness *= roughness;
+        // roughness *= roughness;
 
         vec3 V = normalize(uEye - P);
         vec3 L = -normalize(light.direction);

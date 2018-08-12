@@ -24,9 +24,9 @@ void Environment::load(const std::string &sceneName){
 
     std::string path = resPath + "scenes/" + sceneName + "/" + sceneName;
 
-    ModelLoader modelLoader;
-    modelLoader.loadTangents = false; // ! TODO: co jest nie tak z tangentami?
-    modelLoader.m_uvSize = 3;
+    ModelLoader<VertexWithMaterialData> modelLoader;
+    // modelLoader.loadTangents = false; // ! TODO: co jest nie tak z tangentami?
+    // modelLoader.m_uvSize = 3;
     modelLoader.open(path + ".dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
     if(not modelLoader.good){
         error("Unable to load environment");
@@ -42,7 +42,7 @@ void Environment::load(const std::string &sceneName){
     const Yaml &lamps = yaml["LightSources"];
 }
 
-void Environment::loadObject(const Yaml &thing, ModelLoader& modelLoader){
+void Environment::loadObject(const Yaml &thing, ModelLoader<VertexWithMaterialData>& modelLoader){
     EnviroEntity e {};
     e.name = thing["Name"].string();
 
@@ -57,7 +57,7 @@ void Environment::loadObject(const Yaml &thing, ModelLoader& modelLoader){
     loadMesh(modelLoader, e, thing);
 
     if(thing["isPhysical"].boolean() and thing["Colliders"].string() != "none"){
-        auto colliders = modelLoader.loadCompoundMeshes({thing["Colliders"].strings()});
+        auto colliders = modelLoader.loadConvexMeshes({thing["Colliders"].strings()});
         // e.physics.rgBody = physics->createRigidBody(0, convert(obj["Quaternion"].quat(), e.physics.position), createCompoundMesh(colliders, nullptr));
     }
     e.id = m_entities.size();
@@ -79,10 +79,8 @@ void Environment::loadLightSource(const Yaml &thing){
 // TODO: zrobic tak by convex był pojedynczym modelem, rozbitym przy pomocy materialow, przypiety jako dziecko wlasciwego modelu
 // TODO: fajnie by bylo by dało się reusowac modele(export object instances, rozmieszcac przy pomocy Alt+D, uzywac nazwy mesha nie obiektu)
 // duplikacje?
-void Environment::loadMesh(ModelLoader &modelLoader, EnviroEntity &e, const Yaml &yaml){
-    e.graphic.mesh = modelLoader.beginMesh();
-    modelLoader.load(yaml["Models"].strings());
-    modelLoader.endMesh(e.graphic.mesh);
+void Environment::loadMesh(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml){
+    e.graphic.mesh = modelLoader.load(yaml["Models"].strings());
 
     if(yaml["isPhysical"].boolean()){
         for(auto &collider : yaml["Colliders"]){

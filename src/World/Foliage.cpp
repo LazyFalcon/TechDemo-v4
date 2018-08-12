@@ -58,8 +58,7 @@ bool Foliage::load(const Yaml &c){
     // auto &&atlasData = prepareAtlas();
     textureAtlasID = assets::getAlbedoArray("Foliage").id;
     auto findTextureID = assets::layerSearch(assets::getAlbedoArray("Foliage"));
-    ModelLoader modelLoader;
-    modelLoader.m_uvSize = 3u;
+    ModelLoader<VertexSimple> modelLoader;
 
     modelLoader.open(resPath + "foliage/trees/"s + "Z_Trees.dae", assets::layerSearch(assets::getAlbedoArray("Foliage")));
     for(const auto &tree : treesToLoad[0]){
@@ -71,14 +70,14 @@ bool Foliage::load(const Yaml &c){
 
             treeMesh.crown = modelLoader.beginMesh();
             for(const auto &obj : lod["Crown"]){
-                auto meshInternal = modelLoader.load(obj["Mesh"].string());
+                auto meshInternal = modelLoader.loadOnly(obj["Mesh"].string());
                 modelLoader.setTextureLayer(meshInternal, findTextureID(obj["Texture"].string()));
             }
             modelLoader.endMesh(treeMesh.crown);
 
             treeMesh.trunk = modelLoader.beginMesh();
             for(const auto &obj : lod["Trunk"]){
-                auto meshInternal = modelLoader.load(obj["Mesh"].string());
+                auto meshInternal = modelLoader.loadOnly(obj["Mesh"].string());
                 modelLoader.setTextureLayer(meshInternal, findTextureID(obj["Texture"].string()));
             }
             modelLoader.endMesh(treeMesh.trunk);

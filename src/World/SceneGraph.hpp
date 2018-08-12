@@ -8,6 +8,8 @@ class btBvhTriangleMeshShape;
 class btRigidBody;
 class btTriangleMesh;
 class Frustum;
+struct VertexWithMaterialData;
+template<typename VertexFormat>
 class ModelLoader;
 class PhysicalWorld;
 class Yaml;
@@ -92,6 +94,6 @@ private:
     void cullWithPhysicsEngine(const Frustum &frustum);
     void diffBetweenFrames();
     void setLodForVisible(glm::vec4 eye);
-    void loadCollider(ModelLoader &loader, const std::string &name);
+    void loadCollider(ModelLoader<VertexWithMaterialData> &loader, const std::string &name);
     btRigidBody* createSimpleCollider(glm::vec4 pos, glm::vec3 dim);
 };

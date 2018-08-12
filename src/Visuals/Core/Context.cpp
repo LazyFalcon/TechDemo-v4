@@ -174,11 +174,11 @@ void Context::resetShapes(){ // TODO: zwalidować użycia tego
         0.5, 0.5, 0.5, 1,
         0.5, -0.5, 0.5, 1,
     };
-    shape.point.setup(point, 4, false)();
-    shape.quadCentered.setup(quadCentered, 16, false)();
-    shape.quadCorner.setup(quadCorner, 16, false)();
-    shape.screen.setup(screen, 16, false)();
-    shape.cube.setup(cube, 24*4, false)();
+    shape.point.setup(point, sizeof(float)*4, false)();
+    shape.quadCentered.setup(quadCentered, sizeof(float)*16, false)();
+    shape.quadCorner.setup(quadCorner, sizeof(float)*16, false)();
+    shape.screen.setup(screen, sizeof(float)*16, false)();
+    shape.cube.setup(cube, sizeof(float)*24*4, false)();
 
     std::vector<glm::vec4> vertices = {
         // point

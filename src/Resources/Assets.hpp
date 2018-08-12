@@ -56,7 +56,7 @@ void addCubeMap(u32 id, TextureArray &array, const std::string &name);
 void addVao(VAO vao, const std::string &name);
 VAO& getVao(const std::string &name);
 
-void addMesh(Mesh &vao, const std::string &name);
+void addMesh(Mesh vao, const std::string &name);
 Mesh& getMesh(const std::string &name);
 
 };

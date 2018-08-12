@@ -56,10 +56,12 @@ $(CORE_PCH):
 
 -include $(DEP)
 
+# -MP
+
 $(OBJ_DIR)/%.o : %.cpp
 	@echo "Compiling: $< "
 	@mkdir -p $(@D)
-	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) -MMD -MP -c $< -o $@
+	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) -MMD  -c $< -o $@
 
 $(OBJ_DIR)/res.o: ./resource.rc ./icon.ico
 	windres ./resource.rc ./obj/res.o

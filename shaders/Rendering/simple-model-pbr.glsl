@@ -1,8 +1,8 @@
 #ifdef VERTEX_SHADER
 
-layout(location=0)in vec4 mVertex;
-layout(location=1)in vec3 mUV;
-layout(location=2)in vec4 mNormal;
+layout(location=0)in vec3 mVertex;
+layout(location=1)in vec3 mNormal;
+layout(location=2)in vec3 mUV;
 // layout(location=3)in vec4 mTangent;
 
 uniform mat4 uPV;
@@ -17,9 +17,9 @@ out vec3 vNormalWS;
 void main(){
     vUV = mUV*5;
     vUV.z = gl_DrawID%7;
-    vNormalWS = (bones[gl_DrawID]*mNormal).xyz;
+    vNormalWS = (bones[gl_DrawID]*vec4(mNormal, 0)).xyz;
 
-    gl_Position = uPV*(bones[gl_DrawID]*mVertex);
+    gl_Position = uPV*(bones[gl_DrawID]*vec4(mVertex, 1));
 }
 
 #endif

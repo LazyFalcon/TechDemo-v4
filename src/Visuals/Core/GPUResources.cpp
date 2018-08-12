@@ -39,31 +39,33 @@ VBO& VBO::bind(){
     gl::BindBuffer(gl::ARRAY_BUFFER, ID);
     return *this;
 }
-VBO& VBO::setup(u32 size, bool dynamic){
-    maxSize = size;
+VBO& VBO::setup(size_t dataSize, bool dynamic){
+    maxSize = dataSize;
     drawMode = gl::STATIC_DRAW;
     if(dynamic) drawMode = gl::DYNAMIC_DRAW;
 
     gl::GenBuffers(1, &ID);
     gl::BindBuffer(gl::ARRAY_BUFFER, ID);
-    gl::BufferData(gl::ARRAY_BUFFER, sizeof(float)*maxSize, nullptr, drawMode);
+    gl::BufferData(gl::ARRAY_BUFFER, dataSize, nullptr, drawMode);
 
     return *this;
 }
-VBO& VBO::setup(void *data, u32 count, bool dynamic){
+VBO& VBO::setup(void* data, size_t dataSize, bool dynamic){
     drawMode = gl::STATIC_DRAW;
     if(dynamic) drawMode = gl::DYNAMIC_DRAW;
 
+    maxSize = dataSize;
+
     gl::GenBuffers(1, &ID);
     gl::BindBuffer(gl::ARRAY_BUFFER, ID);
-    gl::BufferData(gl::ARRAY_BUFFER, sizeof(float)*count, data, drawMode);
+    gl::BufferData(gl::ARRAY_BUFFER, dataSize, data, drawMode);
 
     return *this;
 }
-VBO& VBO::update(void *data, u32 count){
+VBO& VBO::update(void *data, size_t dataSize){
     gl::BindBuffer(gl::ARRAY_BUFFER, ID);
-    gl::BufferData(gl::ARRAY_BUFFER, sizeof(float)*maxSize, nullptr, drawMode); /// orphan and create new buffer
-    gl::BufferData(gl::ARRAY_BUFFER, count*sizeof(float), data, drawMode); /// fill new buffer
+    gl::BufferData(gl::ARRAY_BUFFER, maxSize, nullptr, drawMode); /// orphan and create new buffer
+    gl::BufferData(gl::ARRAY_BUFFER, dataSize, data, drawMode); /// fill new buffer
 
     return *this;
 }
@@ -71,29 +73,38 @@ void VBO::clear(){
     gl::DeleteBuffers(1, &ID);
 }
 
-
 VBO& VBO::attrib(u32 n){
     numBuffer = n;
     gl::EnableVertexAttribArray(numBuffer);
 
     return *this;
 }
-VBO& VBO::pointer(u32 e, u32 dataType_, u32 stride, void *pointer_){
-    elements = e;
+VBO& VBO::pointer(int e, u32 dataType_, u32 stride, void *pointer_){
     dataType = dataType_;
-    gl::VertexAttribPointer(numBuffer, elements, dataType, false, stride, pointer_);
+    gl::VertexAttribPointer(numBuffer, e, dataType, false, stride, pointer_);
 
     return *this;
 }
-VBO& VBO::pointer_float(u32 e, u32 stride, void *pointer_){
-    elements = e;
+/*
+For glVertexAttribPointer, if normalized​ is set to GL_TRUE​, it indicates that values stored in an integer format are to be mapped to the range [-1,1] (for signed values) or [0,1] (for unsigned values) when they are accessed and converted to floating point. Otherwise, values will be converted to floats directly without normalization.
+*/
+VBO& VBO::pointer_float(int elements, u32 stride, void *pointer_){
     dataType = gl::FLOAT;
     gl::VertexAttribPointer(numBuffer, elements, dataType, false, stride, pointer_);
 
     return *this;
 }
+/*
+For glVertexAttribIPointer, only the integer types GL_BYTE​, GL_UNSIGNED_BYTE​, GL_SHORT​, GL_UNSIGNED_SHORT​, GL_INT​, GL_UNSIGNED_INT​ are accepted. Values are always left as integer values.
+*/
+VBO& VBO::pointer_integer(int elements, u32 stride, void *pointer_){
+    dataType = gl::UNSIGNED_INT;
+    gl::VertexAttribIPointer(numBuffer, elements, dataType, stride, pointer_);
+
+    return *this;
+}
 VBO& VBO::pointer_color(u32 stride, void *pointer_){
-    elements = 4; /// TODO: gl::BGRA żeby nie trzbea było robić swizzla
+    int elements = 4; /// TODO: gl::BGRA żeby nie trzbea było robić swizzla
     dataType = gl::UNSIGNED_BYTE;
     gl::VertexAttribPointer(numBuffer, elements, dataType, true, stride, pointer_);
 
@@ -143,6 +154,11 @@ void VAO::bind(){
 }
 void VAO::unbind(){
     gl::BindVertexArray(0);
+}
+VBO& VAO::addBuffer(void *data, size_t size){
+    vbo[vboCount].setup(data, size, false);
+    vboCount++;
+    return vbo[vboCount-1];
 }
 VAO& VAO::addBuffer(std::vector<float> &buffer, u32 numOfElements){
     vbo[vboCount].setup(buffer).attrib(vboCount).pointer_float(numOfElements).divisor(0);

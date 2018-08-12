@@ -184,7 +184,7 @@ void SceneGraph::cullCells(const Frustum &frustum){
     setLodForVisible(frustum.eye);
 }
 
-void SceneGraph::loadCollider(ModelLoader &loader, const std::string &name){
+void SceneGraph::loadCollider(ModelLoader<VertexWithMaterialData> &loader, const std::string &name){
     auto data = loader.loadStatic3DMesh(name);
 
     colliderMesh = new btTriangleMesh();
@@ -220,9 +220,9 @@ void SceneGraph::loadMap(const std::string &mapConfigDir){
 
     log("size:", size, "center", center);
 
-    ModelLoader loader;
-    loader.loadUV = 0;
-    loader.debug = false;
+    ModelLoader<VertexWithMaterialData> loader;
+    // loader.loadUV = 0;
+    // loader.debug = false;
     loader.open(mapConfigDir + "/map.dae");
 
     // TODO: completly rework this according to decription above func definition
@@ -233,23 +233,18 @@ void SceneGraph::loadMap(const std::string &mapConfigDir){
             // but to bullet
         }
 
-        auto intMesh = loader.getInternalMesh(it["Mesh"].string());
+        auto model = loader.load(it["Mesh"].string());
 
         auto position = it["Position"].vec4();
         auto dimension = it["Dimension"].vec30();
-        auto count = intMesh.vertex.size();
-        for(auto i=0; i<count; i+=4){
-            intMesh.vertex[i+0] += position[0];
-            intMesh.vertex[i+1] += position[1];
-            intMesh.vertex[i+2] += position[2];
-            intMesh.vertex[i+3] += position[3]*0;
-        }
+        // auto count = intMesh.vertex.size();
+        loader.moveModel(model, position.xyz());
 
         // cells[i].position = position;
         // cells[i].size = dimension;
         // cells[i].level = 0;
         cells[i]->hasTerrain = true;
-        cells[i]->terrainMesh = loader.insert(intMesh).toMesh();
+        cells[i]->terrainMesh = model;
         // cells[i].cellBoxCollider = createSimpleCollider(position, dimension.xyz());
 
         // SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};

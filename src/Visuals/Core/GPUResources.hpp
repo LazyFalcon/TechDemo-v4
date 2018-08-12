@@ -17,38 +17,41 @@ struct VBO
 {
     u32 ID {0};
     u32 numBuffer;
-    u32 maxSize;
+    size_t maxSize;
 
     u32 dataType; // u32 float
-    u32 elements;
-
+    size_t size;
     u32 drawMode;
-    VBO& setup(u32 size, bool dynamic = false);
+
     VBO& bind();
     void clear();
 
+    VBO& setup(size_t dataSize, bool dynamic = true); // * empty buffer to be filled later and often
+
     template<typename T>
     VBO& setup(std::vector<T> &data, bool dynamic = false){
-        elements = sizeof(T)/sizeof(float);
-        maxSize = data.size()*elements;
+        size = sizeof(T)*data.size();
+        maxSize = size;
 
-        setup(data.data(), data.size()*elements, dynamic);
+        setup(data.data(), size, dynamic);
 
         return *this;
     }
     // private :D
-    VBO& setup(void *data, u32 count, bool dynamic); // count is number of floats
+    VBO& setup(void* data, size_t dataSize, bool dynamic);
+
     template<typename T>
     VBO& update(std::vector<T> &data){
-        update(data.data(), data.size()*sizeof(T)/sizeof(float));
+        update(data.data(), data.size()*sizeof(T));
         return *this;
     }
     // private :D
-    VBO& update(void *data, u32 count);
+    VBO& update(void *data, size_t dataSize);
 
     VBO& attrib(u32 n);
-    VBO& pointer(u32 e, u32 dataType_=0x1406/*gl::FLOAT*/, u32 stride=0, void *pointer_=nullptr);
-    VBO& pointer_float(u32 e, u32 stride=0, void *pointer_=nullptr);
+    VBO& pointer(int elements, u32 dataType_=0x1406/*gl::FLOAT*/, u32 stride=0, void *pointer_=nullptr);
+    VBO& pointer_float(int elements, u32 stride=0, void *pointer_=nullptr);
+    VBO& pointer_integer(int elements, u32 stride=0, void *pointer_=nullptr);
     VBO& pointer_color(u32 stride=0, void *pointer_=nullptr);
     VBO& divisor(u32 d = 0);
     void operator ()();
@@ -85,6 +88,7 @@ struct VAO
     void bind();
     static void unbind();
 
+    VBO& addBuffer(void* data, size_t size); // * dummy buffer to be defined later
     VAO& addBuffer(std::vector<float> &buffer, u32 numOfElements = 1);
     VAO& addBuffer(std::vector<glm::vec2> &buffer);
     VAO& addBuffer(std::vector<glm::vec3> &buffer);
@@ -98,6 +102,8 @@ struct Mesh
     u32 end;
     u32 count;
     u32 mode {0};
+    u32 vertexStart;
+    u32 vertexEnd;
     void render();
     void* offset(){
         return (void*)(sizeof(u32)*begin);

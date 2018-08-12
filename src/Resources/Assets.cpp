@@ -128,7 +128,7 @@ VAO& getVao(const std::string &name){
     return vaos[name];
 }
 
-void addMesh(Mesh &mesh, const std::string &name){
+void addMesh(Mesh mesh, const std::string &name){
     meshes[name] = UserID<Mesh>(0, mesh);
 }
 Mesh& getMesh(const std::string &name){

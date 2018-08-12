@@ -3,6 +3,35 @@
 #include "Logging.hpp"
 #include "Utils.hpp"
 
+// ! http://assimp.sourceforge.net/lib_html/structai_mesh.html
+
+// std::vector<aiMesh*> ModelLoader::findSubMeshesByMaterial(const std::string &name){
+//     if(debug) info("sub mesh", name);
+//     std::vector<aiMesh*> out;
+//     for(int i=0; i<scene->mNumMeshes; i++){
+//         if(scene->mMeshes[i]->mName == aiString(name)){
+//             out.push_back(scene->mMeshes[i]);
+//         }
+//     }
+//     return out;
+// }
+//
+// std::string ModelLoader::getTextureName(aiMesh *mesh){
+//     u32 materialIndex = mesh->mMaterialIndex;
+//     auto &material = *(scene->mMaterials[materialIndex]);
+//     aiString path;
+//     u32 texIndex = 0;
+
+
+//     if(AI_SUCCESS != material.GetTexture(aiTextureType_DIFFUSE, texIndex, &path))
+//         return "";
+
+//     u32 count = material.GetTextureCount(aiTextureType_DIFFUSE);
+//     // log(mesh->mName.C_Str(), "has", count, "textures:", path.C_Str());
+
+//     return getName(path.C_Str());
+// }
+/*
 void InternalMesh::join(InternalMesh &intMesh){
     u32 offset = vertex.size()/4;
     for(auto &it : intMesh.indices) it += offset;
@@ -141,18 +170,8 @@ VAO ModelLoader::build(){
         vao.addBuffer(indices)();
     return vao;
 }
-std::vector<aiMesh*> ModelLoader::find(const std::string &name){
-    if(debug) info("MESH", name);
-    std::vector<aiMesh*> out;
-    for(int i=0; i<scene->mNumMeshes; i++){
-        if(scene->mMeshes[i]->mName == aiString(name)){
-            out.push_back(scene->mMeshes[i]);
-        }
-    }
-    return out;
-}
 
-std::vector<ConvexMesh> ModelLoader::loadCompoundMeshes(const std::vector<std::string> &names){
+std::vector<ConvexMesh> ModelLoader::loadConvexMeshes(const std::vector<std::string> &names){
     std::vector<ConvexMesh> out;
     for(auto& name : names){
         auto meshes = find(name);
@@ -191,6 +210,7 @@ std::vector<std::string> ModelLoader::findInstances(const std::string &pattern){
 * loads specified mesh from file.
 * there is only one diffuse texture per material, so models are split by materials, need to be combined
 */
+/*
 InternalMeshInfo ModelLoader::load(const std::string &name){
     if(not scene){
         error("No scene for ModelLoader");
@@ -297,21 +317,7 @@ InternalMesh ModelLoader::getInternalMesh(const std::string &name){
     return intMesh;
 }
 
-std::string ModelLoader::getTextureName(aiMesh *mesh){
-    u32 materialIndex = mesh->mMaterialIndex;
-    auto &material = *(scene->mMaterials[materialIndex]);
-    aiString path;
-    u32 texIndex = 0;
 
-
-    if(AI_SUCCESS != material.GetTexture(aiTextureType_DIFFUSE, texIndex, &path))
-        return "";
-
-    u32 count = material.GetTextureCount(aiTextureType_DIFFUSE);
-    // log(mesh->mName.C_Str(), "has", count, "textures:", path.C_Str());
-
-    return getName(path.C_Str());
-}
 
 void ModelLoader::setTextureLayer(InternalMeshInfo info, float layer){
     for(u32 i=0; i<info.vertexCount; i++){
@@ -369,3 +375,4 @@ std::pair<std::vector<double>, std::vector<u32>> ModelLoader::loadStatic3DMesh(c
 
     return std::make_pair(outVerts, outIndices);
 }
+*/

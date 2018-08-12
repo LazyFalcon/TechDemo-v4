@@ -1,9 +1,10 @@
 #ifdef VERTEX_SHADER
 
-layout(location=0)in vec4 mVertex;
-layout(location=1)in vec3 mUV;
-layout(location=2)in vec4 mNormal;
-layout(location=3)in vec4 mTangent;
+layout(location=0)in vec3 mVertex;
+layout(location=1)in vec3 mNormal;
+layout(location=2)in vec3 mUV;
+layout(location=3)in uint mBoneIndex;
+// layout(location=3)in vec4 mTangent;
 
 uniform mat4 uProjection;
 uniform mat4 uView;
@@ -15,21 +16,21 @@ layout(std140) uniform uBones {
 
 out vec3 vUV;
 out vec3 vNormalWS;
-out vec3 vTangentWS;
-out vec3 vBinormalWS;
+// out vec3 vTangentWS;
+// out vec3 vBinormalWS;
 
 void main(){
     vUV = mUV;
     vUV.z += 0;
     vUV.xy = vec2(0.9);
-    int boneIndex = int(mVertex.w);
-    mat4 bone = bones[boneIndex];
+    // int boneIndex = int(mVertex.w);
+    mat4 bone = bones[mBoneIndex];
 
-    vNormalWS = (uModel*bone*mNormal).xyz;
-    vTangentWS = (uModel*bone*mTangent).xyz;
-    vBinormalWS = cross(vNormalWS, vTangentWS);
+    vNormalWS = (uModel*bone*vec4(mNormal, 0)).xyz;
+    // vTangentWS = (uModel*bone*mTangent).xyz;
+    // vBinormalWS = cross(vNormalWS, vTangentWS);
 
-    gl_Position = uProjection*(uView*uModel)*(bone*vec4(mVertex.xyz,1));
+    gl_Position = uProjection*(uView*uModel)*(bone*vec4(mVertex,1));
 }
 
 #endif
@@ -43,8 +44,8 @@ out layout(location = 1) vec4 outNormal;
 
 in vec3 vUV;
 in vec3 vNormalWS;
-in vec3 vTangentWS;
-in vec3 vBinormalWS;
+// in vec3 vTangentWS;
+// in vec3 vBinormalWS;
 
 // layout(binding=0)uniform sampler2DArray uAlbedo;
 // layout(binding=1)uniform sampler2DArray uNormalMap;

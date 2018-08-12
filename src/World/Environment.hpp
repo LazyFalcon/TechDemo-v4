@@ -7,6 +7,8 @@
 
 class btCollisionShape;
 class btRgBody;
+struct VertexWithMaterialData;
+template<typename VertexFormat>
 class ModelLoader;
 class PhysicalWorld;
 class Yaml;
@@ -63,10 +65,10 @@ private:
     // std::map<std::string, Mesh> meshes;
     // std::map<std::string, btCollisionShape*> collsionShapes;
 
-    void loadObject(const Yaml &yaml, ModelLoader& modelLoader);
+    void loadObject(const Yaml &yaml, ModelLoader<VertexWithMaterialData>& modelLoader);
     void loadLightSource(const Yaml &yaml);
 
-    void loadMesh(ModelLoader &modelLoader, EnviroEntity &e, const Yaml &yaml);
+    void loadMesh(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml);
     void createObject(const Yaml &cfg);
     btRigidBody* createRgBody(const Yaml &bodyConf);
     void insertObjectToQt(u32 id);

@@ -47,16 +47,11 @@ void ResourceLoader::loadResources(const Yaml &cfg){
         loadImages(resPath + "/images/");
     }
     if(isFile(resPath + "models/")){
-        ModelLoader modelLoader;
-        // modelLoader.tangents = 4;
+        ModelLoader<VertexSimpleFlat> modelLoader;
         modelLoader.open(resPath + "/models/CommonModels.dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
         auto names = modelLoader.getNames();
         for(auto &name : names){
-            auto mesh = modelLoader.beginMesh();
-            modelLoader.load(name);
-            modelLoader.endMesh(mesh);
-
-            assets::addMesh(mesh, name);
+            assets::addMesh(modelLoader.load(name), name);
         }
         assets::addVao(modelLoader.build(), "Common");
     }

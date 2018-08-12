@@ -1,7 +1,9 @@
 #include "core.hpp"
+
 #include "Assets.hpp"
 #include "CameraControllerFactory.hpp"
 #include "IModule.hpp"
+#include "ModelLoader.hpp"
 #include "PhysicalWorld.hpp"
 #include "Player.hpp"
 #include "VehicleBuilder.hpp"
@@ -10,7 +12,7 @@
 
 VehicleBuilder::VehicleBuilder(const std::string& configName, Player& player, PhysicalWorld& physicalWorld, CameraControllerFactory& camFactory) :
     m_configName(configName),
-    m_modelLoader(std::make_unique<ModelLoader>()),
+    m_modelLoader(std::make_shared<ModelLoader<VertexWithMaterialDataAndBones>>()),
     m_physicalWorld(physicalWorld),
     m_moduleFactory(player.eq(), m_physicalWorld, {}),
     m_player(player),
@@ -20,10 +22,10 @@ VehicleBuilder::VehicleBuilder(const std::string& configName, Player& player, Ph
 void VehicleBuilder::openModelFile(){
     // m_modelLoader->tangents = 3; // TODO:
     m_modelLoader->defaults.uvComponents = 3;
-    m_modelLoader->defautls.vertex4comonent = 0u;
-    m_modelLoader->defautls.roughness = 0.5f;
-    m_modelLoader->defautls.metallic = 0.0f;
-    m_modelLoader->defautls.reflectivity = 0.04f;
+    m_modelLoader->defaults.vertex4comonent = 0u;
+    m_modelLoader->defaults.roughness = 0.5f;
+    m_modelLoader->defaults.metallic = 0.0f;
+    m_modelLoader->defaults.reflectivity = 0.04f;
     m_modelLoader->open(resPath + "models/" + m_configName + ".dae", assets::layerSearch(assets::getAlbedoArray("Materials")));
 
     m_config = Yaml(resPath + "models/" + m_configName + ".yml");
@@ -150,7 +152,7 @@ void VehicleBuilder::setVisual(IModule& module, const Yaml& cfg){
     module.moduleVisualUpdater = std::make_unique<ModuleVisualUpdater>(m_skinnedMesh->bones, m_boneMatrixIndex);
     module.moduleVisualUpdater->setTransform(identityMatrix);
 
-    m_modelLoader->setBoneIndex(m_modelLoader->load(models), m_boneMatrixIndex);
+    m_modelLoader->setBoneIndex(m_modelLoader->loadOnly(models), m_boneMatrixIndex);
 
     m_boneMatrixIndex++;
 }
@@ -181,7 +183,7 @@ void VehicleBuilder::setPhysical(IModule& module, const Yaml& cfg){
     auto localTransformation = module.joint.loc();
 
     if(cfg["Physical"].has("Collision")){
-        auto meshes = m_modelLoader->loadCompoundMeshes(cfg["Physical"]["Collision"].strings());
+        auto meshes = m_modelLoader->loadConvexMeshes(cfg["Physical"]["Collision"].strings());
 
         addToCompound(createCompoundMesh(meshes, (void*)(&module)), localTransformation, (void*)(&module));
         module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_player.eq().compound, m_compoundIndex++);

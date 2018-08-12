@@ -1,6 +1,6 @@
 #pragma once
 #include "GPUResources.hpp"
-#include "ModelLoader.hpp"
+// #include "ModelLoader.hpp"
 
 namespace graphic
 {
@@ -54,7 +54,7 @@ public:
 
     static void render();
 private:
-    ModelLoader loader;
+    // ModelLoader loader;
     VAO vao {};
     u32 defaultParams {};
     u32 collectedParams {};

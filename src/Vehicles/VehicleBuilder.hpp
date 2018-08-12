@@ -1,21 +1,23 @@
 #pragma once
 #include "Yaml.hpp"
-#include "ModelLoader.hpp"
 #include "ModuleFactory.hpp"
 
 class CameraControllerFactory;
 class GraphicComponent;
 class IModule;
 class Joint;
+template<typename VertexFormat>
+class ModelLoader;
 class PhysicalWorld;
 class Player;
 class SkinnedMesh;
+struct VertexWithMaterialDataAndBones;
 
 class VehicleBuilder
 {
 private:
     std::string m_configName;
-    std::unique_ptr<ModelLoader> m_modelLoader;
+    std::shared_ptr<ModelLoader<VertexWithMaterialDataAndBones>> m_modelLoader;
     PhysicalWorld& m_physicalWorld;
     ModuleFactory m_moduleFactory;
     Player& m_player;

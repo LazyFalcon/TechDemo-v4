@@ -40,23 +40,23 @@ namespace vertexCopy{
     template<typename T>
     void texcoords(aiMesh& mesh, std::vector<T>& target, int startPosition){
         u32 count = mesh.mNumVertices;
-        if(count == 0){
+        if(not mesh.HasTextureCoords(0)){
             error(mesh.mName.C_Str(), " UV data not definied");
 
-            for(u32 from=0, to=startPosition; from<count; to++){
+            for(u32 to=startPosition; to < startPosition+count; to++){
                 target[to].uv = {0,0,0};
             }
             return;
         }
 
         for(u32 from=0, to=startPosition; from<count; from++, to++){
-            target[to].uv = {mesh.mTextureCoords[0][from].x,mesh.mTextureCoords[0][from].x,mesh.mTextureCoords[0][from].x};
+            target[to].uv = {mesh.mTextureCoords[0][from].x,mesh.mTextureCoords[0][from].y,mesh.mTextureCoords[0][from].z};
         }
     }
     template<typename T>
     void normals(aiMesh& mesh, std::vector<T>& target, int startPosition){
         u32 count = mesh.mNumVertices;
-        if(mesh.HasNormals()) error(mesh.mName.C_Str(), " normal data not definied");
+        if(not mesh.HasNormals()) error(mesh.mName.C_Str(), "normal data not definied");
         for(u32 from=0, to=startPosition; from<count; from++, to++){
             target[to].normal = {mesh.mNormals[from].x, mesh.mNormals[from].y, mesh.mNormals[from].z};
         }
@@ -64,15 +64,21 @@ namespace vertexCopy{
     template<typename T>
     void tangents(aiMesh& mesh, std::vector<T>& target, int startPosition){
         u32 count = mesh.mNumVertices;
-        if(count == 0) error(mesh.mName.C_Str(), " tangent data not definied");
+        if(count == 0) error(mesh.mName.C_Str(), "tangent data not definied");
         for(u32 from=0, to=startPosition; from<count; from++, to++){
             target[to].tangent = {mesh.mTangents[from].x, mesh.mTangents[from].y, mesh.mTangents[from].z};
         }
     }
     template<typename T>
-    void color(aiMesh& mesh, std::vector<T>& target, int startPosition){
+    void color(aiMesh& mesh, std::vector<T>& target, int startPosition, glm::vec3 materialColor){
         u32 count = mesh.mNumVertices;
-        if(mesh.HasVertexColors(0)) error(mesh.mName.C_Str(), " color data not definied");
+        if(not mesh.HasVertexColors(0)){
+            for(u32 to=startPosition; to < startPosition+count; to++){
+                target[to].color = materialColor;
+            }
+
+            return;
+        }
         for(u32 from=0, to=startPosition; from<count; from++, to++){
             target[to].color = {mesh.mColors[0][from].r, mesh.mColors[0][from].g, mesh.mColors[0][from].b};
         }
@@ -88,6 +94,9 @@ struct VertexSimpleFlat
     static void copyData(aiMesh& mesh, std::vector<VertexSimpleFlat>& data, int startPosition){
         vertexCopy::positions(mesh, data, startPosition);
         vertexCopy::texcoords(mesh, data, startPosition);
+    }
+    static void copyMaterial(aiMesh& mesh, std::vector<VertexSimpleFlat>& data, int startPosition, const aiScene& scene){
+
     }
     static void setupVao(VAO& vao, std::vector<VertexSimpleFlat>& data, std::vector<u32>& indices){
         auto size = sizeof(VertexSimpleFlat);
@@ -108,6 +117,9 @@ struct VertexSimple
         vertexCopy::positions(mesh, data, startPosition);
         vertexCopy::normals(mesh, data, startPosition);
         vertexCopy::texcoords(mesh, data, startPosition);
+    }
+    static void copyMaterial(aiMesh& mesh, std::vector<VertexSimple>& data, int startPosition, const aiScene& scene){
+
     }
     static void setupVao(VAO& vao, std::vector<VertexSimple>& data, std::vector<u32>& indices){
         auto size = sizeof(VertexSimple);
@@ -130,14 +142,35 @@ struct VertexWithMaterialData
         vertexCopy::positions(mesh, data, startPosition);
         vertexCopy::normals(mesh, data, startPosition);
         vertexCopy::texcoords(mesh, data, startPosition);
-        vertexCopy::color(mesh, data, startPosition);
     }
+
+    static void copyMaterial(aiMesh& mesh, std::vector<VertexWithMaterialData>& data, int startPosition, const aiScene& scene){
+        auto materialId = mesh.mMaterialIndex;
+        if(scene.mNumMaterials <= materialId){
+            error("For", mesh.mName.C_Str(), "scene has no material with id:", materialId);
+            return;
+        }
+
+        auto& material = *scene.mMaterials[materialId];
+
+        if(aiColor3D aicolor(0.f,0.f,0.f); AI_SUCCESS == material.Get(AI_MATKEY_COLOR_DIFFUSE, aicolor)){
+            glm::vec3 color(aicolor.r, aicolor.g, aicolor.b);
+            vertexCopy::color(mesh, data, startPosition, color);
+        }
+        else {
+            error("For", mesh.mName.C_Str(), "has no color in material");
+            return;
+        }
+
+    }
+
     static void setupVao(VAO& vao, std::vector<VertexWithMaterialData>& data, std::vector<u32>& indices){
         auto size = sizeof(VertexWithMaterialData);
         auto& vbo = vao.setup().addBuffer(data.data(), data.size()*sizeof(VertexWithMaterialData));
         vbo.attrib(0).pointer_float(3, size, (void*)offsetof(VertexWithMaterialData, position)).divisor(0);
         vbo.attrib(1).pointer_float(3, size, (void*)offsetof(VertexWithMaterialData, normal)).divisor(0);
         vbo.attrib(2).pointer_float(3, size, (void*)offsetof(VertexWithMaterialData, uv)).divisor(0);
+        vbo.attrib(3).pointer_float(3, size, (void*)offsetof(VertexWithMaterialData, color)).divisor(0);
         vao.addBuffer(indices)();
     }
 
@@ -155,7 +188,11 @@ struct VertexWithMaterialDataAndBones
         vertexCopy::positions(mesh, data, startPosition);
         vertexCopy::normals(mesh, data, startPosition);
         vertexCopy::texcoords(mesh, data, startPosition);
-        vertexCopy::color(mesh, data, startPosition);
+        // vertexCopy::color(mesh, data, startPosition);
+    }
+
+    static void copyMaterial(aiMesh& mesh, std::vector<VertexWithMaterialDataAndBones>& data, int startPosition, const aiScene& scene){
+
     }
 
     static void setupVao(VAO& vao, std::vector<VertexWithMaterialDataAndBones>& data, std::vector<u32>& indices){
@@ -279,7 +316,7 @@ public:
             copyIndices(*submodel, indices, rawVertexData.size());
             rawVertexData.resize(rawVertexData.size() + submodel->mNumVertices);
             VertexFormat::copyData(*submodel, rawVertexData, subinfo.vertexStart);
-            // VertexFormat::copyMaterial(*submodel, rawVertexData, subinfo.vertexStart);
+            VertexFormat::copyMaterial(*submodel, rawVertexData, subinfo.vertexStart, *scene);
 
             info.indexCount = indices.size() - info.indexStart;
             info.vertexCount = rawVertexData.size() - info.vertexStart;

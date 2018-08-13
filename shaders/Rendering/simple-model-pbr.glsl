@@ -3,7 +3,7 @@
 layout(location=0)in vec3 mVertex;
 layout(location=1)in vec3 mNormal;
 layout(location=2)in vec3 mUV;
-// layout(location=3)in vec4 mTangent;
+layout(location=3)in vec3 mColor;
 
 uniform mat4 uPV;
 
@@ -12,11 +12,13 @@ layout(std140) uniform uBones {
 };
 
 out vec3 vUV;
+out vec3 vColor;
 out vec3 vNormalWS;
 
 void main(){
     vUV = mUV*5;
-    vUV.z = gl_DrawID%7;
+    vUV.z = 3; //gl_DrawID%7;
+    vColor = mColor;
     vNormalWS = (bones[gl_DrawID]*vec4(mNormal, 0)).xyz;
 
     gl_Position = uPV*(bones[gl_DrawID]*vec4(mVertex, 1));
@@ -36,12 +38,13 @@ layout(binding=1)uniform sampler2DArray uRoughnessMap;
 layout(binding=2)uniform sampler2DArray uMetallicMap;
 
 in vec3 vUV;
+in vec3 vColor;
 in vec3 vNormalWS;
 
 void main(void){
-    outColor.rgb = vec3(1);
-    outColor.rgb = texture2DArray(uAlbedo, vUV).rgb;
-    outColor.a = texture2DArray(uMetallicMap, vUV).r;
+    outColor.rgb = 0.1*texture2DArray(uAlbedo, vUV).rgb;
+    outColor.rgb += vColor;
+    outColor.a = texture2DArray(uMetallicMap, vUV).r*0;
     outNormal.w = texture2DArray(uRoughnessMap, vUV).r;
     outNormal.xyz = normalize(vNormalWS + vNormalWS.zxy*outNormal.w*0.3);
 }

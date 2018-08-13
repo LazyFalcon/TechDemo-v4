@@ -32,7 +32,8 @@ uniform float uGamma;
 void main(void){
     vec2 uv = gl_FragCoord.xy * uPixelSize;
 
-    vec3 albedo = pow(texture(uColor, vUV).rgb, vec3(uGamma));
+    // vec3 albedo = pow(texture(uColor, vUV).rgb, vec3(uGamma));
+    vec3 albedo = texture(uColor, vUV).rgb;
     vec3 light = texture(uLight, vUV).rgb;
     vec3 specular = texture(uSpecular, vUV).rgb;
     float ao = texture(uAO, vUV).r;

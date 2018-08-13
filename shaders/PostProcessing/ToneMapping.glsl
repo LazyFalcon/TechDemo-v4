@@ -29,7 +29,7 @@ vec3 Uncharted2TonemapOperator(in vec3 x){
 vec3 Uncharted2Tonemap(in vec3 color){
     const float W = 11.2;
 
-    color = Uncharted2TonemapOperator(5*color*uExposure);
+    color = Uncharted2TonemapOperator(color*uExposure*10);
     vec3 whiteScale = 1.0f/Uncharted2TonemapOperator(vec3(W));
     color *= whiteScale;
 

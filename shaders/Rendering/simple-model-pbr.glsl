@@ -17,7 +17,7 @@ out vec3 vNormalWS;
 
 void main(){
     vUV = mUV*5;
-    vUV.z = 3; //gl_DrawID%7;
+    vUV.z = 6; //gl_DrawID%7;
     vColor = mColor;
     vNormalWS = (bones[gl_DrawID]*vec4(mNormal, 0)).xyz;
 

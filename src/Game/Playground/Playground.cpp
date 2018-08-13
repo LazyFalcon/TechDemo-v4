@@ -150,8 +150,8 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.lightRendering->lightPass(*m_scene, CameraController::getActiveCamera());
     renderer.lightRendering->compose(CameraController::getActiveCamera());
 
-    // renderer.context->setupFramebufferForLDRProcessing();
-    // renderer.effects->toneMapping(1.f/*CameraController::getActiveCamera().exposure*/);
+    renderer.context->setupFramebufferForLDRProcessing();
+    renderer.effects->toneMapping(1.f/*CameraController::getActiveCamera().exposure*/);
     renderer.effects->FXAA();
 
     renderer.context->tex.gbuffer.color.genMipmaps();

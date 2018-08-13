@@ -89,9 +89,9 @@
         vec3 reflection = reflect(-V, N);
         return texture(uCubemap, reflection*vec3(-1,-1,1), roughness*7).rgb;
     }
-    // vec3 samplePrefilteredEnviroMap(vec3 N, float roughness){
-    //     return texture(uCubemap, N, 5).rgb;
-    // }
+    vec3 samplePrefilteredEnviroMap(vec3 N, float roughness){
+        return texture(uCubemap, N, roughness).rgb;
+    }
     float lightPowerScale = 1;
 
     /// http://blog.selfshadow.com/publications/s2013-shading-course/hoffman/s2013_pbs_physics_math_slides.pdf many functions if you want
@@ -225,25 +225,22 @@
         float metallic = albedo.w;
         vec3 N = normalize(normal.xyz);
         /// TODO: pack in single hfolat
-        float roughness = max(normal.w, 0.01);
-        // roughness *= roughness;
+        float roughness = max(normal.w, 0.01) + 0.2;
+        roughness *= roughness;
 
         vec3 V = normalize(uEye - P);
         vec3 L = -normalize(light.direction);
-        // float diffusePart = OrenNayar(L, V, N, roughness, 0.1)+0.02;
+        L = normalize(vec3(0.3, 0.3, 1));
         vec3 kS;
 
-        vec3 specular = calculateSpecular(V, N, L, roughness, metallic, albedo.rgb, kS);
-        // vec3 irradiance = samplePrefilteredEnviroMap(-N.yzx, roughness)*0.3;
-        // vec3 diffusePart = light.color*max(dot(N,L), 0)*lightPowerScale + irradiance*exp(-0.1*lightPowerScale)*0; /// *ks?
-        vec3 diffusePart = 1*light.color*OrenNayar(L, V, N, roughness, 1)*lightPowerScale;// + irradiance*exp(-0.1*lightPowerScale)*0; /// *ks?
+        vec3 specular = calculateSpecular(V, N, L, roughness, metallic, albedo.rgb, kS)*lightPowerScale;
+        vec3 irradiance = samplePrefilteredEnviroMap(-N.yzx, roughness*7)*0.01;
+        vec3 diffusePart = 1*light.color*OrenNayar(L, V, N, roughness, 1)*lightPowerScale + irradiance*exp(-0.1*lightPowerScale); /// *ks?
 
         float shadow = 1;// pow(CombineCSM(P, uv, dot(N, L), N), 2);
 
-        outLight = vec4(diffusePart*(1-kS)*shadow + light.color, 1);
-        // outLight = vec4(metallic);
-        outSpecular = vec4(specular*light.color*shadow*kS, 1);
-        // outSpecular = vec4(1);
+        outLight = vec4(diffusePart*(1-kS)*shadow, 1);
+        outSpecular = vec4(specular*shadow*kS, 1);
     }
 
 #endif

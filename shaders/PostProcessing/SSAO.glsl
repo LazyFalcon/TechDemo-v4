@@ -123,7 +123,7 @@ void main(void){
     else {
         vec3 normal = getNormal(vUV);
         // vec2 radius = getRadius(depth)*7;
-        vec2 radius = uPixelSize*500/(depth*uFovTan);
+        vec2 radius = uPixelSize*400/(depth*uFovTan);
         vec2 rand = getRandom(vUV*3);
 
         const int iterations = 16;
@@ -141,12 +141,12 @@ void main(void){
             // ao += computeAmbientOcclusion(vUV, kernel_2[i]*radius, position, normal);
         }
 
-        float intensityCorrction = sqrt(depth)/2.1005;
-        ao /= float(iterations)*intensityCorrction * 2;
+        float intensityCorrection = sqrt(depth)/2.1005;
+        ao /= float(iterations)*intensityCorrection * 2;
         // ao /= float(iterations)*4;
         // ao = clamp(ao*10, 0,1);
-        // intensityCorrction = 1;
-        outAODepth = vec2(1-ao, intensityCorrction);
+        // intensityCorrection = 1;
+        outAODepth = vec2(1-clamp(ao, 0, 1), intensityCorrection);
     }
 }
 

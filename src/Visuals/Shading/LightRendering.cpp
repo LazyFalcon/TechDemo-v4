@@ -35,7 +35,8 @@ void LightRendering::renderSun(Sun& sun, Camera &camera){
     shader.texture("uNormal", context.tex.gbuffer.normals, 0);
     shader.texture("uDepth", context.tex.gbuffer.depth, 1);
     shader.texture("uAlbedo", context.tex.gbuffer.color, 2);
-    shader.cubeMap("uCubemap", assets::getCubeMap("SciFi").id, 3);
+    shader.cubeMap("uCubemap", assets::getCubeMap("Park").id, 3);
+    // shader.cubeMap("uCubemap", assets::getCubeMap("SciFi").id, 3);
 
     // shader.atlas("uCSMCascades", context.tex.shadows.cascade.ID, 4);
     // shader.uniform("uSplitDistances", camera.frustum.splitDistances);

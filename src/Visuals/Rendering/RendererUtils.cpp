@@ -94,7 +94,7 @@ const Texture& RendererUtils::bilateralAOBlur(const Texture &source, float kerne
 
     context.errors();
 
-    return context.tex.half.rg16b;
+    return context.tex.full.rg16a;
 }
 
 void RendererUtils::takeScreenShot(){

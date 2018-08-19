@@ -20,7 +20,7 @@ out float vRoughness;
 out float vMetallic;
 
 void main(){
-    vUV = mUV*5;
+    vUV = mUV*6;
     vUV.z = 6; //gl_DrawID%7;
     vColor = mColor;
     vRoughness = mRoughness;
@@ -50,11 +50,11 @@ in float vRoughness;
 in float vMetallic;
 
 void main(void){
-    outColor.rgb = 0.1*texture2DArray(uAlbedo, vUV).rgb;
-    outColor.rgb += vColor;
-    outColor.a = mix(vMetallic, texture2DArray(uMetallicMap, vUV).r, 0);
-    outNormal.w = mix(vRoughness, texture2DArray(uRoughnessMap, vUV).r, 0);
-    outNormal.xyz = normalize(vNormalWS + vNormalWS.zxy*outNormal.w*0.3);
+    outColor.rgb = mix(vColor, texture2DArray(uAlbedo, vUV).rgb, 0.05);
+    float mixVal = 0.7;
+    outColor.a = mix(vMetallic, texture2DArray(uMetallicMap, vUV).r, mixVal);
+    outNormal.w = mix(vRoughness, texture2DArray(uRoughnessMap, vUV).r, mixVal);
+    outNormal.xyz = normalize(vNormalWS + vNormalWS.zxy*outNormal.w*0.0);
 }
 
 #endif

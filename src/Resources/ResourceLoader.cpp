@@ -41,6 +41,7 @@ void ResourceLoader::loadResources(const Yaml &cfg){
         // loadTextureArray("Foliage");
         // loadTextureArray("Vfx256");
         loadCubeMap("Park");
+        loadCubeMap("SciFi");
     }
 
     if(isFile(resPath + "images/")){

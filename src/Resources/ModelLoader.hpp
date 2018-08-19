@@ -4,8 +4,9 @@
 #include <assimp/postprocess.h>
 #include "GPUResources.hpp"
 #include "Logging.hpp"
-// TODO: zaoszczedzic na includach!
 #include "PhysicalWorld.hpp"
+#include "Yaml.hpp"
+#include "VertexData.hpp"
 
 struct InternalMeshInfo
 {
@@ -85,127 +86,6 @@ namespace vertexCopy{
     }
 }
 
-
-struct VertexSimpleFlat
-{
-    glm::vec3 position;
-    glm::vec3 uv;
-
-    static void copyData(aiMesh& mesh, std::vector<VertexSimpleFlat>& data, int startPosition){
-        vertexCopy::positions(mesh, data, startPosition);
-        vertexCopy::texcoords(mesh, data, startPosition);
-    }
-    static void copyMaterial(aiMesh& mesh, std::vector<VertexSimpleFlat>& data, int startPosition, const aiScene& scene){
-
-    }
-    static void setupVao(VAO& vao, std::vector<VertexSimpleFlat>& data, std::vector<u32>& indices){
-        auto size = sizeof(VertexSimpleFlat);
-        auto& vbo = vao.setup().addBuffer(data.data(), data.size()*sizeof(VertexSimpleFlat));
-        vbo.attrib(0).pointer_float(3, size, (void*)offsetof(VertexSimpleFlat, position)).divisor(0);
-        vbo.attrib(1).pointer_float(3, size, (void*)offsetof(VertexSimpleFlat, uv)).divisor(0);
-        vao.addBuffer(indices)();
-    }
-};
-
-struct VertexSimple
-{
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec3 uv;
-
-    static void copyData(aiMesh& mesh, std::vector<VertexSimple>& data, int startPosition){
-        vertexCopy::positions(mesh, data, startPosition);
-        vertexCopy::normals(mesh, data, startPosition);
-        vertexCopy::texcoords(mesh, data, startPosition);
-    }
-    static void copyMaterial(aiMesh& mesh, std::vector<VertexSimple>& data, int startPosition, const aiScene& scene){
-
-    }
-    static void setupVao(VAO& vao, std::vector<VertexSimple>& data, std::vector<u32>& indices){
-        auto size = sizeof(VertexSimple);
-        auto& vbo = vao.setup().addBuffer(data.data(), data.size()*sizeof(VertexSimple));
-        vbo.attrib(0).pointer_float(3, size, (void*)offsetof(VertexSimple, position)).divisor(0);
-        vbo.attrib(1).pointer_float(3, size, (void*)offsetof(VertexSimple, normal)).divisor(0);
-        vbo.attrib(2).pointer_float(3, size, (void*)offsetof(VertexSimple, uv)).divisor(0);
-        vao.addBuffer(indices)();
-    }
-};
-
-struct VertexWithMaterialData
-{
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec3 uv;
-    glm::vec3 color;
-
-    static void copyData(aiMesh& mesh, std::vector<VertexWithMaterialData>& data, int startPosition){
-        vertexCopy::positions(mesh, data, startPosition);
-        vertexCopy::normals(mesh, data, startPosition);
-        vertexCopy::texcoords(mesh, data, startPosition);
-    }
-
-    static void copyMaterial(aiMesh& mesh, std::vector<VertexWithMaterialData>& data, int startPosition, const aiScene& scene){
-        auto materialId = mesh.mMaterialIndex;
-        if(scene.mNumMaterials <= materialId){
-            error("For", mesh.mName.C_Str(), "scene has no material with id:", materialId);
-            return;
-        }
-
-        auto& material = *scene.mMaterials[materialId];
-
-        if(aiColor3D aicolor(0.f,0.f,0.f); AI_SUCCESS == material.Get(AI_MATKEY_COLOR_DIFFUSE, aicolor)){
-            glm::vec3 color(aicolor.r, aicolor.g, aicolor.b);
-            vertexCopy::color(mesh, data, startPosition, color);
-        }
-        else {
-            error("For", mesh.mName.C_Str(), "has no color in material");
-            return;
-        }
-
-    }
-
-    static void setupVao(VAO& vao, std::vector<VertexWithMaterialData>& data, std::vector<u32>& indices){
-        auto size = sizeof(VertexWithMaterialData);
-        auto& vbo = vao.setup().addBuffer(data.data(), data.size()*sizeof(VertexWithMaterialData));
-        vbo.attrib(0).pointer_float(3, size, (void*)offsetof(VertexWithMaterialData, position)).divisor(0);
-        vbo.attrib(1).pointer_float(3, size, (void*)offsetof(VertexWithMaterialData, normal)).divisor(0);
-        vbo.attrib(2).pointer_float(3, size, (void*)offsetof(VertexWithMaterialData, uv)).divisor(0);
-        vbo.attrib(3).pointer_float(3, size, (void*)offsetof(VertexWithMaterialData, color)).divisor(0);
-        vao.addBuffer(indices)();
-    }
-
-};
-
-struct VertexWithMaterialDataAndBones
-{
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec3 uv;
-    uint boneId;
-    glm::vec3 color;
-
-    static void copyData(aiMesh& mesh, std::vector<VertexWithMaterialDataAndBones>& data, int startPosition){
-        vertexCopy::positions(mesh, data, startPosition);
-        vertexCopy::normals(mesh, data, startPosition);
-        vertexCopy::texcoords(mesh, data, startPosition);
-        // vertexCopy::color(mesh, data, startPosition);
-    }
-
-    static void copyMaterial(aiMesh& mesh, std::vector<VertexWithMaterialDataAndBones>& data, int startPosition, const aiScene& scene){
-
-    }
-
-    static void setupVao(VAO& vao, std::vector<VertexWithMaterialDataAndBones>& data, std::vector<u32>& indices){
-        auto size = sizeof(VertexWithMaterialDataAndBones);
-        auto& vbo = vao.setup().addBuffer(data.data(), data.size()*sizeof(VertexWithMaterialDataAndBones));
-        vbo.attrib(0).pointer_float(3, size, (void*)offsetof(VertexWithMaterialDataAndBones, position)).divisor(0);
-        vbo.attrib(1).pointer_float(3, size, (void*)offsetof(VertexWithMaterialDataAndBones, normal)).divisor(0);
-        vbo.attrib(2).pointer_float(3, size, (void*)offsetof(VertexWithMaterialDataAndBones, uv)).divisor(0);
-        vbo.attrib(3).pointer_integer(1, size, (void*)offsetof(VertexWithMaterialDataAndBones, boneId)).divisor(0);
-        vao.addBuffer(indices)();
-    }
-};
-
 /**
   *  next lod levels has suffix _lod<level[1:3]>
   *  loading inserts in collection, position in collecion is returned
@@ -219,6 +99,10 @@ class ModelLoader
 public:
     bool good { false };
     bool debug { false };
+    std::string file;
+
+    std::optional<Yaml> materials;
+    // std::optional<std::reference_wrapper<>> detailTextures;
 
     struct {
         float vertex4comonent;
@@ -240,6 +124,7 @@ public:
         return open(filename);
     }
     ModelLoader& open(const std::string &filename){
+        file = filename;
         if(scene) close();
         scene = importer.ReadFile(filename.c_str()
             ,
@@ -315,8 +200,8 @@ public:
             InternalMeshInfo subinfo {rawVertexData.size(), indices.size()};
             copyIndices(*submodel, indices, rawVertexData.size());
             rawVertexData.resize(rawVertexData.size() + submodel->mNumVertices);
-            VertexFormat::copyData(*submodel, rawVertexData, subinfo.vertexStart);
-            VertexFormat::copyMaterial(*submodel, rawVertexData, subinfo.vertexStart, *scene);
+            copyVertexData(*submodel, rawVertexData, subinfo.vertexStart);
+            copyMaterial(*submodel, rawVertexData, subinfo.vertexStart);
 
             info.indexCount = indices.size() - info.indexStart;
             info.vertexCount = rawVertexData.size() - info.vertexStart;
@@ -324,6 +209,53 @@ public:
         }
         return info;
     }
+    void copyVertexData(aiMesh& mesh, std::vector<VertexFormat>& data, int startPosition){
+        vertexCopy::positions(mesh, data, startPosition);
+        if constexpr(has_normal<VertexFormat>::value) vertexCopy::normals(mesh, data, startPosition);
+        vertexCopy::texcoords(mesh, data, startPosition);
+    }
+
+    void copyMaterial(aiMesh& mesh, std::vector<VertexFormat>& data, int startPosition){
+        if constexpr(has_color<VertexFormat>::value){
+            if(not materials){
+                error(file, "material struture not definied");
+                return;
+            }
+
+            auto materialId = mesh.mMaterialIndex;
+            if(scene->mNumMaterials <= materialId){
+                error("For", mesh.mName.C_Str(), file, "scene has no material with id:", materialId);
+                return;
+            }
+
+            auto& material = *scene->mMaterials[materialId];
+            aiString aiMaterialName;
+            material.Get(AI_MATKEY_NAME, aiMaterialName);
+            auto& materialData = (*materials)[std::string(aiMaterialName.C_Str())];
+
+            if(aiColor3D aicolor(0.f,0.f,0.f); AI_SUCCESS == material.Get(AI_MATKEY_COLOR_DIFFUSE, aicolor)){
+                glm::vec3 color(aicolor.r, aicolor.g, aicolor.b);
+                vertexCopy::color(mesh, data, startPosition, color);
+            }
+            else {
+                error("For", mesh.mName.C_Str(), "has no color in material");
+            }
+
+            float roughness = materialData["roughness"].number();
+            float metallic = materialData["metallic"].number();
+            float reflectance = materialData["reflectance"].number();
+            float emissive = materialData["emissive"].number();
+            float clearCoat = materialData["clearCoat"].number();
+            float clearCoatRoughness = materialData["clearCoatRoughness"].number();
+            float anisotropy = materialData["anisotropy"].number();
+
+            for(int i=startPosition; i<startPosition+mesh.mNumVertices; i++){
+                data[i].roughness = roughness;
+                data[i].metallic = metallic;
+            }
+        }
+    }
+
     std::vector<ConvexMesh> loadConvexMeshes(const std::vector<std::string> &modelsToJoin){
         std::vector<ConvexMesh> out;
         for(auto& name : modelsToJoin){
@@ -368,12 +300,24 @@ public:
     }
     VAO build(){
         VAO vao {};
-        VertexFormat::setupVao(vao, rawVertexData, indices);
-        // vao.setup().addBuffer(vertex, 4);
-        //     if(defaults.uvComponents) vao.addBuffer(texcoord, *defaults.uvComponents);
-        //     vao.addBuffer(normal, 4);
-        //     if(loadTangents) vao.addBuffer(tangent, 4);
-        //     vao.addBuffer(indices)();
+        auto size = sizeof(VertexFormat);
+        auto& vbo = vao.setup().addBuffer(rawVertexData.data(), rawVertexData.size()*size);
+        vbo.attrib(0).pointer_float(3, size, (void*)offsetof(VertexFormat, position)).divisor(0);
+        if constexpr(has_normal<VertexFormat>::value){
+            vbo.attrib().pointer_float(3, size, (void*)offsetof(VertexFormat, normal)).divisor(0);
+        }
+        vbo.attrib().pointer_float(3, size, (void*)offsetof(VertexFormat, uv)).divisor(0);
+        if constexpr(has_boneId<VertexFormat>::value){
+            vbo.attrib().pointer_integer(1, size, (void*)offsetof(VertexFormat, boneId)).divisor(0);
+        }
+        if constexpr(has_color<VertexFormat>::value){
+            vbo.attrib().pointer_float(3, size, (void*)offsetof(VertexFormat, color)).divisor(0);
+            vbo.attrib().pointer_float(1, size, (void*)offsetof(VertexFormat, roughness)).divisor(0);
+            vbo.attrib().pointer_float(1, size, (void*)offsetof(VertexFormat, metallic)).divisor(0);
+        }
+        vao.addBuffer(indices)();
+        vao.unbind();
+        checkErrors();
         return vao;
     }
 

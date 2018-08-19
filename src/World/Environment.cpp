@@ -34,6 +34,7 @@ void Environment::load(const std::string &sceneName){
     }
 
     Yaml yaml(path + ".yml");
+    modelLoader.materials = yaml["Materials"];
     for(auto& it : yaml["Objects"]) loadObject(it, modelLoader);
     if(yaml.has("LightSources")) for(auto& it : yaml["LightSources"]) loadLightSource(it);
     vao = modelLoader.build();

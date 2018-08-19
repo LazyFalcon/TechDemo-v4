@@ -73,10 +73,14 @@ void VBO::clear(){
     gl::DeleteBuffers(1, &ID);
 }
 
+VBO& VBO::attrib(){
+    numBuffer++;
+    gl::EnableVertexAttribArray(numBuffer);
+    return *this;
+}
 VBO& VBO::attrib(u32 n){
     numBuffer = n;
     gl::EnableVertexAttribArray(numBuffer);
-
     return *this;
 }
 VBO& VBO::pointer(int e, u32 dataType_, u32 stride, void *pointer_){
@@ -527,4 +531,11 @@ State& State::depthFunc(u32 func){
     m_depthFunc = func;
     gl::DepthFunc(m_depthFunc);
     return *this;
+}
+
+void checkErrors(){
+    int err = gl::GetError();
+    if(err != gl::NO_ERROR_){
+        error("fail:", err);
+    }
 }

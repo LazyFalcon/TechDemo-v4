@@ -16,7 +16,7 @@ struct UBO
 struct VBO
 {
     u32 ID {0};
-    u32 numBuffer;
+    u32 numBuffer {0};
     size_t maxSize;
 
     u32 dataType; // u32 float
@@ -48,6 +48,7 @@ struct VBO
     // private :D
     VBO& update(void *data, size_t dataSize);
 
+    VBO& attrib();
     VBO& attrib(u32 n);
     VBO& pointer(int elements, u32 dataType_=0x1406/*gl::FLOAT*/, u32 stride=0, void *pointer_=nullptr);
     VBO& pointer_float(int elements, u32 stride=0, void *pointer_=nullptr);
@@ -174,3 +175,5 @@ struct State
 
 
 };
+
+void checkErrors();

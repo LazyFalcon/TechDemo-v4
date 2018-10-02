@@ -15,7 +15,7 @@
 class Camera;
 class Frustum;
 class Yaml;
-
+// * https://docs.blender.org/manual/en/dev/render/blender_render/lighting/lights/attenuation.html
 struct LightSource : public ObjectInterface
 {
     enum LightType
@@ -26,6 +26,49 @@ struct LightSource : public ObjectInterface
     {
         CameraInside=0, CameraOutside=LightTypeLast
     };
+
+    enum class Falloff
+    {
+        Linear, Quadratic, LinearxQuad, InverseSquare, InverseLinear
+    };
+
+    /*
+    TODO: Check if it wouldn't be easier to use linear image to sample falloff? many of them can be mixed at once
+    TODO: Area lights, Line lights, how to incorporate them?
+    */
+    struct {
+        Falloff type;
+        float constant;
+        float linear;
+        float quadric;
+        float distance;
+        bool isLimitedToSphere;
+
+        float getLinearXQuad(float r){
+            return (distance*distance)/(distance*distance + quadric*r*r) * distance/(distance + linear*r);
+        }
+
+        float getInverse(float r){
+            return 1.f/(quadric*r*r + linear*r + constant);
+        }
+
+        float apllySphereLimitConditionally(float intensity, float r){
+            if(isLimitedToSphere and r < distance) return intensity * (distance - r)/distance;
+            else if(isLimitedToSphere and r >= distance) return 0;
+            else return intensity;
+        }
+
+    } falloff {};
+
+    float getIntensity(float rayLenght){
+        if(falloff.type == Falloff::Linear or falloff.type == Falloff::Quadratic or falloff.type == Falloff::LinearxQuad){
+            return m_energy * falloff.getLinearXQuad(rayLenght);
+        }
+        else {
+            return m_energy * falloff.getInverse(rayLenght);
+        }
+    }
+
     glm::mat4 m_transform {};
     glm::vec4 m_position {};
     glm::vec4 m_color {};
@@ -38,6 +81,8 @@ struct LightSource : public ObjectInterface
     bool isShadowCaster {false};
     LightType m_type;
     CameraRelation m_cameraInside;
+    bool castShadows {false};
+    std::string name;
 
     LightSource(const Yaml&);
     LightSource(LightType type) : m_type(type){}

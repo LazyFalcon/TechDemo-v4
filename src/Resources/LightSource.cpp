@@ -3,8 +3,9 @@
 #include "RenderQueue.hpp"
 #include "Yaml.hpp"
 
-LightSource::LightSource(const Yaml&){
-
+LightSource::LightSource(const Yaml& yaml){
+    setType(yaml["Type"].string());
+    name = yaml["name"].string();
 }
 
 LightSource& LightSource::setType(const std::string &type){

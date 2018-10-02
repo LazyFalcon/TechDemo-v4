@@ -10,10 +10,10 @@
 #include "Yaml.hpp"
 
 
-void Cell::actionVhenVisible(){
+void Cell::actionWhenVisible(){
     clog("cell is visible");
     for(auto& it : objects){
-        it->actionVhenVisible();
+        it->actionWhenVisible();
     }
 }
 

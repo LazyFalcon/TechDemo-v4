@@ -24,7 +24,7 @@ struct ObjectInterface
 public:
     virtual ~ObjectInterface() = default;
 
-    virtual void actionVhenVisible() = 0;
+    virtual void actionWhenVisible() = 0;
 
     Type type;
     uint lastFrame {0};

@@ -40,7 +40,7 @@ public:
     };
     void printStatus(){};
     void update(float dt);
-    void actionVhenVisible() override;
+    void actionWhenVisible() override;
 };
 
 
@@ -51,9 +51,11 @@ public:
 
     void load(const std::string &dirPath);
 
-    LightSourcesContainer lightSources;
-    std::vector<EnviroEntity> glossyObjects;
+    std::vector<ObjectWrapper<LightSource>> m_lights;
     std::vector<ObjectWrapper<EnviroEntity>> m_entities;
+
+    void update(float dt);
+
     EnviroEntity& getObject(u32 id){
         return *m_entities[id];
     }
@@ -68,8 +70,6 @@ private:
     void loadObject(const Yaml &yaml, ModelLoader<VertexWithMaterialData>& modelLoader);
     void loadLightSource(const Yaml &yaml);
 
-    void loadMesh(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml);
-    void createObject(const Yaml &cfg);
-    btRigidBody* createRgBody(const Yaml &bodyConf);
-    void insertObjectToQt(u32 id);
+    void loadVisualPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml);
+    void loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml);
 };

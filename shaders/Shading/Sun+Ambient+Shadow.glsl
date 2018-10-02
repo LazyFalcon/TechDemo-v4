@@ -87,7 +87,7 @@
     }
     vec3 sampleEnviroMap(vec3 N, vec3 V, float roughness){
         vec3 reflection = reflect(-V, N);
-        return textureLod(uCubemap, reflection*vec3(-1,-1,1), roughness*10).rgb;
+        return textureLod(uCubemap, reflection*vec3(-1,-1,1), roughness*15).rgb;
     }
     vec3 samplePrefilteredEnviroMap(vec3 N, float roughness){
         return textureLod(uCubemap, N, roughness).rgb;
@@ -136,16 +136,6 @@
 
         vec2 cos_theta = clamp(vec2(NdotL, NdotV), 0, 1);
         vec2 cos_theta2 = cos_theta * cos_theta;
-
-        // float sin_theta = sqrt((1-cos_theta2.x) * (1-cos_theta2.y));
-        // vec3 light_plane = normalize(L - cos_theta.x * N);
-        // vec3 view_plane = normalize(V - cos_theta.y * N);
-        // float cos_phi = clamp(dot(light_plane, view_plane), 0, 1);
-        // // Composition
-        // float diffuse_oren_nayar = cos_phi * sin_theta / max(cos_theta.x, cos_theta.y);
-        // float diffuse = cos_theta.x * (oren_nayar.x + oren_nayar.y * diffuse_oren_nayar);
-        //
-        // return vec3(clamp(diffuse, 0, 100)*albedo);
 
         float s = LdotV - NdotL * NdotV;
         float t = mix(1.0, max(NdotL, NdotV), step(0.0, s));

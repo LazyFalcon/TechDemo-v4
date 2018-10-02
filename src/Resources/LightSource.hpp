@@ -10,15 +10,21 @@
  */
 #pragma once
 #include "GPUResources.hpp"
+#include "SceneObject.hpp"
 
 class Camera;
 class Frustum;
+class Yaml;
 
-struct LightSource
+struct LightSource : public ObjectInterface
 {
     enum LightType
     {
-        Point, Spot, Area,
+        Point=0, Spot, Area, LightTypeLast
+    };
+    enum CameraRelation
+    {
+        CameraInside=0, CameraOutside=LightTypeLast
     };
     glm::mat4 m_transform {};
     glm::vec4 m_position {};
@@ -31,8 +37,9 @@ struct LightSource
     float m_cosAngle {};
     bool isShadowCaster {false};
     LightType m_type;
+    CameraRelation m_cameraInside;
 
-    // sclae cone and move center to reach start size
+    LightSource(const Yaml&);
     LightSource(LightType type) : m_type(type){}
     LightSource(const std::string &type) : m_type(getType(type)){}
     LightSource& setType(const std::string &type);
@@ -46,38 +53,18 @@ struct LightSource
     LightSource& color(float r, float g, float b);
     LightSource& color(glm::vec3 c);
     LightSource& position(const glm::vec4 &p);
-    static LightType getType(const std::string &type){
-        if(type == "Point") return Point;
-        if(type == "Spot") return Spot;
-        if(type == "Area") return Area;
+    static LightType getType(std::string p_type){
+        std::transform(p_type.begin(), p_type.end(), p_type.begin(), [](char c){ return std::tolower(c); });
+        if(p_type == "point") return Point;
+        if(p_type == "spot") return Spot;
+        if(p_type == "area") return Area;
         return Point;
     }
 
-    int cameraInside(const glm::vec4 &eye, float scale = 1.f);
+    void readConfig(const Yaml& yaml);
+
+    void cameraInside(const glm::vec4 &eye, float scale = 1.f);
     bool cull(const Frustum &frustum);
-};
-
-struct LightSourcesContainer
-{
-    std::map<LightSource::LightType, std::list<std::shared_ptr<LightSource>>> lights;
-
-    std::shared_ptr<LightSource> emplace(LightSource::LightType type){
-        lights[type].emplace_back(std::make_unique<LightSource>(type));
-        return lights[type].back();
-    }
-    std::shared_ptr<LightSource> emplace(const std::string &type){
-        lights[LightSource::getType(type)].emplace_back(std::make_unique<LightSource>(type));
-        return lights[LightSource::getType(type)].back();
-    }
-    auto begin(){
-        return lights.begin();
-    }
-    auto end(){
-        return lights.end();
-    }
-    void remove(std::shared_ptr<LightSource> &light){
-        lights[light->m_type].remove(light);
-    }
+    void actionWhenVisible() override;
     void update(float dt);
-
 };

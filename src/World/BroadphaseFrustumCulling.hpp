@@ -23,7 +23,7 @@ public:
         btCollisionObject *co = static_cast<btCollisionObject*>(proxy->m_clientObject);
 
         if((proxy->m_collisionFilterGroup & collisionFilterMask) != 0){
-            if(co->getUserIndex()) derefIndex(co->getUserIndex())->actionVhenVisible();
+            if(co->getUserIndex()) derefIndex(co->getUserIndex())->actionWhenVisible();
         }
     }
 };

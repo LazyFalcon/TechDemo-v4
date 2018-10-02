@@ -68,7 +68,7 @@ void Scene::update(float dt, Camera &camera){
     const Frustum &frustum = camera.getFrustum();
     // if(geoTimePosition) geoTimePosition->update(dt*10);
     if(graph) graph->cullCells(frustum);
-
+    environment->update(dt);
     // if(grass) grass->update(camera.position());
     // if(foliage) foliage->update(camera.position());
     if(sun) sun->update(*atmosphere);

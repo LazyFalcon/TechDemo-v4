@@ -33,7 +33,7 @@ public:
         return {};
     }
 
-    void actionVhenVisible() override;
+    void actionWhenVisible() override;
 };
 
 constexpr i32 getCellCount(i32 levels){

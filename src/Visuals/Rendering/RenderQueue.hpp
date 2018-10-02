@@ -6,6 +6,7 @@
 
 class SkinnedMesh;
 class ArmoredVehicleTracks;
+class LightSource;
 
 class RenderQueue
 {
@@ -20,6 +21,7 @@ public:
     static tupleOfContainers collection;
     static CommandArray enviro;
     static CommandArray foliage;
+    static std::vector<LightSource*> lights[10];
 
     template<typename T>
     static std::vector<T>& get(){

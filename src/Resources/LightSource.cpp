@@ -1,5 +1,11 @@
 #include "core.hpp"
 #include "LightSource.hpp"
+#include "RenderQueue.hpp"
+#include "Yaml.hpp"
+
+LightSource::LightSource(const Yaml&){
+
+}
 
 LightSource& LightSource::setType(const std::string &type){
     if(type == "POINT"){
@@ -50,13 +56,41 @@ LightSource& LightSource::position(const glm::vec4 &p){
     return *this;
 }
 
-int LightSource::cameraInside(const glm::vec4 &eye, float scale){
+void LightSource::cameraInside(const glm::vec4 &eye, float scale){
     auto pos = m_transform*glm::vec4(0,0,0,1);
     auto d = glm::distance(pos, eye);
-    if(d > m_fallof + 0.0) return 1;
-    if(d < m_fallof - 0.0) return -1;
-    return 0;
+    if(d > m_fallof + 0.0) m_cameraInside = CameraOutside;
+    if(d < m_fallof - 0.0) m_cameraInside =CameraInside;
 }
 bool LightSource::cull(const Frustum &frustum){
     return true;
 }
+
+void LightSource::actionWhenVisible(){
+    if(lastFrame==frame()) return; // * to be sure that object will be inserted once per frame :)
+    lastFrame = frame();
+
+    RenderQueue::lights[m_type+m_cameraInside].push_back(this);
+}
+
+void LightSource::readConfig(const Yaml& thing){
+    switch(m_type){
+        case Point:
+            break;
+        case Spot:
+            break;
+        case Area:
+            break;
+    }
+
+    m_energy = thing["Energy"].number();
+    m_fallof = thing["Falloff_distance"].number();
+    m_color = thing["Color"].vec4();
+    setTransform(glm::mat4(
+            thing["Position"]["X"].vec30(),
+            thing["Position"]["Y"].vec30(),
+            thing["Position"]["Z"].vec30(),
+            thing["Position"]["W"].vec31()
+        ));
+}
+void LightSource::update(float dt){}

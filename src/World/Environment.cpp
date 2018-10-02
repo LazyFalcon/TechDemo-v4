@@ -11,7 +11,8 @@
 #include "Utils.hpp"
 #include "Yaml.hpp"
 
-void EnviroEntity::actionVhenVisible(){
+void EnviroEntity::update(float dt){}
+void EnviroEntity::actionWhenVisible(){
     if(lastFrame==frame()) return; // * to be sure that object will be inserted once per frame :)
     lastFrame = frame();
 
@@ -55,12 +56,13 @@ void Environment::loadObject(const Yaml &thing, ModelLoader<VertexWithMaterialDa
     e.physics.position = w;
     e.physics.transform = glm::mat4(x,y,z,w);
 
-    loadMesh(modelLoader, e, thing);
+    loadVisualPart(modelLoader, e, thing);
+    loadPhysicalPart(modelLoader, e, thing);
 
-    if(thing["isPhysical"].boolean() and thing["Colliders"].string() != "none"){
-        auto colliders = modelLoader.loadConvexMeshes({thing["Colliders"].strings()});
+    // if(thing["isPhysical"].boolean() and thing["Colliders"].string() != "none"){
+    //     auto colliders = modelLoader.loadConvexMeshes({thing["Colliders"].strings()});
         // e.physics.rgBody = physics->createRigidBody(0, convert(obj["Quaternion"].quat(), e.physics.position), createCompoundMesh(colliders, nullptr));
-    }
+    // }
     e.id = m_entities.size();
     m_entities.push_back(e);
     // SceneObject object{Type::Enviro, SceneObject::nextID(), nullptr, e.id};
@@ -69,49 +71,31 @@ void Environment::loadObject(const Yaml &thing, ModelLoader<VertexWithMaterialDa
     graph.insertObject(m_entities.back().getProvider(), e.physics.position);
 }
 
-void Environment::loadLightSource(const Yaml &thing){
-    auto &&l = lightSources.emplace(thing["Type"].string());
-    l->m_energy = thing["Energy"].number();
-    l->m_fallof = thing["Falloff_distance"].number();
-    l->m_color = thing["Color"].vec4();
-    // l->setTransform(lamp["Position"].vec4(), lamp["Quaternion"].quat());
+
+void Environment::loadVisualPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml){
+    e.graphic.mesh = modelLoader.load(yaml["Models"].strings());
 }
 
-// TODO: zrobic tak by convex był pojedynczym modelem, rozbitym przy pomocy materialow, przypiety jako dziecko wlasciwego modelu
-// TODO: fajnie by bylo by dało się reusowac modele(export object instances, rozmieszcac przy pomocy Alt+D, uzywac nazwy mesha nie obiektu)
-// duplikacje?
-void Environment::loadMesh(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml){
-    e.graphic.mesh = modelLoader.load(yaml["Models"].strings());
-
-    if(yaml["isPhysical"].boolean()){
-        for(auto &collider : yaml["Colliders"]){
-            // load bullet rgBody
-        }
+void Environment::loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml){
+    if(not yaml["isPhysical"].boolean()) return;
+    for(auto &collider : yaml["Colliders"]){
+        // load colliders
     }
 
-}
-/** example:
-- Name: Rock
-  Mesh: Rock.mesh
-  Position: [20, 25, -3]
-  Convex: Rock.convex
-*/
-btRigidBody* Environment::createRgBody(const Yaml &bodyConf){
     btCollisionShape *shape = nullptr;
-    // jak tam bylo z raycastem na compound mesh? kto byl logowany jako owner? ptr ustawiony w rgBody, nie?
 
     btTransform tr;
     tr.setIdentity();
-    tr.setOrigin(bodyConf["Position"].btVec());
+    tr.setOrigin(yaml["Position"].btVec());
 
-    return physics.createRigidBody(0, tr, shape);
+    e.physics.rgBody = physics.createRigidBody(0, tr, shape);
 }
 
-void Environment::insertObjectToQt(u32 id){
-    auto &e = getObject(id);
+void Environment::loadLightSource(const Yaml &thing){
+    auto &l = m_lights.emplace_back((thing["Type"].string()));
+}
 
-    glm::vec4 position = e.physics.position;
-    float radius = 10;
-
-    // QT.findTouchedNodes(position, radius).objects.push_back(id);
+void Environment::update(float dt){
+    for(auto & it : m_entities) it->update(dt);
+    for(auto & it : m_lights) it->update(dt);
 }

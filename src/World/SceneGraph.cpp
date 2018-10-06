@@ -90,65 +90,6 @@ Cell* SceneGraph::findCellUnderPosition(const glm::vec4& pos){
     return &(*cells[int(p.x) + int(p.y)*cellsInTheScene.x]);
 }
 
-
-
-void SceneGraph::diffBetweenFrames(){
-
-    // for(auto& i : visibleObjectsByType[Type::TerrainChunk]){
-    //     clog(cells[objects[i.ID].userID].id);
-    //     for(auto& o : cells[objects[i.ID].userID].objects)
-    //         visibleObjectsByType[Type::Enviro].push_back( objects[o] );
-    // }
-    return;
-
-    std::sort(addedCells.begin(), addedCells.end());
-    std::vector<i32> justAddedCells;
-    justAddedCells.swap(addedCells);
-
-    u32 oldS = visibleCells.size();
-    u32 curS = justAddedCells.size();
-    u32 oldI = 0;
-    u32 curI = 0;
-    for(; oldI<oldS && curI<curS;){
-        if(visibleCells[oldI] == justAddedCells[curI]){
-            oldI++;
-            curI++;
-        }
-        else if(visibleCells[oldI] < justAddedCells[curI]){
-            removedCells.push_back(visibleCells[oldI]);
-            oldI++;
-        }
-        else {
-            addedCells.push_back(justAddedCells[curI]);
-            curI++;
-        }
-    }
-    for(; oldI<oldS; oldI++){
-        removedCells.push_back(visibleCells[oldI]);
-    }
-    for(; curI<curS; curI++){
-        addedCells.push_back(justAddedCells[curI]);
-    }
-
-    visibleCells.swap(justAddedCells);
-}
-
-void SceneGraph::setLodForVisible(glm::vec4 eye){
-    for(auto &i : visibleCells){
-        auto &cell = cells.at(i);
-
-        auto vec = glm::abs(cell->position - glm::ceil(eye/cell->size.x*10.f)*cell->size.x/10.f);
-        auto distance = std::max(vec.x, vec.y);
-
-        if(distance < manhattanLodDistances[0]) cell->level = 0;
-        else if(distance < manhattanLodDistances[1]) cell->level = 1;
-        else if(distance < manhattanLodDistances[2]) cell->level = 2;
-        else if(distance < manhattanLodDistances[3]) cell->level = 3;
-        else cell->level = -1;
-    }
-}
-
-
 void SceneGraph::cullWithPhysicsEngine(const Frustum &frustum){
     CPU_SCOPE_TIMER("cullWithPhysicsEngine");
     btDbvtBroadphase *dbvtBroadphase = physics.m_broadphase;
@@ -172,16 +113,12 @@ void SceneGraph::cullWithPhysicsEngine(const Frustum &frustum){
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[1].m_root, normals, offsets, cullFarPlane ? 5 : 4, culling); // with static
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[0].m_root, normals, offsets, cullFarPlane ? 5 : 4, culling); // with dynamic
     visibleObjectsByType.clear();
-    for(auto &it : culling.objectsInsideFrustum){
-        // auto obj = objects[it];
-        // visibleObjectsByType[obj.type].push_back(obj);
-    }
 }
 
 void SceneGraph::cullCells(const Frustum &frustum){
     cullWithPhysicsEngine(frustum);
-    diffBetweenFrames();
-    setLodForVisible(frustum.eye);
+    // diffBetweenFrames();
+    // setLodForVisible(frustum.eye);
 }
 
 void SceneGraph::loadCollider(ModelLoader<VertexWithMaterialData> &loader, const std::string &name){

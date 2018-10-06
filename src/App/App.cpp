@@ -198,14 +198,15 @@ void App::run() try {
         lastTime = clock::now();
         lag += std::chrono::duration_cast<std::chrono::nanoseconds>(deltaTime);
 
-        uint msTotalTime = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(lastTime - timeOnStart).count();
-        uint msDelta = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(deltaTime).count();
+        u64 currentTimeMs = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(lastTime - timeOnStart).count();
+        u64 currentTimeNs = std::chrono::duration_cast<std::chrono::duration<uint, std::micro>>(lastTime - timeOnStart).count();
+        u64 msDelta = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(deltaTime).count();
         float msfDelta = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(deltaTime).count();
 
         CLOG_SPECIAL_VALUE = false;
-
+        updateTimers(currentTimeMs);
         imgui->restart();
-        inputDispatcher->setTime(msTotalTime);
+        inputDispatcher->setTime(currentTimeMs);
         inputDispatcher->heldUpKeys();
         glfwPollEvents();
 

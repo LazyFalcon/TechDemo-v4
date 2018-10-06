@@ -10,7 +10,7 @@
 #include "Sun.hpp"
 #include "Window.hpp"
 // #include "GameSettings.hpp"
-#include "RenderQueue.hpp"
+#include "RenderDataCollector.hpp"
 #include "Color.hpp"
 
 namespace {
@@ -78,7 +78,7 @@ void LightRendering::renderLights(Scene &scene, Camera &camera){
     gl::DepthFunc(gl::GEQUAL);
 
     assets::getVao("Common").bind();
-    auto &pointLights = RenderQueue::get<PointLightSource>();
+    auto &pointLights = RenderDataCollector::get<PointLightSource>();
     if(not pointLights.empty()){
         auto shader = assets::getShader("LightSource_POINT").bind();
         context.cullBackFaces();

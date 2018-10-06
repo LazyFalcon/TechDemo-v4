@@ -4,7 +4,7 @@
 #include "VfxEffects.hpp"
 #include "Window.hpp"
 #include "Camera.hpp"
-#include "RenderQueue.hpp"
+#include "RenderDataCollector.hpp"
 #include "RenderStructs.hpp"
 #include "GPUResources.hpp"
 #include "Color.hpp"
@@ -21,7 +21,7 @@ void VfxEffects::drawOpaque(Camera &camera){
 }
 void VfxEffects::drawGlare(Camera &camera){
     // GPU_SCOPE_TIMER();
-    // RenderQueue::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
+    // RenderDataCollector::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
     // /// coś z OIT by się przydało, chociażby zmiana jasności w zależności od odległości, bo jeśli jasność sumować się może w nieskończoność to słabo trochę
     // /// no tak, z kwadratem odległości maleje, ale jak to ładnie blendować żeby odległy bardzo jasny obiekt nie wpierdalał się na wierzch? za bardzo przynajmniej?
     // /// mamy dwa parametry: jasność(z koloru) i opacity(alfa), jeżu skomplikowane to będzie
@@ -39,7 +39,7 @@ void VfxEffects::drawGlare(Camera &camera){
 }
 void VfxEffects::drawTransparent(Camera &camera){
     // GPU_SCOPE_TIMER();
-    // RenderQueue::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
+    // RenderDataCollector::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
     // /// coś z OIT by się przydało, chociażby zmiana jasności w zależności od odległości, bo jeśli jasność sumować się może w nieskończoność to słabo trochę
     // /// no tak, z kwadratem odległości maleje, ale jak to ładnie blendować żeby odległy bardzo jasny obiekt nie wpierdalał się na wierzch? za bardzo przynajmniej?
     // /// mamy dwa parametry: jasność(z koloru) i opacity(alfa), jeżu skomplikowane to będzie
@@ -60,7 +60,7 @@ void VfxEffects::drawTransparent(Camera &camera){
     // drawSparks(camera);
 }
 void VfxEffects::drawLines(Camera &camera){
-    // auto &lines = RenderQueue::get<Line>();
+    // auto &lines = RenderDataCollector::get<Line>();
     // if(lines.empty()) return;
 
     // auto shader = assets::getShader("Line").bind();
@@ -82,7 +82,7 @@ void VfxEffects::drawLines(Camera &camera){
 }
 
 void VfxEffects::drawVolumetricLaserBeams(Camera &camera){
-    // auto &beams = RenderQueue::get<LaserBeam>();
+    // auto &beams = RenderDataCollector::get<LaserBeam>();
     // if(beams.empty()) return;
 
     // auto shader = assets::getShader("BeamRadiation").bind();
@@ -118,7 +118,7 @@ void VfxEffects::drawVolumetricLaserBeams(Camera &camera){
     // context.errors();
 }
 void VfxEffects::drawPlasmaProjeciles(Camera &camera){
-    // auto &projectiles = RenderQueue::get<PlasmaProjectile>();
+    // auto &projectiles = RenderDataCollector::get<PlasmaProjectile>();
     // if(projectiles.empty()) return;
 
     // auto shader = assets::getShader("PlasmaProjectile").bind();
@@ -139,7 +139,7 @@ void VfxEffects::drawPlasmaProjeciles(Camera &camera){
     // context.errors();
 }
 void VfxEffects::drawPlasmaFlashes(Camera &camera){
-    // auto &plasma = RenderQueue::get<PlasmaFlashEvent>();
+    // auto &plasma = RenderDataCollector::get<PlasmaFlashEvent>();
     // if(plasma.empty()) return;
     // auto shader = assets::getShader("PlasmaFlash").bind();
 
@@ -167,7 +167,7 @@ void VfxEffects::drawPlasmaFlashes(Camera &camera){
     // context.errors();
 }
 void VfxEffects::drawSSDots(Camera &camera){
-    // auto &dots = RenderQueue::get<SSDot>();
+    // auto &dots = RenderDataCollector::get<SSDot>();
     // if(dots.empty()) return;
     // gl::Disable(gl::DEPTH_TEST);
     // auto shader = assets::getShader("SSDot").bind();
@@ -187,7 +187,7 @@ void VfxEffects::drawSSDots(Camera &camera){
 }
 /// draws external container
 void VfxEffects::drawSparks(Camera &camera){
-    // auto &sparks = RenderQueue::get<ParticleProcessor*>()[0]->get<Spark>();
+    // auto &sparks = RenderDataCollector::get<ParticleProcessor*>()[0]->get<Spark>();
     // if(sparks.empty()) return;
 
     // gl::Enable(gl::DEPTH_TEST);

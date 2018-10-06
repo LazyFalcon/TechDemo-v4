@@ -26,4 +26,5 @@ public:
     void finishForDirectionalShadows();
     void renderScene(Scene &scene, Camera &camera);
     void renderTerrain(Scene &scene, Camera &camera);
+    void updateShadows();
 };

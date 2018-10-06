@@ -7,7 +7,7 @@
 #include "input-dispatcher.hpp"
 #include "input.hpp"
 #include "LightRendering.hpp"
-#include "ObjectBatchedRender.hpp"
+#include "RenderDataCollector.hpp"
 #include "PhysicalWorld.hpp"
 #include "Player.hpp"
 #include "Playground.hpp"
@@ -137,16 +137,16 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.context->beginFrame();
     renderer.context->setupFramebufferForGBufferGeneration();
     // renderer.utils->drawBackground("nebula2");
-    renderer.objectBatchedRender->renderObjects(*m_scene, CameraController::getActiveCamera());
-    // renderer.sceneRenderer->renderScene(*m_scene, CameraController::getActiveCamera());
+    renderer.sceneRenderer->renderScene(*m_scene, CameraController::getActiveCamera());
 
 
     renderer.gBufferSamplers->sampleGBuffer(CameraController::getActiveCamera());
 
     renderer.effects->SSAO(CameraController::getActiveCamera());
+
+    // renderer.shadowCaster->updateShadows();
+
     renderer.context->setupFramebufferForLighting();
-
-
     renderer.lightRendering->lightPass(*m_scene, CameraController::getActiveCamera());
     renderer.lightRendering->compose(CameraController::getActiveCamera());
 

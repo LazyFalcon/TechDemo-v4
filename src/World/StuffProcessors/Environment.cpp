@@ -6,7 +6,7 @@
 #include "ModelLoader.hpp"
 #include "PerfTimers.hpp"
 #include "PhysicalWorld.hpp"
-#include "RenderQueue.hpp"
+#include "RenderDataCollector.hpp"
 #include "ResourceLoader.hpp"
 #include "Utils.hpp"
 #include "Yaml.hpp"
@@ -16,7 +16,7 @@ void EnviroEntity::actionWhenVisible(){
     if(lastFrame==frame()) return; // * to be sure that object will be inserted once per frame :)
     lastFrame = frame();
 
-    RenderQueue::enviro.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
+    RenderDataCollector::enviro.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
 }
 
 
@@ -39,7 +39,7 @@ void Environment::load(const std::string &sceneName){
     for(auto& it : yaml["Objects"]) loadObject(it, modelLoader);
     if(yaml.has("LightSources")) for(auto& it : yaml["LightSources"]) loadLightSource(it);
     vao = modelLoader.build();
-    RenderQueue::enviro.vao = vao;
+    RenderDataCollector::enviro.vao = vao;
 
     const Yaml &lamps = yaml["LightSources"];
 }
@@ -93,6 +93,9 @@ void Environment::loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoa
 
 void Environment::loadLightSource(const Yaml &thing){
     auto &l = m_lights.emplace_back((thing["Type"].string()));
+    // auto collider = l->getCollider();
+
+    graph.insertObject(l.getProvider(), l->m_position);
 }
 
 void Environment::update(float dt){

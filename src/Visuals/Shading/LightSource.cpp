@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "LightSource.hpp"
-#include "RenderQueue.hpp"
+#include "RenderDataCollector.hpp"
 #include "Yaml.hpp"
 
 LightSource::LightSource(const Yaml& yaml){
@@ -71,7 +71,7 @@ void LightSource::actionWhenVisible(){
     if(lastFrame==frame()) return; // * to be sure that object will be inserted once per frame :)
     lastFrame = frame();
 
-    RenderQueue::lights[m_type+m_cameraInside].push_back(this);
+    RenderDataCollector::lights[m_type+m_cameraInside].push_back(this);
 }
 
 void LightSource::readConfig(const Yaml& thing){

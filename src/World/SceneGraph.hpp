@@ -45,9 +45,13 @@ constexpr i32 getCellCount(i32 levels){
     return out;
 }
 /*
-* Responsible for culling and visibility of obects, by camera or actors
-* Should have methods to query for such things
-* Update
+? How Culling is performed?
+* Fully with Bullet support - bullet will test all objects against frustum and loop over this list, adding them all to rendering queue
+* Also some static objects will be pulled from cells
+* Let's belive in bullet performance in doing such culling, of course algorithm with cells could be mode efficient, but also tooks time to implement, and bullet can be run in another thread :D
+* Assuming scene will no be too big
+
+* Option for querying objects for custom colliders: shadows, probes
 */
 class SceneGraph
 {
@@ -92,8 +96,6 @@ private:
     void initCellsToDefaults();
     void loadMap(const std::string &mapConfigDir);
     void cullWithPhysicsEngine(const Frustum &frustum);
-    void diffBetweenFrames();
-    void setLodForVisible(glm::vec4 eye);
     void loadCollider(ModelLoader<VertexWithMaterialData> &loader, const std::string &name);
     btRigidBody* createSimpleCollider(glm::vec4 pos, glm::vec3 dim);
 };

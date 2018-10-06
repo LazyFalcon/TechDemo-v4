@@ -4,7 +4,6 @@ class Context;
 class Effects;
 class GBufferSamplers;
 class LightRendering;
-class ObjectBatchedRender;
 class RendererUtils;
 class SceneRenderer;
 class ShadowCaster;
@@ -30,7 +29,6 @@ public:
     std::unique_ptr<Effects> effects;
     std::unique_ptr<GBufferSamplers> gBufferSamplers;
     std::unique_ptr<LightRendering> lightRendering;
-    std::unique_ptr<ObjectBatchedRender> objectBatchedRender;
     std::unique_ptr<SceneRenderer> sceneRenderer;
     std::unique_ptr<ShadowCaster> shadowCaster;
     std::unique_ptr<UIRender> uiRender;

@@ -1,12 +1,9 @@
 #pragma once
 #include "GPUResources.hpp" // FIX: really?
-#include "ObjectBatchedRender.hpp"
-#include "RenderQueue.hpp"
+#include "RenderDataCollector.hpp"
 
 class Camera;
 class GraphicDataCollector;
-class ObjectBatchedRender;
-class ObjectBatchedRender;
 class Scene;
 class Track;
 
@@ -36,7 +33,7 @@ public:
     VAO vao;
     std::vector<glm::mat4> bones;
     void toBeRendered(){
-        RenderQueue::insert(this);
+        RenderDataCollector::insert(this);
     }
 };
 
@@ -49,6 +46,6 @@ public:
     VAO vao;
     glm::mat4 baseTransform;
     void toBeRendered(){
-        RenderQueue::insert(this);
+        RenderDataCollector::insert(this);
     }
 };

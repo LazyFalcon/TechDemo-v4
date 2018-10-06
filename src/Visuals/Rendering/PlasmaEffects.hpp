@@ -1,6 +1,6 @@
 #pragma once
 #include "Events.hpp"
-#include "RenderQueue.hpp"
+#include "RenderDataCollector.hpp"
 #include "Color.hpp"
 
 class PlasmaFlashEvent : public Event
@@ -27,8 +27,8 @@ public:
         // else {
         //     sizeA *= 0.1;
         // }
-        // RenderQueue::insert(*this);
-        RenderQueue::insert(PointLightSource {position, Color(238, 239, 192, 255), 40.f, 0.5f});
+        // RenderDataCollector::insert(*this);
+        RenderDataCollector::insert(PointLightSource {position, Color(238, 239, 192, 255), 40.f, 0.5f});
         return false;
     }
 };

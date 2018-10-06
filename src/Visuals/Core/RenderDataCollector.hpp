@@ -8,7 +8,7 @@ class SkinnedMesh;
 class ArmoredVehicleTracks;
 class LightSource;
 
-class RenderQueue
+class RenderDataCollector
 {
 public:
     using tupleOfContainers = std::tuple<
@@ -21,7 +21,8 @@ public:
     static tupleOfContainers collection;
     static CommandArray enviro;
     static CommandArray foliage;
-    static std::vector<LightSource*> lights[10];
+    static std::vector<LightSource*> lights[10]; // * lights collected by type, and relation to camera: index = type + isCameraInsideEnum
+    static std::vector<LightSource*> lightsCastingShadows;
 
     template<typename T>
     static std::vector<T>& get(){

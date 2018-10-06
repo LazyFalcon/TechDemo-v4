@@ -4,13 +4,17 @@
 #include "Camera.hpp"
 #include "Context.hpp"
 #include "Environment.hpp"
-#include "PerfTimers.hpp"
-#include "Scene.hpp"
-#include "Sun.hpp"
+#include "GraphicComponent.hpp" // TODO: rename
 #include "Grass.hpp"
+#include "Logging.hpp"
+#include "PerfTimers.hpp"
+#include "RenderDataCollector.hpp"
+#include "Scene.hpp"
 #include "SceneRenderer.hpp"
+#include "Sun.hpp"
 
-void SceneRenderer::renderScene(Scene &scene, Camera &camera){
+
+void SceneRenderer::renderSceneStuff(Scene &scene, Camera &camera){
     // GPU_SCOPE_TIMER();
 
     if(not scene.environment) return;
@@ -148,6 +152,137 @@ void SceneRenderer::renderGrass(Scene &scene, Camera &camera){
 
     gl::BindTexture(gl::TEXTURE_2D, 0);
     gl::BindVertexArray(0);
+
+    context.errors();
+}
+
+
+void SceneRenderer::renderScene(Scene &scene, Camera &camera){
+    renderSkinned(camera);
+    render_SimpleModelPbr(camera);
+    // renderTracks(camera);
+}
+void SceneRenderer::renderShadows(Scene &scene, Camera &camera){
+    renderSkinnedShadows(scene, camera);
+}
+void SceneRenderer::renderGlossyObjects(Camera &camera){
+}
+
+
+void SceneRenderer::renderSkinned(Camera &camera){
+    GPU_SCOPE_TIMER();
+
+    auto shader = assets::bindShader("skinned-model-pbr");
+    auto &skinnedMeshes = RenderDataCollector::get<SkinnedMesh*>();
+    int nr(0);
+    for(auto toRender : skinnedMeshes)
+    {
+        clog("mesh nr:",  nr);
+        nr++;
+        auto &mesh = toRender->mesh;
+        toRender->vao.bind();
+
+        { // passing bones
+            GLuint UBOBindingIndex = 0;
+
+            // update buffer
+            gl::BindBuffer(gl::UNIFORM_BUFFER, context.ubo.matrices);
+            gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->bones.size(), toRender->bones.data());
+            gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
+
+            // use buffer
+            shader.ubo("uBones", context.ubo.matrices, UBOBindingIndex, sizeof(glm::mat4) * 150);
+        }
+
+        shader.uniform("uProjection", camera.projection);
+        shader.uniform("uView", camera.view);
+        shader.uniform("uModel", identityMatrix);
+        // shader.atlas("uAlbedo", assets::getAlbedoArray("Materials").id, 0);
+        // shader.atlas("uNormalMap", assets::getNormalArray("Materials").id, 1);
+        // shader.atlas("uRoughnessMap", assets::getRoughnessArray("Materials").id, 2);
+        // shader.atlas("uMetallicMap", assets::getMetalic("Materials").id, 3);
+
+        // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+
+        // gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+
+        gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, (void*)0);
+
+        // gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
+        // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
+    }
+
+    skinnedMeshes.clear();
+
+    context.errors();
+
+    gl::BindVertexArray(0);
+    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+    gl::BindTexture(gl::TEXTURE_2D, 0);
+};
+
+void SceneRenderer::renderSkinnedShadows(Scene &scene, Camera &camera){
+    GPU_SCOPE_TIMER();
+    glm::vec4 lightDir(1,1,-1, 0);
+    if(scene.sun) lightDir = scene.sun->direction;
+    auto shader = assets::getShader("ObjectShadow").bind();
+
+    auto &skinnedMeshes = RenderDataCollector::get<SkinnedMesh*>();
+    for(auto toRender : skinnedMeshes)
+    {
+        auto &mesh = toRender->mesh;
+        toRender->vao.bind();
+
+        { // passing bones
+            GLuint UBOBindingIndex = 0;
+            // // update buffer
+            // gl::BindBuffer(gl::UNIFORM_BUFFER, context.ubo.matrices);
+            // gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->bones.size(), toRender->bones.data());
+            // gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
+
+            // use buffer
+            context.ubo.update(toRender->bones);
+            shader.ubo("uBones", context.ubo.matrices, UBOBindingIndex, sizeof(glm::mat4) * context.ubo.size);
+        }
+
+        shader.uniform("uMatrices",  context.tex.shadows.matrices);
+
+        gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, (void*)0);
+    }
+
+    gl::BindVertexArray(0);
+    context.errors();
+};
+
+void SceneRenderer::render_SimpleModelPbr(Camera &camera){
+    // GPU_SCOPE_TIMER();
+    gl::Enable(gl::CULL_FACE);
+
+    auto shader = assets::bindShader("simple-model-pbr");
+
+    shader.uniform("uPV", (camera.getPV()));
+    shader.atlas("uAlbedo", assets::getAlbedoArray("Materials").id, 0);
+    shader.atlas("uRoughnessMap", assets::getRoughnessArray("Materials").id, 1);
+    shader.atlas("uMetallicMap", assets::getMetalic("Materials").id, 2);
+
+    // TODO: in loop
+    context.ubo.update(RenderDataCollector::enviro.transforms.data(), RenderDataCollector::enviro.size);
+    shader.ubo("uBones", context.ubo.matrices, 0, sizeof(glm::mat4) * context.ubo.size);
+
+    RenderDataCollector::enviro.vao.bind();
+
+    // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+    clog("-> Visible objects:", RenderDataCollector::enviro.size);
+
+    // gl::MultiDrawElementsIndirect(gl::TRIANGLES, gl::UNSIGNED_INT, RenderDataCollector::enviro.array.data(), RenderDataCollector::enviro.size, sizeof(DrawElementsIndirectCommand));
+    gl::MultiDrawElements(gl::TRIANGLES, RenderDataCollector::enviro.count.data(), gl::UNSIGNED_INT, RenderDataCollector::enviro.indices.data(), RenderDataCollector::enviro.size);
+
+    RenderDataCollector::enviro.clear();
+
+    // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
+    gl::BindVertexArray(0);
+    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+    gl::BindTexture(gl::TEXTURE_2D, 0);
 
     context.errors();
 }

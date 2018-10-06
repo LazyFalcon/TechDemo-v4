@@ -34,6 +34,7 @@
 #include "Types.hpp"
 #include "Constants.hpp"
 #include "DefaultResourcePaths.hpp"
+#include "TimeEvents.hpp"
 
 using namespace std::literals;
 

@@ -20,7 +20,7 @@ struct LightSource : public ObjectInterface
 {
     enum LightType
     {
-        Point=0, Spot, Area, LightTypeLast
+        Point=0, Spot, Area, Directional, LightTypeLast
     };
     enum CameraRelation
     {
@@ -83,6 +83,8 @@ struct LightSource : public ObjectInterface
     CameraRelation m_cameraInside;
     bool castShadows {false};
     std::string name;
+
+    btRigidBody* collider {nullptr};
 
     LightSource(const Yaml&);
     LightSource(LightType type) : m_type(type){}

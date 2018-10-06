@@ -154,3 +154,7 @@ void ShadowCaster::calculateShadowProjectionMatrices(std::vector<FrustmCorners> 
         ));
     }
 }
+
+void ShadowCaster::updateShadows(){
+
+}

@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
 layout(location=0)in vec4 mVertex;
 
@@ -9,10 +9,7 @@ void main(){
     vUV = (mVertex.xy+vec2(1,1))/2;
 }
 
-#endif
-
-#ifdef FRAGMENT_SHADER
-
+@fragment:
 #define FXAA_PC 1
 #define FXAA_GLSL_130 1
 #define FXAA_QUALITY__PRESET 15
@@ -1076,7 +1073,3 @@ void main(void)
         FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f)        // FxaaFloat fxaaConsole360ConstDir,
     );
 }
-
-
-#endif
-

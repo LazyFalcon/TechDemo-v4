@@ -2,6 +2,7 @@
 #include "gl_core_4_5.hpp"
 #include "Logging.hpp"
 #include "GPUResources.hpp"
+#include "ShaderCompiler.hpp"
 #include "Texture.hpp"
 #include "Utils.hpp"
 
@@ -326,164 +327,33 @@ Shader& Shader::uniform(const char *name, uint32_t v){
     return *this;
 }
 
-namespace {
-    std::string loadFile(const std::string &fileName){
-        std::ifstream in(fileName, std::ios::in | std::ios::binary);
-        if(in) {
-            std::string contents;
-            in.seekg(0, std::ios::end);
-            contents.resize(in.tellg());
-            in.seekg(0, std::ios::beg);
-            in.read(&contents[0], contents.size());
-            in.close();
-            return(contents);
-         }
-        else {
-            error("Unable to open file",fileName);
-            hardPause();
-            return "";
-            // exit(1);
+void Shader::loadImports(const std::string path){
+    importDefinitions(path);
+}
+std::map<std::string, Shader> Shader::loadFromFile(const std::string pathTo, const std::string filename){
+    std::map<std::string, Shader> out;
+    log(pathTo);
+    while(true){
+        try {
+            out = compileShaders(pathTo, filename);
         }
-    }
-
-    void printShaderInfoLog(GLint shader){
-        int infoLogLen = 0;
-        int charsWritten = 0;
-        char *infoLog;
-
-        gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &infoLogLen);
-
-        if (infoLogLen > 0){
-            infoLog = new GLchar[infoLogLen];
-            gl::GetShaderInfoLog(shader,infoLogLen, &charsWritten, infoLog);
-            error("Shader compilation error:\n", infoLog);
-            delete [] infoLog;
+        catch(const std::runtime_error& except){
+            log("Shader compile error, file:", filename, "because of");
+            log(except.what());
+            std::cin.ignore();
+            continue;
         }
-
+        break;
     }
 
-    std::string defines(const std::string &shader){
-        return loadFile(shaderPath + "Defines.hpp");
-        std::string out;
-        // for(auto &define : Global::settings.settings["Defines"][shader]){
-        //     out += "#define "s + define.key + " "s + define.string() + "\n"s;
-        // }
-        return out;
-    }
-
-    bool findGeometryShader(const std::string &shader){
-        return shader.find("GEOMETRY_SHADER") != std::string::npos;
-    }
-
-    void resolvecommon(std::string &source){
-        auto pos = source.find("#include");
-
-        while(pos != std::string::npos){
-            auto endpos = pos;
-            for(auto i=pos; i<pos+60; i++){
-                if(source[i] != '\n') endpos++;
-                else break;
-            }
-            auto include = source.substr(pos, endpos-pos);
-            auto f = include.find("\"")+1;
-            auto fileToInclude = include.substr(f, include.rfind("\"")-f);
-
-            std::string pathTo;
-            if(not findFile(shaderPath, fileToInclude, "-r", pathTo)){
-                error("Cannot resolve include:", fileToInclude);
-            }
-
-            source.replace(pos, endpos-pos, loadFile(pathTo));
-
-            pos = source.find("#include", endpos);
-        }
-    }
+    return out;
 }
 
-void Shader::loadFromFile(const std::string pathTo, const std::string name){
+void Shader::reload(Shader& newProgram){
     if(ID){
         gl::DeleteProgram(ID);
     }
-
-    GLuint vertexS, geometryS, fragmentS;
-
-    std::string shaderSource = loadFile(pathTo);
-    resolvecommon(shaderSource);
-
-    // TODO: maybe make defines global? then we can put functions there
-    std::string vertexSource = "#version 460\n"s + defines(name) + "#define VERTEX_SHADER\n"s + shaderSource;
-    std::string geometrySource = "#version 460\n"s + defines(name) + "#define GEOMETRY_SHADER\n"s + shaderSource;
-    std::string fragmentSource = "#version 460\n"s + defines(name) + "#define FRAGMENT_SHADER\n"s + shaderSource;
-
-    vertexS = gl::CreateShader(gl::VERTEX_SHADER);
-    geometryS = findGeometryShader(shaderSource) ? gl::CreateShader(gl::GEOMETRY_SHADER) : 0;
-    fragmentS = gl::CreateShader(gl::FRAGMENT_SHADER);
-
-
-    GLint compiled;
-    if(vertexS){
-        const char *vs_str = vertexSource.c_str();
-        gl::ShaderSource(vertexS, 1, &vs_str, nullptr);
-
-        gl::CompileShader(vertexS);
-
-        gl::GetShaderiv(vertexS, gl::COMPILE_STATUS, &compiled);
-
-        if (!compiled){
-            error("Vertex shader in", name, "not compiled.");
-            printShaderInfoLog(vertexS);
-            std::cin.ignore();
-
-            return loadFromFile(pathTo, name);
-        }
-    }
-    if(geometryS){
-        const char *gs_str = geometrySource.c_str();
-        gl::ShaderSource(geometryS, 1, &gs_str, nullptr);
-
-        gl::CompileShader(geometryS);
-
-        gl::GetShaderiv(geometryS, gl::COMPILE_STATUS, &compiled);
-
-        if (!compiled){
-            error("Geometry shader in", name, "not compiled.");
-            printShaderInfoLog(geometryS);
-            std::cin.ignore();
-
-            return loadFromFile(pathTo, name);
-        }
-    }
-    if(fragmentS){
-        const char *fs_str = fragmentSource.c_str();
-        gl::ShaderSource(fragmentS, 1, &fs_str, nullptr);
-
-        gl::CompileShader(fragmentS);
-
-        gl::GetShaderiv(fragmentS, gl::COMPILE_STATUS, &compiled);
-
-        if (!compiled){
-            error("Fragment shader in", name, "not compiled.");
-            printShaderInfoLog(fragmentS);
-            std::cin.ignore();
-
-            return loadFromFile(pathTo,name);
-        }
-    }
-    ID = gl::CreateProgram();
-
-    gl::AttachShader(ID, vertexS);
-    if(geometryS) gl::AttachShader(ID, geometryS);
-    gl::AttachShader(ID, fragmentS);
-
-    gl::LinkProgram(ID);
-    // if fuckup happen: https://www.opengl.org/discussion_boards/showthread.php/181432-Correct-way-to-delete-shader-programs
-    gl::DeleteShader(vertexS);
-    if(geometryS) gl::DeleteShader(geometryS);
-    gl::DeleteShader(fragmentS);
-
-    gl::DetachShader(ID, vertexS);
-    if(geometryS) gl::DetachShader(ID, geometryS);
-    gl::DetachShader(ID, fragmentS);
+    ID = newProgram.ID;
 }
 
 void Mesh::render(){

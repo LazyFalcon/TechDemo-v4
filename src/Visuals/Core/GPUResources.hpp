@@ -118,7 +118,9 @@ struct Shader
     u32 ID {0};
     bool binded {false};
     Shader& bind();
-    void loadFromFile(const std::string pathTo, const std::string name);
+    static void loadImports(const std::string path);
+    static std::map<std::string, Shader> loadFromFile(const std::string pathTo, const std::string name);
+    void reload(Shader& newProgram);
     Shader& texture(const i32 uniformId, u32 texture, u32 id = 0);
     Shader& texture(const std::string &name, u32 texture, u32 id = 0);
     Shader& texture(const std::string &name, Texture &texture, u32 id = 0);

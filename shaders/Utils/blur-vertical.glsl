@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
 layout(location=0)in vec4 mVertex;
 
@@ -15,9 +15,9 @@ void main(){
     gl_Position = vec4(cornerPosition, 0, 1);
 }
 
-#endif
 
-#ifdef FRAGMENT_SHADER
+
+@fragment:
 out vec4 outColor;
 
 uniform sampler2D uTexture;
@@ -64,5 +64,3 @@ vec4 GaussianBlur(in sampler2D tex0, in vec2 centreUV, in vec2 pixelOffset){
 void main(void){
     outColor = GaussianBlur(uTexture, gl_FragCoord.xy*uTexelSize, uTexelSize*vec2(0,0.5));
 }
-
-#endif

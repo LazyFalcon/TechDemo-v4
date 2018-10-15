@@ -1,4 +1,4 @@
-
+@export: commonUtils
 vec3 getPosition(in vec2 uv){
     float depth = 2*texture(uDepth, uv).r-1;
     vec4 viewSpace = vec4(uv*2-1, depth, 1);

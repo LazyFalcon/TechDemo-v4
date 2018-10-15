@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
 layout(location=0)in vec3 mVertex;
 layout(location=1)in vec3 mNormal;
@@ -33,9 +33,9 @@ void main(){
     gl_Position = uProjection*(uView*uModel)*(bone*vec4(mVertex,1));
 }
 
-#endif
 
-#ifdef FRAGMENT_SHADER
+
+@fragment:
 #extension GL_EXT_texture_array : enable
 #extension GL_ARB_shading_language_420pack: enable
 
@@ -67,4 +67,3 @@ void main(void){
 
     outNormal.xyz = normalWS;
 }
-#endif

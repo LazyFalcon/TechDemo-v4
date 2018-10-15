@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
     layout(location=0)in vec4 mVertex;
 
@@ -6,9 +6,9 @@
         gl_Position = (vec4(mVertex.xy, 0, 1));
     }
 
-#endif
 
-#ifdef FRAGMENT_SHADER
+
+@fragment:
 // #extension GL_EXT_texture_array : enable
 // #extension GL_ARB_shading_language_420pack: enable
 #extension GL_NV_shadow_samplers_cube : enable
@@ -236,5 +236,3 @@
         // outSpecular = vec4(uv.x+uv.y>1? sampleEnviroMap(N.xzy, V.xzy, 0) : N.xzy*0.5+0.5, 1);
         // outSpecular = vec4(N.xzy, 1);
     }
-
-#endif

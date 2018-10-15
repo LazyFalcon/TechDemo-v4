@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 layout(location=0)in vec4 mVertex;
 layout(location=1)in vec4 mPanelBox;
 layout(location=2)in float mTextureLayer;
@@ -14,11 +14,9 @@ void main(){
     gl_Position = vec4((position+floor(mPanelBox.xy))/vec2(uWidth/2, uHeight/2)-vec2(1), 1-mDepth, 1);
 }
 
-#endif
 
-#ifdef FRAGMENT_SHADER
+
+@fragment:
 
 void main(void){
 }
-
-#endif

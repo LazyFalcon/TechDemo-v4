@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
 layout(location=0)in vec4 mVertex;
 
@@ -10,14 +10,11 @@ void main(){
     gl_Position = vec4(mVertex.xy, 0, 1);
 }
 
-#endif
+
 /// http://www.gamedev.net/topic/550452-ssgi-round-2/
 /// depth reconstruction: https://mynameismjp.wordpress.com/2009/05/05/reconstructing-position-from-depth-continued/
-#ifdef FRAGMENT_SHADER
-/*
-    TODO:
-*/
-
+@fragment:
+@import: defines
 
 out vec2 outAODepth;
 
@@ -149,6 +146,3 @@ void main(void){
         outAODepth = vec2(1-clamp(ao, 0, 1), intensityCorrection);
     }
 }
-
-
-#endif

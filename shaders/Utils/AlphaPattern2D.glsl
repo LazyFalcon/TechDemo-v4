@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
 layout(location=0)in vec4 vertex;
 
@@ -19,9 +19,9 @@ void main(){
     vUV = (vertex.xy+vec2(0.5,0.5));
 }
 
-#endif
 
-#ifdef FRAGMENT_SHADER
+
+@fragment:
 
 out vec4 outColor;
 
@@ -36,6 +36,3 @@ void main(void){
 
     outColor = vec4(uColor.rgb, alpha*uColor.a);
 }
-
-#endif
-

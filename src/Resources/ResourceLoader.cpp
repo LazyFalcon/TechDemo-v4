@@ -80,16 +80,26 @@ void ResourceLoader::loadImages(const std::string& dir){
 bool ResourceLoader::loadShaders(){
     log("---shaders");
     try {
+        fs::path imports(shaderPath+"Imports");
+        for(auto dir = fs::directory_iterator(imports); dir != fs::directory_iterator(); dir++){
+            Shader::loadImports((*dir).path().generic_string());
+        }
+
         fs::path p(shaderPath);
-        auto dir_it = fs::recursive_directory_iterator(p);
-        for(dir_it; dir_it != fs::recursive_directory_iterator(); dir_it++){
-            if(fs::is_directory(dir_it->status()) ) continue;
+        for(auto dir = fs::recursive_directory_iterator(p); dir != fs::recursive_directory_iterator(); dir++){
+            if(dir->path().filename() == "Imports")
+            {
+                dir.no_push(); // don't recurse into this directory.
+            }
 
-            std::string localShaderPath = (*dir_it).path().generic_string();
+            if(fs::is_directory(dir->status()) ) continue;
 
-            auto shaderName = (*dir_it).path().stem().string();
-            if((*dir_it).path().extension().string() != ".glsl") continue;
-            assets::setShader(shaderName).loadFromFile(localShaderPath, shaderName);
+            std::string localShaderPath = (*dir).path().generic_string();
+
+            auto shaderName = (*dir).path().stem().string();
+            if((*dir).path().extension().string() != ".glsl") continue;
+            auto shaders = Shader::loadFromFile(localShaderPath, shaderName);
+            for(auto& it: shaders) assets::setShader(it.first) = it.second;
         }
     return true;
     }
@@ -100,10 +110,16 @@ bool ResourceLoader::loadShaders(){
 }
 bool ResourceLoader::reloadShader(const std::string &name){
 
+    fs::path imports(shaderPath+"Imports");
+    for(auto dir = fs::directory_iterator(imports); dir != fs::directory_iterator(); dir++){
+        Shader::loadImports((*dir).path().generic_string());
+    }
+
     std::string pathToShader;
     findFile(shaderPath, name, "-r", pathToShader);
 
-    assets::getShader(name).loadFromFile(pathToShader, name);
+    auto shaders = Shader::loadFromFile(pathToShader, name);
+    for(auto& it: shaders) assets::getShader(it.first).reload(it.second);
     log("[ SHADER ] reload:", name);
 
     return true;

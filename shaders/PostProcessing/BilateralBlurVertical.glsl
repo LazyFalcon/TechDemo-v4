@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
 layout(location=0)in vec4 mVertex;
 
@@ -9,10 +9,7 @@ void main(){
     vUV = (mVertex.xy+vec2(1,1))/2;
 }
 
-
-#endif
-
-#ifdef FRAGMENT_SHADER
+@fragment:
 out vec2 outAODepth;
 
 uniform sampler2D uTexture;
@@ -62,5 +59,3 @@ void main(void){
     outAODepth.r /= Z;
     outAODepth = vec2(outAODepth.r);
 }
-
-#endif

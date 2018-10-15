@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
 layout(location=0)in vec4 mVertex;
 
@@ -15,9 +15,9 @@ void main(){
     gl_Position = vec4(cornerPosition, 0, 1);
 }
 
-#endif
 
-#ifdef FRAGMENT_SHADER
+
+@fragment:
 out vec4 outColor;
 
 uniform vec2 pxViewSize;
@@ -26,5 +26,3 @@ uniform sampler2D uTexture;
 void main(){
     outColor = texture(uTexture, gl_FragCoord.xy/pxViewSize);
 }
-
-#endif

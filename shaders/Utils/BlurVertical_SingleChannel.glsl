@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
 layout(location=0)in vec4 mVertex;
 
@@ -10,9 +10,9 @@ void main(){
 }
 
 
-#endif
 
-#ifdef FRAGMENT_SHADER
+
+@fragment:
 out float outColor;
 
 uniform sampler2D uTexture;
@@ -37,5 +37,3 @@ void main(void){
     sum += texture(uTexture, vec2(position.x, position.y + 4.0*radius)).r * 0.05;
     outColor = sum;
 }
-
-#endif

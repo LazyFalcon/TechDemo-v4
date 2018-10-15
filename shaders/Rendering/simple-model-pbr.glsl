@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
 layout(location=0)in vec3 mVertex;
 layout(location=1)in vec3 mNormal;
@@ -30,9 +30,9 @@ void main(){
     gl_Position = uPV*(bones[gl_DrawID]*vec4(mVertex, 1));
 }
 
-#endif
 
-#ifdef FRAGMENT_SHADER
+
+@fragment:
 #extension GL_EXT_texture_array : enable
 #extension GL_ARB_shading_language_420pack: enable
 
@@ -56,5 +56,3 @@ void main(void){
     outNormal.w = mix(vRoughness, texture2DArray(uRoughnessMap, vUV).r, mixVal);
     outNormal.xyz = normalize(vNormalWS + vNormalWS.zxy*outNormal.w*0.0);
 }
-
-#endif

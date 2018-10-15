@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
 layout(location=0)in vec4 mVertex;
 layout(location=1)in vec4 mPolygon;
@@ -22,9 +22,9 @@ void main(){
                       1);
 }
 
-#endif
 
-#ifdef FRAGMENT_SHADER
+
+@fragment:
 
 uniform sampler2DArray uTexture;
 
@@ -36,5 +36,3 @@ out vec4 outColor;
 void main(){
     outColor = vColor * texture(uTexture, vUV).r;
 }
-
-#endif

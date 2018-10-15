@@ -1,3 +1,4 @@
+@export: defines
 #define FXAA_PC 1
 #define FXAA_GLSL_130 1
 #define FXAA_QUALITY__PRESET 15

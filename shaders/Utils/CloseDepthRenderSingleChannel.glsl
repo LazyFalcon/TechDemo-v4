@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 layout(location=0)in vec4 mVertex;
 
 out vec2 vUV;
@@ -7,9 +7,9 @@ void main(){
     gl_Position = vec4(mVertex.xy, 1, 1);
 }
 
-#endif
 
-#ifdef FRAGMENT_SHADER
+
+@fragment:
 
 
 out vec4 outColor;
@@ -21,5 +21,3 @@ in vec2 vUV;
 void main(){
     outColor = vec4(texture(uTexture, vUV).r);
 }
-
-#endif

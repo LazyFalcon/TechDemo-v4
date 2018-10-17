@@ -332,7 +332,6 @@ void Shader::loadImports(const std::string path){
 }
 std::map<std::string, Shader> Shader::loadFromFile(const std::string pathTo, const std::string filename){
     std::map<std::string, Shader> out;
-    log(pathTo);
     while(true){
         try {
             out = compileShaders(pathTo, filename);

@@ -7,4 +7,4 @@
 RenderDataCollector::tupleOfContainers RenderDataCollector::collection;
 CommandArray RenderDataCollector::enviro;
 CommandArray RenderDataCollector::foliage;
-std::vector<LightSource*> RenderDataCollector::lights[10];
+std::vector<LightSource*> RenderDataCollector::lights[100];

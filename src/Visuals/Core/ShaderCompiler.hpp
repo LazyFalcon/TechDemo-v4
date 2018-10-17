@@ -62,7 +62,6 @@ namespace {
                     auto name = getNameFrom(lines[exportPosition]);
                     if(name == "") throw std::runtime_error("export must have name! : line: " + std::to_string(i));
                     exports[name] = combine(lines, exportPosition+1, i==lines.size()-1 ? i : i-1);
-                    log("Exported:", name, combine(lines, exportPosition+1, i==lines.size()-1 ? i : i-1));
                     return linecount;
                 }
                 linecount++;
@@ -72,7 +71,6 @@ namespace {
 
         for(int i=0; i<lines.size(); i++){
             if(not lines[i].empty() and lines[i][0] == '@' and lines[i].find("export")!=std::string::npos){
-                log("sdg", getNameFrom(lines[i]), lines[i]);
                 i += extractExport(i);
             }
         }
@@ -84,7 +82,6 @@ namespace {
             if(not lines[i].empty() and lines[i][0] == '@' and lines[i].find("import")!=std::string::npos){
                 auto name = getNameFrom(lines[i]);
                 lines[i] = exports.at(name);
-                log("Importing:", name, lines[i]);
 
                 anyImportFound = true;
             }
@@ -97,26 +94,24 @@ namespace {
         std::map<std::string, Lines> out;
 
         auto upTo = [&](int from)->int{
-            int linecount(0);
-            for(int i=from+1; i<lines.size(); i++){
-                if((not lines[i].empty() and lines[i][0] == '@' and (lines[i].find("shader")!=std::string::npos or lines[i].find("end")!=std::string::npos)) or i==lines.size()-1){
+            int i = from+1;
+            for(; i<=lines.size(); i++){
+                if(i==lines.size() or (not lines[i].empty() and lines[i][0] == '@' and (lines[i].find("shader")!=std::string::npos or lines[i].find("end")!=std::string::npos))){
 
                     auto name = getNameFrom(lines[from]);
                     if(name == "") name = defaultName;
 
-                    out[name] = Lines(lines.begin()+from+1, lines.begin()+i + (i==lines.size()-1 ? 0 : -1));
+                    out[name] = Lines(lines.begin()+from+1, lines.begin()+i);
 
-                    return linecount;
+                    return i;
                 }
-                linecount++;
             }
-            return linecount;
+            return i;
         };
 
         for(int i=0; i<lines.size(); i++){
             if(not lines[i].empty() and lines[i][0] == '@' and lines[i].find("shader")!=std::string::npos){
-                log("shader:", lines[i]);
-                i += upTo(i);
+                i = upTo(i)-1;
             }
         }
 
@@ -180,7 +175,7 @@ namespace {
             std::vector<char> infoLog(infoLogLen);
             gl::GetShaderInfoLog(shader, infoLogLen, &charsWritten, infoLog.data());
 
-            return " shader compilation error:\n" + std::string(infoLog.data(), charsWritten);
+            return "shader compilation error:\n" + std::string(infoLog.data(), charsWritten);
         }
 
         return "no info";
@@ -254,7 +249,6 @@ auto compileShaders(const std::string& filepath, const std::string& filename){
 }
 
 void importDefinitions(const std::string& filepath){
-    log("loading imports from:", filepath);
     auto content = ::loadFileAndAddLineNumbers(filepath);
     ::extractExports(content);
 }

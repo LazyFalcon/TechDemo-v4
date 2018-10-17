@@ -21,7 +21,7 @@ public:
     static tupleOfContainers collection;
     static CommandArray enviro;
     static CommandArray foliage;
-    static std::vector<LightSource*> lights[10]; // * lights collected by type, and relation to camera: index = type + isCameraInsideEnum
+    static std::vector<LightSource*> lights[100]; // * lights collected by type, and relation to camera: index = type + isCameraInsideEnum
     static std::vector<LightSource*> lightsCastingShadows;
 
     template<typename T>

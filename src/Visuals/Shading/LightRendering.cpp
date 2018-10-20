@@ -14,13 +14,14 @@
 #include "Color.hpp"
 
 namespace {
-int isCameraInside(const glm::vec4& position, const PointLightSource& light){
-    return glm::distance2(position, light.position) < light.size*light.size;
+int isCameraInside(const glm::vec4& position, LightSource& light){
+    return glm::distance2(position, light.m_position) < light.m_falloff.distance*light.m_falloff.distance;
 }
 }
 
 void LightRendering::lightPass(Scene &scene, Camera &camera){
     if(scene.sun) renderSun(*scene.sun, camera);
+    renderPointLights(camera);
 }
 
 void LightRendering::renderSun(Sun& sun, Camera &camera){
@@ -64,22 +65,23 @@ void LightRendering::renderSun(Sun& sun, Camera &camera){
 
     context.errors();
 }
-void LightRendering::renderLights(Scene &scene, Camera &camera){
+void LightRendering::renderPointLights(Camera &camera){
     GPU_SCOPE_TIMER();
     float lightScale = 1;
     // fillStencil(camera, scene, Textures::LightIntensity);
-
-    // setupFBO_11(Textures::LightIntensity);
-    gl::Enable(gl::BLEND);
-    gl::BlendFunc(gl::ONE, gl::ONE);
-    gl::Enable(gl::CULL_FACE);
-    gl::DepthMask(gl::FALSE_);
-    gl::Disable(gl::DEPTH_TEST);
-    gl::DepthFunc(gl::GEQUAL);
-
-    assets::getVao("Common").bind();
-    auto &pointLights = RenderDataCollector::get<PointLightSource>();
+    auto &pointLights = RenderDataCollector::lights[0];
     if(not pointLights.empty()){
+
+        // setupFBO_11(Textures::LightIntensity);
+        gl::Enable(gl::BLEND);
+        gl::BlendFunc(gl::ONE, gl::ONE);
+        gl::Enable(gl::CULL_FACE);
+        gl::DepthMask(gl::FALSE_);
+        gl::Disable(gl::DEPTH_TEST);
+        gl::DepthFunc(gl::GEQUAL);
+
+        assets::getVao("Common").bind();
+
         auto shader = assets::getShader("LightSource_POINT").bind();
         context.cullBackFaces();
         // cullFrontFaces();
@@ -92,14 +94,14 @@ void LightRendering::renderLights(Scene &scene, Camera &camera){
         shader.texture("uDepth", context.tex.gbuffer.depth, 1);
         auto mesh = assets::getMesh("LightSphere");
         for(auto &light : pointLights){
-            int cameraInside = isCameraInside(camera.position(), light);
-            shader.uniform("uSize", light.size);
-            shader.uniform("uPosition", light.position);
+            int cameraInside = isCameraInside(camera.position(), *light);
+            shader.uniform("uSize", light->m_falloff.distance);
+            shader.uniform("uPosition", light->m_position);
 
-            shader.uniform("light.position", light.position.xyz());
-            shader.uniform("light.color", colorToVec4(light.color).xyz());
-            shader.uniform("light.fallof", light.size);
-            shader.uniform("light.energy", light.brightness);
+            shader.uniform("light.position", light->m_position.xyz());
+            shader.uniform("light.color", light->m_color.xyz());
+            shader.uniform("light.fallof", light->m_falloff.distance);
+            shader.uniform("light.energy", light->m_energy);
 
             if(cameraInside){
                 context.cullFrontFaces();

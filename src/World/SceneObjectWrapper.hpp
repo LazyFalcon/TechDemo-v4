@@ -2,14 +2,17 @@
 
 struct ObjectInterface;
 
-struct ObjectAddress
+/*
+* Always points to object
+*/
+struct IntermediatePointerToObject
 {
     ObjectInterface* o;
     int refCount;
 };
 
 extern std::list<int> g_freeIndices;
-extern std::vector<ObjectAddress> g_sceneObjectAddresses;
+extern std::vector<IntermediatePointerToObject> g_sceneObjectAddresses;
 
 inline ObjectInterface* derefIndex(int i){
     return g_sceneObjectAddresses[i].o;

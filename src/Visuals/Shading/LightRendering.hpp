@@ -15,7 +15,8 @@ public:
     LightRendering(Window &window, Context &context) : window(window), context(context){}
 
     void renderSun(Sun& sun, Camera &camera);
-    void renderLights(Scene &scene, Camera &camera);
+    void renderPointLights(Camera &camera);
+    void renderConeLights(Camera &camera);
     void hemisphericalAmbient(Scene &scene, Camera &camera);
     void renderShinyObjects(Scene &scene, Camera &camera);
     float calculateLuminance();

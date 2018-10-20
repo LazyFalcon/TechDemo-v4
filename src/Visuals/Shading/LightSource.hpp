@@ -58,14 +58,14 @@ struct LightSource : public ObjectInterface
             else return intensity;
         }
 
-    } falloff {};
+    } m_falloff {};
 
     float getIntensity(float rayLenght){
-        if(falloff.type == Falloff::Linear or falloff.type == Falloff::Quadratic or falloff.type == Falloff::LinearxQuad){
-            return m_energy * falloff.getLinearXQuad(rayLenght);
+        if(m_falloff.type == Falloff::Linear or m_falloff.type == Falloff::Quadratic or m_falloff.type == Falloff::LinearxQuad){
+            return m_energy * m_falloff.getLinearXQuad(rayLenght);
         }
         else {
-            return m_energy * falloff.getInverse(rayLenght);
+            return m_energy * m_falloff.getInverse(rayLenght);
         }
     }
 
@@ -74,17 +74,15 @@ struct LightSource : public ObjectInterface
     glm::vec4 m_color {};
     glm::vec3 m_direction {0,0,1};
     glm::vec3 m_scale {};
-    glm::vec4 m_positionOffset {};
     float m_energy {};
-    float m_fallof {};
     float m_cosAngle {};
     bool isShadowCaster {false};
     LightType m_type;
-    CameraRelation m_cameraInside;
+    CameraRelation m_cameraInside {CameraOutside};
     bool castShadows {false};
     std::string name;
 
-    btRigidBody* collider {nullptr};
+    btRigidBody* proxy {nullptr};
 
     LightSource(const Yaml&);
     LightSource(LightType type) : m_type(type){}
@@ -114,4 +112,8 @@ struct LightSource : public ObjectInterface
     bool cull(const Frustum &frustum);
     void actionWhenVisible() override;
     void update(float dt);
+
+    btRigidBody* getCollider() override {
+        return proxy;
+    }
 };

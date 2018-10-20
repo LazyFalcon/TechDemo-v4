@@ -41,6 +41,9 @@ public:
     void printStatus(){};
     void update(float dt);
     void actionWhenVisible() override;
+    btRigidBody* getCollider(){
+        return physics.rgBody;
+    }
 };
 
 

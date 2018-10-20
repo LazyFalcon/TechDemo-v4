@@ -34,6 +34,9 @@ public:
     }
 
     void actionWhenVisible() override;
+    btRigidBody* getCollider() override {
+        return cellBoxCollider;
+    }
 };
 
 constexpr i32 getCellCount(i32 levels){

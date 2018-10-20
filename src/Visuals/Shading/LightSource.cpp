@@ -4,14 +4,16 @@
 #include "Yaml.hpp"
 
 LightSource::LightSource(const Yaml& yaml){
+    name = yaml["Name"].string();
     setType(yaml["Type"].string());
-    name = yaml["name"].string();
+    readConfig(yaml);
 }
 
 LightSource& LightSource::setType(const std::string &type){
-    if(type == "POINT"){
-        m_type = LightType::Point;
-    }
+    if(type == "POINT") m_type = LightType::Point;
+    else if(type == "SPOT") m_type = LightType::Spot;
+    else if(type == "AREA") m_type = LightType::Area;
+    else if(type == "DIRECT") m_type = LightType::Directional;
     return *this;
 }
 LightSource& LightSource::setTransform(glm::vec4 position, glm::quat quaternion){
@@ -20,7 +22,8 @@ LightSource& LightSource::setTransform(glm::vec4 position, glm::quat quaternion)
     return *this;
 }
 LightSource& LightSource::setTransform(const glm::mat4 &tr){
-    m_transform = tr * glm::translate(m_positionOffset.xyz()) * glm::orientation(m_direction, glm::vec3(0,0,1))* glm::scale(m_scale);
+    m_transform = tr * glm::orientation(m_direction, glm::vec3(0,0,1))* glm::scale(m_scale);
+    // m_transform = tr * glm::translate(m_positionOffset.xyz()) * glm::orientation(m_direction, glm::vec3(0,0,1))* glm::scale(m_scale);
     m_position = tr*(glm::vec4(0,0,0,1));
     return *this;
 }
@@ -57,11 +60,12 @@ LightSource& LightSource::position(const glm::vec4 &p){
     return *this;
 }
 
+// TODO: test colision point agains light proxy
 void LightSource::cameraInside(const glm::vec4 &eye, float scale){
     auto pos = m_transform*glm::vec4(0,0,0,1);
     auto d = glm::distance(pos, eye);
-    if(d > m_fallof + 0.0) m_cameraInside = CameraOutside;
-    if(d < m_fallof - 0.0) m_cameraInside =CameraInside;
+    if(d > m_falloff.distance + 0.0) m_cameraInside = CameraOutside;
+    if(d < m_falloff.distance - 0.0) m_cameraInside = CameraInside;
 }
 bool LightSource::cull(const Frustum &frustum){
     return true;
@@ -71,7 +75,8 @@ void LightSource::actionWhenVisible(){
     if(lastFrame==frame()) return; // * to be sure that object will be inserted once per frame :)
     lastFrame = frame();
 
-    RenderDataCollector::lights[m_type+m_cameraInside].push_back(this);
+    RenderDataCollector::lights[0].push_back(this);
+    // RenderDataCollector::lights[m_type+m_cameraInside].push_back(this);
 }
 
 void LightSource::readConfig(const Yaml& thing){
@@ -85,8 +90,8 @@ void LightSource::readConfig(const Yaml& thing){
     }
 
     m_energy = thing["Energy"].number();
-    m_fallof = thing["Falloff_distance"].number();
     m_color = thing["Color"].vec4();
+    m_falloff.distance = thing["Falloff_distance"].number();
     setTransform(glm::mat4(
             thing["Position"]["X"].vec30(),
             thing["Position"]["Y"].vec30(),

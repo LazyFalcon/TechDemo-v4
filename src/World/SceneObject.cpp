@@ -2,4 +2,4 @@
 #include "SceneObject.hpp"
 
 std::list<int> g_freeIndices;
-std::vector<ObjectAddress> g_sceneObjectAddresses {{nullptr}};
+std::vector<IntermediatePointerToObject> g_sceneObjectAddresses {{nullptr}};

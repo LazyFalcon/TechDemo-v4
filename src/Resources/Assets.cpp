@@ -4,6 +4,7 @@
 #include "ResourceLoader.hpp"
 #include "BaseStructs.hpp"
 #include "font.hpp"
+#include "Logging.hpp"
 
 namespace assets {
 
@@ -61,12 +62,22 @@ TextureArray& getCubeMap(const std::string &name){
 Shader& setShader(const std::string &name){
     return shaders[name];
 }
-Shader& getShader(const std::string &name){
+Shader& getShader(const std::string &name) try {
     return shaders.at(name);
 }
-Shader& bindShader(const std::string &name){
+catch(std::out_of_range& err){
+    error(name, "no in shaders:", err.what());
+    throw;
+}
+
+Shader& bindShader(const std::string &name) try {
     return shaders.at(name).bind();
 }
+catch(std::out_of_range& err){
+    error(name, "no in shaders:", err.what());
+    throw;
+}
+
 Font& getFont(const std::string &name){
     return fonts[name];
 }
@@ -131,8 +142,12 @@ VAO& getVao(const std::string &name){
 void addMesh(Mesh mesh, const std::string &name){
     meshes[name] = UserID<Mesh>(0, mesh);
 }
-Mesh& getMesh(const std::string &name){
-    return meshes[name].get();
+Mesh& getMesh(const std::string &name) try {
+    return meshes.at(name).get();
+}
+catch(std::out_of_range& err){
+    error(name, "no in meshes:", err.what());
+    throw;
 }
 
 };

@@ -25,6 +25,7 @@ public:
     virtual ~ObjectInterface() = default;
 
     virtual void actionWhenVisible() = 0;
+    virtual btRigidBody* getCollider() = 0;
 
     Type type;
     uint lastFrame {0};

@@ -52,6 +52,7 @@ void ResourceLoader::loadResources(const Yaml &cfg){
         modelLoader.open(resPath + "/models/CommonModels.dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
         auto names = modelLoader.getNames();
         for(auto &name : names){
+            log("Common mesh:", name);
             assets::addMesh(modelLoader.load(name), name);
         }
         assets::addVao(modelLoader.build(), "Common");

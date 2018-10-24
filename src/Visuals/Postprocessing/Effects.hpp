@@ -27,4 +27,5 @@ public:
     void bloom();
     void bloomSpecular();
     void matcap(Camera &camera);
+    void filmGrain(float);
 };

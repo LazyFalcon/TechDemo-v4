@@ -30,6 +30,8 @@ private:
 
     std::unique_ptr<GBufferSampler> m_mouseSampler;
 
+    float lastDt;
+
 public:
     Playground(Imgui&, InputDispatcher&, Window&);
     ~Playground();

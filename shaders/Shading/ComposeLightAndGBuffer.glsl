@@ -38,6 +38,7 @@ void main(void){
     vec3 specular = texture(uSpecular, vUV).rgb;
     float ao = texture(uAO, vUV).r;
 
+    // vec3 final = light*ao + specular + (1-min(ao, 1))*vec3(20,10,5)/512*0;
     vec3 final = albedo*light*ao + specular + (1-min(ao, 1))*vec3(20,10,5)/512*0;
 
     // vec3 final = light;

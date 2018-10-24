@@ -97,3 +97,5 @@ data/Settings.yml
 ShadersToReload.yml
 *.py
 snippets.cpp
+snippet.cpp
+duupa.cpp

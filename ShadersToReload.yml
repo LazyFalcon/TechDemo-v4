@@ -3,3 +3,5 @@
 - Sun+Ambient+Shadow
 - simple-model-pbr
 - ToneMapping
+- LightSource_POINT
+- FilmGrain

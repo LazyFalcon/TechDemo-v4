@@ -90,6 +90,7 @@ void LightRendering::renderPointLights(Camera &camera){
         shader.uniform("uEye", camera.position().xyz());
         shader.uniform("uPixelSize", window.pixelSize);
 
+        context.errors();
         shader.texture("uNormal", context.tex.gbuffer.normals, 0);
         shader.texture("uDepth", context.tex.gbuffer.depth, 1);
         auto mesh = assets::getMesh("LightSphere");

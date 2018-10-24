@@ -113,6 +113,7 @@ Playground::~Playground(){
 void Playground::update(float dt){
     m_player->updateGraphic(dt);
     m_player->graphics.toBeRendered();
+    lastDt = dt;
 }
 void Playground::updateWithHighPrecision(float dt){
     auto& currentCamera = CameraController::getActiveCamera();
@@ -153,6 +154,7 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.context->setupFramebufferForLDRProcessing();
     renderer.effects->toneMapping(1.f/*CameraController::getActiveCamera().exposure*/);
     renderer.effects->FXAA();
+    renderer.effects->filmGrain(lastDt);
 
     renderer.context->tex.gbuffer.color.genMipmaps();
 

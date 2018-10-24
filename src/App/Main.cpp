@@ -36,7 +36,12 @@ int main(int argc, char** argv){
     app.loadResources();
 
     initialEvent();
-    app.run();
+    try {
+        app.run();
+    }
+    catch (...){
+        error("exception occured");
+    }
 
     app.finish();
 

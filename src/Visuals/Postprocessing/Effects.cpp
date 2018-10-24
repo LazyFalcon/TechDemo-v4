@@ -411,3 +411,28 @@ void Effects::matcap(Camera &camera){
     gl::DepthMask(gl::TRUE_);
     context.errors();
 }
+
+
+void Effects::filmGrain(float dt){
+    /*
+    * state.state("
+    *   stage: LDR
+    *   deptTest: off,
+    *   depthWrite: off,
+    *   blending: off,
+    *   size: full
+    * ");
+    */
+    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.full.a.ID, 0);
+    auto shader = assets::bindShader("FilmGrain");
+    shader.texture("uTexture", context.tex.gbuffer.color);
+    shader.uniform("uWindowSize", window.size);
+    shader.uniform("uTimer", dt);
+
+
+    context.drawScreen();
+
+    context.tex.full.a.swap(context.tex.gbuffer.color);
+
+    context.errors();
+}

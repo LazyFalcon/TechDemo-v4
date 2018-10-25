@@ -242,10 +242,10 @@ i32 Shader::uboLocation(const std::string &name){
     return gl::GetUniformBlockIndex(ID, name.c_str());
 }
 
-Shader& Shader::ubo(const char *name, u32 u, u32 bindingIndex, u32 maxSize){
+Shader& Shader::ubo(const char *name, u32 uboId, u32 bindingIndex, u32 maxSize){
     u32 index = gl::GetUniformBlockIndex(ID, name);
     gl::UniformBlockBinding(ID, index, bindingIndex);
-    gl::BindBufferRange(gl::UNIFORM_BUFFER, bindingIndex, u, 0, sizeof(float) * maxSize);
+    gl::BindBufferRange(gl::UNIFORM_BUFFER, bindingIndex, uboId, 0, sizeof(float) * maxSize);
     return *this;
 }
 

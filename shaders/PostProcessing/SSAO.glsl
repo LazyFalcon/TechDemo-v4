@@ -16,21 +16,23 @@ void main(){
 @fragment:
 @import: defines
 
-out vec2 outAODepth;
 
 uniform sampler2D uDepth;
 uniform sampler2D uNormal;
 uniform sampler2D uSSAONoise;
-
-uniform mat4 uView;
-uniform mat4 uInvPV;
-uniform vec2 uScreenSize;
-uniform vec2 uPixelSize;
-uniform float uFovTan;
-uniform float uNear;
-uniform float uFar;
-uniform vec4 uEyePosition;
+layout(std140) uniform UniformBufferObject {
+    mat4 uView;
+    mat4 uInvPV;
+    vec4 uEyePosition;
+    vec2 uWindowSize;
+    vec2 uScreenSize;
+    vec2 uPixelSize;
+    float uFovTan;
+    float uNear;
+    float uFar;
+};
 in vec2 vUV;
+out vec2 outAODepth;
 
 vec3 getPosition(in vec2 uv){
     float depth = 2*texture(uDepth, uv).r-1;
@@ -93,30 +95,12 @@ const vec2 kernel_2[16] = vec2[](
     vec2(0.01245382f, -0.9724864f),
     vec2(-0.4312304f, -0.7819526f)
     );
-// const vec2 kernel_2[16] = vec2[](
-    // vec2(0.6685306f, 0.3039912f),
-    // vec2(0.5430672f, 0.6923575f),
-    // vec2(0.006410657f, 0.4063535f),
-    // vec2(0.4211033f, -0.3016995f),
-    // vec2(0.8689159f, -0.04662216f),
-    // vec2(-0.02319174f, -0.1191266f),
-    // vec2(0.1479476f, -0.683134f),
-    // vec2(0.6145651f, -0.7408658f),
-    // vec2(-0.4873389f, 0.1691543f),
-    // vec2(-0.257201f, 0.9284028f),
-    // vec2(-0.6043539f, 0.5890929f),
-    // vec2(-0.6788281f, -0.2122179f),
-    // vec2(-0.2844881f, -0.541756f),
-    // vec2(-0.9309591f, 0.2976663f),
-    // vec2(0.297691f, 0.1394002f),
-    // vec2(0.1623268f, 0.859301)
-    // );
 
 void main(void){
     float ao = 0.0;
     float depth; /// [0 -> 1]
     vec3 position = getPositionDepth(vUV, depth);
-    if(depth > 1500.f) outAODepth = vec2(1);
+    if(depth > 1000.f || depth < 1.f) outAODepth = vec2(1);
     else {
         vec3 normal = getNormal(vUV);
         // vec2 radius = getRadius(depth)*7;
@@ -143,6 +127,7 @@ void main(void){
         // ao /= float(iterations)*4;
         // ao = clamp(ao*10, 0,1);
         // intensityCorrection = 1;
+        // outAODepth = vec2(uNear);
         outAODepth = vec2(1-clamp(ao, 0, 1), intensityCorrection);
     }
 }

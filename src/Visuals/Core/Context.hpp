@@ -70,6 +70,7 @@ public:
     } tex;
     struct UBOs{
         u32 matrices;
+        u32 common;
         const u32 size = 256;
         void update(std::vector<glm::mat4>&);
         void update(glm::mat4*, int);

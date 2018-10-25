@@ -5,6 +5,7 @@
 #include "PerfTimers.hpp"
 #include "BaseStructs.hpp"
 #include "ResourceLoader.hpp"
+#include "RenderDataCollector.hpp"
 
 void Context::reset(){
     resetTextures();
@@ -110,6 +111,13 @@ void Context::resetBuffers(){
 
     gl::BufferData(gl::UNIFORM_BUFFER, sizeof(glm::mat4)*ubo.size, nullptr, gl::DYNAMIC_DRAW);
     // gl::BindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, ubo.matrices);
+    gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
+
+    gl::GenBuffers(1, &ubo.common);
+    gl::BindBuffer(gl::UNIFORM_BUFFER, ubo.common);
+
+    gl::BufferData(gl::UNIFORM_BUFFER, sizeof(Uniforms), nullptr, gl::STREAM_DRAW);
+    // gl::BindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, ubo.common);
     gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
 
 }

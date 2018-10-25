@@ -43,15 +43,15 @@ const float permTexUnitHalf = 0.5/256.0;	// Half perm texture texel-size
 float width = uWindowSize.x;
 float height = uWindowSize.y;
 
-const float grainamount = 0.05; //grain amount
-bool colored = false; //colored noise?
-float coloramount = 0.6;
-float grainsize = 1.6; //grain particle size (1.5 - 2.5)
-float lumamount = 1.0; //
+const float grainamount = 0.05; //grain amount 0.05
+bool colored = true; //colored noise? false
+float coloramount = 0.6; // 0.6
+float grainsize = 1.6; //grain particle size (1.5 - 2.5) 1.6
+float lumamount = 1.0; // 1.0
 
 //a random texture generator, but you can also use a pre-computed perturbation texture
 vec4 rnm(in vec2 tc){
-    float noise =  sin(dot(tc + vec2(uTimer*timerMod,uTimer*timerMod),vec2(12.9898,78.233))) * 43758.5453;
+    float noise =  sin(dot(tc + vec2(uTimer,uTimer),vec2(12.9898,78.233))) * 43758.5453;
 
     float noiseR =  fract(noise)*2.0-1.0;
     float noiseG =  fract(noise*1.2154)*2.0-1.0;

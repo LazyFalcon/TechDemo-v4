@@ -1,17 +1,18 @@
 #include "core.hpp"
 #include "Context.hpp"
+#include "Assets.hpp"
+#include "Atmosphere.hpp"
+#include "BaseStructs.hpp"
+#include "Camera.hpp"
+#include "DecalsAndMarkers.hpp"
 #include "Effects.hpp"
 #include "PerfTimers.hpp"
-#include "Assets.hpp"
-#include "Camera.hpp"
+#include "RenderDataCollector.hpp"
 #include "RendererUtils.hpp"
-#include "Window.hpp"
-#include "BaseStructs.hpp"
 #include "Scene.hpp"
-#include "Atmosphere.hpp"
 #include "Starfield.hpp"
 #include "Sun.hpp"
-#include "DecalsAndMarkers.hpp"
+#include "Window.hpp"
 
 std::vector<Decal> Decal::decalList;
 
@@ -231,26 +232,47 @@ void Effects::drawDecals(Camera &camera){
 void Effects::SSAO(Camera &camera){
     GPU_SCOPE_TIMER();
     /// maybe disable if for sky? Enable depth test for not eqial 1?
+
+
     context.fbo[1].tex(context.tex.full.rg16a)();
+    auto shader = assets::bindShader("SSAO");
+
+    RenderDataCollector::uniforms.uWindowSize = window.size;
+    RenderDataCollector::uniforms.uPixelSize = window.pixelSize;
+    RenderDataCollector::uniforms.uFovTan = (float)tan(camera.fov*0.5f);
+    RenderDataCollector::uniforms.uNear = camera.nearDistance;
+    RenderDataCollector::uniforms.uFar = camera.farDistance;
+    RenderDataCollector::uniforms.uView = camera.view;
+    RenderDataCollector::uniforms.uInvPV = camera.invPV;
+    RenderDataCollector::uniforms.uEyePosition = camera.position();
+
+    uint bindingPoint = 1;
+    u32 blockIndex = gl::GetUniformBlockIndex(shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
+    clog("ubo index:", blockIndex, sizeof(Uniforms));
+    gl::UniformBlockBinding(shader.ID, blockIndex, bindingPoint); // * bind block to binding point
+    gl::BindBuffer(gl::UNIFORM_BUFFER, context.ubo.common);
+    gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(Uniforms), &RenderDataCollector::uniforms);
+    gl::BindBufferRange(gl::UNIFORM_BUFFER, bindingPoint, context.ubo.common, 0, sizeof(Uniforms)); // * bind ubo to binding point
+    gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
+
     gl::Disable(gl::DEPTH_TEST);
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::BLEND);
     gl::Disable(gl::CULL_FACE);
 
-    auto shader = assets::bindShader("SSAO");
 
     shader.texture("uDepth", context.tex.gbuffer.depth, 0);
     shader.texture("uNormal", context.tex.gbuffer.normals, 1);
     shader.texture("uSSAONoise", assets::getImage("SSAONoise").ID, 2);
 
-    shader.uniform("uWindowSize", window.size);
-    shader.uniform("uPixelSize", window.pixelSize);
-    shader.uniform("uFovTan", (float)tan(camera.fov*0.5f));
-    shader.uniform("uNear", camera.nearDistance);
-    shader.uniform("uFar", camera.farDistance);
-    shader.uniform("uView", camera.view);
-    shader.uniform("uInvPV", camera.invPV);
-    shader.uniform("uEyePosition", camera.position());
+    // shader.uniform("uWindowSize", window.size);
+    // shader.uniform("uPixelSize", window.pixelSize);
+    // shader.uniform("uFovTan", (float)tan(camera.fov*0.5f));
+    // shader.uniform("uNear", camera.nearDistance);
+    // shader.uniform("uFar", camera.farDistance);
+    // shader.uniform("uView", camera.view);
+    // shader.uniform("uInvPV", camera.invPV);
+    // shader.uniform("uEyePosition", camera.position());
     context.drawScreen();
 
     // context.tex.full.rg16a.genMipmaps();

@@ -8,6 +8,19 @@ class SkinnedMesh;
 class ArmoredVehicleTracks;
 class LightSource;
 
+struct Uniforms
+{
+    glm::mat4 uView;
+    glm::mat4 uInvPV;
+    glm::vec4 uEyePosition;
+    glm::vec2 uWindowSize;
+    glm::vec2 uScreenSize;
+    glm::vec2 uPixelSize;
+    float uFovTan;
+    float uNear;
+    float uFar;
+};
+
 class RenderDataCollector
 {
 public:
@@ -21,6 +34,7 @@ public:
     static tupleOfContainers collection;
     static CommandArray enviro;
     static CommandArray foliage;
+    static Uniforms uniforms;
     static std::vector<LightSource*> lights[100]; // * lights collected by type, and relation to camera: index = type + isCameraInsideEnum
     static std::vector<LightSource*> lightsCastingShadows;
 

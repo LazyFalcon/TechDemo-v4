@@ -20,17 +20,7 @@ void main(){
 uniform sampler2D uDepth;
 uniform sampler2D uNormal;
 uniform sampler2D uSSAONoise;
-layout(std140) uniform UniformBufferObject {
-    mat4 uView;
-    mat4 uInvPV;
-    vec4 uEyePosition;
-    vec2 uWindowSize;
-    vec2 uScreenSize;
-    vec2 uPixelSize;
-    float uFovTan;
-    float uNear;
-    float uFar;
-};
+@import: Uniforms
 in vec2 vUV;
 out vec2 outAODepth;
 

@@ -114,6 +114,8 @@ public:
     void beginFrame();
     void endFrame();
 
+    void uploadUniforms();
+
     void setupFramebufferForShadowMapGeneration();
     void setupFramebufferForGBufferGeneration();
     void setupFramebufferForLighting();

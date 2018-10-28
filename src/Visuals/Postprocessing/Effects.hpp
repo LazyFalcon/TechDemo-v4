@@ -20,12 +20,12 @@ public:
     void sky(Scene &scene, Camera &camera);
     void starfield(Scene &scene, Camera &camera);
     void SSAO(Camera &camera);
-    void toneMapping(float);
+    void toneMapping();
     void FXAA();
     void chromaticDistortion(glm::vec3 strenght);
     void vignette(float r1, float r2);
     void bloom();
     void bloomSpecular();
     void matcap(Camera &camera);
-    void filmGrain(float);
+    void filmGrain();
 };

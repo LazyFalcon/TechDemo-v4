@@ -2,16 +2,17 @@
 #include "CameraController.hpp"
 #include "Context.hpp"
 #include "Effects.hpp"
+#include "FrameTime.hpp"
 #include "GBufferSampler.hpp"
 #include "GraphicEngine.hpp"
 #include "input-dispatcher.hpp"
 #include "input.hpp"
 #include "LightRendering.hpp"
-#include "RenderDataCollector.hpp"
 #include "PhysicalWorld.hpp"
 #include "Player.hpp"
 #include "Playground.hpp"
 #include "PlaygroundEvents.hpp"
+#include "RenderDataCollector.hpp"
 #include "RendererUtils.hpp"
 #include "Scene.hpp"
 #include "SceneRenderer.hpp"
@@ -113,7 +114,6 @@ Playground::~Playground(){
 void Playground::update(float dt){
     m_player->updateGraphic(dt);
     m_player->graphics.toBeRendered();
-    lastDt = dt;
 }
 void Playground::updateWithHighPrecision(float dt){
     auto& currentCamera = CameraController::getActiveCamera();
@@ -135,6 +135,12 @@ void Playground::updateWithHighPrecision(float dt){
 }
 
 void Playground::renderProcedure(GraphicEngine& renderer){
+    RenderDataCollector::collectCamera(CameraController::getActiveCamera());
+    RenderDataCollector::collectWindow(m_window);
+    RenderDataCollector::collectTime(FrameTime::deltaf, FrameTime::miliseconds);
+
+    renderer.context->uploadUniforms();
+
     renderer.context->beginFrame();
     renderer.context->setupFramebufferForGBufferGeneration();
     // renderer.utils->drawBackground("nebula2");
@@ -152,9 +158,9 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.lightRendering->compose(CameraController::getActiveCamera());
 
     renderer.context->setupFramebufferForLDRProcessing();
-    renderer.effects->toneMapping(1.f/*CameraController::getActiveCamera().exposure*/);
+    renderer.effects->filmGrain();
+    renderer.effects->toneMapping();
     renderer.effects->FXAA();
-    renderer.effects->filmGrain(lastDt);
 
     renderer.context->tex.gbuffer.color.genMipmaps();
 

@@ -6,6 +6,7 @@
 #include "AudioLibrary.hpp"
 #include "DebugScreen.hpp"
 #include "EventProcessor.hpp"
+#include "FrameTime.hpp"
 #include "GameState.hpp"
 #include "GraphicEngine.hpp"
 #include "input-dispatcher.hpp"
@@ -198,15 +199,15 @@ void App::run() try {
         lastTime = clock::now();
         lag += std::chrono::duration_cast<std::chrono::nanoseconds>(deltaTime);
 
-        u64 currentTimeMs = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(lastTime - timeOnStart).count();
-        u64 currentTimeNs = std::chrono::duration_cast<std::chrono::duration<uint, std::micro>>(lastTime - timeOnStart).count();
-        u64 msDelta = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(deltaTime).count();
-        float msfDelta = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(deltaTime).count();
+        FrameTime::miliseconds = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(lastTime - timeOnStart).count();
+        FrameTime::nanoseconds = std::chrono::duration_cast<std::chrono::duration<uint, std::micro>>(lastTime - timeOnStart).count();
+        FrameTime::delta = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(deltaTime).count();
+        FrameTime::deltaf = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(deltaTime).count();
 
         CLOG_SPECIAL_VALUE = false;
-        updateTimers(currentTimeMs);
+        updateTimers(FrameTime::miliseconds);
         imgui->restart();
-        inputDispatcher->setTime(currentTimeMs);
+        inputDispatcher->setTime(FrameTime::miliseconds);
         inputDispatcher->heldUpKeys();
         glfwPollEvents();
 
@@ -216,8 +217,8 @@ void App::run() try {
         }
         ONCE_IN_FRAME = true;
 
-        if(gameState) gameState->updateWithHighPrecision(msfDelta);
-        if(gameState) gameState->update(msfDelta);
+        if(gameState) gameState->updateWithHighPrecision(FrameTime::deltaf);
+        if(gameState) gameState->update(FrameTime::deltaf);
 
         eventProcessor->process();
         // particleProcessor->update(dt);

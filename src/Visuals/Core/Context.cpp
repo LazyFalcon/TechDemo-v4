@@ -353,6 +353,8 @@ void Context::beginFrame(){
     gl::FrontFace(gl::CCW);
     gl::BindTexture(gl::TEXTURE_2D, 0);
 
+    uploadUniforms();
+
     errors();
 }
 void Context::endFrame(){
@@ -374,6 +376,14 @@ void Context::endFrame(){
     gl::UseProgram(0);
     gl::BindVertexArray(0);
     gl::DisableVertexAttribArray(0);
+}
+
+void Context::uploadUniforms(){
+    uint bindingPoint = 1;
+    gl::BindBuffer(gl::UNIFORM_BUFFER, ubo.common);
+    gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(Uniforms), &RenderDataCollector::uniforms);
+    gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
+    gl::BindBufferRange(gl::UNIFORM_BUFFER, bindingPoint, ubo.common, 0, sizeof(Uniforms)); // * bind ubo to binding point
 }
 
 void Context::setupFramebufferForShadowMapGeneration(){

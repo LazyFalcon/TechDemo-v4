@@ -6,15 +6,12 @@ void main(){
     gl_Position = (vec4(mVertex.xy,0,1));
 }
 
-
-
 @fragment:
 
 out vec4 outColor;
 
 uniform sampler2D uCombined;
-uniform float uExposure;
-uniform float uGamma;
+@import: Uniforms
 
 vec3 Uncharted2TonemapOperator(in vec3 x){
     const float A = 0.15;

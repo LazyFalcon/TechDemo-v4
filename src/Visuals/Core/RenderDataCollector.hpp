@@ -4,9 +4,11 @@
 #include <typeindex>
 #include <typeinfo>
 
-class SkinnedMesh;
 class ArmoredVehicleTracks;
+class Camera;
 class LightSource;
+class SkinnedMesh;
+class Window;
 
 struct Uniforms
 {
@@ -19,6 +21,10 @@ struct Uniforms
     float uFovTan;
     float uNear;
     float uFar;
+    float lastFrameTime;
+    float sinceStartTime; // TODO: remember to loop it
+    float exposture;
+    float gamma;
 };
 
 class RenderDataCollector
@@ -37,6 +43,10 @@ public:
     static Uniforms uniforms;
     static std::vector<LightSource*> lights[100]; // * lights collected by type, and relation to camera: index = type + isCameraInsideEnum
     static std::vector<LightSource*> lightsCastingShadows;
+
+    static void collectCamera(Camera& camera);
+    static void collectWindow(Window& window);
+    static void collectTime(float lastFrame, u64 sinceStart);
 
     template<typename T>
     static std::vector<T>& get(){

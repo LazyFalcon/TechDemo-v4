@@ -237,23 +237,10 @@ void Effects::SSAO(Camera &camera){
     context.fbo[1].tex(context.tex.full.rg16a)();
     auto shader = assets::bindShader("SSAO");
 
-    RenderDataCollector::uniforms.uWindowSize = window.size;
-    RenderDataCollector::uniforms.uPixelSize = window.pixelSize;
-    RenderDataCollector::uniforms.uFovTan = (float)tan(camera.fov*0.5f);
-    RenderDataCollector::uniforms.uNear = camera.nearDistance;
-    RenderDataCollector::uniforms.uFar = camera.farDistance;
-    RenderDataCollector::uniforms.uView = camera.view;
-    RenderDataCollector::uniforms.uInvPV = camera.invPV;
-    RenderDataCollector::uniforms.uEyePosition = camera.position();
-
     uint bindingPoint = 1;
     u32 blockIndex = gl::GetUniformBlockIndex(shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
     clog("ubo index:", blockIndex, sizeof(Uniforms));
     gl::UniformBlockBinding(shader.ID, blockIndex, bindingPoint); // * bind block to binding point
-    gl::BindBuffer(gl::UNIFORM_BUFFER, context.ubo.common);
-    gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(Uniforms), &RenderDataCollector::uniforms);
-    gl::BindBufferRange(gl::UNIFORM_BUFFER, bindingPoint, context.ubo.common, 0, sizeof(Uniforms)); // * bind ubo to binding point
-    gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
 
     gl::Disable(gl::DEPTH_TEST);
     gl::DepthMask(gl::FALSE_);
@@ -280,7 +267,7 @@ void Effects::SSAO(Camera &camera){
 
     context.errors();
 }
-void Effects::toneMapping(float exposure){
+void Effects::toneMapping(){
     GPU_SCOPE_TIMER();
     context.fbo.tex(context.tex.full.a)();
     gl::ClearColor(0.0,0.0,0.0,0.0);
@@ -292,8 +279,11 @@ void Effects::toneMapping(float exposure){
     auto shader = assets::getShader("ToneMapping");
     shader.bind();
     shader.texture("uCombined", context.tex.gbuffer.color, 0);
-    shader.uniform("uExposure", exposure);
-    shader.uniform("uGamma", 2.2f); // TODO: extract from App
+
+    uint bindingPoint = 1;
+    u32 blockIndex = gl::GetUniformBlockIndex(shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
+    clog("ubo index:", blockIndex, sizeof(Uniforms));
+    gl::UniformBlockBinding(shader.ID, blockIndex, bindingPoint); // * bind block to binding point
 
     context.drawScreen();
     context.tex.full.a.swap(context.tex.gbuffer.color);
@@ -434,8 +424,7 @@ void Effects::matcap(Camera &camera){
     context.errors();
 }
 
-
-void Effects::filmGrain(float dt){
+void Effects::filmGrain(){
     /*
     * state.state("
     *   stage: LDR
@@ -448,9 +437,11 @@ void Effects::filmGrain(float dt){
     gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.full.a.ID, 0);
     auto shader = assets::bindShader("FilmGrain");
     shader.texture("uTexture", context.tex.gbuffer.color);
-    shader.uniform("uWindowSize", window.size);
-    shader.uniform("uTimer", dt);
 
+    uint bindingPoint = 1;
+    u32 blockIndex = gl::GetUniformBlockIndex(shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
+    clog("ubo index:", blockIndex, sizeof(Uniforms));
+    gl::UniformBlockBinding(shader.ID, blockIndex, bindingPoint); // * bind block to binding point
 
     context.drawScreen();
 

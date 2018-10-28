@@ -28,11 +28,10 @@ void main(){
 }
 
 @fragment
+@import: Uniforms
 uniform sampler2D uTexture; //rendered scene sampler
-uniform vec2 uWindowSize;
-uniform float uTimer;
 
-const float timerMod = 1;
+const float timerMod = 0.0011;
 
 in vec2 vUV;
 out vec4 outColor;
@@ -51,7 +50,7 @@ float lumamount = 1.0; // 1.0
 
 //a random texture generator, but you can also use a pre-computed perturbation texture
 vec4 rnm(in vec2 tc){
-    float noise =  sin(dot(tc + vec2(uTimer,uTimer),vec2(12.9898,78.233))) * 43758.5453;
+    float noise =  sin(dot(tc + vec2(uLastFrameTime,uLastFrameTime),vec2(12.9898,78.233))) * 43758.5453;
 
     float noiseR =  fract(noise)*2.0-1.0;
     float noiseG =  fract(noise*1.2154)*2.0-1.0;
@@ -125,13 +124,13 @@ void main(){
     vec2 texCoord = vUV;
 
     vec3 rotOffset = vec3(1.425,3.892,5.835); //rotation offset values
-    vec2 rotCoordsR = coordRot(texCoord, uTimer*timerMod + rotOffset.x);
+    vec2 rotCoordsR = coordRot(texCoord, uLastFrameTime*timerMod + rotOffset.x);
     vec3 noise = vec3(pnoise3D(vec3(rotCoordsR*vec2(width/grainsize,height/grainsize),0.0)));
 
     if (colored)
     {
-        vec2 rotCoordsG = coordRot(texCoord, uTimer + rotOffset.y);
-        vec2 rotCoordsB = coordRot(texCoord, uTimer + rotOffset.z);
+        vec2 rotCoordsG = coordRot(texCoord, uLastFrameTime + rotOffset.y);
+        vec2 rotCoordsB = coordRot(texCoord, uLastFrameTime + rotOffset.z);
         noise.g = mix(noise.r,pnoise3D(vec3(rotCoordsG*vec2(width/grainsize,height/grainsize),1.0)),coloramount);
         noise.b = mix(noise.r,pnoise3D(vec3(rotCoordsB*vec2(width/grainsize,height/grainsize),2.0)),coloramount);
     }

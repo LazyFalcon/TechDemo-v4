@@ -26,12 +26,14 @@ public:
         bool glossy;
         float glossyEnergy;
         glm::vec4 color;
-    } graphic;
+    } graphic {};
     struct {
         glm::vec4 position;
+        glm::vec4 dimensions;
         glm::mat4 transform;
         btRigidBody *rgBody {nullptr};
-    } physics;
+        btCollisionShape  *shape {nullptr};
+    } physics {};
 
     int id {0};
 
@@ -74,5 +76,6 @@ private:
     void loadLightSource(const Yaml &yaml);
 
     void loadVisualPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml);
-    void loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml);
+    bool loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml);
+    void createSimpleCollider(EnviroEntity &entity);
 };

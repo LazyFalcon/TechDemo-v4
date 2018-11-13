@@ -275,9 +275,11 @@ private:
     std::fstream file;
     std::vector<Line> lines;
     int m_currentLine {0};
+    std::string m_filename;
 public:
     YamlLoader(const std::string &filename, Yaml& yaml): m_root(yaml){
-        file.open(filename, std::fstream::in);
+        m_filename = filename;
+        file.open(m_filename, std::fstream::in);
     }
     ~YamlLoader(){
         file.close();
@@ -305,7 +307,7 @@ bool YamlLoader::isCommentOrEmpty(const std::string& s) const {
 
 void YamlLoader::run(){
     if(not file.is_open()){
-        error("No such file");
+        error("No such file:", m_filename);
         return;
     }
 

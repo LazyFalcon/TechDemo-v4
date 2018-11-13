@@ -44,51 +44,59 @@ void Environment::load(const std::string &sceneName){
     const Yaml &lamps = yaml["LightSources"];
 }
 
-void Environment::loadObject(const Yaml &thing, ModelLoader<VertexWithMaterialData>& modelLoader){
-    EnviroEntity e {};
-    e.name = thing["Name"].string();
+void Environment::loadObject(const Yaml &yaml, ModelLoader<VertexWithMaterialData>& modelLoader){
+    auto& entity = m_entities.emplace_back();
+    entity->name = yaml["Name"].string();
 
-    auto x = thing["Position"]["X"].vec4();
-    auto y = thing["Position"]["Y"].vec4();
-    auto z = thing["Position"]["Z"].vec4();
-    auto w = thing["Position"]["W"].vec31();
+    auto x = yaml["Position"]["X"].vec4();
+    auto y = yaml["Position"]["Y"].vec4();
+    auto z = yaml["Position"]["Z"].vec4();
+    auto w = yaml["Position"]["W"].vec31();
 
-    e.physics.position = w;
-    e.physics.transform = glm::mat4(x,y,z,w);
+    entity->physics.position = w;
+    entity->physics.dimensions = yaml["Dimensions"].vec30();
+    entity->physics.transform = glm::mat4(x,y,z,w);
+    entity->id = m_entities.size();
 
-    loadVisualPart(modelLoader, e, thing);
-    loadPhysicalPart(modelLoader, e, thing);
+    loadVisualPart(modelLoader, *entity, yaml);
 
-    // if(thing["isPhysical"].boolean() and thing["Colliders"].string() != "none"){
-    //     auto colliders = modelLoader.loadConvexMeshes({thing["Colliders"].strings()});
-        // e.physics.rgBody = physics->createRigidBody(0, convert(obj["Quaternion"].quat(), e.physics.position), createCompoundMesh(colliders, nullptr));
-    // }
-    e.id = m_entities.size();
-    m_entities.push_back(e);
-    // SceneObject object{Type::Enviro, SceneObject::nextID(), nullptr, e.id};
-    // if(e.physics.rgBody) e.physics.rgBody->setUserIndex(object.ID);
+    //* most of objects needs to be physical, for collisions, pathfinding and culling
+    if(not loadPhysicalPart(modelLoader, *entity, yaml))
+        createSimpleCollider(*entity);
 
-    graph.insertObject(m_entities.back().getProvider(), e.physics.position);
+
+    // * save object id in rigid body
+    if(entity->physics.rgBody) entity->physics.rgBody->setUserIndex(entity.id());
+
+    graph.insertObject(m_entities.back().getProvider(), entity->physics.position);
 }
 
+btCollisionShape* defaultShape;
 
 void Environment::loadVisualPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml){
     e.graphic.mesh = modelLoader.load(yaml["Models"].strings());
 }
 
-void Environment::loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml){
-    if(not yaml["isPhysical"].boolean()) return;
-    for(auto &collider : yaml["Colliders"]){
-        // load colliders
+void Environment::createSimpleCollider(EnviroEntity &entity){
+    entity.physics.shape = new btBoxShape(convert(entity.physics.dimensions));
+    btTransform tr = convert(entity.physics.transform);
+    entity.physics.rgBody = physics.createRigidBody(0, tr, entity.physics.shape);
+}
+
+bool Environment::loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &entity, const Yaml &yaml){
+    if(not yaml["isPhysical"].boolean()) return false;
+    if(yaml["isPhysical"].boolean() and yaml["Colliders"].string() != "none"){
+        auto colliders = modelLoader.loadConvexMeshes({yaml["Colliders"].strings()});
+        entity.physics.shape = createCompoundShape(colliders, nullptr);
+
+        entity.physics.rgBody = physics.createRigidBody(0, convert(entity.physics.transform), entity.physics.shape);
     }
 
-    btCollisionShape *shape = nullptr;
 
-    btTransform tr;
-    tr.setIdentity();
-    tr.setOrigin(yaml["Position"].btVec());
+    btTransform tr = convert(entity.physics.transform);
+    entity.physics.rgBody = physics.createRigidBody(0, tr, entity.physics.shape);
 
-    e.physics.rgBody = physics.createRigidBody(0, tr, shape);
+    return true;
 }
 
 void Environment::loadLightSource(const Yaml &thing){

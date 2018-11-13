@@ -185,7 +185,7 @@ void VehicleBuilder::setPhysical(IModule& module, const Yaml& cfg){
     if(cfg["Physical"].has("Collision")){
         auto meshes = m_modelLoader->loadConvexMeshes(cfg["Physical"]["Collision"].strings());
 
-        addToCompound(createCompoundMesh(meshes, (void*)(&module)), localTransformation, (void*)(&module));
+        addToCompound(createCompoundShape(meshes, (void*)(&module)), localTransformation, (void*)(&module));
         module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_player.eq().compound, m_compoundIndex++);
     }
     else {

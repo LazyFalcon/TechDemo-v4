@@ -1,0 +1,27 @@
+#include "core.hpp"
+#include "TaskCreator.hpp"
+#include "TaskExecutor.hpp"
+#include "input.hpp"
+#include "input-dispatcher.hpp"
+#include "EventDispatcher.hpp"
+
+glm::vec4 getPositionFromUnderPointer(){
+    return {127, 54, 10, 1};
+}
+
+TasksFromUserInput::TasksFromUserInput(AiSharedState& sharedState) :
+    SharedStateProvider(sharedState),
+    m_input(sharedState.inputDispatcher.createNew("Player"))
+    {
+        m_input->action("LMB").on([this]{m_executor.moveTo(getPositionFromUnderPointer())});
+
+        dispatcher.onId(AiEvent::Select, [this]{
+            m_input.activate();
+        });
+        dispatcher.onId(AiEvent::Unselect, [this]{
+            m_input.deactivate();
+        });
+        dispatcher.onId(AiEvent::Destroy, [this]{
+            m_input.deactivate();
+        });
+    }

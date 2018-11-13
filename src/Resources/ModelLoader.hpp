@@ -256,9 +256,9 @@ public:
         }
     }
 
-    std::vector<ConvexMesh> loadConvexMeshes(const std::vector<std::string> &modelsToJoin){
+    std::vector<ConvexMesh> loadConvexMeshes(const std::vector<std::string> &modelsToExtract){
         std::vector<ConvexMesh> out;
-        for(auto& name : modelsToJoin){
+        for(auto& name : modelsToExtract){
             auto meshes = findSubMeshesByMaterial(name);
             if(meshes.empty()){
                 error("no mesh");
@@ -272,8 +272,8 @@ public:
                     data[j++] = mesh->mVertices[i].y;
                     data[j++] = mesh->mVertices[i].z;
                 }
-                out.emplace_back();
-                out.back().data.swap(data);
+                // TODO: fill position properly
+                out.emplace_back(ConvexMesh{std::move(data), btVector3(0,0,0)});
             }
         }
         return out;

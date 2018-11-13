@@ -4,7 +4,7 @@
 #include "Utils.hpp"
 #include "PerfTimers.hpp"
 
-btCollisionShape* createCompoundMesh(std::vector<ConvexMesh> &meshes, void *userPointer){
+btCollisionShape* createCompoundShape(std::vector<ConvexMesh> &meshes, void *userPointer){
     if(meshes.empty()) return nullptr;
     if(meshes.size() == 1){
         auto *collShape = new btConvexHullShape(meshes[0].data.data(), meshes[0].data.size()/3, 3*sizeof(double));
@@ -29,7 +29,7 @@ btCollisionShape* createCompoundMesh(std::vector<ConvexMesh> &meshes, void *user
     return shape;
 }
 
-btCollisionShape* createCompoundMesh(std::vector<std::pair<btCollisionShape*, btTransform>> &meshes, void *userPointer){
+btCollisionShape* createCompoundShape(std::vector<std::pair<btCollisionShape*, btTransform>> &meshes, void *userPointer){
     auto *shape = new btCompoundShape();
     shape->setUserPointer(userPointer);
     shape->setUserIndex(-6);
@@ -43,7 +43,7 @@ btCollisionShape* createCompoundMesh(std::vector<std::pair<btCollisionShape*, bt
 
 PhysicalWorld::PhysicalWorld(){
 
-    log("SCALAR SIZE!!!!!!:", sizeof(btScalar));
+    log("btScalar size:", sizeof(btScalar));
     // btVector3 worldMin(-2500.0,-2500.0,-500);
     // btVector3 worldMax(2500.0,2500.0,500);
     // broadphase = new btAxisSweep3(worldMin,worldMax);// precyzja pozycjonowania owiata

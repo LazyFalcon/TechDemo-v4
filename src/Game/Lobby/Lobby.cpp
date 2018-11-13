@@ -184,6 +184,9 @@ private:
             panel.button().w(0.8f).h(40)().text("Graphic Testing").action([]{
                 event<StartPlayground>("Cycles-PBR");
             });
+            panel.button().w(0.8f).h(40)().text("Pathfinding").action([]{
+                event<StartPlayground>("ForPathfinding");
+            });
         }
         panel.button()().text("New Game").action([this]{m_playSelected = !m_playSelected;});
         // panel.button().y(0.6f)().text("New Game").action([this]{m_playSelected = !m_playSelected;});

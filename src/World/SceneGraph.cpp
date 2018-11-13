@@ -74,6 +74,8 @@ btRigidBody* SceneGraph::createSimpleCollider(glm::vec4 pos, glm::vec3 dim){
 
 
 void SceneGraph::insertObject(ObjectProvider object, const glm::vec4& position){
+    if(object->getCollider()) return; // * no need to track it now, bullet will do it better
+
     auto cell = findCellUnderPosition(position);
     if(not cell){
         error("cell under", position, "doesn't exists");

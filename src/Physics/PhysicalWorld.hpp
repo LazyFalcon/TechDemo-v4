@@ -34,5 +34,5 @@ public:
     CloseHitResult closesetHit(glm::vec4 from, glm::vec4 to);
 };
 
-btCollisionShape* createCompoundMesh(std::vector<ConvexMesh> &meshes, void *userPointer=nullptr);
-btCollisionShape* createCompoundMesh(std::vector<std::pair<btCollisionShape*, btTransform>> &meshes, void *userPointer=nullptr);
+btCollisionShape* createCompoundShape(std::vector<ConvexMesh> &meshes, void *userPointer=nullptr);
+btCollisionShape* createCompoundShape(std::vector<std::pair<btCollisionShape*, btTransform>> &meshes, void *userPointer=nullptr);

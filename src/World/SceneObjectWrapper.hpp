@@ -32,6 +32,7 @@ inline ObjectProvider createProviderFromIndex(int i){
 
 // * responsible fro updating object address in array
 // TODO: maybe add this ref counter?
+// TODO: make this unique pointer?
 template<typename T>
 struct ObjectWrapper
 {

@@ -1,6 +1,6 @@
 #pragma once
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
-#include "SceneObject.hpp"
+#include "BaseGameObject.hpp"
 #include <vector>
 
 
@@ -23,7 +23,7 @@ public:
         btCollisionObject *co = static_cast<btCollisionObject*>(proxy->m_clientObject);
 
         if((proxy->m_collisionFilterGroup & collisionFilterMask) != 0){
-            if(co->getUserIndex()) derefIndex(co->getUserIndex())->actionWhenVisible();
+            if(co->getUserIndex()) deref(co->getUserIndex())->actionWhenVisible();
         }
     }
 };

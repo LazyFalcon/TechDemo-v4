@@ -272,7 +272,7 @@ void RenderData::updatePhysics(glm::vec4 reference, PhysicalWorld &p){
                         o[0][1], o[1][1], o[2][1],
                         o[0][2], o[1][2], o[2][2]),
             btVector3(o[3][0], o[3][1], o[3][2]) + btVector3(o[2][0], o[2][1], o[2][2])*(5-treeCOMOffset + 0.2) );
-        f.rgBody = p.createRigidBody(200, tr, treeCapsuleCompoundShape, nullptr, 1);
+        f.rgBody = p.createRigidBody(200, tr, treeCapsuleCompoundShape, 1);
         // f.rgBody = p.createRigidBody(90, tr, treeCapsuleShape, 3);
         f.rgBody->setDamping(0.9, 0.4);
         // f.rgBody->setGravity(btVector3(0,0,-10));

@@ -47,16 +47,16 @@ void SceneGraph::initCellsToDefaults(){
     int i = 0;
     for(int x=0; x<cellsInTheScene.x; x++) for(int y=0; y<cellsInTheScene.y; y++){
         glm::vec4 position = min + glm::vec4(cellSize.x*(0.5f + x), cellSize.y*(0.5f+y), center.z, 0);
-        cells[i]->position = position;
-        cells[i]->size = glm::vec4(cellSize, 100.f, 0.f);
-        cells[i]->level = 0;
-        cells[i]->id = i;
-        cells[i]->hasTerrain = false;
-        cells[i]->cellBoxCollider = createSimpleCollider(cells[i]->position, cells[i]->size.xyz());
+        cells[i].position = position;
+        cells[i].size = glm::vec4(cellSize, 100.f, 0.f);
+        cells[i].level = 0;
+        cells[i].id = i;
+        cells[i].hasTerrain = false;
+        cells[i].cellBoxCollider = createSimpleCollider(cells[i].position, cells[i].size.xyz());
 
         // SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};
 
-        cells[i]->cellBoxCollider->setUserIndex(cells[i].id());
+        cells[i].cellBoxCollider->setUserIndex(cells[i].indexForBullet());
         i++;
     }
 }
@@ -67,13 +67,13 @@ btRigidBody* SceneGraph::createSimpleCollider(glm::vec4 pos, glm::vec3 dim){
     tr.setOrigin(convert(pos));
     int group = COL_FOR_CULLING;
     int collideWith = COL_NOTHING;
-    auto body = physics.createRigidBodyWithMasks(0, tr, new btBoxShape(btVector3(dim.x*0.5f, dim.y*0.5f, dim.z*0.8f)), nullptr, group, collideWith);
+    auto body = physics.createRigidBodyWithMasks(0, tr, new btBoxShape(btVector3(dim.x*0.5f, dim.y*0.5f, dim.z*0.8f)), group, collideWith);
 
     return body;
 }
 
 
-void SceneGraph::insertObject(ObjectProvider object, const glm::vec4& position){
+void SceneGraph::insertObject(GameObjectPtr object, const glm::vec4& position){
     if(object->getCollider()) return; // * no need to track it now, bullet will do it better
 
     auto cell = findCellUnderPosition(position);
@@ -90,7 +90,7 @@ Cell* SceneGraph::findCellUnderPosition(const glm::vec4& pos){
     glm::vec2 p = pos.xy() - min.xy();
     p /= cellSize;
 
-    return &(*cells[int(p.x) + int(p.y)*cellsInTheScene.x]);
+    return &(cells[int(p.x) + int(p.y)*cellsInTheScene.x]);
 }
 
 void SceneGraph::cullWithPhysicsEngine(const Frustum &frustum){
@@ -115,7 +115,6 @@ void SceneGraph::cullWithPhysicsEngine(const Frustum &frustum){
     bool cullFarPlane = false;
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[1].m_root, normals, offsets, cullFarPlane ? 5 : 4, culling); // with static
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[0].m_root, normals, offsets, cullFarPlane ? 5 : 4, culling); // with dynamic
-    visibleObjectsByType.clear();
 }
 
 void SceneGraph::cullCells(const Frustum &frustum){
@@ -183,8 +182,8 @@ void SceneGraph::loadMap(const std::string &mapConfigDir){
         // cells[i].position = position;
         // cells[i].size = dimension;
         // cells[i].level = 0;
-        cells[i]->hasTerrain = true;
-        cells[i]->terrainMesh = model;
+        cells[i].hasTerrain = true;
+        cells[i].terrainMesh = model;
         // cells[i].cellBoxCollider = createSimpleCollider(position, dimension.xyz());
 
         // SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};

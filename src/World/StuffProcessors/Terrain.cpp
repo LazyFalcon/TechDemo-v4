@@ -196,7 +196,7 @@ void Terrain::finalize(){
 
     btTransform localTrans;
     localTrans.setIdentity();
-    rgBody = qt.physics.createRigidBody(0, localTrans, compound, nullptr, 1);
+    rgBody = qt.physics.createRigidBody(0, localTrans, compound, 1);
     // rgBody->setCollisionFlags(rgBody->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
     // whyyy???

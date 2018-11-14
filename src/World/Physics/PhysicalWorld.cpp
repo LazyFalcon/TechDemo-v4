@@ -63,14 +63,14 @@ PhysicalWorld::PhysicalWorld(){
     update(16);
 }
 
-btRigidBody* PhysicalWorld::createRigidBody(float mass, const btTransform& transform, btCollisionShape* shape, BodyUser *bodyUser, float inertiaScalling){
-    return createRigidBodyWithMasks(mass, transform, shape, bodyUser, 2, COL_ALL_BUT_CULLING, inertiaScalling);
+btRigidBody* PhysicalWorld::createRigidBody(float mass, const btTransform& transform, btCollisionShape* shape, float inertiaScalling){
+    return createRigidBodyWithMasks(mass, transform, shape, 2, COL_ALL_BUT_CULLING, inertiaScalling);
 }
 
 // * basically Actor should collide with everything, and everything with actor, and rays and particles
 // * masks and groups must match each other to have collision
 // * collision flag NO_CONTACT_RESPONSE (t->setCollisionFlags(t->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE)) will disable collision impulses but not calculations
-btRigidBody* PhysicalWorld::createRigidBodyWithMasks(float mass, const btTransform& transform, btCollisionShape* shape, BodyUser *bodyUser, short group, short collideWith, float inertiaScalling){
+btRigidBody* PhysicalWorld::createRigidBodyWithMasks(float mass, const btTransform& transform, btCollisionShape* shape, short group, short collideWith, float inertiaScalling){
     //@ http://www.continuousphysics.com/Bullet/BulletFull/structbtRigidBody_1_1btRigidBodyConstructionInfo.html
     btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
@@ -90,9 +90,8 @@ btRigidBody* PhysicalWorld::createRigidBodyWithMasks(float mass, const btTransfo
     btRigidBody* body = new btRigidBody(cInfo);
     // body->setActivationState(DISABLE_DEACTIVATION);
     // TODO: add user counter to body object or make sure that it will be assigned only once
-    if(not bodyUser) bodyUser = new BodyUser();
     m_dynamicsWorld->addRigidBody(body, group, collideWith);
-    body->setUserPointer(bodyUser);
+    body->setUserPointer(nullptr);
     body->setUserIndex(0);
     bodies.push_back(body);
     shapes.push_back(shape);
@@ -119,8 +118,9 @@ void PhysicalWorld::update(float step){
         btCollisionObject* obA = (btCollisionObject*)(contactManifold->getBody0());
         btCollisionObject* obB = (btCollisionObject*)(contactManifold->getBody1());
 
-        ((BodyUser*)obA->getUserPointer())->processCollision();
-        ((BodyUser*)obB->getUserPointer())->processCollision();
+        // TODO: implement later
+        // deref(obA->getUserIndex())->processCollision();
+        // deref(obB->getUserIndex())->processCollision();
 
         int numContacts = contactManifold->getNumContacts();
         for(u32 j=0; j<numContacts; j++){

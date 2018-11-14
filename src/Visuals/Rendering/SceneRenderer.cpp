@@ -16,61 +16,62 @@
 
 void SceneRenderer::renderSceneStuff(Scene &scene, Camera &camera){
     // GPU_SCOPE_TIMER();
+    // ! not used anymore, scene is rendered via indirect draw call formed from renderData gloabal
+    // if(not scene.environment) return;
+    // gl::Enable(gl::CULL_FACE);
 
-    if(not scene.environment) return;
-    gl::Enable(gl::CULL_FACE);
+    // auto shader = assets::bindShader("simple-model-pbr");
 
-    auto shader = assets::bindShader("simple-model-pbr");
+    // shader.uniform("uPV", (camera.getPV()));
+    // auto uModel = shader.location("uModel");
+    // shader.atlas("uAlbedo", assets::getAlbedoArray("Materials").id, 0);
+    // shader.atlas("uRoughnessMap", assets::getRoughnessArray("Materials").id, 1);
+    // shader.atlas("uMetallicMap", assets::getMetalic("Materials").id, 2);
 
-    shader.uniform("uPV", (camera.getPV()));
-    auto uModel = shader.location("uModel");
-    shader.atlas("uAlbedo", assets::getAlbedoArray("Materials").id, 0);
-    shader.atlas("uRoughnessMap", assets::getRoughnessArray("Materials").id, 1);
-    shader.atlas("uMetallicMap", assets::getMetalic("Materials").id, 2);
+    // scene.environment->vao.bind();
 
-    scene.environment->vao.bind();
+    // clog("-> Visible objects:", scene.graph->visibleObjectsByType[Type::Enviro].size());
 
-    clog("-> Visible objects:", scene.graph->visibleObjectsByType[Type::Enviro].size());
+    // // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+    // // TODO: scene renderer should have known nothing about scene and other, scene objects should add itself to proper queue. this will allow to have different materials systems in scene
+    // for(auto &obj : scene.graph->visibleObjectsByType[Type::Enviro]){
+    //     auto &env = scene.environment->m_entities[0];
+    //     auto &mesh = env->graphic.mesh;
+    //     shader.uniform(uModel, env->physics.transform);
+    //     gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, mesh.offset());
+    //     clog("->", mesh.count, mesh.offset(), env->physics.position);
+    // }
 
-    // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
-    // TODO: scene renderer should have known nothing about scene and other, scene objects should add itself to proper queue. this will allow to have different materials systems in scene
-    for(auto &obj : scene.graph->visibleObjectsByType[Type::Enviro]){
-        auto &env = scene.environment->m_entities[0];
-        auto &mesh = env->graphic.mesh;
-        shader.uniform(uModel, env->physics.transform);
-        gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, mesh.offset());
-        clog("->", mesh.count, mesh.offset(), env->physics.position);
-    }
+    // // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
+    // gl::BindVertexArray(0);
+    // gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+    // gl::BindTexture(gl::TEXTURE_2D, 0);
 
-    // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
-    gl::BindVertexArray(0);
-    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-    gl::BindTexture(gl::TEXTURE_2D, 0);
-
-    context.errors();
+    // context.errors();
 }
 void SceneRenderer::renderTerrain(Scene &scene, Camera &camera){
-    GPU_SCOPE_TIMER();
-    if(not scene.graph) return;
+    // ! no longer used
+    // GPU_SCOPE_TIMER();
+    // if(not scene.graph) return;
 
-    gl::Enable(gl::CULL_FACE);
-    auto shader = assets::getShader("Terrain").bind();
-    shader.uniform("uPV", camera.getPV());
+    // gl::Enable(gl::CULL_FACE);
+    // auto shader = assets::getShader("Terrain").bind();
+    // shader.uniform("uPV", camera.getPV());
 
-    scene.graph->vao.bind();
+    // scene.graph->vao.bind();
 
-    // TODO: use array to render
-    // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
-    for(auto &it : scene.graph->visibleObjectsByType[Type::TerrainChunk]){
-        scene.graph->cells[0]->terrainMesh.render(); // !!!!!!!!!!!!!!!!!!!!!
-    }
-    // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
+    // // TODO: use array to render
+    // // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+    // for(auto &it : scene.graph->visibleObjectsByType[Type::TerrainChunk]){
+    //     scene.graph->cells[0]->terrainMesh.render(); // !!!!!!!!!!!!!!!!!!!!!
+    // }
+    // // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
 
-    gl::BindVertexArray(0);
-    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-    gl::BindTexture(gl::TEXTURE_2D, 0);
+    // gl::BindVertexArray(0);
+    // gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+    // gl::BindTexture(gl::TEXTURE_2D, 0);
 
-    context.errors();
+    // context.errors();
 }
 void SceneRenderer::renderFoliage(Scene &scene, Camera &camera){
     GPU_SCOPE_TIMER();

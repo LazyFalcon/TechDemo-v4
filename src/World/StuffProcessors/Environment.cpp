@@ -45,33 +45,30 @@ void Environment::load(const std::string &sceneName){
 }
 
 void Environment::loadObject(const Yaml &yaml, ModelLoader<VertexWithMaterialData>& modelLoader){
-    auto& entity = m_entities.emplace_back();
-    entity->name = yaml["Name"].string();
+    auto& entity = m_entities.emplace_back(yaml["Name"].string());
 
     auto x = yaml["Position"]["X"].vec4();
     auto y = yaml["Position"]["Y"].vec4();
     auto z = yaml["Position"]["Z"].vec4();
     auto w = yaml["Position"]["W"].vec31();
 
-    entity->physics.position = w;
-    entity->physics.dimensions = yaml["Dimensions"].vec30();
-    entity->physics.transform = glm::mat4(x,y,z,w);
-    entity->id = m_entities.size();
+    entity.physics.position = w;
+    entity.physics.dimensions = yaml["Dimensions"].vec30();
+    entity.physics.transform = glm::mat4(x,y,z,w);
+    entity.id = m_entities.size();
 
-    loadVisualPart(modelLoader, *entity, yaml);
+    loadVisualPart(modelLoader, entity, yaml);
 
     //* most of objects needs to be physical, for collisions, pathfinding and culling
-    if(not loadPhysicalPart(modelLoader, *entity, yaml))
-        createSimpleCollider(*entity);
+    if(not loadPhysicalPart(modelLoader, entity, yaml))
+        createSimpleCollider(entity);
 
 
     // * save object id in rigid body
-    if(entity->physics.rgBody) entity->physics.rgBody->setUserIndex(entity.id());
+    if(entity.physics.rgBody) entity.physics.rgBody->setUserIndex(entity.indexForBullet());
 
-    graph.insertObject(m_entities.back().getProvider(), entity->physics.position);
+    graph.insertObject(entity.getHandle(), entity.physics.position);
 }
-
-btCollisionShape* defaultShape;
 
 void Environment::loadVisualPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml){
     e.graphic.mesh = modelLoader.load(yaml["Models"].strings());
@@ -103,10 +100,10 @@ void Environment::loadLightSource(const Yaml &thing){
     auto &l = m_lights.emplace_back(thing);
     // auto collider = l->getCollider();
 
-    graph.insertObject(l.getProvider(), l->m_position);
+    graph.insertObject(l.getHandle(), l.m_position);
 }
 
 void Environment::update(float dt){
-    for(auto & it : m_entities) it->update(dt);
-    for(auto & it : m_lights) it->update(dt);
+    for(auto & it : m_entities) it.update(dt);
+    for(auto & it : m_lights) it.update(dt);
 }

@@ -10,14 +10,15 @@
  */
 #pragma once
 #include "GPUResources.hpp"
-#include "SceneObject.hpp"
+#include "BaseGameObject.hpp"
 
 class Camera;
 class Frustum;
 class Yaml;
 // * https://docs.blender.org/manual/en/dev/render/blender_render/lighting/lights/attenuation.html
-struct LightSource : public ObjectInterface
+struct LightSource : public BaseGameObject
 {
+    LightSource(){}
     enum LightType
     {
         Point=0, Spot, Area, Directional, LightTypeLast

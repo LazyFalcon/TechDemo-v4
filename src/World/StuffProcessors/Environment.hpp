@@ -3,7 +3,7 @@
 #include "BaseStructs.hpp"
 #include "LightSource.hpp"
 #include "SceneGraph.hpp"
-#include "SceneObject.hpp"
+#include "BaseGameObject.hpp"
 
 class btCollisionShape;
 class btRgBody;
@@ -15,9 +15,11 @@ class Yaml;
 
 namespace projectiles {class Projectile;}
 
-class EnviroEntity : public ObjectInterface
+class EnviroEntity : public BaseGameObject
 {
 public:
+    EnviroEntity() = default;
+    EnviroEntity(const std::string& name) : name(name){}
     std::string name;
     struct {
         Mesh mesh;
@@ -56,13 +58,13 @@ public:
 
     void load(const std::string &dirPath);
 
-    std::vector<ObjectWrapper<LightSource>> m_lights;
-    std::vector<ObjectWrapper<EnviroEntity>> m_entities;
+    std::vector<LightSource> m_lights;
+    std::vector<EnviroEntity> m_entities;
 
     void update(float dt);
 
     EnviroEntity& getObject(u32 id){
-        return *m_entities[id];
+        return m_entities[id];
     }
     VAO vao;
 private:

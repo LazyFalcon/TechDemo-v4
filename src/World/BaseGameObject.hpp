@@ -1,80 +1,36 @@
 #pragma once
-
-class BaseGameObject;
-
-// * to be used by
-// *    GameObjectPtr in most of services to access game object
-// *    bullet as one of user pointers
-struct BaseGameObjectIntermediateData
-{
-    BaseGameObject* pointerTo;
-    void updatePointer(BaseGameObject* ptr){
-        pointerTo = ptr;
-    }
-    BaseGameObject& operator * (){
-        return *m_indirectPointer;
-    }
-
-    BaseGameObject* operator -> (){
-        return &m_indirectPointer;
-    }
-};
-
-BaseGameObject* deref(void* ptr){
-    return (static_cast<BaseGameObjectIntermediateData*>(ptr)).pointerTo;
-}
-
-// * indirect pointer to object, object is accessed via class above
-class GameObjectPtr
-{
-private:
-    BaseGameObjectIntermediateData* m_indirectPointer;
-public:
-    GameObjectPtr() : m_indirectPointer(nullptr) {}
-    GameObjectPtr(BaseGameObjectIntermediateData* p_indirectPointer) : m_indirectPointer(p_indirectPointer) {}
-    BaseGameObject& operator * (){
-        return *(m_indirectPointer.pointerTo);
-    }
-
-    BaseGameObject* operator -> (){
-        return m_indirectPointer.pointerTo;
-    }
-};
-
-extern std::array<BaseGameObjectIntermediateData, 5000> g_GameObjectPool;
-BaseGameObjectIntermediateData* allocateGameObject();
-void releaseGameObject(BaseGameObjectIntermediateData*);
-
+#include "BaseGameObjectUtils.hpp"
 
 class BaseGameObject
 {
-private:
+protected:
     ~BaseGameObject(){ // * cannot be used as base pointer for storage, and I don't want to
-        if(m_poolObjectPtr){
-            releaseGameObject(m_poolObjectPtr);
+        if(m_poolObjectIdx){
+            m_idProvider.releaseGameObject(m_poolObjectIdx);
         }
     }
-    BaseGameObjectIntermediateData* m_poolObjectPtr {nullptr};
+    int m_poolObjectIdx {0};
 
 public:
-    BaseGameObject() = default;
-    BaseGameObject(int){
-        m_poolObjectPtr = allocateGameObject();
-    }
+    static GameObjectIdProvider m_idProvider;
+    BaseGameObject() : m_poolObjectIdx(m_idProvider.allocateGameObject(this)){}
     BaseGameObject(BaseGameObject&& toMove){
-        m_poolObjectPtr = toMove.m_poolObjectPtr;
-        toMove.m_poolObjectPtr = nullptr;
+        m_poolObjectIdx = toMove.m_poolObjectIdx;
+        toMove.m_poolObjectIdx = 0;
 
-        m_poolObjectPtr->updatePointer(this);
+        m_idProvider.get(m_poolObjectIdx).updatePointer(this);
     }
 
-    BaseGameObjectIntermediateData* pointerForBullet(){
-        return m_poolObjectPtr;
+    int indexForBullet(){
+        return m_poolObjectIdx;
     }
 
-    GameObjectPtr getPtr(){ // * indirect pointer to this object
-        return GameObjectPtr(m_poolObjectPtr);
+    GameObjectPtr getHandle(){ // * indirect pointer to this object
+        return GameObjectPtr(m_poolObjectIdx);
     }
 
-    // * Actions to implement
+    // * Interfaces to implement
+    uint lastFrame {0};
+    virtual void actionWhenVisible() = 0;
+    virtual btRigidBody* getCollider() = 0;
 };

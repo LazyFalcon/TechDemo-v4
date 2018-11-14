@@ -1,8 +1,7 @@
 #pragma once
 #include "BaseStructs.hpp"
-#include "BodyUser.hpp"
-#include "SceneObject.hpp"
 #include "CloseHitResult.hpp"
+#include "BaseGameObject.hpp"
 
 struct ConvexMesh
 {
@@ -25,8 +24,8 @@ public:
     std::vector <btTypedConstraint*> constraints;
 
     PhysicalWorld();
-    btRigidBody* createRigidBody(float mass, const btTransform& transform, btCollisionShape* shape, BodyUser *go=nullptr, float inertiaScalling=1.f);
-    btRigidBody* createRigidBodyWithMasks(float mass, const btTransform& transform, btCollisionShape* shape, BodyUser *bodyUser=nullptr, short group=2, short collideWith=COL_ALL_BUT_CULLING, float inertiaScalling=1.f);
+    btRigidBody* createRigidBody(float mass, const btTransform& transform, btCollisionShape* shape, float inertiaScalling=1.f);
+    btRigidBody* createRigidBodyWithMasks(float mass, const btTransform& transform, btCollisionShape* shape, short group=2, short collideWith=COL_ALL_BUT_CULLING, float inertiaScalling=1.f);
     void removeBody(btRigidBody *body);
     void update(float step);
 

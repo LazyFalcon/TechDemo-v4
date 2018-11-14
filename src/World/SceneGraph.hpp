@@ -1,7 +1,7 @@
 #pragma once
 #include "GPUResources.hpp"
 #include "Foliage.hpp"
-#include "SceneObject.hpp"
+#include "BaseGameObject.hpp"
 
 static const i32 NoOfLevels = 5;
 class btBvhTriangleMeshShape;
@@ -14,7 +14,7 @@ class ModelLoader;
 class PhysicalWorld;
 class Yaml;
 
-class Cell : public ObjectInterface
+class Cell : public BaseGameObject
 {
 public:
     glm::vec4 position;
@@ -26,7 +26,7 @@ public:
     bool hasTerrain {false};
     Mesh terrainMesh {};
     btRigidBody *cellBoxCollider {nullptr};
-    std::vector<ObjectProvider> objects;
+    std::vector<GameObjectPtr> objects;
 
     SampleResult sample(glm::vec2 position){
         // allhitRaycast i porownanie pointerow
@@ -66,9 +66,7 @@ public:
     glm::vec2 cellsInTheScene;
 
     Cell root;
-    std::vector<ObjectWrapper<Cell>> cells;
-
-    std::map<Type, std::vector<ObjectProvider>> visibleObjectsByType;
+    std::vector<Cell> cells;
 
     SceneGraph(PhysicalWorld &physics);
     std::vector<i32> getVisibleCells();
@@ -82,7 +80,7 @@ public:
     void initAndLoadMap(const Yaml& yaml);
     void cullCells(const Frustum &frstum);
 
-    void insertObject(ObjectProvider obj, const glm::vec4& position);
+    void insertObject(GameObjectPtr obj, const glm::vec4& position);
 
     // wszystkie lodLevele na raz, posortowane po lod i odleglosci
     std::vector<i32> visibleCells;

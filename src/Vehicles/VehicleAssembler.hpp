@@ -18,10 +18,11 @@ class VehicleAssembler
 private:
     std::string m_configName;
     std::shared_ptr<ModelLoader<VertexWithMaterialDataAndBones>> m_modelLoader;
-    PhysicalWorld& m_physicalWorld;
+    PhysicalWorld& m_physics;
     ModuleFactory m_moduleFactory;
     Player& m_player;
     CameraControllerFactory& m_camFactory;
+    std::shared_ptr<VehicleEquipment> m_vehicleEq;
 
     std::shared_ptr<SkinnedMesh> m_skinnedMesh;
     uint m_boneMatrixIndex {};
@@ -41,7 +42,7 @@ private:
     std::shared_ptr<CameraController> createModuleFollower(IModule *module, const std::string& type, glm::vec3 position);
 
 public:
-    VehicleAssembler(const std::string& configName, Player& player, PhysicalWorld& physicalWorld, CameraControllerFactory& camFactory);
+    VehicleAssembler(const std::string& configName, Player& player, PhysicalWorld& physics, CameraControllerFactory& camFactory);
 
     void build();
 

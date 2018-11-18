@@ -48,7 +48,7 @@ void Player::initInputContext(){
         }).off([this]{
             controlXValue = 0;
         });
-    // m_input->action("ctrl-x").name("lock guns").on([this]{ m_vehicleEq.lockCannonsInDefaultPosition(); });
+    // m_input->action("ctrl-x").name("lock guns").on([this]{ m_vehicleEq->lockCannonsInDefaultPosition(); });
     m_input->action("ctrl-c").name("lock guns on point").on([this]{ isLockedOnPoint = !isLockedOnPoint; });
     m_input->action("RMB").name("Fire").hold([this]{ doFire = true; });
     m_input->action("[").on([this]{ nextCamera(); });
@@ -59,39 +59,39 @@ void Player::initInputContext(){
 }
 
 void Player::updateGraphic(float dt){
-    m_vehicleEq.updateMarkers();
-    m_vehicleEq.drawBBOXesOfChildren();
+    m_vehicleEq->updateMarkers();
+    m_vehicleEq->drawBBOXesOfChildren();
     // updateCameras(dt);
     graphics.toBeRendered();
 }
 void Player::update(float dt){
     // mouseSampler->samplePosition = KeyState::mousePosition;
 
-    // crosshair = m_vehicleEq.cameras[cameraId]->focusPoint;
+    // crosshair = m_vehicleEq->cameras[cameraId]->focusPoint;
     // if(not isLockedOnPoint) targetPointPosition = convert(crosshairSampler->position);
 
-    // // m_vehicleEq.setTargetPoint(targetPointPosition, 0);
-    // m_vehicleEq.sko->updateTarget(convert(targetPointPosition, 1));
-    // m_vehicleEq.updateModules(dt);
-    // m_vehicleEq.driveSystem->update(controlXValue, controlYValue, dt);
-    // m_vehicleEq.compound->recalculateLocalAabb();
+    // // m_vehicleEq->setTargetPoint(targetPointPosition, 0);
+    // m_vehicleEq->sko->updateTarget(convert(targetPointPosition, 1));
+    m_vehicleEq->updateModules(dt);
+    // m_vehicleEq->driveSystem->update(controlXValue, controlYValue, dt);
+    // m_vehicleEq->compound->recalculateLocalAabb();
 
-    // for(auto &it : m_vehicleEq.weapons) it.update(dt);
+    // for(auto &it : m_vehicleEq->weapons) it.update(dt);
 
     // if(doFire) fire();
 }
 
 void Player::lockInDefaultPosition(){
-    // btVector3 target = m_vehicleEq.rgBody->getCenterOfMassPosition();
-    // target += m_vehicleEq.rgBody->getCenterOfMassTransform().getBasis().getColumn(1);
+    // btVector3 target = m_vehicleEq->rgBody->getCenterOfMassPosition();
+    // target += m_vehicleEq->rgBody->getCenterOfMassTransform().getBasis().getColumn(1);
 }
 void Player::updateCameras(float dt){
-    for(auto &camera : m_vehicleEq.cameras)
+    for(auto &camera : m_vehicleEq->cameras)
         camera->update(dt);
 }
 
 void Player::focusOn(){
-    // m_vehicleEq.cameras[cameraId]->focus();
+    // m_vehicleEq->cameras[cameraId]->focus();
     // input->activate();
 }
 void Player::focusOff(){
@@ -99,7 +99,7 @@ void Player::focusOff(){
 }
 
 void Player::fire(){
-    // for(auto &it : m_vehicleEq.weapons){
+    // for(auto &it : m_vehicleEq->weapons){
     //     if(not it.fire()) clog("Unable to fire");
     // }
     // doFire = false;

@@ -14,7 +14,7 @@ class InputDispatcher;
 class Player : public Actor
 {
 private:
-    VehicleEquipment m_vehicleEq;
+    std::shared_ptr<VehicleEquipment> m_vehicleEq;
     std::unique_ptr<GBufferSampler> mouseSampler;
     std::unique_ptr<GBufferSampler> crosshairSampler;
 
@@ -33,16 +33,16 @@ private:
     bool doFire = false;
     void fire();
     void nextCamera(){
-        cyclicDecr(cameraId, m_vehicleEq.cameras.size());
+        cyclicDecr(cameraId, m_vehicleEq->cameras.size());
     }
     void prevCamera(){
-        cyclicIncr(cameraId, m_vehicleEq.cameras.size());
+        cyclicIncr(cameraId, m_vehicleEq->cameras.size());
     }
     Camera& getCamera(){
-        return *m_vehicleEq.cameras[cameraId];
+        return *(m_vehicleEq->cameras[cameraId]);
     }
     CameraController& getCameraController(){
-        return *m_vehicleEq.cameras[cameraId];
+        return *(m_vehicleEq->cameras[cameraId]);
     }
     void updateCameras(float dt);
 
@@ -59,7 +59,10 @@ public:
     void focusOn();
     void focusOff();
     VehicleEquipment& eq(){
-        return m_vehicleEq;
+        return *m_vehicleEq;
+    }
+    void setEq(std::shared_ptr<VehicleEquipment>& eq){
+        m_vehicleEq = eq;
     }
 
 };

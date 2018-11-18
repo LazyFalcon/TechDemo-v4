@@ -10,11 +10,11 @@
 
 #define logFunc() log(__FUNCTION__, ":", __LINE__);
 
-VehicleAssembler::VehicleAssembler(const std::string& configName, Player& player, PhysicalWorld& physicalWorld, CameraControllerFactory& camFactory) :
+VehicleAssembler::VehicleAssembler(const std::string& configName, Player& player, PhysicalWorld& physics, CameraControllerFactory& camFactory) :
     m_configName(configName),
     m_modelLoader(std::make_shared<ModelLoader<VertexWithMaterialDataAndBones>>()),
-    m_physicalWorld(physicalWorld),
-    m_moduleFactory(player.eq(), m_physicalWorld, {}),
+    m_physics(physics),
+    m_moduleFactory(player.eq(), m_physics, {}),
     m_player(player),
     m_camFactory(camFactory)
     {}
@@ -36,8 +36,8 @@ void VehicleAssembler::build(){
     openModelFile();
 
     m_skinnedMesh = std::make_shared<SkinnedMesh>();
-
-    // // m_player.eq().compound = new btCompoundShape();
+    m_vehicleEq = std::make_shared<VehicleEquipment>();
+    m_vehicleEq->compound = new btCompoundShape();
     m_skinnedMesh->mesh = m_modelLoader->beginMesh();
 
     Joint dummyJoint;
@@ -48,14 +48,15 @@ void VehicleAssembler::build(){
     // * put model to GPU
     m_modelLoader->endMesh(m_skinnedMesh->mesh);
     m_skinnedMesh->vao = m_modelLoader->build();
-    // vehicleEquipment.compound->recalculateLocalAabb();
+    m_vehicleEq->compound->recalculateLocalAabb();
     m_player.graphics.entitiesToDraw.push_back(std::move(m_skinnedMesh));
 
-    for(auto& it : m_player.eq().modules){
+    for(auto& it : m_vehicleEq->modules){
         it->init();
     }
 
-    // m_player.eq().cameras[0]->focus();
+    m_player.setEq(m_vehicleEq);
+    // m_vehicleEq->cameras[0]->focus();
 }
 
 void VehicleAssembler::makeModulesRecursively(const Yaml& cfg, Joint& connectorJoint, IModule *parentModule){
@@ -73,13 +74,13 @@ void VehicleAssembler::makeModulesRecursively(const Yaml& cfg, Joint& connectorJ
     }
     module->parent = parentModule;
     module->name = modelName;
-    m_player.eq().modules.push_back(module);
+    m_vehicleEq->modules.push_back(module);
 
     setDecals(*module, cfg);
     setMarkers(*module, cfg);
     setVisual(*module, cfg);
     setConnection(*module, cfg, connectorJoint);
-    // setPhysical(*module, cfg);
+    setPhysical(*module, cfg);
     // setArmor(*module, cfg);
 
     if(cfg.has("Connector")) for(auto& connector : cfg["Connector"]){
@@ -127,7 +128,7 @@ void VehicleAssembler::setMarkers(IModule& module, const Yaml& cfg){
             camera->recalucuateProjectionMatrix();
             camera->evaluate();
 
-            m_player.eq().cameras.push_back(camera);
+            m_vehicleEq->cameras.push_back(camera);
         }
         else if("EndOfBarrel"s == marker["Type"].string() and module.type == ModuleType::Cannon){
             // Cannon& gun = module;
@@ -182,14 +183,17 @@ void VehicleAssembler::setPhysical(IModule& module, const Yaml& cfg){
     // glm::vec4 cnvPos = glm::vec4(module.joint.toPivot + module.joint.toOrigin);
     auto localTransformation = module.joint.loc();
 
-    if(cfg["Physical"].has("Collision")){
-        auto meshes = m_modelLoader->loadConvexMeshes(cfg["Physical"]["Collision"].strings());
+    if(cfg["Physical"].has("CollisionModels") and cfg["Physical"]["CollisionModels"] != "none"){
+        auto meshes = m_modelLoader->loadConvexMeshes(cfg["Physical"]["CollisionModels"].strings());
 
         addToCompound(createCompoundShape(meshes, (void*)(&module)), localTransformation, (void*)(&module));
-        module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_player.eq().compound, m_compoundIndex++);
+        module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_vehicleEq->compound, m_compoundIndex++);
     }
     else {
         // TODO: create dummy collision model
+
+        addToCompound(new btBoxShape(btVector3(1,1,1)), localTransformation, (void*)(&module));
+        module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_vehicleEq->compound, m_compoundIndex++);
     }
 }
 
@@ -198,7 +202,7 @@ void VehicleAssembler::setArmor(IModule& module, const Yaml& cfg){}
 void VehicleAssembler::addToCompound(btCollisionShape* collShape, const glm::mat4& transform, void* owner){
     btTransform localTrans = convert(transform);
     collShape->setUserPointer(owner);
-    m_player.eq().compound->addChildShape(localTrans, collShape);
+    m_vehicleEq->compound->addChildShape(localTrans, collShape);
 }
 
 

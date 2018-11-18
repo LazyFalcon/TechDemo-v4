@@ -118,6 +118,16 @@ public:
         return false;
     }
 
+    bool operator == (const std::string& compareTo) const
+    {
+        return compareTo == string();
+    }
+
+    bool operator != (const std::string& compareTo) const
+    {
+        return compareTo != string();
+    }
+
     const std::string& key() const {
         return m_key;
     }
@@ -185,8 +195,8 @@ public:
         return boost::get<double>(m_value);
     }
 
-    std::string string() const ;
-    std::string debugString() const ;
+    std::string string() const;
+    std::string debugString() const;
 
 
     // operator glm::vec2() const {

@@ -6,11 +6,11 @@
 #include "ModelLoader.hpp"
 #include "PhysicalWorld.hpp"
 #include "Player.hpp"
-#include "VehicleBuilder.hpp"
+#include "VehicleAssembler.hpp"
 
 #define logFunc() log(__FUNCTION__, ":", __LINE__);
 
-VehicleBuilder::VehicleBuilder(const std::string& configName, Player& player, PhysicalWorld& physicalWorld, CameraControllerFactory& camFactory) :
+VehicleAssembler::VehicleAssembler(const std::string& configName, Player& player, PhysicalWorld& physicalWorld, CameraControllerFactory& camFactory) :
     m_configName(configName),
     m_modelLoader(std::make_shared<ModelLoader<VertexWithMaterialDataAndBones>>()),
     m_physicalWorld(physicalWorld),
@@ -19,7 +19,7 @@ VehicleBuilder::VehicleBuilder(const std::string& configName, Player& player, Ph
     m_camFactory(camFactory)
     {}
 
-void VehicleBuilder::openModelFile(){
+void VehicleAssembler::openModelFile(){
     // m_modelLoader->tangents = 3; // TODO:
     m_modelLoader->defaults.uvComponents = 3;
     m_modelLoader->defaults.vertex4comonent = 0u;
@@ -32,7 +32,7 @@ void VehicleBuilder::openModelFile(){
 }
 
 // * builds common part of model, every specific should be done by inheritances
-void VehicleBuilder::build(){
+void VehicleAssembler::build(){
     openModelFile();
 
     m_skinnedMesh = std::make_shared<SkinnedMesh>();
@@ -58,7 +58,7 @@ void VehicleBuilder::build(){
     // m_player.eq().cameras[0]->focus();
 }
 
-void VehicleBuilder::makeModulesRecursively(const Yaml& cfg, Joint& connectorJoint, IModule *parentModule){
+void VehicleAssembler::makeModulesRecursively(const Yaml& cfg, Joint& connectorJoint, IModule *parentModule){
     if(not cfg["Active"].boolean()) return;
 
     std::string identifier = cfg["Identifier"].string();
@@ -96,7 +96,7 @@ void VehicleBuilder::makeModulesRecursively(const Yaml& cfg, Joint& connectorJoi
     return;
 }
 
-void VehicleBuilder::setDecals(IModule& module, const Yaml& cfg){
+void VehicleAssembler::setDecals(IModule& module, const Yaml& cfg){
     if(not cfg.has("Decals")) return;
     auto& decals = cfg["Decals"];
 
@@ -114,7 +114,7 @@ void VehicleBuilder::setDecals(IModule& module, const Yaml& cfg){
     }
 }
 
-void VehicleBuilder::setMarkers(IModule& module, const Yaml& cfg){
+void VehicleAssembler::setMarkers(IModule& module, const Yaml& cfg){
     if(not cfg.has("Markers")) return;
     auto& markers = cfg["Markers"];
 
@@ -141,7 +141,7 @@ void VehicleBuilder::setMarkers(IModule& module, const Yaml& cfg){
 
 // * create visual representation of module
 // * combine few models into one, despite that models are split by material(in assimp), they can be splitted in editor(for usefulness)
-void VehicleBuilder::setVisual(IModule& module, const Yaml& cfg){
+void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
     if(not cfg.has("Models")){
         module.moduleVisualUpdater = std::make_unique<NullModuleVisualUpdater>();
         return;
@@ -160,7 +160,7 @@ void VehicleBuilder::setVisual(IModule& module, const Yaml& cfg){
 // * creates connection between parent and child module, usually this connection is updated by child
 // * can have different number of dof
 // * lack of limits means that connection is rigid
-void VehicleBuilder::setConnection(IModule& module, const Yaml& cfg, Joint& connectorJoint){
+void VehicleAssembler::setConnection(IModule& module, const Yaml& cfg, Joint& connectorJoint){
     module.joint = connectorJoint;
     module.joint.toBOrigin = cfg["FromParentToOrigin"].vec30();
     if(cfg.has("Limits")){
@@ -174,7 +174,7 @@ void VehicleBuilder::setConnection(IModule& module, const Yaml& cfg, Joint& conn
 }
 
 // * when module has rigidBody created
-void VehicleBuilder::setPhysical(IModule& module, const Yaml& cfg){
+void VehicleAssembler::setPhysical(IModule& module, const Yaml& cfg){
     if(not cfg.has("Physical")) return;
 
     auto tr = module.getParentTransform() * module.joint.loc();
@@ -193,16 +193,16 @@ void VehicleBuilder::setPhysical(IModule& module, const Yaml& cfg){
     }
 }
 
-void VehicleBuilder::setArmor(IModule& module, const Yaml& cfg){}
+void VehicleAssembler::setArmor(IModule& module, const Yaml& cfg){}
 
-void VehicleBuilder::addToCompound(btCollisionShape* collShape, const glm::mat4& transform, void* owner){
+void VehicleAssembler::addToCompound(btCollisionShape* collShape, const glm::mat4& transform, void* owner){
     btTransform localTrans = convert(transform);
     collShape->setUserPointer(owner);
     m_player.eq().compound->addChildShape(localTrans, collShape);
 }
 
 
-std::shared_ptr<CameraController> VehicleBuilder::createModuleFollower(IModule *module, const std::string& type, glm::vec3 position){
+std::shared_ptr<CameraController> VehicleAssembler::createModuleFollower(IModule *module, const std::string& type, glm::vec3 position){
     if(type == "CopyPosition"){
         return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, position);
     }

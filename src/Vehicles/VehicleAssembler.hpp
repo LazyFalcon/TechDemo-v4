@@ -13,7 +13,7 @@ class Player;
 class SkinnedMesh;
 struct VertexWithMaterialDataAndBones;
 
-class VehicleBuilder
+class VehicleAssembler
 {
 private:
     std::string m_configName;
@@ -41,7 +41,7 @@ private:
     std::shared_ptr<CameraController> createModuleFollower(IModule *module, const std::string& type, glm::vec3 position);
 
 public:
-    VehicleBuilder(const std::string& configName, Player& player, PhysicalWorld& physicalWorld, CameraControllerFactory& camFactory);
+    VehicleAssembler(const std::string& configName, Player& player, PhysicalWorld& physicalWorld, CameraControllerFactory& camFactory);
 
     void build();
 

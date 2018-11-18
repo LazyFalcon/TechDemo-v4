@@ -18,7 +18,7 @@
 #include "SceneRenderer.hpp"
 #include "Settings.hpp"
 #include "Texture.hpp"
-#include "VehicleBuilder.hpp"
+#include "VehicleAssembler.hpp"
 #include "Window.hpp"
 
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window):
@@ -175,6 +175,6 @@ void Playground::loadScene(const std::string& configName){
 void Playground::spawnPlayer(const std::string& configName, glm::vec4 position){
     m_player = std::make_shared<Player>(m_input->getDispatcher());
 
-    VehicleBuilder builder(configName, *m_player, *m_physical, m_window.camFactory);
+    VehicleAssembler builder(configName, *m_player, *m_physical, m_window.camFactory);
     builder.build();
 }

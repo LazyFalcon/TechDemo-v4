@@ -31,6 +31,9 @@ std::shared_ptr<IModule> ModuleFactory::createModule(const Yaml &cfg){
     else if(className == "Addon"){
         return createAddon(cfg);
     }
+    else if(className == "LoosePart"){
+        return createLoosePart(cfg);
+    }
     else if(className == "Armor"){
         return createArmor(cfg);
     }
@@ -65,6 +68,11 @@ std::shared_ptr<IModule> ModuleFactory::createPowerShield(const Yaml &cfg){
 }
 std::shared_ptr<IModule> ModuleFactory::createHeadlight(const Yaml &cfg){
     auto ptr = std::make_shared<Headlight>(m_vehicleEq);
+
+    return ptr;
+}
+std::shared_ptr<IModule> ModuleFactory::createLoosePart(const Yaml &cfg){
+    auto ptr = std::make_shared<LoosePart>(m_vehicleEq);
 
     return ptr;
 }

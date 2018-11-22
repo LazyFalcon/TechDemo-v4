@@ -1,17 +1,17 @@
 #pragma once
 #include "DecalsAndMarkers.hpp"
 #include "VehicleEquipment.hpp"
-#include "Joint.hpp"
 #include "Utils.hpp"
 
 enum class ModuleType {
-    Engine, Base, Turret, Mantlet, Camera, Cannon, Launcher, Other, Addon, Armor, Suspension, Motor, Track, Radar, Part
+    Engine, Base, Turret, Mantlet, Camera, Cannon, Launcher, Other, Addon, Armor, Suspension, Motor, Track, Radar, Part, LoosePart
 };
 enum class CameraFilters {
     Clear, InfraRed, Broken, Normal, BlackWhite, NightWision
 };
 
 class IModule;
+class Joint;
 class LightSource;
 class VehicleEquipment;
 
@@ -91,7 +91,7 @@ class IModule
 public:
     ModuleType type;
     std::string name;
-    Joint joint;
+    std::shared_ptr<Joint> joint;
 
     IModule *parent {nullptr};
     VehicleEquipment &eq;
@@ -99,7 +99,7 @@ public:
     std::unique_ptr<ModuleVisualUpdater> moduleVisualUpdater;
     std::unique_ptr<ModuleCompoundUpdater> moduleCompoundUpdater;
 
-    glm::mat4 worldTransform;
+    glm::mat4 worldTransform; // ?  maybe remove this and use transform stored in bones?
 
     std::vector<Decal> decals;
     std::vector<Marker> markers;
@@ -148,7 +148,7 @@ public:
 
     virtual void update(float dt) = 0;
     virtual void init(){}
-    virtual ~IModule(){}
+    virtual ~IModule() = default;
 };
 
 template<typename CC, typename = std::enable_if_t<std::is_base_of<CameraController, CC>::value>>

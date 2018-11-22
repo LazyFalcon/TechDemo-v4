@@ -23,8 +23,8 @@
 
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window):
     m_input(inputDispatcher.createNew("Playground")),
-    m_physical(std::make_unique<PhysicalWorld>()),
-    m_scene(std::make_unique<Scene>(*m_physical)),
+    m_physics(std::make_unique<PhysicalWorld>()),
+    m_scene(std::make_unique<Scene>(*m_physics)),
     m_window(window),
     m_mouseSampler(std::make_unique<GBufferSampler>())
     {
@@ -116,6 +116,8 @@ void Playground::update(float dt){
     m_player->graphics.toBeRendered();
 }
 void Playground::updateWithHighPrecision(float dt){
+    m_physics->update(dt/1000.f);
+
     auto& currentCamera = CameraController::getActiveCamera();
     if(m_useFreecam and m_defaultCamera->hasFocus()){ // * I hope player doesn't have control over it's cameras
         m_defaultCamera->focus();
@@ -175,6 +177,6 @@ void Playground::loadScene(const std::string& configName){
 void Playground::spawnPlayer(const std::string& configName, glm::vec4 position){
     m_player = std::make_shared<Player>(m_input->getDispatcher());
 
-    VehicleAssembler builder(configName, *m_player, *m_physical, m_window.camFactory);
-    builder.build();
+    VehicleAssembler builder(configName, *m_player, *m_physics, m_window.camFactory);
+    builder.build(position);
 }

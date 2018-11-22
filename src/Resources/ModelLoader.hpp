@@ -42,7 +42,7 @@ namespace vertexCopy{
     void texcoords(aiMesh& mesh, std::vector<T>& target, int startPosition){
         u32 count = mesh.mNumVertices;
         if(not mesh.HasTextureCoords(0)){
-            error(mesh.mName.C_Str(), " UV data not definied");
+            // error(mesh.mName.C_Str(), " UV data not definied");
 
             for(u32 to=startPosition; to < startPosition+count; to++){
                 target[to].uv = {0,0,0};

@@ -1,5 +1,6 @@
 #pragma once
 #include "IModule.hpp"
+#include "Joint.hpp"
 
 class Base : public IModule
 {
@@ -8,12 +9,22 @@ public:
     void update(float dt) override;
 };
 
-
 class Addon : public IModule
 {
 public:
     Addon(VehicleEquipment &eq) : IModule(eq, ModuleType::Addon){}
-    void update(float dt) override {}
+    void update(float dt) override {
+        this->transform(joint->getTransform());
+    }
+};
+
+class LoosePart : public IModule
+{
+public:
+    LoosePart(VehicleEquipment &eq) : IModule(eq, ModuleType::LoosePart){}
+    void update(float dt) override {
+        this->transform(joint->getTransform());
+    }
 };
 
 class Armor : public IModule

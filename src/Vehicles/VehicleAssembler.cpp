@@ -3,6 +3,7 @@
 #include "Assets.hpp"
 #include "CameraControllerFactory.hpp"
 #include "IModule.hpp"
+#include "Joint.hpp"
 #include "ModelLoader.hpp"
 #include "PhysicalWorld.hpp"
 #include "Player.hpp"
@@ -14,7 +15,8 @@ VehicleAssembler::VehicleAssembler(const std::string& configName, Player& player
     m_configName(configName),
     m_modelLoader(std::make_shared<ModelLoader<VertexWithMaterialDataAndBones>>()),
     m_physics(physics),
-    m_moduleFactory(player.eq(), m_physics, {}),
+    m_vehicleEq(std::make_shared<VehicleEquipment>()),
+    m_moduleFactory(*m_vehicleEq, m_physics, {}),
     m_player(player),
     m_camFactory(camFactory)
     {}
@@ -32,18 +34,14 @@ void VehicleAssembler::openModelFile(){
 }
 
 // * builds common part of model, every specific should be done by inheritances
-void VehicleAssembler::build(){
+void VehicleAssembler::build(glm::vec4 onPosition){
     openModelFile();
 
     m_skinnedMesh = std::make_shared<SkinnedMesh>();
-    m_vehicleEq = std::make_shared<VehicleEquipment>();
     m_vehicleEq->compound = new btCompoundShape();
     m_skinnedMesh->mesh = m_modelLoader->beginMesh();
 
-    Joint dummyJoint;
-    makeModulesRecursively(m_config["Model"], dummyJoint, nullptr);
-    // * collision models are not needed now
-    // //buildRigidBody();
+    makeModulesRecursively(m_config["Model"], {}, nullptr);
 
     // * put model to GPU
     m_modelLoader->endMesh(m_skinnedMesh->mesh);
@@ -56,10 +54,25 @@ void VehicleAssembler::build(){
     }
 
     m_player.setEq(m_vehicleEq);
+    buildRigidBody(onPosition);
     // m_vehicleEq->cameras[0]->focus();
 }
 
-void VehicleAssembler::makeModulesRecursively(const Yaml& cfg, Joint& connectorJoint, IModule *parentModule){
+void VehicleAssembler::buildRigidBody(glm::vec4 onPosition){
+    btTransform tr;
+    tr.setIdentity();
+    tr.setOrigin(convert(onPosition));
+
+    // float mass = descriptionForModules["mass"].number();
+    float mass = 20;
+    m_vehicleEq->rgBody = m_physics.createRigidBody(mass, tr, m_vehicleEq->compound, 2);
+    // vehicleEquipment.rgBody->setUserPointer((void *)(&vehicleEquipment));
+
+    m_vehicleEq->rgBody->setDamping(0.6f, 0.6f);
+    m_vehicleEq->rgBody->setActivationState(DISABLE_DEACTIVATION);
+}
+
+void VehicleAssembler::makeModulesRecursively(const Yaml& cfg, const Yaml& connectionProps, IModule *parentModule){
     if(not cfg["Active"].boolean()) return;
 
     std::string identifier = cfg["Identifier"].string();
@@ -74,24 +87,22 @@ void VehicleAssembler::makeModulesRecursively(const Yaml& cfg, Joint& connectorJ
     }
     module->parent = parentModule;
     module->name = modelName;
+    module->joint = parentModule==nullptr ? std::make_shared<Joint>() : createJoint(connectionProps, cfg["FromParentToOrigin"].vec30());
     m_vehicleEq->modules.push_back(module);
+
+
+
 
     setDecals(*module, cfg);
     setMarkers(*module, cfg);
     setVisual(*module, cfg);
-    setConnection(*module, cfg, connectorJoint);
+    setConnection(*module, cfg);
     setPhysical(*module, cfg);
     // setArmor(*module, cfg);
 
     if(cfg.has("Connector")) for(auto& connector : cfg["Connector"]){
-        auto x = connector["X"].vec30();
-        auto y = connector["Y"].vec30();
-        auto z = connector["Z"].vec30();
-        auto w = connector["W"].vec31();
-        Joint childConnectorJoint(glm::mat4(x, y, z, w));
-
         if(connector.has("Pinned")) for(auto& pinned : connector["Pinned"]){
-            makeModulesRecursively(pinned, childConnectorJoint, module.get());
+            makeModulesRecursively(pinned, connector, module.get());
         }
     }
     return;
@@ -161,16 +172,8 @@ void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
 // * creates connection between parent and child module, usually this connection is updated by child
 // * can have different number of dof
 // * lack of limits means that connection is rigid
-void VehicleAssembler::setConnection(IModule& module, const Yaml& cfg, Joint& connectorJoint){
-    module.joint = connectorJoint;
-    module.joint.toBOrigin = cfg["FromParentToOrigin"].vec30();
-    if(cfg.has("Limits")){
-        module.joint.compileLimits(cfg["Limits"].floats(), cfg["Min"].floats(), cfg["Max"].floats());
-    }
-    else
-        module.joint.setRigidConnection();
-
-    glm::mat4 tr = module.joint.loc();
+void VehicleAssembler::setConnection(IModule& module, const Yaml& cfg){
+    glm::mat4 tr = module.joint->getTransform();
     module.transform(tr);
 }
 
@@ -178,10 +181,10 @@ void VehicleAssembler::setConnection(IModule& module, const Yaml& cfg, Joint& co
 void VehicleAssembler::setPhysical(IModule& module, const Yaml& cfg){
     if(not cfg.has("Physical")) return;
 
-    auto tr = module.getParentTransform() * module.joint.loc();
+    auto tr = module.getParentTransform() * module.joint->getTransform();
 
     // glm::vec4 cnvPos = glm::vec4(module.joint.toPivot + module.joint.toOrigin);
-    auto localTransformation = module.joint.loc();
+    auto localTransformation = module.joint->getTransform();
 
     if(cfg["Physical"].has("CollisionModels") and cfg["Physical"]["CollisionModels"] != "none"){
         auto meshes = m_modelLoader->loadConvexMeshes(cfg["Physical"]["CollisionModels"].strings());

@@ -1,5 +1,6 @@
 #pragma once
 #include "IModule.hpp"
+#include "Joint.hpp"
 
 /*
 * dummy module responsible mainly for handling default module behaviors
@@ -13,7 +14,6 @@ public:
 };
 
 class Weapon;
-using TurretKinematicLink = std::array<Joint, 2>;
 
 /*
 * class that handles turrets: kinematic module with many guns, handles whole logic internally
@@ -24,7 +24,6 @@ class Turret : public IModule
 {
 private:
     std::vector<std::shared_ptr<Weapon>> m_installedWeapons;
-    TurretKinematicLink m_kinematicLinks;
 public:
     Turret(VehicleEquipment &eq) : IModule(eq, ModuleType::Turret){}
     void update(float dt) override;
@@ -38,9 +37,6 @@ public:
 class MultiHeadTurret : public IModule
 {
 private:
-    TurretKinematicLink m_linkA;
-    TurretKinematicLink m_linkB;
-    Joint base;
 public:
     MultiHeadTurret(VehicleEquipment &eq) : IModule(eq, ModuleType::Turret){}
     void update(float dt) override {}

@@ -16,7 +16,7 @@ class Playground : public GameState
 private:
     std::shared_ptr<Input> m_input;
     std::shared_ptr<Player> m_player;
-    std::unique_ptr<PhysicalWorld> m_physical;
+    std::unique_ptr<PhysicalWorld> m_physics;
     std::unique_ptr<Scene> m_scene;
     Window& m_window;
     glm::vec2 m_mousePos;

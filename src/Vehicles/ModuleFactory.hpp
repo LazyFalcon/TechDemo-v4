@@ -27,6 +27,7 @@ public:
     std::shared_ptr<IModule> createArmor(const Yaml &cfg);
     std::shared_ptr<IModule> createPowerShield(const Yaml &cfg);
     std::shared_ptr<IModule> createHeadlight(const Yaml &cfg);
+    std::shared_ptr<IModule> createLoosePart(const Yaml &cfg);
 
     btRigidBody *vehicle;
 };

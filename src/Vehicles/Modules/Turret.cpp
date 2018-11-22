@@ -2,9 +2,9 @@
 #include "Turret.hpp"
 
 void TurretPart::update(float dt){
-    this->transform(joint.loc());
+    this->transform(joint->getTransform());
 }
 
 void Turret::update(float dt){
-    this->transform(joint.loc());
+    this->transform(joint->getTransform());
 }

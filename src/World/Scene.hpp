@@ -14,6 +14,12 @@ class Sun;
 class Terrain;
 struct Yaml;
 
+struct SpawnPoint
+{
+    std::string name;
+    glm::mat4 transform;
+};
+
 struct Scene : private boost::noncopyable
 {
     Scene(PhysicalWorld &physics);
@@ -31,9 +37,11 @@ struct Scene : private boost::noncopyable
     std::unique_ptr<Starfield> starfield;
     std::unique_ptr<Sun> sun;
     std::unique_ptr<Terrain> terrain;
+    std::vector<SpawnPoint> spawnPoints;
 
     bool load(const std::string &name);
     void update(float dt, Camera &camera);
+    void extractSpawnPoints(const Yaml& yaml);
 
     struct {
         struct {

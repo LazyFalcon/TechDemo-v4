@@ -37,6 +37,6 @@ public:
     void updateWithHighPrecision(float dt);
     void renderProcedure(GraphicEngine&);
 
-    void loadScene(const std::string&);
-    void spawnPlayer(const std::string&, glm::vec4);
+    Scene& loadScene(const std::string&);
+    void spawnPlayer(const std::string&, const glm::mat4&);
 };

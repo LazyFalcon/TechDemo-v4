@@ -35,6 +35,7 @@ public:
         glm::mat4 transform;
         btRigidBody *rgBody {nullptr};
         btCollisionShape  *shape {nullptr};
+        float mass {0};
     } physics {};
 
     int id {0};
@@ -56,7 +57,7 @@ class Environment
 public:
     Environment(SceneGraph &graph, PhysicalWorld &physics) : graph(graph), physics(physics) {}
 
-    void load(const std::string &dirPath);
+    void load(const std::string &dirPath, const Yaml& yaml);
 
     std::vector<LightSource> m_lights;
     std::vector<EnviroEntity> m_entities;
@@ -84,5 +85,5 @@ private:
 
     void loadVisualPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml);
     bool loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml);
-    void createSimpleCollider(EnviroEntity &entity);
+    void createSimpleCollider(EnviroEntity &entity, float mass);
 };

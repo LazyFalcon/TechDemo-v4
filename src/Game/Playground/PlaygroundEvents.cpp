@@ -4,6 +4,7 @@
 #include "LobbyEvents.hpp"
 #include "Logging.hpp"
 #include "PlaygroundEvents.hpp"
+#include "Scene.hpp"
 #include "Window.hpp"
 
 bool StartPlayground::handle(App &app){
@@ -11,10 +12,14 @@ bool StartPlayground::handle(App &app){
 
     auto playground = std::make_shared<Playground>(*app.imgui, *app.inputDispatcher, *app.window);
 
-    playground->loadScene(sceneName);
+    auto& scene = playground->loadScene(sceneName);
     // pathifinderProcessAndSaveDepthMap(scene, context);
     // TODO: extract starting point
-    playground->spawnPlayer("Drone", {58,44,100,1});
+    try {
+        playground->spawnPlayer("Drone", scene.spawnPoints.at(0).transform);
+    } catch(std::out_of_range except){
+        error("Noob! Scene have to has SpawnPoints defined!");
+    }
 
     app.window->show();
     app.showMouse();

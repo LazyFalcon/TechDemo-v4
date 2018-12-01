@@ -35,7 +35,7 @@ void VehicleAssembler::openModelFile(){
 }
 
 // * builds common part of model, every specific should be done by inheritances
-void VehicleAssembler::build(glm::vec4 onPosition){
+void VehicleAssembler::build(const glm::mat4& onPosition){
     openModelFile();
 
     m_skinnedMesh = std::make_shared<SkinnedMesh>();
@@ -50,7 +50,7 @@ void VehicleAssembler::build(glm::vec4 onPosition){
     m_vehicleEq->compound->recalculateLocalAabb();
     m_player.graphics.entitiesToDraw.push_back(std::move(m_skinnedMesh));
 
-    m_vehicleEq->driveSystem = std::make_shared<DummyDriveSystem>(*m_vehicleEq, convert(onPosition));
+    m_vehicleEq->driveSystem = std::make_shared<DummyDriveSystem>(*m_vehicleEq, convert(onPosition[3]));
     m_vehicleEq->modulesToUpdateInsidePhysicsStep.push_back(m_vehicleEq->driveSystem);
     m_physics.m_dynamicsWorld->addAction(m_vehicleEq.get());
 
@@ -63,17 +63,17 @@ void VehicleAssembler::build(glm::vec4 onPosition){
     // m_vehicleEq->cameras[0]->focus();
 }
 
-void VehicleAssembler::buildRigidBody(glm::vec4 onPosition){
-    btTransform tr;
-    tr.setIdentity();
-    tr.setOrigin(convert(onPosition));
+void VehicleAssembler::buildRigidBody(const glm::mat4& onPosition){
+    btTransform tr(convert(onPosition));
+    // tr.setIdentity();
+    // tr.setOrigin(convert(onPosition[3]));
 
     // float mass = descriptionForModules["mass"].number();
     float mass = 20;
-    m_vehicleEq->rgBody = m_physics.createRigidBody(mass, tr, m_vehicleEq->compound, 2);
+    m_vehicleEq->rgBody = m_physics.createRigidBody(mass, tr, m_vehicleEq->compound);
     // vehicleEquipment.rgBody->setUserPointer((void *)(&vehicleEquipment));
 
-    m_vehicleEq->rgBody->setDamping(0.6f, 0.6f);
+    m_vehicleEq->rgBody->setDamping(0.2f, 0.2f);
     m_vehicleEq->rgBody->setActivationState(DISABLE_DEACTIVATION);
 }
 

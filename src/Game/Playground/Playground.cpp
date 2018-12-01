@@ -168,13 +168,13 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.context->endFrame();
 }
 
-void Playground::loadScene(const std::string& configName){
+Scene& Playground::loadScene(const std::string& configName){
     m_scene->load(configName);
-    m_player = std::make_shared<Player>(m_input->getDispatcher());
+    return *m_scene;
 }
-void Playground::spawnPlayer(const std::string& configName, glm::vec4 position){
+void Playground::spawnPlayer(const std::string& configName, const glm::mat4& spawnPoint){
     m_player = std::make_shared<Player>(m_input->getDispatcher());
 
     VehicleAssembler builder(configName, *m_player, *m_physics, m_window.camFactory);
-    builder.build(position);
+    builder.build(spawnPoint);
 }

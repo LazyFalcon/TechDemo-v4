@@ -17,6 +17,6 @@ void DummyDriveSystem::updateInsidePhysicsStep(float dt){
     auto positionError = tr.getOrigin() - m_position;
     auto rotationError = tr.getBasis()[m_leadingAxis].cross(m_lookDirection) + tr.getBasis()[2].cross(btVector3(0,0,1));
 
-    eq.rgBody->applyCentralForce(positionError);
-    eq.rgBody->applyTorque(rotationError * 0.3f);
+    eq.rgBody->applyCentralForce(positionError - currentForce*0.7);
+    eq.rgBody->applyTorque(rotationError * 0.3f + btVector3(10, 12, 0));
 }

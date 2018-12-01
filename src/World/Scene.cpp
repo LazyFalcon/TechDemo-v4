@@ -38,8 +38,12 @@ bool Scene::load(const std::string &sceneName){
     graph = std::make_unique<SceneGraph>(physics);
     graph->initAndLoadMap(settings["Scene"]);
 
+    Yaml sceneYaml(resPath + "scenes/" + sceneName + "/" + sceneName + ".yml");
+
     environment = std::make_unique<Environment>(*graph, physics);
-    environment->load(sceneName);
+    environment->load(sceneName, sceneYaml);
+
+    extractSpawnPoints(sceneYaml);
     // terrain = std::make_unique<Terrain>(*quadTree);
     // terrain->create(cfg["Map"]);
     // terrain->uploadTexture();
@@ -73,4 +77,13 @@ void Scene::update(float dt, Camera &camera){
     // if(foliage) foliage->update(camera.position());
     if(sun) sun->update(*atmosphere);
     // if(atmosphere) atmosphere->update(sun->getVector());
+}
+
+void Scene::extractSpawnPoints(const Yaml& yaml){
+    if(yaml.has("Markers")) for(auto & it : yaml["Markers"]){
+        if(it["Type"] == "SpawnPoint"){
+            auto& p = it["Position"];
+            spawnPoints.push_back({it["Name"].string(), glm::mat4(p["X"].vec30(), p["Y"].vec30(), p["Z"].vec30(), p["W"].vec31())});
+        }
+    }
 }

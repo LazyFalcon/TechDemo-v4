@@ -3,7 +3,7 @@
 #include "ImageLoader.hpp"
 #include "Logging.hpp"
 #include <FreeImage.h>
-#include <FreeImagePlus.h>
+// #include <FreeImagePlus.h>
 #include "PerfTimers.hpp"
 
 namespace ImageUtils

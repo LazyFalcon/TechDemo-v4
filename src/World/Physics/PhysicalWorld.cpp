@@ -53,7 +53,7 @@ PhysicalWorld::PhysicalWorld(){
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
     m_solver = new btSequentialImpulseConstraintSolver();
     m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
-    m_dynamicsWorld->setGravity(btVector3(0,0,-10));
+    m_dynamicsWorld->setGravity(btVector3(0,0,-50));
     // m_dynamicsWorld->setGravity(btVector3(0,0,-50));
     // btContactSolverInfo& info = dynamicsWorld->getSolverInfo();
     // info.m_solverMode |= SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS;
@@ -89,7 +89,7 @@ btRigidBody* PhysicalWorld::createRigidBodyWithMasks(float mass, const btTransfo
     cInfo.m_angularDamping = 0.3;
 
     btRigidBody* body = new btRigidBody(cInfo);
-    body->setActivationState(DISABLE_DEACTIVATION);
+    // if(mass > 0.f) body->setActivationState(DISABLE_DEACTIVATION);
     // TODO: add user counter to body object or make sure that it will be assigned only once
     m_dynamicsWorld->addRigidBody(body, group, collideWith);
     body->setUserPointer(nullptr);
@@ -111,7 +111,7 @@ void PhysicalWorld::update(float step){
     CPU_SCOPE_TIMER("Update world physics");
     m_dynamicsWorld->stepSimulation(step, 10, 1.0/60.0/4.0);
 
-    // return;
+    return;
     int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
     for(u32 i=0; i<numManifolds; i++){
         btPersistentManifold* contactManifold = m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);

@@ -246,8 +246,8 @@ void App::render(){
 }
 void App::finish(){
     log("--finishing");
+    gameState.reset();
     graphicEngine.reset();
-    // game.reset();
     window.reset();
 }
 

@@ -2,6 +2,7 @@
 
 #include "Assets.hpp"
 #include "CameraControllerFactory.hpp"
+#include "DummyDriveSystem.hpp"
 #include "IModule.hpp"
 #include "Joint.hpp"
 #include "ModelLoader.hpp"
@@ -15,7 +16,7 @@ VehicleAssembler::VehicleAssembler(const std::string& configName, Player& player
     m_configName(configName),
     m_modelLoader(std::make_shared<ModelLoader<VertexWithMaterialDataAndBones>>()),
     m_physics(physics),
-    m_vehicleEq(std::make_shared<VehicleEquipment>()),
+    m_vehicleEq(std::make_shared<VehicleEquipment>(physics)),
     m_moduleFactory(*m_vehicleEq, m_physics, {}),
     m_player(player),
     m_camFactory(camFactory)
@@ -48,6 +49,10 @@ void VehicleAssembler::build(glm::vec4 onPosition){
     m_skinnedMesh->vao = m_modelLoader->build();
     m_vehicleEq->compound->recalculateLocalAabb();
     m_player.graphics.entitiesToDraw.push_back(std::move(m_skinnedMesh));
+
+    m_vehicleEq->driveSystem = std::make_shared<DummyDriveSystem>(*m_vehicleEq, convert(onPosition));
+    m_vehicleEq->modulesToUpdateInsidePhysicsStep.push_back(m_vehicleEq->driveSystem);
+    m_physics.m_dynamicsWorld->addAction(m_vehicleEq.get());
 
     for(auto& it : m_vehicleEq->modules){
         it->init();
@@ -89,9 +94,6 @@ void VehicleAssembler::makeModulesRecursively(const Yaml& cfg, const Yaml& conne
     module->name = modelName;
     module->joint = parentModule==nullptr ? std::make_shared<Joint>() : createJoint(connectionProps, cfg["FromParentToOrigin"].vec30());
     m_vehicleEq->modules.push_back(module);
-
-
-
 
     setDecals(*module, cfg);
     setMarkers(*module, cfg);
@@ -195,7 +197,7 @@ void VehicleAssembler::setPhysical(IModule& module, const Yaml& cfg){
     else {
         // TODO: create dummy collision model
 
-        addToCompound(new btBoxShape(btVector3(1,1,1)), localTransformation, (void*)(&module));
+        addToCompound(new btBoxShape(btVector3(2,2,2)), localTransformation, (void*)(&module));
         module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_vehicleEq->compound, m_compoundIndex++);
     }
 }

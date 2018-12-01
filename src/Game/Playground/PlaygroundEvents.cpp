@@ -12,8 +12,9 @@ bool StartPlayground::handle(App &app){
     auto playground = std::make_shared<Playground>(*app.imgui, *app.inputDispatcher, *app.window);
 
     playground->loadScene(sceneName);
+    // pathifinderProcessAndSaveDepthMap(scene, context);
     // TODO: extract starting point
-    playground->spawnPlayer("Drone", {0,0,0,1});
+    playground->spawnPlayer("Drone", {58,44,100,1});
 
     app.window->show();
     app.showMouse();

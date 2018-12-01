@@ -1,5 +1,6 @@
 #pragma once
 #include "CameraController.hpp"
+#include "BulletDynamics\Dynamics\btActionInterface.h"
 /**
     Stores informations about vehicle(universal for each type, vehicle is build from modules), can be used in HUD
     Where goes hitpoints, or vehicle vitality
@@ -7,24 +8,29 @@
 class Actor;
 class DriveSystem;
 class IModule;
+class PhysicalWorld;
 class PowerShield;
 class Radar;
 class SKO;
 class Suspension;
 
-class VehicleEquipment
+class VehicleEquipment : public btActionInterface
 {
 public:
+    VehicleEquipment(PhysicalWorld& physics) : physics(physics){}
     void init();
     void updateModules(float dt);
     void updateMarkers();
+    void debugDraw(btIDebugDraw *debugDrawer) override {}
+    void updateAction(btCollisionWorld *collisionWorld, btScalar dt) override ;
+
+    PhysicalWorld& physics;
 
     btRigidBody *rgBody {nullptr};
     btCompoundShape *compound {nullptr};
     Actor *actor {nullptr};
 
     float vitality; /// kind of hitpoints, derived from vitality of modules
-
     btTransform rotation;
     btVector3 forward;
     btVector3 right;
@@ -44,6 +50,7 @@ public:
     glm::mat4 glTrans;
     // std::vector<btTransform> transforms;
     std::vector<std::shared_ptr<IModule>> modules; /// hierarchical for updateMarkers
+    std::vector<std::shared_ptr<IModule>> modulesToUpdateInsidePhysicsStep;
     std::vector<std::shared_ptr<CameraController>> cameras;
     std::shared_ptr<PowerShield> powerShield;
     std::shared_ptr<DriveSystem> driveSystem; /// instead of while class Vehicle, this unit is responsible for movement, and Actor for knowing which type it is

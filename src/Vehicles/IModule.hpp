@@ -4,7 +4,7 @@
 #include "Utils.hpp"
 
 enum class ModuleType {
-    Engine, Base, Turret, Mantlet, Camera, Cannon, Launcher, Other, Addon, Armor, Suspension, Motor, Track, Radar, Part, LoosePart
+    Engine, Base, Turret, Mantlet, Camera, Cannon, Launcher, Other, Addon, Armor, Suspension, Motor, Track, Radar, Part, LoosePart, DriveSystem
 };
 enum class CameraFilters {
     Clear, InfraRed, Broken, Normal, BlackWhite, NightWision
@@ -114,6 +114,7 @@ public:
             it.update(moduleVisualUpdater->getTransform());
     }
     virtual void updateTargetPoint(glm::vec4){}
+    virtual void updateInsidePhysicsStep(float dt){}
 
     IModule(VehicleEquipment &eq, ModuleType type) : type(type), eq(eq), moduleVisualUpdater(std::make_unique<NullModuleVisualUpdater>()), moduleCompoundUpdater(std::make_unique<NullModuleCompoundUpdater>()){}
 

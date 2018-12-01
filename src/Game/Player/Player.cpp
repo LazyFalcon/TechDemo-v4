@@ -53,7 +53,7 @@ void Player::initInputContext(){
     m_input->action("RMB").name("Fire").hold([this]{ doFire = true; });
     m_input->action("[").on([this]{ nextCamera(); });
     m_input->action("]").on([this]{ prevCamera(); });
-    m_input->action("P").name("Lost focus").on([this]{ focusOff(); });
+    // m_input->action("P").name("Lost focus").on([this]{ focusOff(); });
 
     m_input->activate();
 }
@@ -61,7 +61,7 @@ void Player::initInputContext(){
 void Player::updateGraphic(float dt){
     m_vehicleEq->updateMarkers();
     m_vehicleEq->drawBBOXesOfChildren();
-    // updateCameras(dt);
+    updateCameras(dt);
     graphics.toBeRendered();
 }
 void Player::update(float dt){
@@ -91,11 +91,11 @@ void Player::updateCameras(float dt){
 }
 
 void Player::focusOn(){
-    // m_vehicleEq->cameras[cameraId]->focus();
-    // input->activate();
+    m_vehicleEq->cameras[cameraId]->focus();
+    m_input->activate();
 }
 void Player::focusOff(){
-    // input->deactivate();
+    m_input->deactivate();
 }
 
 void Player::fire(){

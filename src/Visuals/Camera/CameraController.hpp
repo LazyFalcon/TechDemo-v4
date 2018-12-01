@@ -75,7 +75,7 @@ private:
         glm::vec4 storedOffset;
     } rotationAroundPoint;
 
-    enum class Mode {Around, InPlace} mode {Mode::Around};
+    enum class Mode {Around, InPlace} mode {Mode::InPlace};
 
 public:
     FreeCamController(glm::vec2 windowSize);

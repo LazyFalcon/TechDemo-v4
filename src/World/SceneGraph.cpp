@@ -11,7 +11,7 @@
 
 
 void Cell::actionWhenVisible(){
-    clog("cell is visible");
+    // clog("cell is visible");
     for(auto& it : objects){
         it->actionWhenVisible();
     }

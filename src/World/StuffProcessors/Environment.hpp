@@ -63,6 +63,14 @@ public:
 
     void update(float dt);
 
+    std::vector<EnviroEntity*> getObstacles(){
+        std::vector<EnviroEntity*> out;
+        out.reserve(m_entities.size());
+        for(auto&it : m_entities) out.push_back(&it);
+
+        return out;
+    }
+
     EnviroEntity& getObject(u32 id){
         return m_entities[id];
     }
@@ -70,9 +78,6 @@ public:
 private:
     SceneGraph &graph;
     PhysicalWorld &physics;
-
-    // std::map<std::string, Mesh> meshes;
-    // std::map<std::string, btCollisionShape*> collsionShapes;
 
     void loadObject(const Yaml &yaml, ModelLoader<VertexWithMaterialData>& modelLoader);
     void loadLightSource(const Yaml &yaml);

@@ -11,7 +11,11 @@
 #include "Utils.hpp"
 #include "Yaml.hpp"
 
-void EnviroEntity::update(float dt){}
+void EnviroEntity::update(float dt){
+    btTransform tr;
+    physics.rgBody->getMotionState()->getWorldTransform(tr);
+    physics.transform = convert(tr);
+}
 void EnviroEntity::actionWhenVisible(){
     if(lastFrame==frame()) return; // * to be sure that object will be inserted once per frame :)
     lastFrame = frame();
@@ -47,9 +51,9 @@ void Environment::load(const std::string &sceneName){
 void Environment::loadObject(const Yaml &yaml, ModelLoader<VertexWithMaterialData>& modelLoader){
     auto& entity = m_entities.emplace_back(yaml["Name"].string());
 
-    auto x = yaml["Position"]["X"].vec4();
-    auto y = yaml["Position"]["Y"].vec4();
-    auto z = yaml["Position"]["Z"].vec4();
+    auto x = yaml["Position"]["X"].vec30();
+    auto y = yaml["Position"]["Y"].vec30();
+    auto z = yaml["Position"]["Z"].vec30();
     auto w = yaml["Position"]["W"].vec31();
 
     entity.physics.position = w;
@@ -75,7 +79,7 @@ void Environment::loadVisualPart(ModelLoader<VertexWithMaterialData>& modelLoade
 }
 
 void Environment::createSimpleCollider(EnviroEntity &entity){
-    entity.physics.shape = new btBoxShape(convert(entity.physics.dimensions));
+    entity.physics.shape = new btBoxShape(convert(entity.physics.dimensions/2.f));
     btTransform tr = convert(entity.physics.transform);
     entity.physics.rgBody = physics.createRigidBody(0, tr, entity.physics.shape);
 }

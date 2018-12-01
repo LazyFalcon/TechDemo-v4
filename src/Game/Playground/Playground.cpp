@@ -83,17 +83,15 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
                 // TODO: create freecam from current camera
             }
          });
-        m_input->action("P").hold([this]{
-            if(m_input->currentKey.onHoldTime > 700){
-                if(m_useFreecam){
-                    m_player->focusOn();
-                    m_useFreecam = false;
-                }
-                else {
-                    m_useFreecam = true;
-                    m_player->focusOff();
-                    m_defaultCamera->focus();
-                }
+        m_input->action("P").on([this]{
+            if(m_useFreecam){
+                m_player->focusOn();
+                m_useFreecam = false;
+            }
+            else {
+                m_useFreecam = true;
+                m_player->focusOff();
+                m_defaultCamera->focus();
             }
          });
 
@@ -119,7 +117,7 @@ void Playground::updateWithHighPrecision(float dt){
     m_physics->update(dt/1000.f);
 
     auto& currentCamera = CameraController::getActiveCamera();
-    if(m_useFreecam and m_defaultCamera->hasFocus()){ // * I hope player doesn't have control over it's cameras
+    if(m_useFreecam and not m_defaultCamera->hasFocus()){ // * I hope player doesn't have control over it's cameras
         m_defaultCamera->focus();
     }
 

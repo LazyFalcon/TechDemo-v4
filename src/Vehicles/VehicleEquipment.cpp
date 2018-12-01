@@ -28,3 +28,7 @@ void VehicleEquipment::updateMarkers(){
 void VehicleEquipment::setTargetPoint(glm::vec4 target){
     // sko->updateTarget(target);
 }
+
+void VehicleEquipment::updateAction(btCollisionWorld *collisionWorld, btScalar dt){
+    for(auto &it : modulesToUpdateInsidePhysicsStep) it->updateInsidePhysicsStep(dt);
+}

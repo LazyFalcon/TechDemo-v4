@@ -99,3 +99,5 @@ ShadersToReload.yml
 snippets.cpp
 snippet.cpp
 duupa.cpp
+src/AI/Pathfinder/MapProcessing.cpp
+src/AI/Pathfinder/MapProcessing.hpp

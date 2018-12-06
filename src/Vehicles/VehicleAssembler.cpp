@@ -131,10 +131,15 @@ void VehicleAssembler::setDecals(IModule& module, const Yaml& cfg){
 void VehicleAssembler::setMarkers(IModule& module, const Yaml& cfg){
     if(not cfg.has("Markers")) return;
     auto& markers = cfg["Markers"];
-
     for(auto& marker : markers){
+        glm::mat4 mat(
+            marker["X"].vec30(),
+            marker["Y"].vec30(),
+            marker["Z"].vec30(),
+            marker["W"].vec31()
+        );
         if("Camera"s == marker["Type"].string()){
-            auto camera = createModuleFollower(&module, marker["Mode"].string(), marker["W"].vec3());
+            auto camera = createModuleFollower(&module, marker["Mode"].string(), marker["W"].vec3(), mat);
             camera->offset = marker["Offset"].vec31();
             camera->fov = marker["FOV"].number()*toRad;
             camera->inertia = marker["Inertia"].number();
@@ -211,15 +216,15 @@ void VehicleAssembler::addToCompound(btCollisionShape* collShape, const glm::mat
 }
 
 
-std::shared_ptr<CameraController> VehicleAssembler::createModuleFollower(IModule *module, const std::string& type, glm::vec3 position){
+std::shared_ptr<CameraController> VehicleAssembler::createModuleFollower(IModule *module, const std::string& type, glm::vec3 position, const glm::mat4& mat){
     if(type == "CopyPosition"){
-        return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, position);
+        return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, position, mat);
     }
     else if(type == "CopyTransform"){
-        return m_camFactory.create<ModuleFollower<CopyTransform>>(module, position);
+        return m_camFactory.create<ModuleFollower<CopyTransform>>(module, position, mat);
     }
     else if(type == "Free"){
-        return m_camFactory.create<FreeCamController>();
+        return m_camFactory.create<FreeCamController>(mat);
     }
     return nullptr;
 }

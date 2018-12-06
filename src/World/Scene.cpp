@@ -3,6 +3,8 @@
 
 #include "Atmosphere.hpp"
 #include "Camera.hpp"
+#include "CameraController.hpp"
+#include "CameraControllerFactory.hpp"
 #include "Environment.hpp"
 #include "Foliage.hpp"
 #include "GeoTimePosition.hpp"
@@ -19,7 +21,7 @@
 
 namespace graphic {void renderTopViewOfTerrain(Scene &scene);}
 
-Scene::Scene(PhysicalWorld &physics) : physics(physics){}
+Scene::Scene(PhysicalWorld &physics, CameraControllerFactory& camFactory) : physics(physics), camFactory(camFactory){}
 Scene::~Scene(){
     log("~Scene");
 }
@@ -44,6 +46,7 @@ bool Scene::load(const std::string &sceneName){
     environment->load(sceneName, sceneYaml);
 
     extractSpawnPoints(sceneYaml);
+    extractCameras(sceneYaml);
     // terrain = std::make_unique<Terrain>(*quadTree);
     // terrain->create(cfg["Map"]);
     // terrain->uploadTexture();
@@ -85,5 +88,18 @@ void Scene::extractSpawnPoints(const Yaml& yaml){
             auto& p = it["Position"];
             spawnPoints.push_back({it["Name"].string(), glm::mat4(p["X"].vec30(), p["Y"].vec30(), p["Z"].vec30(), p["W"].vec31())});
         }
+    }
+}
+void Scene::extractCameras(const Yaml& yaml){
+    if(yaml.has("Cameras")) for(auto & it : yaml["Cameras"]){
+
+        auto x = it["Position"]["X"].vec30();
+        auto y = it["Position"]["Y"].vec30();
+        auto z = it["Position"]["Z"].vec30();
+        auto w = it["Position"]["W"].vec31();
+        glm::mat4 mat(x,y,z,w);
+
+        freeCams.emplace_back(camFactory.create<FreeCamController>(mat));
+
     }
 }

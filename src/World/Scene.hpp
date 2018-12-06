@@ -4,8 +4,10 @@
 class Atmosphere;
 class Camera;
 class CameraController;
+class CameraControllerFactory;
 class Environment;
 class Foliage;
+class FreeCamController;
 class GeoTimePosition;
 class Grass;
 class PhysicalWorld;
@@ -22,7 +24,7 @@ struct SpawnPoint
 
 struct Scene : private boost::noncopyable
 {
-    Scene(PhysicalWorld &physics);
+    Scene(PhysicalWorld &physics, CameraControllerFactory& camFactory);
     ~Scene();
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
@@ -38,21 +40,13 @@ struct Scene : private boost::noncopyable
     std::unique_ptr<Sun> sun;
     std::unique_ptr<Terrain> terrain;
     std::vector<SpawnPoint> spawnPoints;
+    CameraControllerFactory& camFactory;
+    std::vector<std::shared_ptr<FreeCamController>> freeCams;
 
     bool load(const std::string &name);
     void update(float dt, Camera &camera);
     void extractSpawnPoints(const Yaml& yaml);
-
-    struct {
-        struct {
-            glm::vec4 lookDirection;
-            glm::vec4 position;
-        } player;
-
-        std::vector<std::shared_ptr<CameraController>> cameras;
-
-    } output;
-
+    void extractCameras(const Yaml& yaml);
 
     template<typename T>
     SampleResult sample(T position){

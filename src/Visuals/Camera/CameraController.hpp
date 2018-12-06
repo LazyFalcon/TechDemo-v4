@@ -24,7 +24,7 @@ public:
     static std::list<CameraController*> listOf;
 };
 
-// * 2 DoF in worldspace
+// * 2 DoF in worldspace, intended to follow objects
 class CopyOnlyPosition : public CameraController
 {
 protected:
@@ -32,12 +32,12 @@ protected:
         glm::vec4 rotationCenter;
         glm::vec3 euler;
     } target;
-
+    // TODO: add offset here
     glm::vec4 rotationCenter;
     glm::vec3 euler;
     CameraConstraints constraints;
 public:
-    CopyOnlyPosition(glm::vec2 windowSize);
+    CopyOnlyPosition(const glm::mat4& initialPosition, glm::vec2 windowSize);
     void applyTransform(float);
     void rotateByMouse(float, float, const glm::vec4&);
     void roll(float);
@@ -50,12 +50,12 @@ class CopyTransform : public CopyOnlyPosition
 {
 private:
 public:
-    CopyTransform(glm::vec2 windowSize);
+    CopyTransform(const glm::mat4& initialPosition, glm::vec2 windowSize);
     void applyTransform(const glm::mat4&, float) ;
     void update(const glm::mat4& parentTransform, float dt) override;
 };
 
-// *
+// * Freecam, rotates around point, with offset, zooming is in direction of offset
 class FreeCamController : public CameraController
 {
 private:
@@ -78,7 +78,7 @@ private:
     enum class Mode {Around, InPlace} mode {Mode::InPlace};
 
 public:
-    FreeCamController(glm::vec2 windowSize);
+    FreeCamController(const glm::mat4& initialPosition, glm::vec2 windowSize);
     void update(float dt) override;
     void zoomToMouse(const glm::vec4&);
     void zoomOutMouse(const glm::vec4&);

@@ -32,7 +32,6 @@ protected:
         glm::vec4 rotationCenter;
         glm::vec3 euler;
     } target;
-    // TODO: add offset here
     glm::vec4 rotationCenter;
     glm::vec3 euler;
     CameraConstraints constraints;
@@ -46,6 +45,7 @@ public:
 };
 
 // * 2 DoF in object space
+// class CopyTransformHorizontal : public CopyOnlyPosition
 class CopyTransform : public CopyOnlyPosition
 {
 private:

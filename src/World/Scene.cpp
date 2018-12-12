@@ -102,4 +102,5 @@ void Scene::extractCameras(const Yaml& yaml){
         freeCams.emplace_back(camFactory.create<FreeCamController>(mat));
 
     }
+    freeCams[0]->focus();
 }

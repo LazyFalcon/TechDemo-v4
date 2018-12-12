@@ -127,6 +127,7 @@ void PhysicalWorld::update(float step){
         for(u32 j=0; j<numContacts; j++){
             btManifoldPoint& pt = contactManifold->getContactPoint(j);
             if(pt.getDistance()<0.f){
+                float impulse = pt.m_appliedImpulse; // * impulse of contact force
                 const btVector3& ptA = pt.getPositionWorldOnA();
                 const btVector3& ptB = pt.getPositionWorldOnB();
                 const btVector3& normalOnB = pt.m_normalWorldOnB;

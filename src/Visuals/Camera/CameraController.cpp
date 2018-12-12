@@ -3,6 +3,7 @@
 #include "Constants.hpp"
 #include "Logging.hpp"
 #include "Utils.hpp"
+#include <glm/gtx/orthonormalize.hpp>
 
 CameraController* CameraController::activeCamera {nullptr};
 std::list<CameraController*> CameraController::listOf;
@@ -147,8 +148,11 @@ FreeCamController::FreeCamController(const glm::mat4& initialPosition, glm::vec2
     // * reverse configuration from camera position
     offset = glm::vec4(0,2,15,0);
     inertia = 0.2;
-    m_cam = glm::toQuat(initialPosition); // glm::angleAxis(0.f, glm::normalize(glm::vec3(1,0,-0.2)));
-    m_rotationCenter = m_cam[3] - initialPosition*offset;
+    auto normalized = glm::orthonormalize(glm::mat3(initialPosition));
+    m_cam = glm::toQuat(normalized); // glm::angleAxis(0.f, glm::normalize(glm::vec3(1,0,-0.2)));
+    // m_cam =  glm::angleAxis(0.f, glm::normalize(initialPosition[2].xyz()));
+    // m_rotationCenter = glm::vec4(0,0,0,1); //
+    m_rotationCenter = initialPosition[3] - glm::vec4(normalized*offset.xyz(), 0);
     m_target.rotationCenter = m_rotationCenter;
     m_target.cam = m_cam;
     m_target.impulse = {};

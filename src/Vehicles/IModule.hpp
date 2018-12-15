@@ -10,7 +10,9 @@ enum class CameraFilters {
     Clear, InfraRed, Broken, Normal, BlackWhite, NightWision
 };
 
+class AiControl;
 class IModule;
+class Input;
 class Joint;
 class LightSource;
 class VehicleEquipment;
@@ -146,6 +148,9 @@ public:
     }
 
     void updateCommon(float dt){} // TODO: called outside fixed step loop, once per frame i.e. light updates
+    virtual void provideControlInterfaceForKeyboard(Input& input){}
+    virtual void provideControlInterfaceForXPad(Input& input){}
+    virtual void provideControlInterfaceForAI(AiControl& input){}
 
     virtual void update(float dt) = 0;
     virtual void init(){}

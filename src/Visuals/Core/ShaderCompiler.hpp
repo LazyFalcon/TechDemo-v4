@@ -183,8 +183,11 @@ namespace {
 
     auto compile(std::string& source, int shaderType){
         GLuint out = gl::CreateShader(shaderType);
-
+#ifdef USEOGL33
+        source.insert(0, "#version 330\n");
+#else
         source.insert(0, "#version 460\n");
+#endif
 
         const char *csource = source.c_str();
         // TODO: it is possible to pass array of strings heere

@@ -276,7 +276,13 @@ void SceneRenderer::render_SimpleModelPbr(Camera &camera){
     clog("-> Visible objects:", RenderDataCollector::enviro.size);
 
     // gl::MultiDrawElementsIndirect(gl::TRIANGLES, gl::UNSIGNED_INT, RenderDataCollector::enviro.array.data(), RenderDataCollector::enviro.size, sizeof(DrawElementsIndirectCommand));
+#ifdef USEOGL33
+    for(int i=0; i<RenderDataCollector::enviro.size; i++){
+        gl::DrawElements(gl::TRIANGLES, RenderDataCollector::enviro.count[i], gl::UNSIGNED_INT, RenderDataCollector::enviro.indices[i]);
+    }
+#else
     gl::MultiDrawElements(gl::TRIANGLES, RenderDataCollector::enviro.count.data(), gl::UNSIGNED_INT, RenderDataCollector::enviro.indices.data(), RenderDataCollector::enviro.size);
+#endif
 
     RenderDataCollector::enviro.clear();
 

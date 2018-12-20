@@ -34,13 +34,13 @@ struct DrawElementsIndirectCommand
     uint baseInstance; // * Specifies the base instance for use in fetching instanced vertex attributes. // attribs, like VBO
 };
 
-const int CommandArraySize = 512; // * up to 1024 on some platforms, as it's maximum UBO size in mat4 matrices
+const int CommandArraySize = 5012; // * up to 1024 on some platforms, as it's maximum UBO size in mat4 matrices
 struct CommandArray
 {
     VAO vao;
-    std::array<int, CommandArraySize*10> count;
-    std::array<void*, CommandArraySize*10> indices;
-    std::array<glm::mat4, CommandArraySize*10> transforms;
+    std::array<int, CommandArraySize> count;
+    std::array<void*, CommandArraySize> indices;
+    std::array<glm::mat4, CommandArraySize> transforms;
     int size {};
     void push(int c, void* offset, const glm::mat4& mat){
         count[size] = c;

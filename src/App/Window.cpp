@@ -19,14 +19,8 @@ bool Window::init(){
     }
 
     const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-#ifdef USEOGL33
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    log("Opengl version 3.3 in use!");
-#else
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-#endif
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, gl::FALSE_);
     glfwWindowHint(GLFW_DECORATED, gl::FALSE_);

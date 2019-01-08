@@ -26,9 +26,9 @@ public:
     }
 };
 
-PDReg pdRegForce = PDReg(0.9, 0.0); // * outputs force
-PDReg pdRegPosition = PDReg(0.9, 0.1);  // * outputs impulses
-PDReg pdRegTorque = PDReg(0.7, 0.0);  // * outputs torque
+PDReg pdRegForce = PDReg(0.7, 0.7); // * outputs force
+PDReg pdRegPosition = PDReg(0.7, 0.1);  // * outputs impulses
+PDReg pdRegTorque = PDReg(0.7, 0.7);  // * outputs torque
 PDReg pdRegOrientation = PDReg(0.7, 0.1);  // * outputs impulses
 
 void DummyDriveSystem::update(float dt){

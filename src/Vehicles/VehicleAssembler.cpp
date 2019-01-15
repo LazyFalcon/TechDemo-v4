@@ -12,13 +12,12 @@
 
 #define logFunc() log(__FUNCTION__, ":", __LINE__);
 
-VehicleAssembler::VehicleAssembler(const std::string& configName, Player& player, PhysicalWorld& physics, CameraControllerFactory& camFactory) :
+VehicleAssembler::VehicleAssembler(const std::string& configName, PhysicalWorld& physics, CameraControllerFactory& camFactory) :
     m_configName(configName),
     m_modelLoader(std::make_shared<ModelLoader<VertexWithMaterialDataAndBones>>()),
     m_physics(physics),
     m_vehicleEq(std::make_shared<VehicleEquipment>(physics)),
     m_moduleFactory(*m_vehicleEq, m_physics, {}),
-    m_player(player),
     m_camFactory(camFactory)
     {}
 
@@ -48,7 +47,7 @@ void VehicleAssembler::build(const glm::mat4& onPosition){
     m_modelLoader->endMesh(m_skinnedMesh->mesh);
     m_skinnedMesh->vao = m_modelLoader->build();
     m_vehicleEq->compound->recalculateLocalAabb();
-    m_player.graphics.entitiesToDraw.push_back(std::move(m_skinnedMesh));
+    m_vehicleEq->graphics.entitiesToDraw.push_back(std::move(m_skinnedMesh));
 
     m_vehicleEq->driveSystem = std::make_shared<DummyDriveSystem>(*m_vehicleEq, convert(onPosition[3]));
     m_vehicleEq->modulesToUpdateInsidePhysicsStep.push_back(m_vehicleEq->driveSystem);
@@ -58,9 +57,10 @@ void VehicleAssembler::build(const glm::mat4& onPosition){
         it->init();
     }
 
-    m_player.setEq(m_vehicleEq);
     buildRigidBody(onPosition);
     // m_vehicleEq->cameras[0]->focus();
+
+    return m_vehicleEq;
 }
 
 void VehicleAssembler::buildRigidBody(const glm::mat4& onPosition){

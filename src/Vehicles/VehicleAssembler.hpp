@@ -21,7 +21,6 @@ private:
     PhysicalWorld& m_physics;
     std::shared_ptr<VehicleEquipment> m_vehicleEq;
     ModuleFactory m_moduleFactory;
-    Player& m_player;
     CameraControllerFactory& m_camFactory;
 
     std::shared_ptr<SkinnedMesh> m_skinnedMesh;
@@ -43,8 +42,8 @@ private:
     std::shared_ptr<CameraController> createModuleFollower(IModule *module, const std::string& type, glm::vec3 position, const glm::mat4& mat);
 
 public:
-    VehicleAssembler(const std::string& configName, Player& player, PhysicalWorld& physics, CameraControllerFactory& camFactory);
+    VehicleAssembler(const std::string& configName, PhysicalWorld& physics, CameraControllerFactory& camFactory);
 
-    void build(const glm::mat4& onPosition);
+    std::shared_ptr<VehicleEquipment> build(const glm::mat4& onPosition);
 
 };

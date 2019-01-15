@@ -1,6 +1,7 @@
 #pragma once
 #include "CameraController.hpp"
 #include "BulletDynamics\Dynamics\btActionInterface.h"
+#include "GraphicComponent.hpp"
 /**
     Stores informations about vehicle(universal for each type, vehicle is build from modules), can be used in HUD
     Where goes hitpoints, or vehicle vitality
@@ -25,6 +26,8 @@ public:
     void updateAction(btCollisionWorld *collisionWorld, btScalar dt) override ;
 
     PhysicalWorld& physics;
+
+    GraphicComponent graphics;
 
     btRigidBody *rgBody {nullptr};
     btCompoundShape *compound {nullptr};

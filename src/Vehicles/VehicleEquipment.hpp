@@ -15,6 +15,11 @@ class Radar;
 class SKO;
 class Suspension;
 
+struct VehicleControl
+{
+    std::optional<glm::vec4> targetPoint;
+};
+
 class VehicleEquipment : public btActionInterface
 {
 public:
@@ -26,7 +31,7 @@ public:
     void updateAction(btCollisionWorld *collisionWorld, btScalar dt) override ;
 
     PhysicalWorld& physics;
-
+    VehicleControl control;
     GraphicComponent graphics;
 
     btRigidBody *rgBody {nullptr};
@@ -38,8 +43,11 @@ public:
     btVector3 forward;
     btVector3 right;
     void setTargetPoint(glm::vec4 target);
-    glm::vec3 getPosition(){
-        return (glTrans*glm::vec4(0,0,0,1)).xyz();
+    // glm::vec3 getPosition(){
+    //     return (glTrans[3]).xyz();
+    // }
+    glm::vec4 getPosition(){
+        return glTrans[3];
     }
 
     void lockCannonsInDefaultPosition(){

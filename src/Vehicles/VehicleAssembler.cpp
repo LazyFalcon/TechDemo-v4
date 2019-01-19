@@ -34,7 +34,7 @@ void VehicleAssembler::openModelFile(){
 }
 
 // * builds common part of model, every specific should be done by inheritances
-void VehicleAssembler::build(const glm::mat4& onPosition){
+std::shared_ptr<VehicleEquipment> VehicleAssembler::build(const glm::mat4& onPosition){
     openModelFile();
 
     m_skinnedMesh = std::make_shared<SkinnedMesh>();

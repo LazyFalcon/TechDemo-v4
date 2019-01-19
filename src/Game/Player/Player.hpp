@@ -14,7 +14,8 @@ class InputDispatcher;
 class Player : public Actor
 {
 private:
-    std::shared_ptr<VehicleEquipment> m_vehicleEq;
+    std::shared_ptr<Input> m_input;
+    VehicleEquipment m_vehicle;
     std::unique_ptr<GBufferSampler> mouseSampler;
     std::unique_ptr<GBufferSampler> crosshairSampler;
 
@@ -27,22 +28,21 @@ private:
     float controlXValue {0};
     float controlYValue {0};
 
-    std::shared_ptr<Input> m_input;
 
     // bool processHit(projectiles::Projectile &p);
     bool doFire = false;
     void fire();
     void nextCamera(){
-        cyclicDecr(cameraId, m_vehicleEq->cameras.size());
+        cyclicDecr(cameraId, m_vehicle.cameras.size());
     }
     void prevCamera(){
-        cyclicIncr(cameraId, m_vehicleEq->cameras.size());
+        cyclicIncr(cameraId, m_vehicle.cameras.size());
     }
     Camera& getCamera(){
-        return *(m_vehicleEq->cameras[cameraId]);
+        return *(m_vehicle.cameras[cameraId]);
     }
     CameraController& getCameraController(){
-        return *(m_vehicleEq->cameras[cameraId]);
+        return *(m_vehicle.cameras[cameraId]);
     }
     void updateCameras(float dt);
 
@@ -52,17 +52,15 @@ private:
     void initInputContext();
     void looseFocus();
 public:
-    Player(InputDispatcher&);
+    Player(InputDispatcher&, VehicleEquipment&);
     ~Player();
     void update(float dt);
     void updateGraphic(float dt);
     void focusOn();
     void focusOff();
     VehicleEquipment& eq(){
-        return *m_vehicleEq;
+        return m_vehicle;
     }
-    void setEq(std::shared_ptr<VehicleEquipment>& eq){
-        m_vehicleEq = eq;
-    }
+
 
 };

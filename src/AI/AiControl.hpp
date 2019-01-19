@@ -1,5 +1,6 @@
 #pragma once
 
+class AiCommand;
 class InputDispatcher;
 class Input;
 
@@ -8,11 +9,10 @@ using commandCallback = std::function<void(AiCommand&)>;
 class AiControl
 {
 public:
+    virtual ~AiControl() = default;
     virtual void update() = 0;
     virtual void newCommandCallback(commandCallback&&) = 0;
 };
-
-
 
 class AiControlViaInput : public AiControl
 {

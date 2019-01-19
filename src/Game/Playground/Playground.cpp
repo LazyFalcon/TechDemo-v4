@@ -1,4 +1,5 @@
 #include "core.hpp"
+#include "AI.hpp"
 #include "CameraController.hpp"
 #include "Context.hpp"
 #include "Effects.hpp"
@@ -110,7 +111,9 @@ Playground::~Playground(){
 }
 void Playground::update(float dt){
     m_player->updateGraphic(dt);
-    m_player->graphics.toBeRendered();
+    for(auto & bot : m_bots){
+        bot->updateGraphic(dt);
+    }
 }
 void Playground::updateWithHighPrecision(float dt){
     m_physics->update(dt/1000.f);
@@ -122,6 +125,9 @@ void Playground::updateWithHighPrecision(float dt){
 
 
     m_player->update(dt);
+    for(auto & bot : m_bots){
+        bot->update(dt);
+    }
     m_scene->update(dt, currentCamera);
 
 
@@ -172,8 +178,15 @@ Scene& Playground::loadScene(const std::string& configName){
     return *m_scene;
 }
 void Playground::spawnPlayer(const std::string& configName, const glm::mat4& spawnPoint){
-    m_player = std::make_shared<Player>(m_input->getDispatcher());
+    VehicleAssembler builder(configName, *m_physics, m_window.camFactory);
+    auto& vehicle = m_vehicles.emplace_back(builder.build(spawnPoint));
 
-    VehicleAssembler builder(configName, *m_player, *m_physics, m_window.camFactory);
-    builder.build(spawnPoint);
+    m_player = std::make_shared<Player>(m_input->getDispatcher(), *vehicle);
+}
+void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnPoint){
+
+    VehicleAssembler builder(configName, *m_physics, m_window.camFactory);
+    auto& vehicle = m_vehicles.emplace_back(builder.build(spawnPoint));
+
+    auto& bot = *m_bots.emplace_back(std::make_shared<AI>(m_input->getDispatcher(), *vehicle));
 }

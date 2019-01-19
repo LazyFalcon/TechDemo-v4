@@ -13,7 +13,7 @@ struct AiCommand
     void* payload;
     template<typename T>
     T& get(){
-        return std::reinterpret_cast<T&>(*payload);
+        return *reinterpret_cast<T*>(payload);
     }
 };
 

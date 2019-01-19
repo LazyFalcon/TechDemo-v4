@@ -5,10 +5,11 @@
 #include "Player.hpp"
 
 
-Player::Player(InputDispatcher& inputDispatcher) :
+Player::Player(InputDispatcher& inputDispatcher, VehicleEquipment& vehicle) :
+    m_input(inputDispatcher.createNew("Player")),
+    m_vehicle(vehicle),
     mouseSampler(std::make_unique<GBufferSampler>()),
-    crosshairSampler(std::make_unique<GBufferSampler>()),
-    m_input(inputDispatcher.createNew("Player"))
+    crosshairSampler(std::make_unique<GBufferSampler>())
     {
         mouseSampler->samplePosition = glm::vec2(0,0);
         crosshairSampler->samplePosition = glm::vec2(0.5);
@@ -48,7 +49,7 @@ void Player::initInputContext(){
         }).off([this]{
             controlXValue = 0;
         });
-    // m_input->action("ctrl-x").name("lock guns").on([this]{ m_vehicleEq->lockCannonsInDefaultPosition(); });
+    // m_input->action("ctrl-x").name("lock guns").on([this]{ m_vehicle.lockCannonsInDefaultPosition(); });
     m_input->action("ctrl-c").name("lock guns on point").on([this]{ isLockedOnPoint = !isLockedOnPoint; });
     m_input->action("RMB").name("Fire").hold([this]{ doFire = true; });
     m_input->action("[").on([this]{ nextCamera(); });
@@ -59,39 +60,39 @@ void Player::initInputContext(){
 }
 
 void Player::updateGraphic(float dt){
-    m_vehicleEq->updateMarkers();
-    m_vehicleEq->drawBBOXesOfChildren();
+    m_vehicle.updateMarkers();
+    m_vehicle.drawBBOXesOfChildren();
     updateCameras(dt);
     graphics.toBeRendered();
 }
 void Player::update(float dt){
     // mouseSampler->samplePosition = KeyState::mousePosition;
 
-    // crosshair = m_vehicleEq->cameras[cameraId]->focusPoint;
+    // crosshair = m_vehicle.cameras[cameraId]->focusPoint;
     // if(not isLockedOnPoint) targetPointPosition = convert(crosshairSampler->position);
 
-    // // m_vehicleEq->setTargetPoint(targetPointPosition, 0);
-    // m_vehicleEq->sko->updateTarget(convert(targetPointPosition, 1));
-    m_vehicleEq->updateModules(dt);
-    // m_vehicleEq->driveSystem->update(controlXValue, controlYValue, dt);
-    // m_vehicleEq->compound->recalculateLocalAabb();
+    // // m_vehicle.setTargetPoint(targetPointPosition, 0);
+    // m_vehicle.sko->updateTarget(convert(targetPointPosition, 1));
+    m_vehicle.updateModules(dt);
+    // m_vehicle.driveSystem->update(controlXValue, controlYValue, dt);
+    // m_vehicle.compound->recalculateLocalAabb();
 
-    // for(auto &it : m_vehicleEq->weapons) it.update(dt);
+    // for(auto &it : m_vehicle.weapons) it.update(dt);
 
     // if(doFire) fire();
 }
 
 void Player::lockInDefaultPosition(){
-    // btVector3 target = m_vehicleEq->rgBody->getCenterOfMassPosition();
-    // target += m_vehicleEq->rgBody->getCenterOfMassTransform().getBasis().getColumn(1);
+    // btVector3 target = m_vehicle.rgBody->getCenterOfMassPosition();
+    // target += m_vehicle.rgBody->getCenterOfMassTransform().getBasis().getColumn(1);
 }
 void Player::updateCameras(float dt){
-    for(auto &camera : m_vehicleEq->cameras)
+    for(auto &camera : m_vehicle.cameras)
         camera->update(dt);
 }
 
 void Player::focusOn(){
-    m_vehicleEq->cameras[cameraId]->focus();
+    m_vehicle.cameras[cameraId]->focus();
     m_input->activate();
 }
 void Player::focusOff(){
@@ -99,7 +100,7 @@ void Player::focusOff(){
 }
 
 void Player::fire(){
-    // for(auto &it : m_vehicleEq->weapons){
+    // for(auto &it : m_vehicle.weapons){
     //     if(not it.fire()) clog("Unable to fire");
     // }
     // doFire = false;

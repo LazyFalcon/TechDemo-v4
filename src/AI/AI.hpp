@@ -1,10 +1,11 @@
 #pragma once
 #include "Actor.hpp"
-#include "EventDispatcher.hpp"
-#include "IPathfinder.hpp"
 #include "AiControl.hpp"
-#include "AiProcessor.hpp"
-#include "VehicleController.hpp"
+#include "IPathfinder.hpp"
+
+class AiProcessor;
+class InputDispatcher;
+class VehicleEquipment;
 
 struct AiSharedState
 {

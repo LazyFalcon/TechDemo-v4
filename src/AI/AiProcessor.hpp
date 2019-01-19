@@ -1,6 +1,8 @@
 #pragma once
 #include "core.hpp"
-#include "Pathfinder.hpp"
+#include "AiCommand.hpp"
+#include "IPathfinder.hpp"
+#include "VehicleEquipment.hpp"
 
 class AiProcessor
 {
@@ -26,7 +28,7 @@ public:
     void update(float dt) override { // ? in ms?
         if(m_path.empty()){
             if(m_queue.empty()){
-                m_vehicle.control.targetPoint.reset;
+                m_vehicle.control.targetPoint.reset();
                 return;
             }
             else calculateNewPath();
@@ -37,7 +39,7 @@ public:
         float distanceInNextFrame = waypoint.velocity * dt/1000.f;
         auto p = m_vehicle.getPosition();
         auto v = waypoint.position - p;
-        float d = glm::lenght(v);
+        float d = glm::length(v);
         auto next = p + v/d * distanceInNextFrame;
 
         m_vehicle.control.targetPoint = next;
@@ -52,7 +54,7 @@ private:
 
     void calculateNewPath(){
         if(m_queue.empty()) return;
-        m_path = pathfinder.calculate({m_vehicle.getPosition(), glm::vec4(1,0,0,0), 20.f}, m_queue.front());
+        m_path = m_pathfinder.calculate({m_vehicle.getPosition(), glm::vec4(1,0,0,0), 20.f}, m_queue.front());
         m_waypointID = 0;
     }
 

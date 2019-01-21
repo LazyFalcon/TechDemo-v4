@@ -18,6 +18,7 @@ class Suspension;
 struct VehicleControl
 {
     std::optional<glm::vec4> targetPoint;
+    std::optional<glm::vec4> targetDirection;
 };
 
 class VehicleEquipment : public btActionInterface

@@ -26,8 +26,8 @@ public:
         if(not command.queue) calculateNewPath();
     }
     void update(float dt) override { // ? in ms?
-        if(m_path.empty()){
-            if(m_queue.empty()){
+        if(m_path.empty()){ // * current path finished
+            if(m_queue.empty()){ // * queue of targets empty
                 m_vehicle.control.targetPoint.reset();
                 return;
             }
@@ -37,10 +37,17 @@ public:
         const auto & waypoint = m_path[m_waypointID];
 
         float distanceInNextFrame = waypoint.velocity * dt/1000.f;
-        auto p = m_vehicle.getPosition();
-        auto v = waypoint.position - p;
-        float d = glm::length(v);
-        auto next = p + v/d * distanceInNextFrame;
+        auto position = m_vehicle.getPosition();
+        auto vec = waypoint.position - position;
+        float distance = glm::length(vec);
+
+        auto next = position + vec/distance * distanceInNextFrame;
+
+        if(distanceInNextFrame < distance){
+            next = waypoint.position;
+            if(m_waypointID <= m_path.size()) m_path.clear();
+            else m_waypointID++;
+        }
 
         m_vehicle.control.targetPoint = next;
     }
@@ -49,7 +56,7 @@ private:
     VehicleEquipment& m_vehicle;
     std::list<Waypoint> m_queue;
     std::vector<Waypoint> m_path;
-    int m_waypointID;
+    int m_waypointID {0};
     glm::vec4 m_direction;
 
     void calculateNewPath(){

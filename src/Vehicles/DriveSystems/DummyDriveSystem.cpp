@@ -47,28 +47,33 @@ void DummyDriveSystem::forcePart(float dt, btTransform& tr){
     btVector3 externalForces = eq.rgBody->getTotalForce() - m_previouslyappliedForce;
 
     btVector3 response = -externalForces;
+    m_previouslyappliedForce = response;
     // btVector3 response = pdRegForce.goTo(btVector3(0,0,0), externalForces);
 
     eq.rgBody->applyCentralForce(response);
 
-    auto positionError = m_targetPosition - tr.getOrigin();
-    auto impulse = pdRegPosition.goTo(btVector3(0,0,0), -positionError);
+    if(eq.control.targetPoint){
+        auto positionError = convert(*eq.control.targetPoint) - tr.getOrigin();
+        auto impulse = pdRegPosition.goTo(btVector3(0,0,0), -positionError);
 
-    eq.rgBody->applyCentralImpulse(impulse);
+        eq.rgBody->applyCentralImpulse(impulse);
+    }
 
 }
 void DummyDriveSystem::torquePart(float dt, btTransform& tr){
     btVector3 currentTorque = eq.rgBody->getTotalTorque() - m_previouslyappliedTorque;
 
     btVector3 response = -currentTorque;
+    m_previouslyappliedTorque = response;
     // btVector3 response = pdRegTorque.goTo(btVector3(0,0,0), currentTorque);
 
     eq.rgBody->applyTorque(response);
+    if(eq.control.targetDirection){
+        auto rotationError = tr.getBasis()[m_leadingAxis].cross(m_lookDirection) + tr.getBasis()[2].cross(btVector3(0,0,1));
+        auto impulse = pdRegOrientation.goTo(btVector3(0,1,0), -rotationError)*0.1;
 
-    auto rotationError = tr.getBasis()[m_leadingAxis].cross(m_lookDirection) + tr.getBasis()[2].cross(btVector3(0,0,1));
-    auto impulse = pdRegOrientation.goTo(btVector3(0,0,0), rotationError);
-
-    eq.rgBody->applyTorqueImpulse(impulse);
+        eq.rgBody->applyTorqueImpulse(impulse);
+    }
 }
 
 

@@ -20,5 +20,5 @@ struct AiCommand
 struct MoveCommand
 {
     glm::vec4 position;
-    glm::vec4 direction;
+    std::optional<glm::vec4> direction;
 };

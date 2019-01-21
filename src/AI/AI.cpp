@@ -7,8 +7,8 @@
 #include "NoPathfinder.hpp"
 #include "VehicleEquipment.hpp"
 
-AI::AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle):
-        m_control(std::make_unique<AiControlViaInput>(inputdispatcher)),
+AI::AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle, PointerInfo& pointerInfo):
+        m_control(std::make_unique<AiControlViaInput>(inputdispatcher, pointerInfo)),
         m_vehicle(vehicle),
         m_pathfinder(std::make_unique<NoPathfinder>())
 {

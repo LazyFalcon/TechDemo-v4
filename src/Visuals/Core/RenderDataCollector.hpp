@@ -1,11 +1,14 @@
 #pragma once
 #include "GPUResources.hpp"
 #include "RenderStructs.hpp"
+#include "Details.hpp"
 #include <typeindex>
 #include <typeinfo>
 
 class ArmoredVehicleTracks;
 class Camera;
+class Details;
+class GraphicEngine;
 class LightSource;
 class SkinnedMesh;
 class Window;
@@ -47,6 +50,9 @@ public:
     static void collectCamera(Camera& camera);
     static void collectWindow(Window& window);
     static void collectTime(float lastFrame, u64 sinceStart);
+
+    static GraphicEngine* enginePtr;
+    static Details& details();
 
     template<typename T>
     static std::vector<T>& get(){

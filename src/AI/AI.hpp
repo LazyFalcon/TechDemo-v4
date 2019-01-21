@@ -5,6 +5,7 @@
 
 class AiProcessor;
 class InputDispatcher;
+class PointerInfo;
 class VehicleEquipment;
 
 struct AiSharedState
@@ -15,7 +16,7 @@ struct AiSharedState
 class AI : public Actor
 {
 public:
-    AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle);
+    AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle, PointerInfo& pointerInfo);
 
     void update(float dt) override;
     void updateGraphic(float dt) override;

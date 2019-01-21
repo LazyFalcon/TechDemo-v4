@@ -16,7 +16,7 @@ bool StartPlayground::handle(App &app){
     // pathifinderProcessAndSaveDepthMap(scene, context);
     // TODO: extract starting point
     try {
-        playground->spawnPlayer("Drone", scene.spawnPoints.at(0).transform);
+        playground->spawnBot("Drone", scene.spawnPoints.at(0).transform);
     } catch(std::out_of_range except){
         error("Noob! Scene have to has SpawnPoints defined!");
     }

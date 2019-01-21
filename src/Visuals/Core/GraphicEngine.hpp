@@ -1,6 +1,7 @@
 #pragma once
 
 class Context;
+class Details;
 class Effects;
 class GBufferSamplers;
 class LightRendering;
@@ -25,6 +26,8 @@ public:
     void blurAndStoreRenderedScene();
 
     std::unique_ptr<Context> context;
+
+    std::unique_ptr<Details> details;
     std::unique_ptr<RendererUtils> utils;
     std::unique_ptr<Effects> effects;
     std::unique_ptr<GBufferSamplers> gBufferSamplers;

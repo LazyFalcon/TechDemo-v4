@@ -63,7 +63,7 @@ void Player::updateGraphic(float dt){
     m_vehicle.updateMarkers();
     m_vehicle.drawBBOXesOfChildren();
     updateCameras(dt);
-    graphics.toBeRendered();
+    m_vehicle.graphics.toBeRendered();
 }
 void Player::update(float dt){
     // mouseSampler->samplePosition = KeyState::mousePosition;

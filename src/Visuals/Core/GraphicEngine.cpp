@@ -1,5 +1,6 @@
 #include "core.hpp"
 #include "Context.hpp"
+#include "Details.hpp"
 #include "Effects.hpp"
 #include "GBufferSampler.hpp"
 #include "GraphicEngine.hpp"
@@ -15,6 +16,7 @@
 GraphicEngine::GraphicEngine(Window &window) :
     window(window),
     context(std::make_unique<Context>(window)),
+    details(std::make_unique<Details>(window)),
     utils(std::make_unique<RendererUtils>(window, *context)),
     effects(std::make_unique<Effects>(window, *context, *utils)),
     gBufferSamplers(std::make_unique<GBufferSamplers>(window, *context)),
@@ -25,6 +27,7 @@ GraphicEngine::GraphicEngine(Window &window) :
     vfxEffects(std::make_unique<VfxEffects>(window, *context))
     {
         context->reset();
+        RenderDataCollector::enginePtr = this;
     }
 
 GraphicEngine::~GraphicEngine(){

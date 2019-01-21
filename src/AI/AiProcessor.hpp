@@ -22,7 +22,7 @@ public:
     void newCommand(AiCommand& command) override {
         auto cmd = command.get<MoveCommand>();
         if(not command.queue) m_queue.clear();
-        m_queue.push_back({cmd.position, cmd.direction, 20.f});
+        m_queue.push_back({cmd.position, cmd.direction ? *cmd.direction : glm::vec4(), 20.f});
         if(not command.queue) calculateNewPath();
     }
     void update(float dt) override { // ? in ms?

@@ -83,12 +83,12 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
          });
         m_input->action("P").on([this]{
             if(m_useFreecam){
-                m_player->focusOn();
+                if(m_player) m_player->focusOn();
                 m_useFreecam = false;
             }
             else {
                 m_useFreecam = true;
-                m_player->focusOff();
+                if(m_player) m_player->focusOff();
                 m_scene->freeCams[m_selectedCamera]->focus();
             }
          });
@@ -97,6 +97,7 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
 
         m_input->action("MousePosition").on([this](float x, float y){
             m_mousePos = glm::vec2(x,y);
+            m_pointerInfo.screenPosition = m_mousePos;
             m_mouseSampler->samplePosition = m_mousePos;
         });
         m_input->action("MouseMove").on([this](float x, float y){
@@ -110,7 +111,7 @@ Playground::~Playground(){
     m_input->deactivate();
 }
 void Playground::update(float dt){
-    m_player->updateGraphic(dt);
+    if(m_player) m_player->updateGraphic(dt);
     for(auto & bot : m_bots){
         bot->updateGraphic(dt);
     }
@@ -124,7 +125,7 @@ void Playground::updateWithHighPrecision(float dt){
     }
 
 
-    m_player->update(dt);
+    if(m_player) m_player->update(dt);
     for(auto & bot : m_bots){
         bot->update(dt);
     }
@@ -153,6 +154,8 @@ void Playground::renderProcedure(GraphicEngine& renderer){
 
 
     renderer.gBufferSamplers->sampleGBuffer(CameraController::getActiveCamera());
+
+    m_pointerInfo.worldPosition = m_mouseSampler->position;
 
     renderer.effects->SSAO(CameraController::getActiveCamera());
 
@@ -188,5 +191,5 @@ void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnP
     VehicleAssembler builder(configName, *m_physics, m_window.camFactory);
     auto& vehicle = m_vehicles.emplace_back(builder.build(spawnPoint));
 
-    auto& bot = *m_bots.emplace_back(std::make_shared<AI>(m_input->getDispatcher(), *vehicle));
+    auto& bot = *m_bots.emplace_back(std::make_shared<AI>(m_input->getDispatcher(), *vehicle, m_pointerInfo));
 }

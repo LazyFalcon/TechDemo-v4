@@ -46,7 +46,8 @@ void DummyDriveSystem::updateInsidePhysicsStep(float dt){
 void DummyDriveSystem::forcePart(float dt, btTransform& tr){
     btVector3 externalForces = eq.rgBody->getTotalForce() - m_previouslyappliedForce;
 
-    btVector3 response = pdRegForce.goTo(btVector3(0,0,0), externalForces);
+    btVector3 response = -externalForces;
+    // btVector3 response = pdRegForce.goTo(btVector3(0,0,0), externalForces);
 
     eq.rgBody->applyCentralForce(response);
 
@@ -59,7 +60,8 @@ void DummyDriveSystem::forcePart(float dt, btTransform& tr){
 void DummyDriveSystem::torquePart(float dt, btTransform& tr){
     btVector3 currentTorque = eq.rgBody->getTotalTorque() - m_previouslyappliedTorque;
 
-    btVector3 response = pdRegTorque.goTo(btVector3(0,0,0), currentTorque);
+    btVector3 response = -currentTorque;
+    // btVector3 response = pdRegTorque.goTo(btVector3(0,0,0), currentTorque);
 
     eq.rgBody->applyTorque(response);
 

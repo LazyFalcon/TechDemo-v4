@@ -3,6 +3,7 @@
 #include "AiCommand.hpp"
 #include "IPathfinder.hpp"
 #include "VehicleEquipment.hpp"
+#include "Logging.hpp"
 
 class AiProcessor
 {
@@ -34,12 +35,14 @@ public:
             else calculateNewPath();
         }
 
+
         const auto & waypoint = m_path[m_waypointID];
 
         float distanceInNextFrame = waypoint.velocity * dt/1000.f;
         auto position = m_vehicle.getPosition();
         auto vec = waypoint.position - position;
         float distance = glm::length(vec);
+
 
         auto next = position + vec/distance * distanceInNextFrame;
 

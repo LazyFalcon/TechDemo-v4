@@ -23,8 +23,20 @@ public:
     void newCommand(AiCommand& command) override {
         auto cmd = command.get<MoveCommand>();
         if(not command.queue) m_queue.clear();
-        m_queue.push_back({cmd.position, cmd.direction ? *cmd.direction : glm::vec4(), 20.f});
+        m_queue.push_back({cmd.position, cmd.direction ? *cmd.direction : glm::vec4(), 40.f});
         if(not command.queue) calculateNewPath();
+    }
+    auto selectNextWaypoint(float distanceToGo){
+        float distance;
+        glm::vec4 vec;
+
+        // * select next waypoint until next waypoint is further than distance to go, or it is last point
+        do {
+            vec = m_waypointID->position - m_vehicle.getPosition();
+            distance = glm::length(vec);
+        } while(distance < distanceToGo and m_waypointID++ < m_lastWaypoint);
+
+        return std::make_tuple(vec, distance);
     }
     void update(float dt) override { // ? in ms?
         if(m_path.empty()){ // * current path finished
@@ -45,24 +57,12 @@ public:
         if(distance >= distanceToGo and m_waypointID == m_lastWaypoint){
             next = m_waypointID->position;
             m_path.clear();
-            break;
         }
 
         m_vehicle.control.targetPoint = next;
     }
 
-    auto selectNextWaypoint(float distanceToGo){
-        float distance;
-        glm::vec4 vec;
 
-        // * select next waypoint until next waypoint is further than distance to go, or it is last point
-        do {
-            vec = m_waypointID->position - m_vehicle.getPosition();
-            distance = glm::length(vec);
-        } while(distance < distanceToGo and m_waypointID++ < m_lastWaypoint)
-
-        return std::make_tuple(vec, distance);
-    }
 private:
     IPathfinder& m_pathfinder;
     VehicleEquipment& m_vehicle;
@@ -75,7 +75,7 @@ private:
 
     void calculateNewPath(){
         if(m_queue.empty()) return;
-        m_path = m_pathfinder.calculate({m_vehicle.getPosition(), glm::vec4(1,0,0,0), 20.f}, m_queue.front());
+        m_path = m_pathfinder.calculate({m_vehicle.getPosition(), glm::vec4(1,0,0,0), 40.f}, m_queue.front());
         m_waypointID = m_path.begin();
         m_lastWaypoint = m_path.end()-1;
         m_queue.pop_front();

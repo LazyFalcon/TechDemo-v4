@@ -11,7 +11,7 @@ void Details::drawPositionMarker(glm::vec4 position){
 
     });
 }
-void Details::drawCurve(const std::vector<glm::vec4>& points, uint color = 0xf0f000f0){
+void Details::drawCurve(const std::vector<glm::vec4>& points, uint color){
     m_toExecute.emplace_back([&points, color]{
 
     });

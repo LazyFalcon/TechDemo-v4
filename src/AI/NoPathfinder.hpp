@@ -11,7 +11,7 @@ public:
         glm::vec4 v = (to.position - from.position)/distance;
 
         Waypoints out;
-        for(float i=1; i<n; i++) out.push_back({from.position + v*i, to.direction, to.velocity});
+        for(float i=0; i<n; i++) out.push_back({from.position + v*i, to.direction, to.velocity});
 
         return out;
     }

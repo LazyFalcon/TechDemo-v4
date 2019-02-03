@@ -4,8 +4,10 @@
 #include "IPathfinder.hpp"
 
 class AiProcessor;
+class Context;
 class InputDispatcher;
 class PointerInfo;
+class Scene;
 class VehicleEquipment;
 
 struct AiSharedState
@@ -16,7 +18,7 @@ struct AiSharedState
 class AI : public Actor
 {
 public:
-    AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle, PointerInfo& pointerInfo);
+    AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle, PointerInfo& pointerInfo, Scene& scene, Context& context);
 
     void update(float dt) override;
     void updateGraphic(float dt) override;

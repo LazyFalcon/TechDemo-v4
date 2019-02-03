@@ -1,8 +1,11 @@
 #include "core.hpp"
 #include "App.hpp"
-#include "Playground.hpp"
+#include "Context.hpp"
+#include "Context.hpp"
+#include "GraphicEngine.hpp"
 #include "LobbyEvents.hpp"
 #include "Logging.hpp"
+#include "Playground.hpp"
 #include "PlaygroundEvents.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
@@ -13,10 +16,9 @@ bool StartPlayground::handle(App &app){
     auto playground = std::make_shared<Playground>(*app.imgui, *app.inputDispatcher, *app.window);
 
     auto& scene = playground->loadScene(sceneName);
-    // pathifinderProcessAndSaveDepthMap(scene, context);
-    // TODO: extract starting point
+
     try {
-        playground->spawnBot("Drone", scene.spawnPoints.at(0).transform);
+        playground->spawnBot("Drone", scene.spawnPoints.at(0).transform, *app.graphicEngine->context);
     } catch(std::out_of_range except){
         error("Noob! Scene have to has SpawnPoints defined!");
     }

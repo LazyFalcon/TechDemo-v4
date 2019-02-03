@@ -8,6 +8,7 @@
 class AiProcessor
 {
 public:
+    virtual ~AiProcessor() = default;
     virtual void newCommand(AiCommand& command) = 0;
     virtual void update(float dt) = 0;
 };

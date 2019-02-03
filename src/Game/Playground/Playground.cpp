@@ -186,10 +186,11 @@ void Playground::spawnPlayer(const std::string& configName, const glm::mat4& spa
 
     m_player = std::make_shared<Player>(m_input->getDispatcher(), *vehicle);
 }
-void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnPoint){
+void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnPoint, Context& renderingContext){
 
     VehicleAssembler builder(configName, *m_physics, m_window.camFactory);
     auto& vehicle = m_vehicles.emplace_back(builder.build(spawnPoint));
 
-    auto& bot = *m_bots.emplace_back(std::make_shared<AI>(m_input->getDispatcher(), *vehicle, m_pointerInfo));
+    auto& bot = *m_bots.emplace_back(std::make_shared<AI>(m_input->getDispatcher(), *vehicle, m_pointerInfo, *m_scene, renderingContext));
+    // auto& bot = *m_bots.emplace_back(std::make_shared<AI>(m_input->getDispatcher(), *vehicle, m_pointerInfo));
 }

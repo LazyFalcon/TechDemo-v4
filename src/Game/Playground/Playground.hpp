@@ -3,13 +3,14 @@
 #include "PointerInfo.hpp"
 
 class AI;
+class Context;
 class FreeCamController;
 class GBufferSampler;
 class Imgui;
 class Input;
 class InputDispatcher;
-class Player;
 class PhysicalWorld;
+class Player;
 class Scene;
 class VehicleEquipment;
 class Window;
@@ -46,5 +47,5 @@ public:
 
     Scene& loadScene(const std::string&);
     void spawnPlayer(const std::string&, const glm::mat4&);
-    void spawnBot(const std::string&, const glm::mat4&);
+    void spawnBot(const std::string&, const glm::mat4&, Context&);
 };

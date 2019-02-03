@@ -5,18 +5,25 @@
 #include "AiProcessor.hpp"
 #include "IPathfinder.hpp"
 #include "NoPathfinder.hpp"
+#include "Pathfinder.hpp"
 #include "VehicleEquipment.hpp"
 
-AI::AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle, PointerInfo& pointerInfo):
+
+AI::AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle, PointerInfo& pointerInfo, Scene& scene, Context& context):
         m_control(std::make_unique<AiControlViaInput>(inputdispatcher, pointerInfo)),
         m_vehicle(vehicle),
-        m_pathfinder(std::make_unique<NoPathfinder>())
+        m_pathfinder(std::make_unique<Pathfinder>(scene, context))
 {
+    log(__FILE__, __LINE__);
     m_processors.push_back(std::make_shared<VehicleControlProcessor>(*m_pathfinder, m_vehicle));
 
+    log(__FILE__, __LINE__);
     m_control->newCommandCallback([this](AiCommand& command){
         for(auto& it : m_processors) it->newCommand(command);
     });
+
+    log(__FILE__, __LINE__);
+    m_pathfinder->preprocessMap();
 }
 
 void AI::update(float dt){

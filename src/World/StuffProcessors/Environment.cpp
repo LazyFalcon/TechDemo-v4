@@ -68,6 +68,8 @@ void Environment::loadObject(const Yaml &yaml, ModelLoader<VertexWithMaterialDat
     // * save object id in rigid body
     if(entity.physics.rgBody) entity.physics.rgBody->setUserIndex(entity.indexForBullet());
 
+    entity.update(0.01f);
+
     graph.insertObject(entity.getHandle(), entity.physics.position);
 }
 

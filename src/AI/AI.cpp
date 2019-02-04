@@ -14,15 +14,12 @@ AI::AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle, PointerInfo&
         m_vehicle(vehicle),
         m_pathfinder(std::make_unique<Pathfinder>(scene, context))
 {
-    log(__FILE__, __LINE__);
     m_processors.push_back(std::make_shared<VehicleControlProcessor>(*m_pathfinder, m_vehicle));
 
-    log(__FILE__, __LINE__);
     m_control->newCommandCallback([this](AiCommand& command){
         for(auto& it : m_processors) it->newCommand(command);
     });
 
-    log(__FILE__, __LINE__);
     m_pathfinder->preprocessMap();
 }
 

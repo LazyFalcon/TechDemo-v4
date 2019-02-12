@@ -3,6 +3,8 @@
 #include "AiCommand.hpp"
 #include "IPathfinder.hpp"
 #include "VehicleEquipment.hpp"
+#include "Details.hpp"
+#include "RenderDataCollector.hpp"
 #include "Logging.hpp"
 
 class AiProcessor
@@ -47,6 +49,8 @@ public:
             }
             else calculateNewPath();
         }
+
+        RenderDataCollector.details().drawWaypoints();
 
         float distanceToGo = m_waypointID->velocity * dt/1000.f;
 

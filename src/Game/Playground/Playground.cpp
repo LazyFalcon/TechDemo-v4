@@ -2,6 +2,7 @@
 #include "AI.hpp"
 #include "CameraController.hpp"
 #include "Context.hpp"
+#include "Details.hpp"
 #include "Effects.hpp"
 #include "FrameTime.hpp"
 #include "GBufferSampler.hpp"
@@ -152,6 +153,7 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     // renderer.utils->drawBackground("nebula2");
     renderer.sceneRenderer->renderScene(*m_scene, CameraController::getActiveCamera());
 
+    renderer.details->executeAtEndOfFrame();
 
     renderer.gBufferSamplers->sampleGBuffer(CameraController::getActiveCamera());
 
@@ -165,10 +167,11 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.lightRendering->lightPass(*m_scene, CameraController::getActiveCamera());
     renderer.lightRendering->compose(CameraController::getActiveCamera());
 
+
     renderer.context->setupFramebufferForLDRProcessing();
-    renderer.effects->filmGrain();
     renderer.effects->toneMapping();
     renderer.effects->FXAA();
+    renderer.effects->filmGrain();
 
     renderer.context->tex.gbuffer.color.genMipmaps();
 

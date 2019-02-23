@@ -42,8 +42,8 @@ const float permTexUnitHalf = 0.5/256.0;	// Half perm texture texel-size
 float width = uWindowSize.x;
 float height = uWindowSize.y;
 
-const float grainamount = 0.05; //grain amount 0.05
-bool colored = true; //colored noise? false
+const float grainamount = 0.025; //grain amount 0.05
+bool colored = false; //colored noise? false
 float coloramount = 0.6; // 0.6
 float grainsize = 1.6; //grain particle size (1.5 - 2.5) 1.6
 float lumamount = 1.0; // 1.0

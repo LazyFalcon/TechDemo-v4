@@ -50,7 +50,7 @@ public:
             else calculateNewPath();
         }
 
-        RenderDataCollector.details().drawWaypoints();
+        RenderDataCollector::details().drawWaypoints(m_path, 0xf0f010ff);
 
         float distanceToGo = m_waypointID->velocity * dt/1000.f;
 

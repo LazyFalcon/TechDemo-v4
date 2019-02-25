@@ -15,12 +15,10 @@ class Asd{
 public:
     float value=0;
     int maxDist=0;
-    int posX;
-    int posY;
+    glm::vec2 position;
 
-    float currentValue(int x, int y){
-        float dist = std::sqrt((posX-x)*(posX-x)+(posY-y)*(posY-y));
-        return value/(dist+1);
+    float currentValue(glm::vec2 pos){
+        return value/(glm::distance(position, pos)+1);
     }
 };
 
@@ -33,22 +31,23 @@ private:
     ResultMap resultMap;
     int mapSize = 300;
     std::vector<Asd> semiStaticObjects;
-    std::vector<Asd> trail;//repellent to  prevent stuck
-    // std::vector<float> staticFieldValues;
+    std::vector<Asd> trail;
+    Asd destination;
     PotentialFields staticPotentialFields;
 
 public:
     Pathfinder(Scene& scene, Context& context): m_scene(scene), m_context(context) {
         initializePotentialFields(300, 300, 0);
-        Asd destination;
-        destination.value = 20;
-        destination.maxDist = -1;
-        destination.posX = 250;
-        destination.posY = 250;
-        semiStaticObjects.push_back(destination);
+        destination.value = 0;
+        // Asd destination;
+        // destination.value = 20;
+        // destination.maxDist = -1;
+        // destination.posX = 250;
+        // destination.posY = 250;
+        // semiStaticObjects.push_back(destination);
     }
 
-    void addTrail(int x, int y);
+    void addTrail(glm::vec2 position);
 
     void initializePotentialFields(int height, int width, int value=0);
 
@@ -56,9 +55,14 @@ public:
 
     void preprocessMap();
 
-    float calculateFieldValue(int x, int y);
+    float calculateFieldValue(glm::vec2 position);
+
+    float calculateFieldValue(glm::vec2 position, glm::vec2 lastPosition);
+
 
     Waypoint getNextBestField(Waypoint);
+
+     Waypoint getNextBestField2(Waypoint);
 
     void calculateTerrainFieldValues();
 
@@ -68,6 +72,8 @@ public:
 
     void saveVecAsImageNegative(std::string name="wqwqwqw");
 
-    void generatePotentialFieldFromPoint(int x, int y, int value);
+    void generatePotentialField(glm::vec2 position, int value);
+
+    void test();
 
 };

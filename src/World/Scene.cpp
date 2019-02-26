@@ -104,3 +104,7 @@ void Scene::extractCameras(const Yaml& yaml){
     }
     freeCams[0]->focus();
 }
+
+glm::vec4 Scene::getSceneDimensions(){
+    return graph->getDimensions();
+}

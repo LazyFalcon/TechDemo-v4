@@ -7,10 +7,10 @@
 #include "NoPathfinder.hpp"
 #include "VehicleEquipment.hpp"
 
-AI::AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle, PointerInfo& pointerInfo):
-        m_control(std::make_unique<AiControlViaInput>(inputdispatcher, pointerInfo)),
+AI::AI(std::unique_ptr<AiControl> m_control, std::unique_ptr<IPathfinder> pathfinder, VehicleEquipment& vehicle):
+        m_control(m_control),
         m_vehicle(vehicle),
-        m_pathfinder(std::make_unique<NoPathfinder>())
+        m_pathfinder(pathfinder)
 {
     m_processors.push_back(std::make_shared<VehicleControlProcessor>(*m_pathfinder, m_vehicle));
 

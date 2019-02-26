@@ -1,6 +1,7 @@
 #pragma once
 #include "SceneGraph.hpp"
 
+class AI;
 class Atmosphere;
 class Camera;
 class CameraController;
@@ -43,6 +44,9 @@ struct Scene : private boost::noncopyable
     CameraControllerFactory& camFactory;
     std::vector<std::shared_ptr<FreeCamController>> freeCams;
 
+    std::vector<std::shared_ptr<AI>> m_friendlyBots;
+    std::vector<std::shared_ptr<AI>> m_hostileBots;
+
     bool load(const std::string &name);
     void update(float dt, Camera &camera);
     void extractSpawnPoints(const Yaml& yaml);
@@ -53,4 +57,10 @@ struct Scene : private boost::noncopyable
         if(not graph) return {};
         return graph->sample(position);
     }
+
+    glm::vec4 getSceneDimension();
+    std::vector<std::shared_ptr<AI>>& getHostiles(){
+        return m_hostileBots;
+    }
+
 };

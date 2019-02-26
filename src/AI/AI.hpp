@@ -16,7 +16,7 @@ struct AiSharedState
 class AI : public Actor
 {
 public:
-    AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle, PointerInfo& pointerInfo);
+    AI(std::unique_ptr<AiControl> m_control, std::unique_ptr<IPathfinder> pathfinder, VehicleEquipment& vehicle);
 
     void update(float dt) override;
     void updateGraphic(float dt) override;

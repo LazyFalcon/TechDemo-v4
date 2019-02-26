@@ -112,7 +112,10 @@ Playground::~Playground(){
 }
 void Playground::update(float dt){
     if(m_player) m_player->updateGraphic(dt);
-    for(auto & bot : m_bots){
+    for(auto & bot : m_scene->m_friendlyBots){
+        bot->updateGraphic(dt);
+    }
+    for(auto & bot : m_scene->m_hostileBots){
         bot->updateGraphic(dt);
     }
 }
@@ -126,7 +129,10 @@ void Playground::updateWithHighPrecision(float dt){
 
 
     if(m_player) m_player->update(dt);
-    for(auto & bot : m_bots){
+    for(auto & bot : m_scene->m_friendlyBots){
+        bot->update(dt);
+    }
+    for(auto & bot : m_scene->m_hostileBots){
         bot->update(dt);
     }
     m_scene->update(dt, currentCamera);
@@ -175,7 +181,9 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     // renderer.uiRender->render(m_ui.getToRender());
     renderer.context->endFrame();
 }
-
+#include "AiControl.hpp"
+#include "Pathfinder.hpp"
+#include "NoPathfinder.hpp"
 Scene& Playground::loadScene(const std::string& configName){
     m_scene->load(configName);
     return *m_scene;
@@ -191,5 +199,18 @@ void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnP
     VehicleAssembler builder(configName, *m_physics, m_window.camFactory);
     auto& vehicle = m_vehicles.emplace_back(builder.build(spawnPoint));
 
-    auto& bot = *m_bots.emplace_back(std::make_shared<AI>(m_input->getDispatcher(), *vehicle, m_pointerInfo));
+    auto& bot = *m_scene->m_friendlyBots.emplace_back(
+        std::make_shared<AI>(std::make_unique<AiControlViaInput>(m_input->getDispatcher(), m_pointerInfo),
+                             std::make_unique<Pathfinder>(*m_scene, renderingContext),
+                             *vehicle));
+}
+void Playground::spawnHostileBot(const std::string& configName, const glm::mat4& spawnPoint){
+
+    VehicleAssembler builder(configName, *m_physics, m_window.camFactory);
+    auto& vehicle = m_vehicles.emplace_back(builder.build(spawnPoint));
+
+    auto& bot = *m_scene->m_hostileBots.emplace_back(
+        std::make_shared<AI>(std::make_unique<AiSelfControl>(),
+                             std::make_unique<NoPathfinder>(),
+                             *vehicle));
 }

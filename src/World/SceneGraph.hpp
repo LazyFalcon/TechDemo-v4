@@ -81,6 +81,9 @@ public:
     void cullCells(const Frustum &frstum);
 
     void insertObject(GameObjectPtr obj, const glm::vec4& position);
+    glm::vec4 getDimensions(){
+        return size;
+    }
 
     // wszystkie lodLevele na raz, posortowane po lod i odleglosci
     std::vector<i32> visibleCells;

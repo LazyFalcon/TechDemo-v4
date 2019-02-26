@@ -19,7 +19,6 @@ class Playground : public GameState
 private:
     std::shared_ptr<Input> m_input;
     std::shared_ptr<Player> m_player;
-    std::vector<std::shared_ptr<AI>> m_bots;
     std::vector<std::shared_ptr<VehicleEquipment>> m_vehicles;
     std::unique_ptr<PhysicalWorld> m_physics;
     Window& m_window;
@@ -47,4 +46,5 @@ public:
     Scene& loadScene(const std::string&);
     void spawnPlayer(const std::string&, const glm::mat4&);
     void spawnBot(const std::string&, const glm::mat4&);
+    void spawnHostileBot(const std::string&, const glm::mat4&);
 };

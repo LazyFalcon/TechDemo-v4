@@ -35,7 +35,7 @@ private:
 class AiSelfControl : public AiControl
 {
 public:
-    AiControlViaInput();
+    AiSelfControl(){}
 
     void update() override {}
     void newCommandCallback(commandCallback&& callback) override {

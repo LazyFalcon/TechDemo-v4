@@ -21,7 +21,7 @@ bool StartPlayground::handle(App &app){
     if(scene.spawnPoints.size() == 0) error("Noob! Scene have to has SpawnPoints defined!");
     else {
         playground->spawnBot("Drone", scene.spawnPoints[0].transform, *app.graphicEngine->context);
-        if(scene.spawnPoints.size() > 1) for(auto i=0; i<scene.spawnPoints.size(); i++)
+        if(scene.spawnPoints.size() > 1) for(auto i=1; i<scene.spawnPoints.size(); i++)
             playground->spawnHostileBot("Drone", scene.spawnPoints[i].transform);
     }
 

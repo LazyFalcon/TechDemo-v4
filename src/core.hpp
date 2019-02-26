@@ -17,9 +17,7 @@
 #include <glm/gtx/normal.hpp>
 #include <glm/gtx/optimum_pow.hpp>
 #include <glm/gtx/perpendicular.hpp>
-#include <glm/gtx/perpendicular.hpp>
 #include <glm/gtx/polar_coordinates.hpp>
-#include <glm/gtx/projection.hpp>
 #include <glm/gtx/projection.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>

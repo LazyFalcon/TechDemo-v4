@@ -2,6 +2,7 @@
 #include "AI.hpp"
 #include "CameraController.hpp"
 #include "Context.hpp"
+#include "Details.hpp"
 #include "Effects.hpp"
 #include "FrameTime.hpp"
 #include "GBufferSampler.hpp"
@@ -158,6 +159,7 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     // renderer.utils->drawBackground("nebula2");
     renderer.sceneRenderer->renderScene(*m_scene, CameraController::getActiveCamera());
 
+    renderer.details->executeAtEndOfFrame();
 
     renderer.gBufferSamplers->sampleGBuffer(CameraController::getActiveCamera());
 
@@ -171,10 +173,11 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.lightRendering->lightPass(*m_scene, CameraController::getActiveCamera());
     renderer.lightRendering->compose(CameraController::getActiveCamera());
 
+
     renderer.context->setupFramebufferForLDRProcessing();
-    renderer.effects->filmGrain();
     renderer.effects->toneMapping();
     renderer.effects->FXAA();
+    renderer.effects->filmGrain();
 
     renderer.context->tex.gbuffer.color.genMipmaps();
 
@@ -194,7 +197,7 @@ void Playground::spawnPlayer(const std::string& configName, const glm::mat4& spa
 
     m_player = std::make_shared<Player>(m_input->getDispatcher(), *vehicle);
 }
-void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnPoint){
+void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnPoint, Context& renderingContext){
 
     VehicleAssembler builder(configName, *m_physics, m_window.camFactory);
     auto& vehicle = m_vehicles.emplace_back(builder.build(spawnPoint));

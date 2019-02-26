@@ -15,4 +15,7 @@ public:
 
         return out;
     }
+     void preprocessMap(){
+         log("lol, nothing happens");
+     }
 };

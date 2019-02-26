@@ -7,6 +7,22 @@
 #include "ResourceLoader.hpp"
 #include "RenderDataCollector.hpp"
 
+void messageCallback(GLenum source,
+                                GLenum type,
+                                GLuint id,
+                                GLenum severity,
+                                GLsizei length,
+                                const GLchar* message,
+                                const void* userParam){
+  if(gl::DEBUG_TYPE_ERROR == type) log("GL CALLBACK:","type:", type, "severity:", severity, "message:", message);
+}
+
+Context::Context(Window &window) : window(window), fbo(window){
+    gl::Enable(gl::DEBUG_OUTPUT);
+    gl::DebugMessageCallback(messageCallback, 0);
+}
+
+
 void Context::reset(){
     resetTextures();
     resetFbo();

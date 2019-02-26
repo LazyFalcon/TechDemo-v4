@@ -291,10 +291,11 @@ ImageParams loadToMemory(const std::string &filePath, ImageDataType targetType){
     return data;
 }
 
-bool saveFromMemory(const std::string &filePath, ImageDataType targetType, ImageParams image){
+bool saveFromMemory(std::string filePath, ImageDataType targetType, ImageParams image){
     // TODO: best way is to spawn another thread to save file
     FIBITMAP *dib;
     log("saving:", filePath);
+    filePath += ".png";
 
     // for floating point types see: https://sourceforge.net/p/freeimage/discussion/36111/thread/dce7f4a3/
     if(image.dataType != targetType){
@@ -341,7 +342,8 @@ bool saveFromMemory(const std::string &filePath, ImageDataType targetType, Image
                     bits[x+2] = *((u8*)image.data + x + 2 + y*image.width*3);
                 }
             }
-            return FreeImage_Save(FIF_JPEG, dib, filePath.c_str(), JPEG_QUALITYSUPERB);
+            return FreeImage_Save(FIF_PNG, dib, filePath.c_str(), JPEG_QUALITYSUPERB);
+            // return FreeImage_Save(FIF_JPEG, dib, filePath.c_str(), JPEG_QUALITYSUPERB);
         }
         case RGBA8: {
             dib = FreeImage_AllocateT(FIT_BITMAP, image.width, image.height, 32);

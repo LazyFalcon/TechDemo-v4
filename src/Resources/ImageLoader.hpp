@@ -69,10 +69,10 @@ ImageParams loadImageToGpu(const std::string &filePath);
 ImageParams loadArrayToGpu(const std::vector<fs::path> &files);
 ImageParams loadCubemapToGpu(const std::vector<std::string> &filePathes);
 ImageParams loadToMemory(const std::string &filePath, ImageDataType targetType);
-bool saveFromMemory(const std::string &filePath, ImageDataType targetType, ImageParams image);
+bool saveFromMemory(std::string filePath, ImageDataType targetType, ImageParams image);
 
 template<typename T>
-bool save(const std::string &filePath, ImageDataType sourceType, ImageDataType targetType, std::vector<T> &data){
+bool save(std::string filePath, ImageDataType sourceType, ImageDataType targetType, std::vector<T> &data){
     return saveFromMemory(filePath, sourceType, targetType, (u8*)data.data(), data.size()*sizeof(T));
 }
 

@@ -13,7 +13,7 @@ AiControlViaInput::AiControlViaInput(InputDispatcher& inputDispatcher, PointerIn
 
     m_input->action("LMB").off([this](){
         log("Move order", m_pointerInfo.worldPosition);
-        MoveCommand payload {m_pointerInfo.worldPosition};
+        MoveCommand payload {m_pointerInfo.worldPosition+glm::vec4(0,0,2,0)};
         AiCommand command {MoveTo};
         command.payload = &payload;
         m_putCommandHere(command);

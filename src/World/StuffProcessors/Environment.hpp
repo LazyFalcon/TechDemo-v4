@@ -34,7 +34,7 @@ public:
         glm::vec4 dimensions;
         glm::mat4 transform;
         btRigidBody *rgBody {nullptr};
-        btCollisionShape  *shape {nullptr};
+        btCollisionShape *shape {nullptr};
         float mass {0};
     } physics {};
 

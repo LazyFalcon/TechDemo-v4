@@ -108,7 +108,7 @@ public:
     u32 currentFbo;
     FBO fbo;
 
-    Context(Window &window) : window(window), fbo(window){}
+    Context(Window &window);
     void reset();
 
     void beginFrame();

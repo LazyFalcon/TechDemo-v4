@@ -63,7 +63,7 @@ VBO& VBO::setup(void* data, size_t dataSize, bool dynamic){
 
     return *this;
 }
-VBO& VBO::update(void *data, size_t dataSize){
+VBO& VBO::update(const void *data, size_t dataSize){
     gl::BindBuffer(gl::ARRAY_BUFFER, ID);
     gl::BufferData(gl::ARRAY_BUFFER, maxSize, nullptr, drawMode); /// orphan and create new buffer
     gl::BufferData(gl::ARRAY_BUFFER, dataSize, data, drawMode); /// fill new buffer

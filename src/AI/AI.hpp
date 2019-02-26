@@ -4,8 +4,10 @@
 #include "IPathfinder.hpp"
 
 class AiProcessor;
+class Context;
 class InputDispatcher;
 class PointerInfo;
+class Scene;
 class VehicleEquipment;
 
 struct AiSharedState

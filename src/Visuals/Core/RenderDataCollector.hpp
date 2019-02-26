@@ -16,6 +16,7 @@ class Window;
 struct Uniforms
 {
     glm::mat4 uView;
+    glm::mat4 uPV;
     glm::mat4 uInvPV;
     glm::vec4 uEyePosition;
     glm::vec2 uWindowSize;

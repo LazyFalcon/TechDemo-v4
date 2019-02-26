@@ -23,6 +23,7 @@ void RenderDataCollector::collectCamera(Camera& camera){
     uniforms.uNear = camera.nearDistance;
     uniforms.uFar = camera.farDistance;
     uniforms.uView = camera.view;
+    uniforms.uPV = camera.PV;
     uniforms.uInvPV = camera.invPV;
     uniforms.uEyePosition = camera.position();
     uniforms.exposture = 1.f;

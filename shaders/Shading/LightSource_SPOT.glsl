@@ -1,4 +1,4 @@
-#ifdef VERTEX_SHADER
+@vertex:
 
 layout(location=0)in vec4 mVertex;
 
@@ -11,9 +11,7 @@ void main(){
     gl_Position = uPV*uTransform*V;
 }
 
-#endif
-
-#ifdef FRAGMENT_SHADER
+@fragment:
 const float PI = 3.1415926;
 float lightPowerScale = 1;
 
@@ -176,6 +174,3 @@ void main(void){
     outLight = vec4(diffusePart*(1-kS), 1);
     outSpecular = vec4(specular*light.color, 1);
 }
-
-
-#endif

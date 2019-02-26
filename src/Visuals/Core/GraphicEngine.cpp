@@ -16,7 +16,7 @@
 GraphicEngine::GraphicEngine(Window &window) :
     window(window),
     context(std::make_unique<Context>(window)),
-    details(std::make_unique<Details>(window)),
+    details(std::make_unique<Details>(*context, window)),
     utils(std::make_unique<RendererUtils>(window, *context)),
     effects(std::make_unique<Effects>(window, *context, *utils)),
     gBufferSamplers(std::make_unique<GBufferSamplers>(window, *context)),

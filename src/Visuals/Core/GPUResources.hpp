@@ -41,12 +41,12 @@ struct VBO
     VBO& setup(void* data, size_t dataSize, bool dynamic);
 
     template<typename T>
-    VBO& update(std::vector<T> &data){
+    VBO& update(const std::vector<T> &data){
         update(data.data(), data.size()*sizeof(T));
         return *this;
     }
     // private :D
-    VBO& update(void *data, size_t dataSize);
+    VBO& update(const void *data, size_t dataSize);
 
     VBO& attrib();
     VBO& attrib(u32 n);

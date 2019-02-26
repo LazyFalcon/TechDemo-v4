@@ -22,7 +22,7 @@ bool StartPlayground::handle(App &app){
     else {
         playground->spawnBot("Drone", scene.spawnPoints[0].transform, *app.graphicEngine->context);
         if(scene.spawnPoints.size() > 1) for(auto i=0; i<scene.spawnPoints.size(); i++)
-            playground->spawnHostileBot("Hostile "+std::to_string(i), scene.spawnPoints[i].transform);
+            playground->spawnHostileBot("Drone", scene.spawnPoints[i].transform);
     }
 
     app.window->show();

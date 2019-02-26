@@ -8,11 +8,10 @@
 #include "Pathfinder.hpp"
 #include "VehicleEquipment.hpp"
 
-
-AI::AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle, PointerInfo& pointerInfo, Scene& scene, Context& context):
-        m_control(std::make_unique<AiControlViaInput>(inputdispatcher, pointerInfo)),
-        m_vehicle(vehicle),
-        m_pathfinder(std::make_unique<Pathfinder>(scene, context))
+AI::AI(std::unique_ptr<AiControl> control, std::unique_ptr<IPathfinder> pathfinder, VehicleEquipment& vehicle):
+        m_control(std::move(control)),
+        m_pathfinder(std::move(pathfinder)),
+        m_vehicle(vehicle)
 {
     m_processors.push_back(std::make_shared<VehicleControlProcessor>(*m_pathfinder, m_vehicle));
 

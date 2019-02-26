@@ -31,3 +31,17 @@ private:
     PointerInfo& m_pointerInfo;
     commandCallback m_putCommandHere;
 };
+
+class AiSelfControl : public AiControl
+{
+public:
+    AiSelfControl(){}
+
+    void update() override {}
+    void newCommandCallback(commandCallback&& callback) override {
+        m_putCommandHere = callback;
+    }
+
+private:
+    commandCallback m_putCommandHere;
+};

@@ -1,11 +1,11 @@
 #pragma once
 #include "Actor.hpp"
-#include "AiControl.hpp"
-#include "IPathfinder.hpp"
 
 class AiProcessor;
+class AiControl;
 class Context;
 class InputDispatcher;
+class IPathfinder;
 class PointerInfo;
 class Scene;
 class VehicleEquipment;
@@ -18,7 +18,7 @@ struct AiSharedState
 class AI : public Actor
 {
 public:
-    AI(InputDispatcher& inputdispatcher, VehicleEquipment& vehicle, PointerInfo& pointerInfo, Scene& scene, Context& context);
+    AI(std::unique_ptr<AiControl> control, std::unique_ptr<IPathfinder> pathfinder, VehicleEquipment& vehicle);
 
     void update(float dt) override;
     void updateGraphic(float dt) override;
@@ -30,7 +30,7 @@ public:
 private:
     AiSharedState m_state;
     std::unique_ptr<AiControl> m_control;
-    VehicleEquipment& m_vehicle;
     std::unique_ptr<IPathfinder> m_pathfinder;
+    VehicleEquipment& m_vehicle;
     std::vector<std::shared_ptr<AiProcessor>> m_processors;
 };

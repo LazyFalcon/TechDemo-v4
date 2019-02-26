@@ -16,17 +16,18 @@ bool StartPlayground::handle(App &app){
     auto playground = std::make_shared<Playground>(*app.imgui, *app.inputDispatcher, *app.window);
 
     auto& scene = playground->loadScene(sceneName);
-
-    try {
-        playground->spawnBot("Drone", scene.spawnPoints.at(0).transform, *app.graphicEngine->context);
-    } catch(std::out_of_range except){
-        error("Noob! Scene have to has SpawnPoints defined!");
+    // pathifinderProcessAndSaveDepthMap(scene, context);
+    // TODO: extract starting point
+    if(scene.spawnPoints.size() == 0) error("Noob! Scene have to has SpawnPoints defined!");
+    else {
+        playground->spawnBot("Drone", scene.spawnPoints[0].transform, *app.graphicEngine->context);
+        if(scene.spawnPoints.size() > 1) for(auto i=1; i<scene.spawnPoints.size(); i++)
+            playground->spawnHostileBot("Drone", scene.spawnPoints[i].transform);
     }
 
     app.window->show();
     app.showMouse();
     app.setGameState(playground);
-
 
     return true;
 }

@@ -50,7 +50,7 @@ in float vRoughness;
 in float vMetallic;
 
 void main(void){
-    outColor.rgb = mix(vColor, texture2DArray(uAlbedo, vUV).rgb, 0.905);
+    outColor.rgb = pow(mix(vColor, texture2DArray(uAlbedo, vUV).rgb, 0.05), vec3(0.5));
     float mixVal = 0.7;
     outColor.a = mix(vMetallic, texture2DArray(uMetallicMap, vUV).r, mixVal);
     outNormal.w = mix(vRoughness, texture2DArray(uRoughnessMap, vUV).r, mixVal);

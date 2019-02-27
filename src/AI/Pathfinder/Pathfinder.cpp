@@ -101,7 +101,7 @@ void Pathfinder::calculateTerrainFieldValues(){
             // vec2[i*height +j] = tmp;//////////
 
             if(tmp > 5){
-                generatePotentialField(glm::ivec2(i, j), -30);/////////////////
+                generatePotentialField(glm::ivec2(i, j), -tmp);/////////////////
             }
         }
     }
@@ -173,7 +173,7 @@ Waypoint Pathfinder::getNextBestField(Waypoint waypoint){
 
 
     Waypoint pp;
-    pp.position = glm::vec4(bestPoint.x-mapSize/2, bestPoint.y-mapSize/2, heightField.get(bestPoint), 1);
+    pp.position = glm::vec4(bestPoint.x-mapSize/2, bestPoint.y-mapSize/2, heightField.get(bestPoint)+5.5f, 1);
     pp.direction = glm::normalize(pp.position - waypoint.position);
 
     pp.velocity = 50;
@@ -197,7 +197,7 @@ float Pathfinder::calculateFieldValue(glm::ivec2 position){
 }
 
 
- void Pathfinder::generatePotentialField(const glm::ivec2 &point, int value){
+void Pathfinder::generatePotentialField(const glm::ivec2 &point, int value){
     int x = point.x;
     int y = point.y;
     int height = resultMap.height;
@@ -217,7 +217,7 @@ float Pathfinder::calculateFieldValue(glm::ivec2 position){
             }
         }
     }
- }
+}
 
 void Pathfinder::preprocessMap(){
     ResultMap dataBeingProcessed {mapSize, mapSize};
@@ -326,13 +326,13 @@ void Pathfinder::test2(){
     std::vector<short> vec(width*height);
     for(int i=0; i<width; i++){
         for(int j=0; j<height; j++){
-            vec[i*width + j] = calculateFieldValue_TerrainOnly(glm::ivec2(i, j));
+            vec[i + j*width] = calculateFieldValue_TerrainOnly(glm::ivec2(i, j));
 
-            if(vec[i*width + j] > maxValue){
-                vec[i*width + j] = maxValue;
+            if(vec[i + j*width] > maxValue){
+                vec[i + j*width] = maxValue;
             }
-            if(vec[i*width + j] < minValue){
-                vec[i*width + j] = minValue;
+            if(vec[i + j*width] < minValue){
+                vec[i + j*width] = minValue;
             }
 
             // if(pathValue < vec[i*width + j]){

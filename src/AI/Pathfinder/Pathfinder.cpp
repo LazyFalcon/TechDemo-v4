@@ -100,7 +100,7 @@ void Pathfinder::calculateTerrainFieldValues(){
             tmp *= 10;
             // vec2[i*height +j] = tmp;//////////
 
-            if(tmp > 30){
+            if(tmp > 5){
                 generatePotentialField(glm::ivec2(i, j), -30);/////////////////
             }
         }
@@ -159,7 +159,7 @@ Waypoint Pathfinder::getNextBestField(Waypoint waypoint){
     float maxX = 0;
     float maxY = 0;
     float bestValue = -1;
-    glm::ivec2 bestPoint;
+    glm::ivec2 bestPoint{};
     for(const auto & it : c_nextMoves){
         auto point = p + it;
         if(!staticField.inbounds(point)) continue;
@@ -202,7 +202,7 @@ float Pathfinder::calculateFieldValue(glm::ivec2 position){
     int y = point.y;
     int height = resultMap.height;
     int width = resultMap.width;
-    int maxDist = 5;
+    int maxDist = 3;
 
     for(int k=0; k<maxDist; k+=1){
         for(int i=x-k; i<x+k; i++){

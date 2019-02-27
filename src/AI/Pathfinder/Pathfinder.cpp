@@ -74,17 +74,17 @@ void Pathfinder::saveVecAsImageNegative(const std::string &name){
 void Pathfinder::calculateTerrainFieldValues(){
     int height = staticField.h;
     int width = staticField.w;
-    auto &heightmap = resultMap.heightmap;
+    // auto &heightmap = resultMap.heightmap;
 
     for(int i=1; i<height-1; i++){
         for(int j=1; j<width-1; j++){
             int tmp = 0;
 
-            int x = heightmap[i +j*width];
-            tmp = abs(heightmap[(i+1)+j*width] - x);
-            tmp = std::max((int)abs(heightmap[(i-1)+j*width] - x), tmp);
-            tmp = std::max((int)std::abs(heightmap[i+(j+1)*width] - x), tmp);
-            tmp = std::max((int)std::abs(heightmap[i+(j-1)*width] - x), tmp);
+            int x = heightField.get(i,j);
+            tmp = abs(heightField.get(i+1, j) - x);
+            tmp = std::max((int)abs(heightField.get(i-1, j) - x), tmp);
+            tmp = std::max((int)abs(heightField.get(i, j+1) - x), tmp);
+            tmp = std::max((int)abs(heightField.get(i, j-1) - x), tmp);
 
             // int x = heightmap[i*height +j];
             // tmp = abs(heightmap[(i+1)*height+j] - x);
@@ -97,7 +97,7 @@ void Pathfinder::calculateTerrainFieldValues(){
             // tmp = std::max((int)abs(heightmap[(i-1)*height+j+1] - x), tmp);
             // tmp = std::max((int)abs(heightmap[(i+1)*height+j-1] - x), tmp);
 
-            tmp *= 10;
+            // tmp *= 10;
             // vec2[i*height +j] = tmp;//////////
 
             if(tmp > 5){
@@ -207,13 +207,13 @@ void Pathfinder::generatePotentialField(const glm::ivec2 &point, int value){
     for(int k=0; k<maxDist; k+=1){
         for(int i=x-k; i<x+k; i++){
             for(int j=y-k;j<y+k;j++){
-                if(!staticField.inbounds(point.x+i, point.y+j)) continue;
+                if(!staticField.inbounds(i, j)) continue;
                 float dist = std::sqrt((x-i)*(x-i)+(y-j)*(y-j));
                 if(dist > maxDist){
                     continue;
                 }
-                float newValue = std::min(value/(dist+1), staticField.get(point.x+i, point.y+j));
-                staticField.set(point.x+i, point.y+j, newValue);
+                float newValue = std::min(value/(dist+1), staticField.get(i, j));
+                staticField.set(i, j, newValue);
             }
         }
     }

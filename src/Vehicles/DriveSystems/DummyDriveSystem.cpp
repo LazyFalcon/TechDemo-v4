@@ -26,10 +26,10 @@ public:
     }
 };
 
-PDReg pdRegForce = PDReg(0.7, 0.0); // * outputs force
-PDReg pdRegPosition = PDReg(0.7, 0.0);  // * outputs impulses
-PDReg pdRegTorque = PDReg(0.7, 0.0);  // * outputs torque
-PDReg pdRegOrientation = PDReg(0.7, 0.0);  // * outputs impulses
+PDReg pdRegForce = PDReg(0.99, 0.0); // * outputs force
+PDReg pdRegPosition = PDReg(0.99, 0.0);  // * outputs impulses
+PDReg pdRegTorque = PDReg(0.9, 0.0);  // * outputs torque
+PDReg pdRegOrientation = PDReg(0.9, 0.0);  // * outputs impulses
 
 void DummyDriveSystem::update(float dt){
     m_targetPosition += m_moveDirection;
@@ -51,12 +51,13 @@ void DummyDriveSystem::forcePart(float dt, btTransform& tr){
     // btVector3 response = pdRegForce.goTo(btVector3(0,0,0), externalForces);
 
     eq.rgBody->applyCentralForce(response);
-
+    eq.rgBody->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
     if(eq.control.targetPoint){
         auto positionError = convert(*eq.control.targetPoint) - tr.getOrigin();
-        auto impulse = pdRegPosition.goTo(btVector3(0,0,0), -positionError);
+        auto impulse = pdRegPosition.goTo(btVector3(0,0,0), -positionError)*20;
 
-        eq.rgBody->applyCentralImpulse(impulse);
+        eq.rgBody->setLinearVelocity(impulse);
+        // eq.rgBody->applyCentralImpulse(impulse);
     }
 
 }

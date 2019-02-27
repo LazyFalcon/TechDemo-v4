@@ -125,6 +125,7 @@ void Pathfinder::addTrail(glm::ivec2 position){
 
 
 Waypoints Pathfinder::calculate(Waypoint from, Waypoint to){
+    test3();//!!!!!!!!!!!!!!!!!!!!!!!
     Waypoints waypoints;
 
     destination.value = 100;
@@ -187,8 +188,8 @@ float Pathfinder::calculateFieldValue(glm::ivec2 position){
     float value = 0;
     value += destination.currentValue(position);
 
-    for(auto & a : m_scene.getHostiles() ){
-        value = -10./(glm::distance(a->eq().getPosition(), p)+1);
+    for(auto & a : m_scene.getHostiles()){
+        // value += -5./(glm::distance(a->eq().getPosition(), p)+1);
     }
 
     for(auto a : semiStaticObjects){
@@ -255,7 +256,7 @@ void Pathfinder::preprocessMap(){
 
     test();
     test2();
-    test3();
+    // test3();
 }
 
 void Pathfinder::test(){

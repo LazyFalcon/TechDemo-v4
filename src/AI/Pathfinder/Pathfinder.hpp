@@ -19,7 +19,7 @@ public:
 
     float currentValue(glm::ivec2 pos){
         float dist = std::sqrt((pos.x-position.x)*(pos.x-position.x)+(pos.y-position.y)*(pos.y-position.y));
-        return value/dist;
+        return value/(std::sqrt(dist)+10);
     }
 };
 

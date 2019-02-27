@@ -5,7 +5,9 @@
 #include "Logging.hpp"
 #include<iostream>
 #include<cmath>
-
+#include "Scene.hpp"
+#include "VehicleEquipment.hpp"
+#include "AI.hpp"
 
 void Pathfinder::initializePotentialFields(int height, int width, int value){
 
@@ -100,8 +102,8 @@ void Pathfinder::calculateTerrainFieldValues(){
             // tmp *= 10;
             // vec2[i*height +j] = tmp;//////////
 
-            if(tmp > 5){
-                generatePotentialField(glm::ivec2(i, j), -tmp);/////////////////
+            if(tmp > 1){
+                generatePotentialField(glm::ivec2(i, j), -10);/////////////////
             }
         }
     }
@@ -181,8 +183,13 @@ Waypoint Pathfinder::getNextBestField(Waypoint waypoint){
 }
 
 float Pathfinder::calculateFieldValue(glm::ivec2 position){
+    glm::vec4 p(position.x-150, position.y-150, 0, 1);
     float value = 0;
     value += destination.currentValue(position);
+
+    for(auto & a : m_scene.getHostiles() ){
+        value = -10./(glm::distance(a->eq().getPosition(), p)+1);
+    }
 
     for(auto a : semiStaticObjects){
         value += a.currentValue(position);
@@ -248,6 +255,7 @@ void Pathfinder::preprocessMap(){
 
     test();
     test2();
+    test3();
 }
 
 void Pathfinder::test(){
@@ -306,6 +314,61 @@ void Pathfinder::test(){
 
 }
 
+void Pathfinder::test3(){
+    // calculateTerrainFieldValues();
+
+    int width = 300;
+    int height = 300;
+    int startX = 25;
+    int startY = 25;
+    int endX = 200;
+    int endY = 250;
+    int pathValue = 12;////////////
+    int maxValue = 10;
+    int minValue = -10;
+    // glm::vec4 start(startX-150, startY-150, 10, 1);
+    // glm::vec4 end(endX-150, endY-150, 10, 1);
+
+    // Waypoints path = calculate(Waypoint{start, glm::vec4(1,0,0,0), 50.}, Waypoint{end, glm::vec4(1,0,0,0), 50.});
+
+    std::vector<short> vec(width*height);
+    for(int i=0; i<width; i++){
+        for(int j=0; j<height; j++){
+            vec[i + j*width] = calculateFieldValue(glm::ivec2(i, j));
+
+            if(vec[i + j*width] > maxValue){
+                vec[i + j*width] = maxValue;
+            }
+            if(vec[i + j*width] < minValue){
+                vec[i + j*width] = minValue;
+            }
+
+            // if(pathValue < vec[i*width + j]){
+            //     pathValue = vec[i*width + j];
+            // }
+        }
+    }
+
+    // for(auto p : path){
+    //     int x = p.position.x+150;
+    //     int y = p.position.y+150;
+    //     vec[x*width + y] = pathValue;
+    // }
+
+    // for(int i=-1;i<=1;i++){
+    //     for(int j=-1;j<=1;j++){
+    //         vec[(startX+i)*width + startY+j] = pathValue;
+    //         vec[(endX+i)*width + endY+j] = pathValue;
+    //     }
+    // }
+
+    saveVecAsImage(vec, "fieldd values");
+
+
+
+}
+
+
 void Pathfinder::test2(){
     // calculateTerrainFieldValues();
 
@@ -326,7 +389,7 @@ void Pathfinder::test2(){
     std::vector<short> vec(width*height);
     for(int i=0; i<width; i++){
         for(int j=0; j<height; j++){
-            vec[i + j*width] = calculateFieldValue_TerrainOnly(glm::ivec2(i, j));
+            vec[i + j*width] = -calculateFieldValue_TerrainOnly(glm::ivec2(i, j));
 
             if(vec[i + j*width] > maxValue){
                 vec[i + j*width] = maxValue;

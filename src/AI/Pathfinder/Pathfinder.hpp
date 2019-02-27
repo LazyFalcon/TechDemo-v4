@@ -45,13 +45,13 @@ public:
         set(xy.x, xy.y, v);
     }
     void set(int x, int y, DataType v){
-        m_data[x*w + y] = v;
+        m_data[x + y*w] = v;
     }
     const DataType& get(glm::ivec2 xy) const {
         return get(xy.x, xy.y);
     }
     const DataType& get(int x, int y) const {
-        return m_data[x*w + y];
+        return m_data[x + y*w];
     }
 
     std::vector<DataType>& getData(){
@@ -116,5 +116,7 @@ public:
     void generatePotentialField(const glm::ivec2 &point, int value);
 
     void test();
+
+    void test2();
 
 };

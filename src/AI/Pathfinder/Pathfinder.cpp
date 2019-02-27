@@ -83,8 +83,8 @@ void Pathfinder::calculateTerrainFieldValues(){
             int x = heightmap[i +j*width];
             tmp = abs(heightmap[(i+1)+j*width] - x);
             tmp = std::max((int)abs(heightmap[(i-1)+j*width] - x), tmp);
-            tmp = std::max((int)std::abs(heightmap[i+j*width+1] - x), tmp);
-            tmp = std::max((int)std::abs(heightmap[i+j*width-1] - x), tmp);
+            tmp = std::max((int)std::abs(heightmap[i+(j+1)*width] - x), tmp);
+            tmp = std::max((int)std::abs(heightmap[i+(j-1)*width] - x), tmp);
 
             // int x = heightmap[i*height +j];
             // tmp = abs(heightmap[(i+1)*height+j] - x);

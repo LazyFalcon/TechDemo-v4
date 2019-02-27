@@ -68,11 +68,13 @@ void DummyDriveSystem::torquePart(float dt, btTransform& tr){
     m_previouslyappliedTorque = response;
     // btVector3 response = pdRegTorque.goTo(btVector3(0,0,0), currentTorque);
 
+    eq.rgBody->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
     eq.rgBody->applyTorque(response);
     if(eq.control.targetDirection){
-        auto rotationError = tr.getBasis()[m_leadingAxis].cross(m_lookDirection) + tr.getBasis()[2].cross(btVector3(0,0,1));
-        auto impulse = pdRegOrientation.goTo(btVector3(0,0,0), -rotationError)*0.1;
+        auto rotationError = tr.getBasis()[m_leadingAxis].cross(convert(*eq.control.targetDirection)) + tr.getBasis()[2].cross(btVector3(0,0,1));
+        auto impulse = pdRegOrientation.goTo(btVector3(0,0,0), -rotationError)*0.91;
 
+        // eq.rgBody->setAngularVelocity(impulse);
         // eq.rgBody->applyTorqueImpulse(impulse);
     }
 }

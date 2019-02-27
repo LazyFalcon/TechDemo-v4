@@ -8,37 +8,37 @@
 
 
 void Pathfinder::initializePotentialFields(int height, int width, int value){
-    staticPotentialFields.vec = std::vector<short>(height*width);
+
 }
 
-void Pathfinder::saveVecAsImageNegative(std::string name){
-    std::vector<short> vec(staticPotentialFields.vec.size());
-    int max = 0;
-    int min = 0;
-    for(int i=0; i<vec.size(); i++){
-        vec[i] = -staticPotentialFields.vec[i];
-        if(max < vec[i]){
-            max = vec[i];
-        }
-    }
+void Pathfinder::saveVecAsImageNegative(const std::string &name){
+//     std::vector<short> vec(staticPotentialFields.vec.size());
+//     int max = 0;
+//     int min = 0;
+//     for(int i=0; i<vec.size(); i++){
+//         vec[i] = -staticPotentialFields.vec[i];
+//         if(max < vec[i]){
+//             max = vec[i];
+//         }
+//     }
 
-    for(int i=0; i<vec.size(); i++){
-        vec[i] = (255*255)*vec[i]/max;
-    }
+//     for(int i=0; i<vec.size(); i++){
+//         vec[i] = (255*255)*vec[i]/max;
+//     }
 
 
-    int height = staticPotentialFields.height;
-    int width = staticPotentialFields.width;
-    ImageUtils::ImageParams image {};
-    image.width = width;
-    image.height = height;
-    image.dataType = ImageDataType::R16;
-    image.data = (void*)vec.data();
-    image.dataSize = vec.size()*sizeof(u16);
+//     int height = staticPotentialFields.height;
+//     int width = staticPotentialFields.width;
+//     ImageUtils::ImageParams image {};
+//     image.width = width;
+//     image.height = height;
+//     image.dataType = ImageDataType::R16;
+//     image.data = (void*)vec.data();
+//     image.dataSize = vec.size()*sizeof(u16);
 
-    if(not ImageUtils::saveFromMemory("negativeField", ImageDataType::R16, image)){
-        error("Unable to save map");
-    }
+//     if(not ImageUtils::saveFromMemory("negativeField", ImageDataType::R16, image)){
+//         error("Unable to save map");
+//     }
 }
 
  void Pathfinder::saveVecAsImage(std::vector<short> vec2, std::string name){
@@ -71,16 +71,10 @@ void Pathfinder::saveVecAsImageNegative(std::string name){
 }
 
 void Pathfinder::calculateTerrainFieldValues(){
-    auto &staticFieldValues = staticPotentialFields.vec;
-    int height = staticPotentialFields.height;
-    int width = staticPotentialFields.width;
-    for(int i=0; i<staticFieldValues.size(); i++){
-        staticFieldValues[i] = 0;
-    }
-
+    int height = staticField.h;
+    int width = staticField.w;
     auto &heightmap = resultMap.heightmap;
 
-    std::vector<short> vec2(heightmap.size());
     for(int i=1; i<height-1; i++){
         for(int j=1; j<width-1; j++){
             int tmp = 0;
@@ -91,26 +85,26 @@ void Pathfinder::calculateTerrainFieldValues(){
             tmp = std::max((int)std::abs(heightmap[i*height+j+1] - x), tmp);
             tmp = std::max((int)std::abs(heightmap[i*height+j-1] - x), tmp);
 
-            tmp = std::max((int)abs(heightmap[(i+1)*height+j+1] - x), tmp);
-            tmp = std::max((int)abs(heightmap[(i-1)*height+j-1] - x), tmp);
-            tmp = std::max((int)abs(heightmap[(i-1)*height+j+1] - x), tmp);
-            tmp = std::max((int)abs(heightmap[(i+1)*height+j-1] - x), tmp);
+            // tmp = std::max((int)abs(heightmap[(i+1)*height+j+1] - x), tmp);
+            // tmp = std::max((int)abs(heightmap[(i-1)*height+j-1] - x), tmp);
+            // tmp = std::max((int)abs(heightmap[(i-1)*height+j+1] - x), tmp);
+            // tmp = std::max((int)abs(heightmap[(i+1)*height+j-1] - x), tmp);
 
             tmp *= 10;
-            vec2[i*height +j] = tmp;//////////
+            // vec2[i*height +j] = tmp;//////////
 
             if(tmp > 30){
-                generatePotentialField(glm::vec2(j, i), -30);/////////////////
+                generatePotentialField(glm::ivec2(j, i), -30);/////////////////
             }
         }
     }
-    saveVecAsImage(vec2, "terrain");
-    saveVecAsImageNegative("staticField");
+    // saveVecAsImage(vec2, "terrain");
+    // saveVecAsImageNegative("staticField");
     return;
 }
 
 
-void Pathfinder::addTrail(glm::vec2 position){
+void Pathfinder::addTrail(glm::ivec2 position){
     Asd a;
     a.position = position;
     a.value = -1;
@@ -123,84 +117,63 @@ void Pathfinder::addTrail(glm::vec2 position){
 
 Waypoints Pathfinder::calculate(Waypoint from, Waypoint to){
     Waypoints waypoints;
-    auto &staticFieldValues = staticPotentialFields.vec;
 
-    destination.value = 15;
-    destination.position = glm::vec2(to.position.x+150, to.position.y+150);
+    destination.value = 100;
+    destination.position = glm::ivec2(to.position.x+150, to.position.y+150);
 
-     waypoints.push_back(from);
-     Waypoint tmp = from;
+    waypoints.push_back(from);
+    Waypoint tmp = from;
 
-  std::vector<short> vecc(300*300);
-  for(int i=0;tmp.position!=to.position && i<5000;i++){
+  for(int i=0;tmp.position!=to.position && i<1000;i++){
         tmp = getNextBestField(tmp);
         tmp.velocity = 50;
         waypoints.push_back(tmp);
 
-        addTrail(glm::vec2(tmp.position.x+150, tmp.position.y+150));
+//         addTrail(glm::ivec2(tmp.position.x+150, tmp.position.y+150));
     }
     return waypoints;
     // return {from, to};
 }
 
+
+const std::vector<glm::ivec2> c_nextMoves {
+    {0,2}, {2,2}, {2,0}, {2,-2}, {0,-2}, {-2,-2}, {-2,0}, {-2,2}
+};
+
+float Pathfinder::calculateFieldValue_TerrainOnly(glm::ivec2 position){
+    return staticField.get(position);
+}
+
 Waypoint Pathfinder::getNextBestField(Waypoint waypoint){
-    auto position = waypoint.position;
-    int x = position.x+mapSize/2;
-    int y = position.y+mapSize/2;
+
+    const auto& position = waypoint.position;
+    glm::ivec2 p(position.x+mapSize/2, position.y+mapSize/2);
 
     float maxX = 0;
     float maxY = 0;
-    float maxVal = -10000;
-    for(int i=-1; i<=1; i++){
-        for(int j=-1; j<=1; j++){
-            if((i==0 && j ==0) ||( x+i<0 || x+i>=mapSize|| y+j<0 || y+j>=mapSize)){
-                continue;
-            }
-            float val = calculateFieldValue(glm::vec2(x+i, y+j));
-            if(maxVal < val){
-                maxVal = val;
-                maxX = x+i;
-                maxY = y+j;
-            }
+    float bestValue = -1;
+    glm::ivec2 bestPoint;
+    for(const auto & it : c_nextMoves){
+        auto point = p + it;
+        if(!staticField.inbounds(point)) continue;
+        float val = calculateFieldValue(point);
+        val += calculateFieldValue_TerrainOnly(point+it) * 0.4f;
+        if(bestValue < val){
+            bestValue = val;
+            bestPoint = point;
         }
     }
-    Waypoint p;
-    p.position = glm::vec4(maxX-mapSize/2, maxY-mapSize/2, 8 ,1);
-    p.direction = glm::vec4(1,0,0,0);
-    return p;
+
+
+    Waypoint pp;
+    pp.position = glm::vec4(bestPoint.x-mapSize/2, bestPoint.y-mapSize/2, heightField.get(bestPoint), 1);
+    pp.direction = glm::normalize(pp.position - waypoint.position);
+
+    pp.velocity = 50;
+    return pp;
 }
 
-
-
-Waypoint Pathfinder::getNextBestField2(Waypoint waypoint){
-    auto position = waypoint.position;
-    int x = position.x+mapSize/2;
-    int y = position.y+mapSize/2;
-
-    float maxX = 0;
-    float maxY = 0;
-    float maxVal = -1000;
-    for(int i=-1; i<=1; i++){
-        for(int j=-1; j<=1; j++){
-            if((i==0 && j ==0) ||( x+i<0 || x+i>=mapSize|| y+j<0 || y+j>=mapSize)){
-                continue;
-            }
-            float val = calculateFieldValue(glm::vec2(x+i, y+j));
-            if(maxVal < val){
-                maxVal = val;
-                maxX = x+i;
-                maxY = y+j;
-            }
-        }
-    }
-    Waypoint p;
-    p.position = glm::vec4(maxX-mapSize/2, maxY-mapSize/2, 10 ,1);
-    p.direction = glm::vec4(1,0,0,0);
-    return p;
-}
-
-float Pathfinder::calculateFieldValue(glm::vec2 position){
-    auto staticFieldValues = staticPotentialFields.vec;
+float Pathfinder::calculateFieldValue(glm::ivec2 position){
     float value = 0;
     value += destination.currentValue(position);
 
@@ -212,30 +185,28 @@ float Pathfinder::calculateFieldValue(glm::vec2 position){
             value += a.currentValue(position);
         }
     }
-    value += staticFieldValues[position.x*staticPotentialFields.height+position.y];
+    value += staticField.get(position);
     return value;
 }
 
 
-
- void Pathfinder::generatePotentialField(glm::vec2 position, int value){
-    int x = position.x;////
-    int y = position.y;;;;;;;
-    auto &staticFieldValues = staticPotentialFields.vec;
+ void Pathfinder::generatePotentialField(const glm::ivec2 &point, int value){
+    int x = point.x;
+    int y = point.y;
     int height = resultMap.height;
     int width = resultMap.width;
-    int maxDist = 10;
+    int maxDist = 5;
+
     for(int k=0; k<maxDist; k+=1){
         for(int i=x-k; i<x+k; i++){
             for(int j=y-k;j<y+k;j++){
-                if(i<0||j<0 ||i>=height || j>=width) continue;
-                int dist = std::sqrt((x-i)*(x-i)+(y-j)*(y-j));
+                if(!staticField.inbounds(point.x+i, point.y+j)) continue;
+                float dist = std::sqrt((x-i)*(x-i)+(y-j)*(y-j));
                 if(dist > maxDist){
                     continue;
                 }
-                int newValue = 0;
-                newValue = value/(dist+1);
-                staticFieldValues[i*height+j] = std::min(newValue, (int)staticFieldValues[i*height+j]);
+                float newValue = std::min(value/(dist+1), staticField.get(point.x+i, point.y+j));
+                staticField.set(point.x+i, point.y+j, newValue);
             }
         }
     }
@@ -267,10 +238,57 @@ void Pathfinder::preprocessMap(){
     resultMap = dataBeingProcessed;
 
     calculateTerrainFieldValues();
+
+    // test();
 }
 
 void Pathfinder::test(){
-//...
+    calculateTerrainFieldValues();
 
+    int width = 300;
+    int height = 300;
+    int startX = 25;
+    int startY = 25;
+    int endX = 200;
+    int endY = 250;
+    int pathValue = 12;////////////
+    int maxValue = 10;
+    int minValue = -10;
+    glm::vec4 start(startX-150, startY-150, 10, 1);
+    glm::vec4 end(endX-150, endY-150, 10, 1);
 
+    Waypoints path = calculate(Waypoint{start, glm::vec4(1,0,0,0), 50.}, Waypoint{end, glm::vec4(1,0,0,0), 50.});
+
+    std::vector<short> vec(width*height);
+    for(int i=0; i<width; i++){
+        for(int j=0; j<height; j++){
+            vec[i*width + j] = calculateFieldValue(glm::ivec2(i, j));
+
+            if(vec[i*width + j] > maxValue){
+                vec[i*width + j] = maxValue;
+            }
+            if(vec[i*width + j] < minValue){
+                vec[i*width + j] = minValue;
+            }
+
+            // if(pathValue < vec[i*width + j]){
+            //     pathValue = vec[i*width + j];
+            // }
+        }
+    }
+
+    for(auto p : path){
+        int x = p.position.x+150;
+        int y = p.position.y+150;
+        vec[x*width + y] = pathValue;
+    }
+
+    for(int i=-1;i<=1;i++){
+        for(int j=-1;j<=1;j++){
+            vec[(startX+i)*width + startY+j] = pathValue;
+            vec[(endX+i)*width + endY+j] = pathValue;
+        }
+    }
+
+    saveVecAsImage(vec, "field values");
 }

@@ -15,10 +15,56 @@ class Asd{
 public:
     float value=0;
     int maxDist=0;
-    glm::vec2 position;
+    glm::ivec2 position;
 
-    float currentValue(glm::vec2 pos){
-        return value/(glm::distance(position, pos)+1);
+    float currentValue(glm::ivec2 pos){
+        float dist = std::sqrt((pos.x-position.x)*(pos.x-position.x)+(pos.y-position.y)*(pos.y-position.y));
+        return value/dist;
+    }
+};
+
+template<typename DataType>
+class MapSampler
+{
+private:
+    std::vector<DataType> m_data;
+public:
+    int w, h;
+    DataType min, max;
+    void collectMinMax(){}
+    MapSampler() = default;
+    MapSampler(std::vector<DataType> data, int w, int h) : m_data(std::move(data)), w(w), h(h){}
+    MapSampler(int w, int h, DataType t) : m_data(w*h, t), w(w), h(h){}
+    MapSampler(const MapSampler<DataType>& mps) : m_data(mps), w(mps.w), h(mps.h){}
+    void operator = (const MapSampler<DataType>& mps){
+        m_data = mps.m_data;
+        w = mps.w;
+        h = mps.h;
+    }
+    void set(glm::ivec2 xy, DataType v){
+        set(xy.x, xy.y, v);
+    }
+    void set(int x, int y, DataType v){
+        m_data[x*w + y] = v;
+    }
+    const DataType& get(glm::ivec2 xy) const {
+        return get(xy.x, xy.y);
+    }
+    const DataType& get(int x, int y) const {
+        return m_data[x*w + y];
+    }
+
+    std::vector<DataType>& getData(){
+        return m_data;
+    }
+    DataType* getRawData(){
+        return m_data.data();
+    }
+    bool inbounds(glm::ivec2 xy){
+        return inbounds(xy.x, xy.y);
+    }
+    bool inbounds(int x, int y){
+        return x>=0 and y >=0 and x<w and y<h;
     }
 };
 
@@ -33,21 +79,19 @@ private:
     std::vector<Asd> semiStaticObjects;
     std::vector<Asd> trail;
     Asd destination;
-    PotentialFields staticPotentialFields;
+    // PotentialFields staticPotentialFields;
+    MapSampler<float> staticField;
+    MapSampler<float> heightField;
 
 public:
     Pathfinder(Scene& scene, Context& context): m_scene(scene), m_context(context) {
         initializePotentialFields(300, 300, 0);
+        staticField = MapSampler<float>(300, 300, 0);
+        heightField = MapSampler<float>(300, 300, 0);
         destination.value = 0;
-        // Asd destination;
-        // destination.value = 20;
-        // destination.maxDist = -1;
-        // destination.posX = 250;
-        // destination.posY = 250;
-        // semiStaticObjects.push_back(destination);
     }
 
-    void addTrail(glm::vec2 position);
+    void addTrail(glm::ivec2 position);
 
     void initializePotentialFields(int height, int width, int value=0);
 
@@ -55,24 +99,21 @@ public:
 
     void preprocessMap();
 
-    float calculateFieldValue(glm::vec2 position);
+    float calculateFieldValue(glm::ivec2 position);
 
-    float calculateFieldValue(glm::vec2 position, glm::vec2 lastPosition);
-
+    float calculateFieldValue_TerrainOnly(glm::ivec2 position);
 
     Waypoint getNextBestField(Waypoint);
 
-     Waypoint getNextBestField2(Waypoint);
+    Waypoint getNextBestField2(Waypoint);
 
     void calculateTerrainFieldValues();
 
-    // void saveVecAsImage(std::vector<short> vec);
-
     void saveVecAsImage(std::vector<short>, std::string name = "wqwqwqw");
 
-    void saveVecAsImageNegative(std::string name="wqwqwqw");
+    void saveVecAsImageNegative(const std::string &name="wqwqwqw");
 
-    void generatePotentialField(glm::vec2 position, int value);
+    void generatePotentialField(const glm::ivec2 &point, int value);
 
     void test();
 

@@ -17,9 +17,10 @@ public:
     int maxDist=0;
     glm::ivec2 position;
 
-    float currentValue(glm::ivec2 pos){
+    float currentDistance(glm::ivec2 pos){
         float dist = std::sqrt((pos.x-position.x)*(pos.x-position.x)+(pos.y-position.y)*(pos.y-position.y));
-        return value/(std::sqrt(dist)+10);
+        return dist;
+        // return value/(std::sqrt(dist)+10);
     }
 };
 
@@ -27,17 +28,17 @@ template<typename DataType>
 class MapSampler
 {
 private:
-    std::vector<DataType> m_data;
+    std::vector<DataType> data;
 public:
     int w, h;
     DataType min, max;
     void collectMinMax(){}
     MapSampler() = default;
-    MapSampler(std::vector<DataType> data, int w, int h) : m_data(std::move(data)), w(w), h(h){}
-    MapSampler(int w, int h, DataType t) : m_data(w*h, t), w(w), h(h){}
-    MapSampler(const MapSampler<DataType>& mps) : m_data(mps), w(mps.w), h(mps.h){}
+    MapSampler(std::vector<DataType> data, int w, int h) : data(std::move(data)), w(w), h(h){}
+    MapSampler(int w, int h, DataType t) : data(w*h, t), w(w), h(h){}
+    MapSampler(const MapSampler<DataType>& mps) : data(mps), w(mps.w), h(mps.h){}
     void operator = (const MapSampler<DataType>& mps){
-        m_data = mps.m_data;
+        data = mps.data;
         w = mps.w;
         h = mps.h;
     }
@@ -45,20 +46,20 @@ public:
         set(xy.x, xy.y, v);
     }
     void set(int x, int y, DataType v){
-        m_data[x + y*w] = v;
+        data[x + y*w] = v;
     }
     const DataType& get(glm::ivec2 xy) const {
         return get(xy.x, xy.y);
     }
     const DataType& get(int x, int y) const {
-        return m_data[x + y*w];
+        return data[x + y*w];
     }
 
     std::vector<DataType>& getData(){
-        return m_data;
+        return data;
     }
     DataType* getRawData(){
-        return m_data.data();
+        return data.data();
     }
     bool inbounds(glm::ivec2 xy){
         return inbounds(xy.x, xy.y);
@@ -79,21 +80,22 @@ private:
     std::vector<Asd> semiStaticObjects;
     std::vector<Asd> trail;
     Asd destination;
-    // PotentialFields staticPotentialFields;
     MapSampler<float> staticField;
     MapSampler<float> heightField;
 
 public:
     Pathfinder(Scene& scene, Context& context): m_scene(scene), m_context(context) {
-        initializePotentialFields(300, 300, 0);
+        mapSize = 300;
         staticField = MapSampler<float>(300, 300, 0);
         heightField = MapSampler<float>(300, 300, 0);
         destination.value = 0;
     }
 
-    void addTrail(glm::ivec2 position);
+    float distance(glm::ivec2 start, glm::ivec2 end){
+        return std::sqrt((start.x-end.x)*(start.x-end.x)+(start.y-end.y)*(start.y-end.y));
+    }
 
-    void initializePotentialFields(int height, int width, int value=0);
+    void addTrail(glm::ivec2 position);
 
     Waypoints calculate(Waypoint from, Waypoint to);
 
@@ -109,16 +111,15 @@ public:
 
     void calculateTerrainFieldValues();
 
-    void saveVecAsImage(std::vector<short>, std::string name = "wqwqwqw");
+    void saveVecAsImage(std::vector<short>, std::string name = "image");
 
-    void saveVecAsImageNegative(const std::string &name="wqwqwqw");
+    void saveVecAsImageNegative(const std::string &name="imagen");
 
-    void generatePotentialField(const glm::ivec2 &point, int value);
+    void generateTerrainPotentialField(const glm::ivec2 &point, int value);
+
 
     void test();
 
     void test2();
-
-    void test3();
 
 };

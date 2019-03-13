@@ -233,21 +233,22 @@ public:
             material.Get(AI_MATKEY_NAME, aiMaterialName);
             auto& materialData = (*materials)[std::string(aiMaterialName.C_Str())];
 
-            if(aiColor3D aicolor(0.f,0.f,0.f); AI_SUCCESS == material.Get(AI_MATKEY_COLOR_DIFFUSE, aicolor)){
-                glm::vec3 color(aicolor.r, aicolor.g, aicolor.b);
-                vertexCopy::color(mesh, data, startPosition, color);
-            }
-            else {
-                error("For", mesh.mName.C_Str(), "has no color in material");
-            }
+            // if(aiColor3D aicolor(0.f,0.f,0.f); AI_SUCCESS == material.Get(AI_MATKEY_COLOR_DIFFUSE, aicolor)){
+            //     glm::vec3 color(aicolor.r, aicolor.g, aicolor.b);
+            // }
+            // else {
+            //     error("For", mesh.mName.C_Str(), "has no color in material");
+            // }
 
-            float roughness = materialData["roughness"].number();
-            float metallic = materialData["metallic"].number();
-            float reflectance = materialData["reflectance"].number();
-            float emissive = materialData["emissive"].number();
-            float clearCoat = materialData["clearCoat"].number();
-            float clearCoatRoughness = materialData["clearCoatRoughness"].number();
-            float anisotropy = materialData["anisotropy"].number();
+            vertexCopy::color(mesh, data, startPosition, materialData["BaseColor"].vec3());
+            float metallic = materialData["Metallic"].number();
+            float specular = materialData["Specular"].number();
+            float roughness = materialData["Roughness"].number();
+            float anisotropic = materialData["Anisotropic"].number();
+            float anisotropicRotation = materialData["AnisotropicRotation"].number();
+            float clearcoat = materialData["Clearcoat"].number();
+            // todo: add emissive materials
+            // float emissive = materialData["emissive"].number();
 
             for(int i=startPosition; i<startPosition+mesh.mNumVertices; i++){
                 data[i].roughness = roughness;

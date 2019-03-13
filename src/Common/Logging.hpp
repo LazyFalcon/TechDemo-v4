@@ -49,6 +49,10 @@ namespace pmk {
     inline void toStream(std::ostream& out, btVector3 val){
         out<<"[ "<<val[0]<<", "<<val[1]<<", "<<val[2]<<" ] ";
     }
+    template <>
+    inline void toStream(std::ostream& out, btQuaternion val){
+        out<<"[ "<<val[0]<<", "<<val[1]<<", "<<val[2]<<", "<<val[3]<<" ] ";
+    }
     template <typename T>
     inline void toStream(std::ostream& out, const std::vector<T> &val){
         out<<"{ ";

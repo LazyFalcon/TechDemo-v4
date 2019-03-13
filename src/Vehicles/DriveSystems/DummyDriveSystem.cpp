@@ -26,10 +26,10 @@ public:
     }
 };
 
-PDReg pdRegForce = PDReg(0.7, 0.0); // * outputs force
-PDReg pdRegPosition = PDReg(0.7, 0.0);  // * outputs impulses
-PDReg pdRegTorque = PDReg(0.7, 0.0);  // * outputs torque
-PDReg pdRegOrientation = PDReg(0.7, 0.0);  // * outputs impulses
+PDReg pdRegForce = PDReg(0.99, 0.0); // * outputs force
+PDReg pdRegPosition = PDReg(0.99, 0.0);  // * outputs impulses
+PDReg pdRegTorque = PDReg(0.9, 0.0);  // * outputs torque
+PDReg pdRegOrientation = PDReg(0.9, 0.0);  // * outputs impulses
 
 void DummyDriveSystem::update(float dt){
     m_targetPosition += m_moveDirection;
@@ -51,15 +51,37 @@ void DummyDriveSystem::forcePart(float dt, btTransform& tr){
     // btVector3 response = pdRegForce.goTo(btVector3(0,0,0), externalForces);
 
     eq.rgBody->applyCentralForce(response);
-
+    eq.rgBody->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
     if(eq.control.targetPoint){
         auto positionError = convert(*eq.control.targetPoint) - tr.getOrigin();
-        auto impulse = pdRegPosition.goTo(btVector3(0,0,0), -positionError);
+        auto impulse = pdRegPosition.goTo(btVector3(0,0,0), -positionError)*20;
 
-        eq.rgBody->applyCentralImpulse(impulse);
+        eq.rgBody->setLinearVelocity(impulse);
+        // eq.rgBody->applyCentralImpulse(impulse);
     }
 
 }
+btVector3 QuaternionToEulerXYZ(const btQuaternion &quat)
+{
+    btVector3 euler;
+	btScalar w=quat.getW();	btScalar x=quat.getX();	btScalar y=quat.getY();	btScalar z=quat.getZ();
+	double sqw = w*w; double sqx = x*x; double sqy = y*y; double sqz = z*z;
+	euler.setZ((atan2(2.0 * (x*y + z*w),(sqx - sqy - sqz + sqw))));
+	euler.setX((atan2(2.0 * (y*z + x*w),(-sqx - sqy + sqz + sqw))));
+	euler.setY((asin(-2.0 * (x*z - y*w))));
+    return euler;
+}
+btVector3 QuaternionToEulerXYZ(const glm::quat &quat)
+{
+    btVector3 euler;
+	btScalar w=quat.w;	btScalar x=quat.x;	btScalar y=quat.y;	btScalar z=quat.z;
+	double sqw = w*w; double sqx = x*x; double sqy = y*y; double sqz = z*z;
+	euler.setZ((atan2(2.0 * (x*y + z*w),(sqx - sqy - sqz + sqw))));
+	euler.setX((atan2(2.0 * (y*z + x*w),(-sqx - sqy + sqz + sqw))));
+	euler.setY((asin(-2.0 * (x*z - y*w))));
+    return euler;
+}
+
 void DummyDriveSystem::torquePart(float dt, btTransform& tr){
     btVector3 currentTorque = eq.rgBody->getTotalTorque() - m_previouslyappliedTorque;
 
@@ -67,12 +89,34 @@ void DummyDriveSystem::torquePart(float dt, btTransform& tr){
     m_previouslyappliedTorque = response;
     // btVector3 response = pdRegTorque.goTo(btVector3(0,0,0), currentTorque);
 
+    eq.rgBody->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
     eq.rgBody->applyTorque(response);
     if(eq.control.targetDirection){
-        auto rotationError = tr.getBasis()[m_leadingAxis].cross(m_lookDirection) + tr.getBasis()[2].cross(btVector3(0,0,1));
-        auto impulse = pdRegOrientation.goTo(btVector3(0,0,0), -rotationError)*0.1;
+        // clog("to:", target, "from:", rotation, "by:", delta);
+        auto rotation = tr.getRotation();
+        // btQuaternion target(convert(*eq.control.targetDirection), 0);
+        btQuaternion target(btVector3(1,0,0), 0.1);
+        btQuaternion deltaOrientation = target* rotation.inverse();
+        btVector3 deltaEuler = QuaternionToEulerXYZ(deltaOrientation);
 
-        // eq.rgBody->applyTorqueImpulse(impulse);
+
+        auto y = convert(tr.getBasis()[m_leadingAxis]);
+        auto tgt = glm::normalize(glm::vec3(-1,-1,1));
+        // auto tgt = (*eq.control.targetDirection).xyz();
+
+        auto quat = glm::rotation(y, tgt);
+        auto delta = QuaternionToEulerXYZ(quat);
+
+        // You basically get the scaled inverse of the torque you want to apply. Now you "just" need to find an appropriate amount to ease it in.
+
+        // auto rotationError = tr.getBasis()[m_leadingAxis].cross(convert(*eq.control.targetDirection)) + tr.getBasis()[2].cross(btVector3(0,0,1));
+        // auto impulse = pdRegOrientation.goTo(btVector3(0,0,0), -rotationError)*5.91;
+        clog("tgt:", QuaternionToEulerXYZ(target), "rot:", QuaternionToEulerXYZ(rotation));
+        clog("to:", target, "from:", rotation, "by:", deltaEuler, "by:", delta);
+
+
+        // eq.rgBody->setAngularVelocity(delta);
+        eq.rgBody->applyTorqueImpulse(-delta*60);
     }
 }
 

@@ -239,7 +239,7 @@ void App::render(){
     if(gameState) gameState->renderProcedure(*graphicEngine);
 
     if(TAKE_SCREENSHOT){
-        // graphicEngine->takeScreenShot();
+        graphicEngine->takeScreenShot();
         TAKE_SCREENSHOT = false;
     }
     glfwSwapBuffers(window->window);

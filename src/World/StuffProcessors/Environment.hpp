@@ -85,5 +85,6 @@ private:
 
     void loadVisualPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml);
     bool loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml);
-    void createSimpleCollider(EnviroEntity &entity, float mass);
+    void createSimpleBoxCollider(EnviroEntity &entity, float mass);
+    void createSimpleSphereCollider(EnviroEntity &entity, float mass);
 };

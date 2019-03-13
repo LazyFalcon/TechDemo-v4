@@ -39,7 +39,8 @@ void Environment::load(const std::string &sceneName, const Yaml& yaml){
     }
 
     modelLoader.materials = yaml["Materials"];
-    for(auto& it : yaml["Objects"]) loadObject(it, modelLoader);
+    for(auto& it : yaml["Objects"]["Terrain"]) loadObject(it, modelLoader);
+    for(auto& it : yaml["Objects"]["Regular"]) loadObject(it, modelLoader);
     if(yaml.has("LightSources")) for(auto& it : yaml["LightSources"]) loadLightSource(it);
     vao = modelLoader.build();
     RenderDataCollector::enviro.vao = vao;
@@ -62,7 +63,7 @@ void Environment::loadObject(const Yaml &yaml, ModelLoader<VertexWithMaterialDat
 
     //* most of objects needs to be physical, for collisions, pathfinding and culling
     if(not loadPhysicalPart(modelLoader, entity, yaml))
-        createSimpleCollider(entity, 0);
+        createSimpleBoxCollider(entity, 0);
 
 
     // * save object id in rigid body
@@ -77,8 +78,13 @@ void Environment::loadVisualPart(ModelLoader<VertexWithMaterialData>& modelLoade
     e.graphic.mesh = modelLoader.load(yaml["Models"].strings());
 }
 
-void Environment::createSimpleCollider(EnviroEntity &entity, float mass){
+void Environment::createSimpleBoxCollider(EnviroEntity &entity, float mass){
     entity.physics.shape = new btBoxShape(convert(entity.physics.dimensions/2.f));
+    btTransform tr = convert(entity.physics.transform);
+    entity.physics.rgBody = physics.createRigidBody(mass, tr, entity.physics.shape);
+}
+void Environment::createSimpleSphereCollider(EnviroEntity &entity, float mass){
+    entity.physics.shape = new btSphereShape(std::max({entity.physics.dimensions.x, entity.physics.dimensions.y, entity.physics.dimensions.z})/2.f);
     btTransform tr = convert(entity.physics.transform);
     entity.physics.rgBody = physics.createRigidBody(mass, tr, entity.physics.shape);
 }
@@ -105,7 +111,8 @@ bool Environment::loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoa
 
         entity.physics.rgBody = physics.createRigidBody(0, convert(entity.physics.transform), entity.physics.shape);
     }
-    else createSimpleCollider(entity, yaml["Mass"].number());
+    else if(yaml["Shape"] == "BOX") createSimpleBoxCollider(entity, yaml["Mass"].number());
+    else if(yaml["Shape"] == "SPHERE") createSimpleSphereCollider(entity, yaml["Mass"].number());
 
     return true;
 }

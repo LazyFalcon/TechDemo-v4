@@ -45,6 +45,7 @@ public:
         if(m_path.empty()){ // * current path finished
             if(m_queue.empty()){ // * queue of targets empty
                 m_vehicle.control.targetPoint.reset();
+                m_vehicle.control.targetDirection.reset();
                 return;
             }
             else calculateNewPath();
@@ -57,14 +58,17 @@ public:
         auto [vec, distance] = selectNextWaypoint(distanceToGo);
 
         auto botPosition = m_vehicle.getPosition();
-        auto next = botPosition + vec/distance * distanceToGo;
+        Waypoint next{};
+        next.position = botPosition + vec/distance * distanceToGo;
+        next.direction = m_waypointID->direction;
 
         if(distance >= distanceToGo and m_waypointID == m_lastWaypoint){
-            next = m_waypointID->position;
+            next = *m_waypointID;
             m_path.clear();
         }
 
-        m_vehicle.control.targetPoint = next;
+        m_vehicle.control.targetPoint = next.position;
+        m_vehicle.control.targetDirection = next.direction;
     }
 
 

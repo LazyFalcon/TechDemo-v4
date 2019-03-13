@@ -204,7 +204,7 @@ void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnP
 
     auto& bot = *m_scene->m_friendlyBots.emplace_back(
         std::make_shared<AI>(std::make_unique<AiControlViaInput>(m_input->getDispatcher(), m_pointerInfo),
-                             std::make_unique<Pathfinder>(*m_scene, renderingContext),
+                             std::make_unique<NoPathfinder>(),
                              *vehicle));
 }
 void Playground::spawnHostileBot(const std::string& configName, const glm::mat4& spawnPoint){

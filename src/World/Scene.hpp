@@ -58,7 +58,7 @@ struct Scene : private boost::noncopyable
         return graph->sample(position);
     }
 
-    glm::vec4 getSceneDimension();
+    glm::vec4 getSceneDimensions();
     std::vector<std::shared_ptr<AI>>& getHostiles(){
         return m_hostileBots;
     }

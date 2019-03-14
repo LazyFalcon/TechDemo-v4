@@ -6,6 +6,10 @@ layout(location=2)in vec3 mUV;
 layout(location=3)in vec3 mColor;
 layout(location=4)in float mRoughness;
 layout(location=5)in float mMetallic;
+layout(location=6)in float mSpecular;
+layout(location=7)in float mAnisotropic;
+layout(location=8)in float mClearcoat;
+layout(location=9)in float mEmissive;
 
 uniform mat4 uPV;
 
@@ -18,6 +22,10 @@ out vec3 vColor;
 out vec3 vNormalWS;
 out float vRoughness;
 out float vMetallic;
+out float vSpecular;
+out float vAnisotropic;
+out float vClearcoat;
+out float vEmissive;
 
 void main(){
     vUV = mUV*6;
@@ -25,6 +33,10 @@ void main(){
     vColor = mColor;
     vRoughness = mRoughness;
     vMetallic = mMetallic;
+    vSpecular = mSpecular;
+    vAnisotropic = mAnisotropic;
+    vClearcoat = mClearcoat;
+    vEmissive = mEmissive;
     vNormalWS = (bones[gl_DrawID]*vec4(mNormal, 0)).xyz;
 
     gl_Position = uPV*(bones[gl_DrawID]*vec4(mVertex, 1));
@@ -48,6 +60,10 @@ in vec3 vColor;
 in vec3 vNormalWS;
 in float vRoughness;
 in float vMetallic;
+in float vSpecular;
+in float vAnisotropic;
+in float vClearcoat;
+in float vEmissive;
 
 void main(void){
     outColor.rgb = mix(vColor, texture2DArray(uAlbedo, vUV).rgb, 0.905);

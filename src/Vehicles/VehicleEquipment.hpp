@@ -2,6 +2,7 @@
 #include "CameraController.hpp"
 #include "BulletDynamics\Dynamics\btActionInterface.h"
 #include "GraphicComponent.hpp"
+#include "MountedWeapon.hpp"
 /**
     Stores informations about vehicle(universal for each type, vehicle is build from modules), can be used in HUD
     Where goes hitpoints, or vehicle vitality
@@ -21,6 +22,14 @@ struct VehicleControl
     std::optional<glm::vec4> targetDirection;
 };
 
+struct VehicleShared
+{
+    std::optional<glm::vec4> targetPoint;
+    std::optional<int> targetEnemy;
+    std::vector<int> knownEnemies;
+
+};
+
 class VehicleEquipment : public btActionInterface
 {
 public:
@@ -34,6 +43,8 @@ public:
     PhysicalWorld& physics;
     VehicleControl control;
     GraphicComponent graphics;
+    // * Trzeba gdzieś tu wrzucić dane które będą służyć do komunikacji z modułami, w obie strony
+    VehicleShared shared;
 
     btRigidBody *rgBody {nullptr};
     btCompoundShape *compound {nullptr};
@@ -64,6 +75,8 @@ public:
     std::vector<std::shared_ptr<IModule>> modules; /// hierarchical for updateMarkers
     std::vector<std::shared_ptr<IModule>> modulesToUpdateInsidePhysicsStep;
     std::vector<std::shared_ptr<CameraController>> cameras;
+    std::vector<MountedWeapon> mountedWeapons;
+    // * moduły do których dostęp z zewnątrz jest potrzebny, czy na pewno? nie mogłyby sobie same wyciągać rzeczy?
     std::shared_ptr<PowerShield> powerShield;
     std::shared_ptr<DriveSystem> driveSystem; /// instead of while class Vehicle, this unit is responsible for movement, and Actor for knowing which type it is
     std::shared_ptr<Radar> radar;

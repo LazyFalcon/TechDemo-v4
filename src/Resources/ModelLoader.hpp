@@ -1,4 +1,5 @@
 #pragma once
+#include "gl_core_4_5.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -242,17 +243,21 @@ public:
 
             vertexCopy::color(mesh, data, startPosition, materialData["BaseColor"].vec3());
             float metallic = materialData["Metallic"].number();
-            float specular = materialData["Specular"].number();
             float roughness = materialData["Roughness"].number();
+            float specular = materialData["Specular"].number();
             float anisotropic = materialData["Anisotropic"].number();
-            float anisotropicRotation = materialData["AnisotropicRotation"].number();
+            // float anisotropicRotation = materialData["AnisotropicRotation"].number(); // temporary constant
             float clearcoat = materialData["Clearcoat"].number();
             // todo: add emissive materials
-            // float emissive = materialData["emissive"].number();
+            float emissive = materialData["Emissive"].number();
 
             for(int i=startPosition; i<startPosition+mesh.mNumVertices; i++){
                 data[i].roughness = roughness;
                 data[i].metallic = metallic;
+                data[i].specular = specular;
+                data[i].anisotropic = anisotropic;
+                data[i].clearcoat = clearcoat;
+                data[i].emissive = emissive;
             }
         }
     }
@@ -315,6 +320,10 @@ public:
             vbo.attrib().pointer_float(3, size, (void*)offsetof(VertexFormat, color)).divisor(0);
             vbo.attrib().pointer_float(1, size, (void*)offsetof(VertexFormat, roughness)).divisor(0);
             vbo.attrib().pointer_float(1, size, (void*)offsetof(VertexFormat, metallic)).divisor(0);
+            vbo.attrib().pointer_float(1, size, (void*)offsetof(VertexFormat, specular)).divisor(0);
+            vbo.attrib().pointer_float(1, size, (void*)offsetof(VertexFormat, anisotropic)).divisor(0);
+            vbo.attrib().pointer_float(1, size, (void*)offsetof(VertexFormat, clearcoat)).divisor(0);
+            vbo.attrib().pointer_float(1, size, (void*)offsetof(VertexFormat, emissive)).divisor(0);
         }
         vao.addBuffer(indices)();
         vao.unbind();

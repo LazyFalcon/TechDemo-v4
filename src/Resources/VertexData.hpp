@@ -35,6 +35,10 @@ struct VertexWithMaterialData
     glm::vec3 color;
     float roughness;
     float metallic;
+    float specular;
+    float anisotropic;
+    float clearcoat;
+    float emissive;
 };
 
 struct VertexWithMaterialDataAndBones
@@ -46,4 +50,8 @@ struct VertexWithMaterialDataAndBones
     glm::vec3 color;
     float roughness;
     float metallic;
+    float specular;
+    float anisotropic;
+    float clearcoat;
+    float emissive;
 };

@@ -4,7 +4,14 @@ layout(location=0)in vec3 mVertex;
 layout(location=1)in vec3 mNormal;
 layout(location=2)in vec3 mUV;
 layout(location=3)in uint mBoneIndex;
-// layout(location=3)in vec4 mTangent;
+
+layout(location=4)in vec3 mColor;
+layout(location=5)in float mRoughness;
+layout(location=6)in float mMetallic;
+layout(location=7)in float mSpecular;
+layout(location=8)in float mAnisotropic;
+layout(location=9)in float mClearcoat;
+layout(location=10)in float mEmissive;
 
 uniform mat4 uProjection;
 uniform mat4 uView;

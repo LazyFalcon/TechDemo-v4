@@ -13,9 +13,16 @@ class Player;
 class SkinnedMesh;
 struct VertexWithMaterialDataAndBones;
 
+
 class VehicleAssembler
 {
 private:
+    struct ToBuildModuleLater
+    {
+        std::shared_ptr<IModule> module;
+        glm::vec4 fromJointToOrigin;
+        int configId;
+    };
     std::string m_configName;
     std::shared_ptr<ModelLoader<VertexWithMaterialDataAndBones>> m_modelLoader;
     PhysicalWorld& m_physics;
@@ -27,9 +34,11 @@ private:
     uint m_boneMatrixIndex {};
     uint m_compoundIndex {};
     Yaml m_config;
+    std::map<std::string, ToBuildModuleLater> modules;
 
     void openModelFile();
-    void makeModulesRecursively(const Yaml& cfg, const Yaml& connectorProp, IModule *parentModule);
+    void collectAndInitializeModules();
+    void connectModules(ToBuildModuleLater& module, IModule* parent, const Yaml* connectionProps);
     void setDecals(IModule& module, const Yaml& cfg);
     void setMarkers(IModule& module, const Yaml& cfg);
     void setVisual(IModule& module, const Yaml& cfg);

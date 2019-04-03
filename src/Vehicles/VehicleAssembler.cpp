@@ -22,15 +22,48 @@ VehicleAssembler::VehicleAssembler(const std::string& configName, PhysicalWorld&
     {}
 
 void VehicleAssembler::openModelFile(){
+    m_config = Yaml(resPath + "models/" + m_configName + ".yml");
+
     // m_modelLoader->tangents = 3; // TODO:
+    m_modelLoader->materials = m_config["Materials"];
     m_modelLoader->defaults.uvComponents = 3;
     m_modelLoader->defaults.vertex4comonent = 0u;
     m_modelLoader->defaults.roughness = 0.5f;
     m_modelLoader->defaults.metallic = 0.0f;
     m_modelLoader->defaults.reflectivity = 0.04f;
     m_modelLoader->open(resPath + "models/" + m_configName + ".dae", assets::layerSearch(assets::getAlbedoArray("Materials")));
+}
 
-    m_config = Yaml(resPath + "models/" + m_configName + ".yml");
+void VehicleAssembler::collectAndInitializeModules(){
+    for(auto & it : m_config["Modules"]){
+        auto module = m_moduleFactory.createModule(cfg);
+        if(not module){
+            error("failed to create module:", modelName);
+            return;
+        }
+
+        module->name = it["Name"].string();
+        m_modules[module->name] = module, cfg["FromParentToOrigin"].vec30(), &it};
+
+        setDecals(*module, cfg);
+        setMarkers(*module, cfg);
+        setVisual(*module, cfg);
+        // setArmor(*module, cfg);
+    }
+}
+
+void VehicleAssembler::connectModules(ToBuildModuleLater& moduleData, IModule* parent, const Yaml* connectionProps){
+
+    moduleData.module->parent = parent;
+    m_vehicleEq->modules.push_back(module);
+    setConnection(*moduleData.module, connectionProps);
+    setPhysical(*moduleData.module, cfg);
+
+    if(cfg.has("Joints")) for(auto& connector : cfg["Joints"]){
+        if(connector.has("Connected")) for(auto& moduleName : connector["Connected"]){
+            connectModules(modules[moduleName.string()], moduleData.module.get(), connector);
+        }
+    }
 }
 
 // * builds common part of model, every specific should be done by inheritances
@@ -41,7 +74,8 @@ std::shared_ptr<VehicleEquipment> VehicleAssembler::build(const glm::mat4& onPos
     m_vehicleEq->compound = new btCompoundShape();
     m_skinnedMesh->mesh = m_modelLoader->beginMesh();
 
-    makeModulesRecursively(m_config["Model"], {}, nullptr);
+    collectAndInitializeModules();
+    connectModules(modules["Base"], nullptr, nullptr);
 
     // * put model to GPU
     m_modelLoader->endMesh(m_skinnedMesh->mesh);
@@ -75,39 +109,6 @@ void VehicleAssembler::buildRigidBody(const glm::mat4& onPosition){
 
     m_vehicleEq->rgBody->setDamping(0.2f, 0.2f);
     m_vehicleEq->rgBody->setActivationState(DISABLE_DEACTIVATION);
-}
-
-void VehicleAssembler::makeModulesRecursively(const Yaml& cfg, const Yaml& connectionProps, IModule *parentModule){
-    if(not cfg["Active"].boolean()) return;
-
-    std::string identifier = cfg["Identifier"].string();
-    std::string modelName = cfg["Name"].string();
-
-    log("Processing:", modelName);
-
-    auto module = m_moduleFactory.createModule(cfg);
-    if(not module){
-        error("failed to create module:", modelName);
-        return;
-    }
-    module->parent = parentModule;
-    module->name = modelName;
-    module->joint = parentModule==nullptr ? std::make_shared<Joint>() : createJoint(connectionProps, cfg["FromParentToOrigin"].vec30());
-    m_vehicleEq->modules.push_back(module);
-
-    setDecals(*module, cfg);
-    setMarkers(*module, cfg);
-    setVisual(*module, cfg);
-    setConnection(*module, cfg);
-    setPhysical(*module, cfg);
-    // setArmor(*module, cfg);
-
-    if(cfg.has("Connector")) for(auto& connector : cfg["Connector"]){
-        if(connector.has("Pinned")) for(auto& pinned : connector["Pinned"]){
-            makeModulesRecursively(pinned, connector, module.get());
-        }
-    }
-    return;
 }
 
 void VehicleAssembler::setDecals(IModule& module, const Yaml& cfg){
@@ -179,9 +180,10 @@ void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
 // * creates connection between parent and child module, usually this connection is updated by child
 // * can have different number of dof
 // * lack of limits means that connection is rigid
-void VehicleAssembler::setConnection(IModule& module, const Yaml& cfg){
-    glm::mat4 tr = module.joint->getTransform();
-    module.transform(tr);
+void VehicleAssembler::setConnection(ToBuildModuleLater& moduleData, const Yaml& cfg){
+    moduleData.module->joint = parent==nullptr ? std::make_shared<Joint>() : createJoint(*cfg, moduleData.fromJointToOrigin);
+    glm::mat4 tr = moduleData.module->joint->getTransform();
+    moduleData.module->transform(tr);
 }
 
 // * when module has rigidBody created

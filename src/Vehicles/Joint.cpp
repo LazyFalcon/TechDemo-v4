@@ -87,6 +87,5 @@ std::shared_ptr<Joint> createJoint(const Yaml& config, glm::vec4 fromSocketToOri
     out->toBOrigin = fromSocketToOrigin;
     out->m_loc = glm::mat4(config["X"].vec31(),config["Y"].vec31(),config["Z"].vec31(),config["W"].vec31());
 
-
     return out;
 }

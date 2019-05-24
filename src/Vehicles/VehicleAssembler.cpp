@@ -36,32 +36,33 @@ void VehicleAssembler::openModelFile(){
 
 void VehicleAssembler::collectAndInitializeModules(){
     for(auto & it : m_config["Modules"]){
-        auto module = m_moduleFactory.createModule(cfg);
+        auto module = m_moduleFactory.createModule(it);
         if(not module){
-            error("failed to create module:", modelName);
+            error("failed to create module:", it["Name"].string());
             return;
         }
 
         module->name = it["Name"].string();
-        m_modules[module->name] = module, cfg["FromParentToOrigin"].vec30(), &it};
+        m_modules[module->name] = {module, it["FromParentToOrigin"].vec30(), &it};
 
-        setDecals(*module, cfg);
-        setMarkers(*module, cfg);
-        setVisual(*module, cfg);
-        // setArmor(*module, cfg);
+        setDecals(*module, it);
+        setMarkers(*module, it);
+        setVisual(*module, it);
+        // setArmor(*module, it);
     }
 }
 
 void VehicleAssembler::connectModules(ToBuildModuleLater& moduleData, IModule* parent, const Yaml* connectionProps){
 
     moduleData.module->parent = parent;
-    m_vehicleEq->modules.push_back(module);
-    setConnection(*moduleData.module, connectionProps);
-    setPhysical(*moduleData.module, cfg);
+    m_vehicleEq->modules.push_back(moduleData.module);
+    if(connectionProps)
+        setConnection(moduleData, *connectionProps);
+    setPhysical(*moduleData.module, *moduleData.config);
 
-    if(cfg.has("Joints")) for(auto& connector : cfg["Joints"]){
+    if(moduleData.config->has("Joints")) for(auto& connector : (*moduleData.config)["Joints"]){
         if(connector.has("Connected")) for(auto& moduleName : connector["Connected"]){
-            connectModules(modules[moduleName.string()], moduleData.module.get(), connector);
+            connectModules(m_modules[moduleName.string()], moduleData.module.get(), &connector);
         }
     }
 }
@@ -75,7 +76,7 @@ std::shared_ptr<VehicleEquipment> VehicleAssembler::build(const glm::mat4& onPos
     m_skinnedMesh->mesh = m_modelLoader->beginMesh();
 
     collectAndInitializeModules();
-    connectModules(modules["Base"], nullptr, nullptr);
+    connectModules(m_modules["Base"], nullptr, nullptr);
 
     // * put model to GPU
     m_modelLoader->endMesh(m_skinnedMesh->mesh);
@@ -180,7 +181,7 @@ void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
 // * creates connection between parent and child module, usually this connection is updated by child
 // * can have different number of dof
 // * lack of limits means that connection is rigid
-void VehicleAssembler::setConnection(ToBuildModuleLater& moduleData, const Yaml& cfg){
+void VehicleAssembler::setConnection(VehicleAssembler::ToBuildModuleLater& moduleData, const Yaml& cfg){
     moduleData.module->joint = parent==nullptr ? std::make_shared<Joint>() : createJoint(*cfg, moduleData.fromJointToOrigin);
     glm::mat4 tr = moduleData.module->joint->getTransform();
     moduleData.module->transform(tr);

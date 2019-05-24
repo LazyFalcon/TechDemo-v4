@@ -21,7 +21,7 @@ private:
     {
         std::shared_ptr<IModule> module;
         glm::vec4 fromJointToOrigin;
-        int configId;
+        Yaml* config;
     };
     std::string m_configName;
     std::shared_ptr<ModelLoader<VertexWithMaterialDataAndBones>> m_modelLoader;
@@ -34,7 +34,7 @@ private:
     uint m_boneMatrixIndex {};
     uint m_compoundIndex {};
     Yaml m_config;
-    std::map<std::string, ToBuildModuleLater> modules;
+    std::map<std::string, ToBuildModuleLater> m_modules;
 
     void openModelFile();
     void collectAndInitializeModules();
@@ -42,7 +42,7 @@ private:
     void setDecals(IModule& module, const Yaml& cfg);
     void setMarkers(IModule& module, const Yaml& cfg);
     void setVisual(IModule& module, const Yaml& cfg);
-    void setConnection(IModule& module, const Yaml& cfg);
+    void setConnection(VehicleAssembler::ToBuildModuleLater& moduleData, const Yaml& cfg);
     void setPhysical(IModule& module, const Yaml& cfg);
     void setArmor(IModule& module, const Yaml& cfg);
     void buildRigidBody(const glm::mat4& onPosition);

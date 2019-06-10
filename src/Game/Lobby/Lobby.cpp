@@ -175,18 +175,18 @@ private:
         });
         panel.button()().text("Continue");
         if(m_playSelected){
-            panel.button().w(0.8f).h(40)().text("Demo With Drones").action([]{
-                event<StartPlayground>("Turret");
+            panel.button().w(0.8f).h(40)().text("Demo Scene").action([]{
+                event<StartPlayground>("DemoVehicle", "DemoScene");
             });
             panel.button().w(0.8f).h(40)().text("Void Rendering").action([]{
                 log("not implemented yet");
             });
-            panel.button().w(0.8f).h(40)().text("Graphic Testing").action([]{
-                event<StartPlayground>("Cycles-PBR");
-            });
-            panel.button().w(0.8f).h(40)().text("Featured").action([]{
-                event<StartPlayground>("FeaturedScene");
-            });
+            // panel.button().w(0.8f).h(40)().text("Graphic Testing").action([]{
+            //     event<StartPlayground>("Cycles-PBR");
+            // });
+            // panel.button().w(0.8f).h(40)().text("Featured").action([]{
+            //     event<StartPlayground>("FeaturedScene");
+            // });
         }
         panel.button()().text("New Game").action([this]{m_playSelected = !m_playSelected;});
         // panel.button().y(0.6f)().text("New Game").action([this]{m_playSelected = !m_playSelected;});

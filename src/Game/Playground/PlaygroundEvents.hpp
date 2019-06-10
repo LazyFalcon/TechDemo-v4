@@ -3,8 +3,9 @@
 
 struct StartPlayground : public Event
 {
-    StartPlayground(std::string sceneName) : sceneName(sceneName){}
+    StartPlayground(std::string vehicleName, std::string sceneName) : vehicleName(vehicleName), sceneName(sceneName){}
     bool handle(App &app);
+    std::string vehicleName;
     std::string sceneName;
 };
 

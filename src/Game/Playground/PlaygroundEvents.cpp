@@ -20,7 +20,7 @@ bool StartPlayground::handle(App &app){
     // TODO: extract starting point
     if(scene.spawnPoints.size() == 0) error("Noob! Scene have to has SpawnPoints defined!");
     else {
-        playground->spawnBot("Drone", scene.spawnPoints[0].transform, *app.graphicEngine->context);
+        playground->spawnPlayer(vehicleName, scene.spawnPoints[0].transform);
         if(scene.spawnPoints.size() > 1) for(auto i=1; i<scene.spawnPoints.size(); i++)
             playground->spawnHostileBot("Drone", scene.spawnPoints[i].transform);
     }

@@ -62,7 +62,8 @@ void VehicleAssembler::connectModules(ToBuildModuleLater& moduleData, IModule* p
 
     if(moduleData.config->has("Joints")) for(auto& connector : (*moduleData.config)["Joints"]){
         if(connector.has("Connected")) for(auto& moduleName : connector["Connected"]){
-            connectModules(m_modules[moduleName.string()], moduleData.module.get(), &connector);
+            log("creating module:", moduleName.string());
+            connectModules(m_modules.at(moduleName.string()), moduleData.module.get(), &connector);
         }
     }
 }
@@ -182,7 +183,7 @@ void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
 // * can have different number of dof
 // * lack of limits means that connection is rigid
 void VehicleAssembler::setConnection(VehicleAssembler::ToBuildModuleLater& moduleData, const Yaml& cfg){
-    moduleData.module->joint = parent==nullptr ? std::make_shared<Joint>() : createJoint(*cfg, moduleData.fromJointToOrigin);
+    moduleData.module->joint = createJoint(cfg, moduleData.fromJointToOrigin);
     glm::mat4 tr = moduleData.module->joint->getTransform();
     moduleData.module->transform(tr);
 }

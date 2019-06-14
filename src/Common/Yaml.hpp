@@ -2,6 +2,7 @@
 #include "Logging.hpp"
 #include <iosfwd>
 #include <boost/variant.hpp>
+#include <boost/optional.hpp>
 #include <LinearMath/btVector3.h>
 
 /**
@@ -53,6 +54,7 @@ class Yaml {
 private:
     std::string m_key;
     Variants m_value;
+    Yaml* m_parent{nullptr};
     std::vector<Yaml> container;
     void printToStream(std::ostream& output, std::string indent="  ", std::string indentation="", bool isPartOfArray=false) const;
 public:
@@ -79,20 +81,34 @@ public:
 
     Yaml& push(const Yaml &node){
         container.push_back(node);
+        container.back().m_parent = this;
         return container.back();
     }
     Yaml& push(const std::string &key, const std::string  &val){
         container.emplace_back(key, decode(val));
+        container.back().m_parent = this;
         return container.back();
     }
     Yaml& push(const std::string &val){
         container.emplace_back(std::to_string(container.size()), decode(val));
+        container.back().m_parent = this;
         return container.back();
+    }
+
+    std::string getParents() const {
+        Yaml* parent = m_parent;
+        std::string out = m_key;
+        while(parent != nullptr){
+            out = parent->m_key + "/" +out;
+            parent = parent->m_parent;
+        }
+        return out;
     }
 
     Yaml& operator [] (const std::string &s){
         for(auto &it : container)
             if(it.m_key == s) return it;
+        // error(s, "doesn't exists in", getParents());
         return push(s, "");
     }
     Yaml& operator [] (u32 i){ // what if i is far bigger than the size?
@@ -102,7 +118,10 @@ public:
     }
     const Yaml& operator [] (const std::string &s) const {
         for(const auto &it : container)
-            if(it.m_key == s) return it;
+            if(it.m_key == s) {
+                // log(s, "path:", getParents());
+                return it;
+            }
 
         error(s, "doesn't exists in", m_key);
         return *this;
@@ -116,6 +135,13 @@ public:
             if(it.m_key == s) return true;
 
         return false;
+    }
+    template<typename predicat>
+    boost::optional<Yaml&> find(){
+        for(auto & it : container){
+            if(predicat(it)) return it;
+        }
+        return boost::none;
     }
 
     bool operator == (const std::string& compareTo) const
@@ -170,11 +196,13 @@ public:
     }
     void operator = (const Yaml &&node){
         m_value = node.m_value;
+        m_parent = node.m_parent;
         container = node.container;
         isArray = node.isArray;
     }
     void operator = (const Yaml &node){
         m_value = node.m_value;
+        m_parent = node.m_parent;
         container = node.container;
         isArray = node.isArray;
     }

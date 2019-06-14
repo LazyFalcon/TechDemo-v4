@@ -35,16 +35,19 @@ public:
     }
 
     std::shared_ptr<IModule> createModule(const Yaml &cfg){
-        std::string className = cfg["ModuleType"].string();
+        std::string className = cfg["Class"].string();
 
-        if(className == "Base"){
+        if(className == "Hull"){
             return createBase(cfg);
         }
-        else if(className == "Turret"){
+        else if(className == "TurretBase"){
             return createTurret(cfg);
         }
-        else if(className == "Turret-Part"){
+        else if(className == "TurretPart"){
             return std::make_shared<TurretPart>(m_vehicleEq);
+        }
+        else if(className == "Gun"){
+            return createAddon(cfg);
         }
         else if(className == "Addon"){
             return createAddon(cfg);

@@ -22,6 +22,7 @@ VehicleAssembler::VehicleAssembler(const std::string& configName, PhysicalWorld&
     {}
 
 void VehicleAssembler::openModelFile(){
+    log("Starting assembly of", m_configName);
     m_config = Yaml(resPath + "models/" + m_configName + ".yml");
 
     // m_modelLoader->tangents = 3; // TODO:
@@ -34,8 +35,51 @@ void VehicleAssembler::openModelFile(){
     m_modelLoader->open(resPath + "models/" + m_configName + ".dae", assets::layerSearch(assets::getAlbedoArray("Materials")));
 }
 
+// * builds common part of model, every specific should be done by inheritances
+std::shared_ptr<VehicleEquipment> VehicleAssembler::build(const glm::mat4& onPosition){
+    openModelFile();
+
+    m_skinnedMesh = std::make_shared<SkinnedMesh>();
+    m_vehicleEq->compound = new btCompoundShape();
+    m_skinnedMesh->mesh = m_modelLoader->beginMesh();
+
+    collectAndInitializeModules();
+
+    auto base = std::find_if(m_modules.begin(), m_modules.end(), [](auto &it){
+        return it.second.module->type == ModuleType::Base;
+    });
+
+    if(base == m_modules.end()) return nullptr;
+
+    connectModules(base->second, nullptr, nullptr);
+
+    // * put model to GPU
+    m_modelLoader->endMesh(m_skinnedMesh->mesh);
+    m_skinnedMesh->vao = m_modelLoader->build();
+    m_vehicleEq->compound->recalculateLocalAabb();
+    m_vehicleEq->graphics.entitiesToDraw.push_back(std::move(m_skinnedMesh));
+
+    m_vehicleEq->driveSystem = std::make_shared<DummyDriveSystem>(*m_vehicleEq, convert(onPosition[3]));
+    m_vehicleEq->modulesToUpdateInsidePhysicsStep.push_back(m_vehicleEq->driveSystem);
+    m_physics.m_dynamicsWorld->addAction(m_vehicleEq.get());
+
+    for(auto& it : m_vehicleEq->modules){
+        it->init();
+    }
+
+    buildRigidBody(onPosition);
+    // m_vehicleEq->cameras[0]->focus();
+
+    return m_vehicleEq;
+}
+
 void VehicleAssembler::collectAndInitializeModules(){
     for(auto & it : m_config["Modules"]){
+        if(it["Type"].string() != "Module"){
+            error(it["Name"].string(), "incorrect type!");
+            continue;}
+
+        log("module with name", it["Name"].string());
         auto module = m_moduleFactory.createModule(it);
         if(not module){
             error("failed to create module:", it["Name"].string());
@@ -66,37 +110,6 @@ void VehicleAssembler::connectModules(ToBuildModuleLater& moduleData, IModule* p
             connectModules(m_modules.at(moduleName.string()), moduleData.module.get(), &connector);
         }
     }
-}
-
-// * builds common part of model, every specific should be done by inheritances
-std::shared_ptr<VehicleEquipment> VehicleAssembler::build(const glm::mat4& onPosition){
-    openModelFile();
-
-    m_skinnedMesh = std::make_shared<SkinnedMesh>();
-    m_vehicleEq->compound = new btCompoundShape();
-    m_skinnedMesh->mesh = m_modelLoader->beginMesh();
-
-    collectAndInitializeModules();
-    connectModules(m_modules["Base"], nullptr, nullptr);
-
-    // * put model to GPU
-    m_modelLoader->endMesh(m_skinnedMesh->mesh);
-    m_skinnedMesh->vao = m_modelLoader->build();
-    m_vehicleEq->compound->recalculateLocalAabb();
-    m_vehicleEq->graphics.entitiesToDraw.push_back(std::move(m_skinnedMesh));
-
-    m_vehicleEq->driveSystem = std::make_shared<DummyDriveSystem>(*m_vehicleEq, convert(onPosition[3]));
-    m_vehicleEq->modulesToUpdateInsidePhysicsStep.push_back(m_vehicleEq->driveSystem);
-    m_physics.m_dynamicsWorld->addAction(m_vehicleEq.get());
-
-    for(auto& it : m_vehicleEq->modules){
-        it->init();
-    }
-
-    buildRigidBody(onPosition);
-    // m_vehicleEq->cameras[0]->focus();
-
-    return m_vehicleEq;
 }
 
 void VehicleAssembler::buildRigidBody(const glm::mat4& onPosition){

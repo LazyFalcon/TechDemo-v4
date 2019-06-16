@@ -146,9 +146,9 @@ void main(void){
 
     float shadow = 1;// pow(CombineCSM(P, uv, dot(N, L), N), 2);
 
-    outLight = vec4(diffusePart*(1-kS)*shadow, 1);
+    outLight = vec4(diffusePart*(1-kS)*shadow*0.1, 1);
     // outLight = normal*0.5+0.5;
-    outSpecular = vec4(specular*shadow*kS, 1);
+    outSpecular = vec4(specular*shadow*kS*0, 1);
     // outSpecular = vec4(reflect(-V, N) *0.5 + 0.5, 1);
     // outSpecular = vec4(uv.x+uv.y>1? sampleEnviroMap(N.xzy, V.xzy, 0) : N.xzy*0.5+0.5, 1);
     // outSpecular = vec4(N.xzy, 1);

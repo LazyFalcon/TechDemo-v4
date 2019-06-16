@@ -21,7 +21,7 @@ struct LightSource : public BaseGameObject
     LightSource(){}
     enum LightType
     {
-        Point=0, Spot, Area, Directional, LightTypeLast
+        Point=0, Spot, Area, Directional, Sun, LightTypeLast
     };
     enum CameraRelation
     {

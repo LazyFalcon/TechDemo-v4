@@ -11,7 +11,7 @@ RenderDataCollector::tupleOfContainers RenderDataCollector::collection;
 CommandArray RenderDataCollector::enviro;
 CommandArray RenderDataCollector::foliage;
 Uniforms RenderDataCollector::uniforms;
-std::vector<LightSource*> RenderDataCollector::lights[100];
+std::vector<LightSource*> RenderDataCollector::lights[10];
 
 GraphicEngine* RenderDataCollector::enginePtr;
 Details& RenderDataCollector::details(){

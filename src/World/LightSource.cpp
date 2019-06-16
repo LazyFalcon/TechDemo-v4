@@ -13,6 +13,7 @@ LightSource& LightSource::setType(const std::string &type){
     if(type == "POINT") m_type = LightType::Point;
     else if(type == "SPOT") m_type = LightType::Spot;
     else if(type == "AREA") m_type = LightType::Area;
+    else if(type == "Sun") m_type = LightType::Sun;
     else if(type == "DIRECT") m_type = LightType::Directional;
     return *this;
 }
@@ -82,16 +83,21 @@ void LightSource::actionWhenVisible(){
 void LightSource::readConfig(const Yaml& thing){
     switch(m_type){
         case Point:
+            m_falloff.distance = thing["CutoffDistance"].string() == "none" ? 50.0 : thing["CutoffDistance"].number();
             break;
         case Spot:
+            m_falloff.distance = thing["CutoffDistance"].string() == "none" ? 50.0 : thing["CutoffDistance"].number();
             break;
         case Area:
+            m_falloff.distance = thing["CutoffDistance"].string() == "none" ? 50.0 : thing["CutoffDistance"].number();
+            break;
+        case Sun:
             break;
     }
 
-    m_energy = thing["Energy"].number();
+    m_energy = thing["Power"].number();
     m_color = thing["Color"].vec4();
-    m_falloff.distance = thing["Falloff_distance"].number();
+    isShadowCaster = thing["Shadows"].boolean();
     setTransform(glm::mat4(
             thing["Position"]["X"].vec30(),
             thing["Position"]["Y"].vec30(),

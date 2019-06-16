@@ -72,16 +72,16 @@ void main(void){
     float x = length(L);
     L /= x;
 
-    float I = max(invSquareIntensity(light.energy, x, light.fallof*3), 0)*0.1;
+    float I = max(invSquareIntensity(light.energy, x, light.fallof*3), 0);
     // float I = 1;
     // I = sphericalBound(I, light.fallof, r);
 
     vec3 kS;
     float selfShadowing = (dot(N,L) > 0) ? 1 : 0;
-    vec3 diffusePart = light.color*OrenNayar(L, V, N, roughness, 1)*lightPowerScale * I * selfShadowing;
+    vec3 diffusePart = vec3(1)*OrenNayar(L, V, N, roughness, 1)*lightPowerScale * I * selfShadowing;
+    // vec3 diffusePart = light.color*OrenNayar(L, V, N, roughness, 1)*lightPowerScale * I * selfShadowing;
     vec3 specular = calculateSpecular(V, N, L, roughness, metallic, albedo.rgb, kS) * I * selfShadowing;
 
-    outLight = vec4(diffusePart*(1-kS)*10, 1);
-    outLight.z = 0;
+    outLight = vec4(diffusePart*(1-kS)*100, 1);
     outSpecular = vec4(specular*light.color, 1);
 }

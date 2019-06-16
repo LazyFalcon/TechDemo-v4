@@ -1,7 +1,7 @@
 ﻿#include "core.hpp"
 #include "gl_core_4_5.hpp"
 #include "ImageLoader.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include <FreeImage.h>
 // #include <FreeImagePlus.h>
 #include "PerfTimers.hpp"
@@ -11,13 +11,13 @@ namespace ImageUtils
 bool checkErrors(const std::string &text, const std::string &file, int line, const std::string &fun){
     int err = gl::GetError();
     if(err != gl::NO_ERROR_){
-        error("GLError:", err, file+"#", line, ":", fun, "::", text);
+        console.error("GLError:", err, file+"#", line, ":", fun, "::", text);
         return true;
     }
     return false;
 }
 #define CHECK_FOR_ERRORS(x) checkErrors(x, __FILE__, __LINE__, __FUNCTION__);
-#define logLine log(__LINE__, __FUNCTION__);
+#define logLine console.log(__LINE__, __FUNCTION__);
 
 // TODO: add hint for mipmaps
 // TODO: add validation of loadToMemory
@@ -75,7 +75,7 @@ ImageParams loadArrayToGpu(const std::vector<fs::path> &files){
 
     for(u32 i=0; i<layers; i++){
         if(data.dataSize != tmp[i].dataSize){
-            error(files[i], "wrong image size:", tmp[i].dataSize, "expected:", data.dataSize);
+            console.error(files[i], "wrong image size:", tmp[i].dataSize, "expected:", data.dataSize);
             delete [] (u8*)tmp[i].data;
             tmp[i].data = nullptr;
             continue;
@@ -109,7 +109,7 @@ ImageParams loadArrayToGpu(const std::vector<fs::path> &files){
 ImageParams loadCubemapToGpu(const std::vector<std::string> &filePathes){
     CPU_SCOPE_TIMER("Loading cubemap");
     if(filePathes.size() != 6){
-        error("wrong number of cubemap faces");
+        console.error("wrong number of cubemap faces");
         return {};
     }
     ImageParams data {};
@@ -159,13 +159,13 @@ ImageParams loadToMemory(const std::string &filePath, ImageDataType targetType){
 
     fif = FreeImage_GetFileType(filePath.c_str(), 0);
     if(fif == FIF_UNKNOWN){
-        error("unknown file type: " + filePath);
+        console.error("unknown file type: " + filePath);
         return {};
     }
 
     FIBITMAP *dib = FreeImage_Load(fif, filePath.c_str());
     if(dib == nullptr){
-        error("cant open file:" + filePath);
+        console.error("cant open file:" + filePath);
         return {};
     }
     auto bitsPerPixel = FreeImage_GetBPP(dib);
@@ -236,7 +236,7 @@ ImageParams loadToMemory(const std::string &filePath, ImageDataType targetType){
             break;
         }
         case FIT_UINT16 : {
-            // log("FIT_UINT16", filePath, bitsPerPixel);
+            // console.log("FIT_UINT16", filePath, bitsPerPixel);
             if(targetType == R16){
                 bitsPerPixel = 16;
                 data.internalFormat = gl::R16;
@@ -266,7 +266,7 @@ ImageParams loadToMemory(const std::string &filePath, ImageDataType targetType){
         case FIT_RGBF : {}
         case FIT_RGBAF : {}
         default: {
-            error(filePath, "has not supported type:", imageType);
+            console.error(filePath, "has not supported type:", imageType);
             return {};
         }
     }
@@ -294,7 +294,7 @@ ImageParams loadToMemory(const std::string &filePath, ImageDataType targetType){
 bool saveFromMemory(std::string filePath, ImageDataType targetType, ImageParams image){
     // TODO: best way is to spawn another thread to save file
     FIBITMAP *dib;
-    log("saving:", filePath);
+    console.log("saving:", filePath);
     filePath += ".png";
 
     // for floating point types see: https://sourceforge.net/p/freeimage/discussion/36111/thread/dce7f4a3/
@@ -358,7 +358,7 @@ bool saveFromMemory(std::string filePath, ImageDataType targetType, ImageParams 
             }
             return FreeImage_Save(FIF_PNG, dib, filePath.c_str(), PNG_DEFAULT);
         }
-        default: error("unsupported file format:", image.dataType);
+        default: console.error("unsupported file format:", image.dataType);
     }
 
     return false;

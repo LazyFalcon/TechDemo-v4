@@ -4,7 +4,7 @@
 #include "Utils.hpp"
 #include "font.hpp"
 #include "font.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 float LastTextLength;
 float LastTextHeight;
@@ -85,7 +85,7 @@ void Text::renderTo(RenderedText& container, const std::string& text){
         //     }
         //     break;
         // }
-        // log("", glm::vec4(start + symbol.pxOffset, symbol.pxSize));
+        // console.log("", glm::vec4(start + symbol.pxOffset, symbol.pxSize));
         container.push_back(Rendered{
             {start + symbol.pxOffset, symbol.pxSize},
             symbol.uv,
@@ -127,11 +127,11 @@ void Text::renderTo(RenderedText& container, const std::u16string& text){
     start.x = floor(start.x);
     start.y = ceil(start.y);
 
-    clog("size", text.size());
+    console.clog("size", text.size());
 
     for(u32 i = 0; i < text.size(); i++){
         char16_t character = text[i];
-        clog("c", int(character));
+        console.clog("c", int(character));
         const auto &symbol = fontData.symbols[character];
 
         // if (i > 0){ // kerning

@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "Modules.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 void Base::update(float dt){
     btTransform btTr;
@@ -10,5 +10,5 @@ void Base::update(float dt){
     eq.invTrans = glm::inverse(tr);
     eq.glTrans = tr;
     this->transform(tr);
-    clog(__PRETTY_FUNCTION__, tr[3]);
+    console.clog(__PRETTY_FUNCTION__, tr[3]);
 }

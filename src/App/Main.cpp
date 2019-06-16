@@ -4,7 +4,7 @@
 #include "Audio/Audio.hpp"
 #include "DefaultResourcePaths.hpp"
 #include "LobbyEvents.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "PerfTimers.hpp"
 
 void initialEvent(){
@@ -27,7 +27,7 @@ int main(int argc, char** argv){
 
     App app;
     if(not app.initialize()){
-        error("Failed to initialize app");
+        console.error("Failed to initialize app");
         return -1;
     }
 
@@ -40,7 +40,7 @@ int main(int argc, char** argv){
         app.run();
     }
     catch (...){
-        error("exception occured");
+        console.error("exception occured");
     }
 
     app.finish();

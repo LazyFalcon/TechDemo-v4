@@ -23,7 +23,7 @@ namespace graphic {void renderTopViewOfTerrain(Scene &scene);}
 
 Scene::Scene(PhysicalWorld &physics, CameraControllerFactory& camFactory) : physics(physics), camFactory(camFactory){}
 Scene::~Scene(){
-    log("~Scene");
+    console.log("~Scene");
 }
 
 bool Scene::load(const std::string &sceneName){

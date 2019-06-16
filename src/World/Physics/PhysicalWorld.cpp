@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "PhysicalWorld.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Utils.hpp"
 #include "PerfTimers.hpp"
 
@@ -43,7 +43,7 @@ btCollisionShape* createCompoundShape(std::vector<std::pair<btCollisionShape*, b
 
 PhysicalWorld::PhysicalWorld(){
 
-    log("btScalar size:", sizeof(btScalar));
+    console.log("btScalar size:", sizeof(btScalar));
     // btVector3 worldMin(-2500.0,-2500.0,-500);
     // btVector3 worldMax(2500.0,2500.0,500);
     // broadphase = new btAxisSweep3(worldMin,worldMax);// precyzja pozycjonowania owiata

@@ -16,6 +16,6 @@ public:
         return out;
     }
      void preprocessMap(){
-         log("lol, nothing happens");
+         console.log("lol, nothing happens");
      }
 };

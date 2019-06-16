@@ -2,19 +2,19 @@
 #include "gl_core_4_5.hpp"
 #include <GLFW/glfw3.h>
 #include "App.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Settings.hpp"
 #include "Window.hpp"
 
 Window::~Window(){
-    log("~Window");
+    console.log("~Window");
     glfwDestroyWindow(window);
 }
 bool Window::init(){
     size = app.settings->video.size;
 
     if (glfwInit() != 1){
-        error("GLFW init fail");
+        console.error("GLFW init fail");
         return false;
     }
 
@@ -38,7 +38,7 @@ bool Window::init(){
         // window = glfwCreateWindow(size.x, size.y, "Tech demo v4", glfwGetPrimaryMonitor(), nullptr);
         window = glfwCreateWindow(size.x, size.y, "Tech demo v4", nullptr, nullptr);
         if(!window){
-            error("Window creation failed");
+            console.error("Window creation failed");
             glfwTerminate();
             return false;
         }
@@ -51,7 +51,7 @@ bool Window::init(){
 
         window = glfwCreateWindow(size.x, size.y, "Tech demo v4", nullptr, nullptr);
         if(!window){
-            error("Window creation failed");
+            console.error("Window creation failed");
             glfwTerminate();
             return false;
         }
@@ -75,7 +75,7 @@ bool Window::init(){
 
     gl::exts::LoadTest didLoad = gl::sys::LoadFunctions();
     if(!didLoad){
-        error("GL init fail");
+        console.error("GL init fail");
         return false;
     }
 

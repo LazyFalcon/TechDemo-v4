@@ -295,7 +295,7 @@ try {
     loader.run();
 }
 catch(...){
-    error("exception caught for:", filename);
+    console.error("exception caught for:", filename);
 }
 
 bool YamlLoader::isCommentOrEmpty(const std::string& s) const {
@@ -307,7 +307,7 @@ bool YamlLoader::isCommentOrEmpty(const std::string& s) const {
 
 void YamlLoader::run(){
     if(not file.is_open()){
-        error("No such file:", m_filename);
+        console.error("No such file:", m_filename);
         return;
     }
 
@@ -332,18 +332,18 @@ void YamlLoader::fill(Yaml& nodeToFill, int expectedDepth, bool ignoreArrayEleme
 
     while(m_currentLine < lines.size()){
         auto& line = lines[m_currentLine];
-        // log("\n line {", line.key, line.depth, "}", expectedDepth, ".", line.isArrayElement, ignoreArrayElement);
+        // console.log("\n line {", line.key, line.depth, "}", expectedDepth, ".", line.isArrayElement, ignoreArrayElement);
 
         if(line.depth < (ignoreArrayElement? expectedDepth-1 : expectedDepth)){ //* finish filling node
             return;
         }
         else if(line.depth > (ignoreArrayElement? expectedDepth-1 : expectedDepth)){ //* new indent block, fill last child
-            // log("\t fill new node", childNode->key());
+            // console.log("\t fill new node", childNode->key());
             fill(*childNode, line.depth);
         }
         else { // inside current block
             if(line.key.size() and (ignoreArrayElement or not line.isArrayElement)/* and line.value.size() */){ //* key: value
-                // log("\t creating:", line.key, line.value, "for ", nodeToFill.key());
+                // console.log("\t creating:", line.key, line.value, "for ", nodeToFill.key());
                 childNode = &(nodeToFill.push(line.key, line.value));
                 if(ignoreArrayElement){
                     ignoreArrayElement = false;
@@ -351,14 +351,14 @@ void YamlLoader::fill(Yaml& nodeToFill, int expectedDepth, bool ignoreArrayEleme
                 m_currentLine++;
             }
             else if(line.key.empty() and line.isArrayElement){ //* - value
-                // log("\t simple array element for", nodeToFill.key());
+                // console.log("\t simple array element for", nodeToFill.key());
                 nodeToFill.isArray = true;
                 childNode = &(nodeToFill.push(line.value));
                 m_currentLine++;
             }
             else if(line.key.size() and line.isArrayElement){ //* - key: value - unnamed node
                 nodeToFill.isArray = true;
-                // log("\t node array() element for", nodeToFill.key());
+                // console.log("\t node array() element for", nodeToFill.key());
                 fill((nodeToFill.push("")), line.depth+1, true); //* array nodes have two depths: pne for '-' and second for value
             }
         }

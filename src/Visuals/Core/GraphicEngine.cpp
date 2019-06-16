@@ -31,7 +31,7 @@ GraphicEngine::GraphicEngine(Window &window) :
     }
 
 GraphicEngine::~GraphicEngine(){
-    log("~GraphicEngine");
+    console.log("~GraphicEngine");
 };
 void GraphicEngine::beginFrame(){context->beginFrame();}
 void GraphicEngine::endFrame(){context->endFrame();}

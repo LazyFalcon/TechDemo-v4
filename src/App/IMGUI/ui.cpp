@@ -1,7 +1,7 @@
 #include "core.hpp"
 #include "ui-rendered.hpp"
 #include "ui.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 Imgui::~Imgui() = default;
 

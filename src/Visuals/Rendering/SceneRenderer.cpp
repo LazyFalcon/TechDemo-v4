@@ -6,7 +6,7 @@
 #include "Environment.hpp"
 #include "GraphicComponent.hpp" // TODO: rename
 #include "Grass.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "PerfTimers.hpp"
 #include "RenderDataCollector.hpp"
 #include "Scene.hpp"
@@ -30,7 +30,7 @@ void SceneRenderer::renderSceneStuff(Scene &scene, Camera &camera){
 
     // scene.environment->vao.bind();
 
-    // clog("-> Visible objects:", scene.graph->visibleObjectsByType[Type::Enviro].size());
+    // console.clog("-> Visible objects:", scene.graph->visibleObjectsByType[Type::Enviro].size());
 
     // // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
     // // TODO: scene renderer should have known nothing about scene and other, scene objects should add itself to proper queue. this will allow to have different materials systems in scene
@@ -39,7 +39,7 @@ void SceneRenderer::renderSceneStuff(Scene &scene, Camera &camera){
     //     auto &mesh = env->graphic.mesh;
     //     shader.uniform(uModel, env->physics.transform);
     //     gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, mesh.offset());
-    //     clog("->", mesh.count, mesh.offset(), env->physics.position);
+    //     console.clog("->", mesh.count, mesh.offset(), env->physics.position);
     // }
 
     // // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
@@ -178,7 +178,7 @@ void SceneRenderer::renderSkinned(Camera &camera){
     int nr(0);
     for(auto toRender : skinnedMeshes)
     {
-        clog("mesh nr:",  nr);
+        console.clog("mesh nr:",  nr);
         nr++;
         auto &mesh = toRender->mesh;
         toRender->vao.bind();
@@ -191,9 +191,9 @@ void SceneRenderer::renderSkinned(Camera &camera){
             // gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->bones.size(), toRender->bones.data());
             // gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
             context.ubo.update(toRender->bones);
-            clog(__PRETTY_FUNCTION__, toRender->bones.size());
+            console.clog(__PRETTY_FUNCTION__, toRender->bones.size());
             for(auto& it : toRender->bones){
-                clog(">>", it[3]);
+                console.clog(">>", it[3]);
             }
 
             // use buffer
@@ -272,7 +272,7 @@ void SceneRenderer::render_SimpleModelPbr(Camera &camera){
     RenderDataCollector::enviro.vao.bind();
 
     // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
-    clog("-> Visible objects:", RenderDataCollector::enviro.size);
+    console.clog("-> Visible objects:", RenderDataCollector::enviro.size);
 
     // gl::MultiDrawElementsIndirect(gl::TRIANGLES, gl::UNSIGNED_INT, RenderDataCollector::enviro.array.data(), RenderDataCollector::enviro.size, sizeof(DrawElementsIndirectCommand));
     gl::MultiDrawElements(gl::TRIANGLES, RenderDataCollector::enviro.count.data(), gl::UNSIGNED_INT, RenderDataCollector::enviro.indices.data(), RenderDataCollector::enviro.size);

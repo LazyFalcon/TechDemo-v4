@@ -2,7 +2,7 @@
 #include "Pathfinder.hpp"
 #include "ImageLoader.hpp"
 #include "MapProcessing.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include<iostream>
 #include<cmath>
 #include "Scene.hpp"
@@ -35,7 +35,7 @@
     image.dataSize = vec.size()*sizeof(u16);
 
     if(not ImageUtils::saveFromMemory(name, ImageDataType::R16, image)){
-        error("Unable to save map");
+        console.error("Unable to save map");
     }
 }
 
@@ -203,7 +203,7 @@ void Pathfinder::preprocessMap(){
     image.dataSize = simplified.size()*sizeof(u8);
 
     if(not ImageUtils::saveFromMemory("debug of heightmap", ImageDataType::R8, image)){
-        error("Unable to save map");
+        console.error("Unable to save map");
     }
     resultMap = dataBeingProcessed;
     heightField = MapSampler<float>(dataBeingProcessed.heightmap, mapSize, mapSize);

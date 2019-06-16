@@ -36,7 +36,7 @@ void LightRendering::renderSun(Sun& sun, Camera &camera){
     shader.texture("uNormal", context.tex.gbuffer.normals, 0);
     shader.texture("uDepth", context.tex.gbuffer.depth, 1);
     shader.texture("uAlbedo", context.tex.gbuffer.color, 2);
-    shader.cubeMap("uCubemap", assets::getCubeMap("Park").id, 3);
+    shader.cubeMap("uCubemap", assets::getCubeMap("SciFi").id, 3);
     // shader.cubeMap("uCubemap", assets::getCubeMap("SciFi").id, 3);
 
     // shader.atlas("uCSMCascades", context.tex.shadows.cascade.ID, 4);
@@ -48,9 +48,9 @@ void LightRendering::renderSun(Sun& sun, Camera &camera){
     // shader.uniform("uShadowMapSize", context.tex.shadows.size);
     // shader.uniform("uCSMProjection", context.tex.shadows.matrices);
 
-    clog(camera.invPV[0], camera.invPV[1], camera.invPV[2], camera.invPV[3]);
-    clog(camera.position().xyz());
-    clog(window.pixelSize);
+    console.clog(camera.invPV[0], camera.invPV[1], camera.invPV[2], camera.invPV[3]);
+    console.clog(camera.position().xyz());
+    console.clog(window.pixelSize);
 
     shader.uniform("light.direction", sun.direction.xyz());
     shader.uniform("light.color", sun.color.xyz());
@@ -182,7 +182,7 @@ float LightRendering::calculateLuminance(){
     // // gl::GetnTexImage(gl::TEXTURE_2D, Textures::full_R16F.noOfMipLevels()-1, gl::RED, gl::FLOAT, 1, &luminance);
     // luminance *= 10;
     // // CHECK_FOR_ERRORS
-    // clog("luminance", luminance);
+    // console.clog("luminance", luminance);
 
     // return luminance;
     return 1;

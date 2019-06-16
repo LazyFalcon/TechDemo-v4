@@ -239,7 +239,7 @@ void Effects::SSAO(Camera &camera){
 
     uint bindingPoint = 1;
     u32 blockIndex = gl::GetUniformBlockIndex(shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
-    clog("ubo index:", blockIndex, sizeof(Uniforms));
+    console.clog("ubo index:", blockIndex, sizeof(Uniforms));
     gl::UniformBlockBinding(shader.ID, blockIndex, bindingPoint); // * bind block to binding point
 
     gl::Disable(gl::DEPTH_TEST);
@@ -282,7 +282,7 @@ void Effects::toneMapping(){
 
     uint bindingPoint = 1;
     u32 blockIndex = gl::GetUniformBlockIndex(shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
-    clog("ubo index:", blockIndex, sizeof(Uniforms));
+    console.clog("ubo index:", blockIndex, sizeof(Uniforms));
     gl::UniformBlockBinding(shader.ID, blockIndex, bindingPoint); // * bind block to binding point
 
     context.drawScreen();
@@ -440,7 +440,7 @@ void Effects::filmGrain(){
 
     uint bindingPoint = 1;
     u32 blockIndex = gl::GetUniformBlockIndex(shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
-    clog("ubo index:", blockIndex, sizeof(Uniforms));
+    console.clog("ubo index:", blockIndex, sizeof(Uniforms));
     gl::UniformBlockBinding(shader.ID, blockIndex, bindingPoint); // * bind block to binding point
 
     context.drawScreen();

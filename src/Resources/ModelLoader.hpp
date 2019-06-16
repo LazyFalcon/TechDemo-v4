@@ -4,7 +4,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "GPUResources.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "PhysicalWorld.hpp"
 #include "Yaml.hpp"
 #include "VertexData.hpp"
@@ -34,7 +34,7 @@ namespace vertexCopy{
     void positions(aiMesh& mesh, std::vector<T>& target, int startPosition){
         u32 count = mesh.mNumVertices;
         // u32 start = target.size();
-        if(count == 0) error(mesh.mName.C_Str(), " position data not definied");
+        if(count == 0) console.error(mesh.mName.C_Str(), " position data not definied");
         for(u32 from=0, to=startPosition; from<count; from++, to++){
             target[to].position = {mesh.mVertices[from].x, mesh.mVertices[from].y, mesh.mVertices[from].z};
         }
@@ -43,7 +43,7 @@ namespace vertexCopy{
     void texcoords(aiMesh& mesh, std::vector<T>& target, int startPosition){
         u32 count = mesh.mNumVertices;
         if(not mesh.HasTextureCoords(0)){
-            // error(mesh.mName.C_Str(), " UV data not definied");
+            // console.error(mesh.mName.C_Str(), " UV data not definied");
 
             for(u32 to=startPosition; to < startPosition+count; to++){
                 target[to].uv = {0,0,0};
@@ -58,7 +58,7 @@ namespace vertexCopy{
     template<typename T>
     void normals(aiMesh& mesh, std::vector<T>& target, int startPosition){
         u32 count = mesh.mNumVertices;
-        if(not mesh.HasNormals()) error(mesh.mName.C_Str(), "normal data not definied");
+        if(not mesh.HasNormals()) console.error(mesh.mName.C_Str(), "normal data not definied");
         for(u32 from=0, to=startPosition; from<count; from++, to++){
             target[to].normal = {mesh.mNormals[from].x, mesh.mNormals[from].y, mesh.mNormals[from].z};
         }
@@ -66,7 +66,7 @@ namespace vertexCopy{
     template<typename T>
     void tangents(aiMesh& mesh, std::vector<T>& target, int startPosition){
         u32 count = mesh.mNumVertices;
-        if(count == 0) error(mesh.mName.C_Str(), "tangent data not definied");
+        if(count == 0) console.error(mesh.mName.C_Str(), "tangent data not definied");
         for(u32 from=0, to=startPosition; from<count; from++, to++){
             target[to].tangent = {mesh.mTangents[from].x, mesh.mTangents[from].y, mesh.mTangents[from].z};
         }
@@ -117,7 +117,7 @@ public:
         std::optional<std::string> detailTexture;
     } defaults;
     ModelLoader(){
-        log("Loader created");
+        console.log("Loader created");
     }
 
     ModelLoader& open(const std::string &filename, std::function<float(const std::string&)> getLayerFunction){
@@ -194,7 +194,7 @@ public:
         }
 
         if(models.empty()){
-            error("no models:", names[0]);
+            console.error("no models:", names[0]);
             return {};
         }
         for(auto submodel : models){
@@ -219,13 +219,13 @@ public:
     void copyMaterial(aiMesh& mesh, std::vector<VertexFormat>& data, int startPosition){
         if constexpr(has_color<VertexFormat>::value){
             if(not materials){
-                error(file, "material struture not definied");
+                console.error(file, "material struture not definied");
                 return;
             }
 
             auto materialId = mesh.mMaterialIndex;
             if(scene->mNumMaterials <= materialId){
-                error("For", mesh.mName.C_Str(), file, "scene has no material with id:", materialId);
+                console.error("For", mesh.mName.C_Str(), file, "scene has no material with id:", materialId);
                 return;
             }
 
@@ -238,7 +238,7 @@ public:
             //     glm::vec3 color(aicolor.r, aicolor.g, aicolor.b);
             // }
             // else {
-            //     error("For", mesh.mName.C_Str(), "has no color in material");
+            //     console.error("For", mesh.mName.C_Str(), "has no color in material");
             // }
 
             vertexCopy::color(mesh, data, startPosition, materialData["BaseColor"].vec3());
@@ -267,7 +267,7 @@ public:
         for(auto& name : modelsToExtract){
             auto meshes = findSubMeshesByMaterial(name);
             if(meshes.empty()){
-                error("no mesh");
+                console.error("no mesh");
                 return {};
             }
             for(auto mesh : meshes){
@@ -335,14 +335,14 @@ public:
         std::vector<float> outVerts;
         std::vector<u32> outIndices;
         if(not scene){
-            error("No scene for ModelLoader");
+            console.error("No scene for ModelLoader");
             hardPause();
             return {};
         }
 
         auto meshes = findSubMeshesByMaterial(name);
         if(meshes.empty()){
-            error("no mesh:", name);
+            console.error("no mesh:", name);
             return {};
         }
 
@@ -410,13 +410,13 @@ private:
     //         return "";
 
     //     u32 count = material.GetTextureCount(aiTextureType_DIFFUSE);
-    //     // log(mesh->mName.C_Str(), "has", count, "textures:", path.C_Str());
+    //     // console.log(mesh->mName.C_Str(), "has", count, "textures:", path.C_Str());
 
     //     return getName(path.C_Str());
     // }
 
     std::vector<aiMesh*> findSubMeshesByMaterial(const std::string &name){
-        if(debug) info("sub mesh", name);
+        if(debug) console.info("sub mesh", name);
         std::vector<aiMesh*> out;
         for(int i=0; i<scene->mNumMeshes; i++){
             if(scene->mMeshes[i]->mName == aiString(name)){

@@ -1,6 +1,6 @@
 #pragma once
 #include "Timer.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 namespace UI { class IMGUI; }
 
 class PerfCounter

@@ -6,7 +6,7 @@
 #include "Lobby.hpp"
 #include "LobbyEvents.hpp"
 #include "PlaygroundEvents.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "RendererUtils.hpp"
 #include "Settings.hpp"
 #include "Texture.hpp"
@@ -115,7 +115,7 @@ public:
             case Audio: drawAudio(ui, panel); break;
             case Controls: drawControls(ui, panel); break;
             default:
-                log("unknown panel", m_currentPanel);
+                console.log("unknown panel", m_currentPanel);
         }
 
         Panel savebar(panel);
@@ -168,7 +168,7 @@ private:
             fadeOut([]{event<ExitGame>();});
         });
         panel.button()().text("Credits").action([this]{
-            fadeOut([this]{log("Credits? Me! Lazy Falcon!");fadeIn();});
+            fadeOut([this]{console.log("Credits? Me! Lazy Falcon!");fadeIn();});
         });
         panel.button()().text("Settings").action([this]{
             fadeOut([this]{fadeOut([this]{ m_currentState = m_settings; });});
@@ -179,7 +179,7 @@ private:
                 event<StartPlayground>("DemoVehicle", "DemoScene");
             });
             panel.button().w(0.8f).h(40)().text("Void Rendering").action([]{
-                log("not implemented yet");
+                console.log("not implemented yet");
             });
             // panel.button().w(0.8f).h(40)().text("Graphic Testing").action([]{
             //     event<StartPlayground>("Cycles-PBR");

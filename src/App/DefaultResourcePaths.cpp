@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "DefaultResourcePaths.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 std::string dataPath;
 std::string resPath;
@@ -12,7 +12,7 @@ void resolvePaths(std::string fullPath){
     fs::path p(fullPath);
     auto gameRootDir = p.parent_path().parent_path().generic_string();
     // for(auto& i : gameRootDir) if(i == '\\') i='/';
-    log("Game directory:", gameRootDir);
+    console.log("Game directory:", gameRootDir);
 
     dataPath = gameRootDir + "/data/";
     resPath = gameRootDir + "/res/";

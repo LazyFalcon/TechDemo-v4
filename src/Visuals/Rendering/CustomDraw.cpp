@@ -25,7 +25,7 @@ void CustomDraw::loadFromFile(const std::string &filename){
     // std::string daePath;
     // if(not findFile("../res", filename+".yml", "-r -ext", ymlPath) or
     //    not findFile("../res", filename+".dae", "-r -ext", daePath)){
-    //        error("D2RenderQueue no:", filename);
+    //        console.error("D2RenderQueue no:", filename);
     //        hardPause();
     //        return;
     // }

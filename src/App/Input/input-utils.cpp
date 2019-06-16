@@ -1,7 +1,7 @@
 #include "core.hpp"
 #include <GLFW/glfw3.h>
 #include "input-utils.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 std::map<std::string, int> stringToKey = {
     { "space", GLFW_KEY_SPACE },
@@ -179,7 +179,7 @@ KeyActionModifier parseKeyBinding(const std::string &str){
             out.modifier |= stringToMod.at(values[i]);
         }
         else {
-            error("No modifier key:", str);
+            console.error("No modifier key:", str);
         }
     }
     if(auto k = stringToKey.find(values.back()); k!=stringToKey.end())
@@ -188,7 +188,7 @@ KeyActionModifier parseKeyBinding(const std::string &str){
         out.key = int(values.back()[0]);
     }
     if(out.key >= 'a' and out.key <= 'z') out.key -= 'a' - 'A';
-    // log("\t", out.key);
+    // console.log("\t", out.key);
     return out;
 }
 

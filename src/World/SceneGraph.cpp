@@ -11,7 +11,7 @@
 
 
 void Cell::actionWhenVisible(){
-    // clog("cell is visible");
+    // console.clog("cell is visible");
     for(auto& it : objects){
         it->actionWhenVisible();
     }
@@ -41,9 +41,9 @@ void SceneGraph::initCellsToDefaults(){
 
     cells.resize(cellsInTheScene.x * cellsInTheScene.y);
 
-    log("dim:", size.xy());
-    log("cellSize:", cellSize);
-    log("cellsInTheScene:", cellsInTheScene);
+    console.log("dim:", size.xy());
+    console.log("cellSize:", cellSize);
+    console.log("cellsInTheScene:", cellsInTheScene);
     int i = 0;
     for(int x=0; x<cellsInTheScene.x; x++) for(int y=0; y<cellsInTheScene.y; y++){
         glm::vec4 position = min + glm::vec4(cellSize.x*(0.5f + x), cellSize.y*(0.5f+y), center.z, 0);
@@ -78,7 +78,7 @@ void SceneGraph::insertObject(GameObjectPtr object, const glm::vec4& position){
 
     auto cell = findCellUnderPosition(position);
     if(not cell){
-        error("cell under", position, "doesn't exists");
+        console.error("cell under", position, "doesn't exists");
         return;
     }
     cell->objects.push_back(object);
@@ -157,7 +157,7 @@ void SceneGraph::loadMap(const std::string &mapConfigDir){
     nodes = glm::vec2(32);
     size = glm::vec4(dim, dim, max.z - min.z, 0);
 
-    log("size:", size, "center", center);
+    console.log("size:", size, "center", center);
 
     ModelLoader<VertexWithMaterialData> loader;
     // loader.loadUV = 0;

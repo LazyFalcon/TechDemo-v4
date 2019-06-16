@@ -101,7 +101,7 @@ void Player::focusOff(){
 
 void Player::fire(){
     // for(auto &it : m_vehicle.weapons){
-    //     if(not it.fire()) clog("Unable to fire");
+    //     if(not it.fire()) console.clog("Unable to fire");
     // }
     // doFire = false;
 }

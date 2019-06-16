@@ -3,7 +3,7 @@
 #include "input-dispatcher.hpp"
 #include "input-utils.hpp"
 #include "input.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 std::shared_ptr<Input> InputDispatcher::createNew(const std::string& name){
     m_activeInputHandlers.emplace_back(std::make_shared<Input>(*this, name));

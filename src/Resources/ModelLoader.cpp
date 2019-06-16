@@ -1,12 +1,12 @@
 #include "core.hpp"
 #include "ModelLoader.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Utils.hpp"
 
 // ! http://assimp.sourceforge.net/lib_html/structai_mesh.html
 
 // std::vector<aiMesh*> ModelLoader::findSubMeshesByMaterial(const std::string &name){
-//     if(debug) info("sub mesh", name);
+//     if(debug) console.info("sub mesh", name);
 //     std::vector<aiMesh*> out;
 //     for(int i=0; i<scene->mNumMeshes; i++){
 //         if(scene->mMeshes[i]->mName == aiString(name)){
@@ -27,7 +27,7 @@
 //         return "";
 
 //     u32 count = material.GetTextureCount(aiTextureType_DIFFUSE);
-//     // log(mesh->mName.C_Str(), "has", count, "textures:", path.C_Str());
+//     // console.log(mesh->mName.C_Str(), "has", count, "textures:", path.C_Str());
 
 //     return getName(path.C_Str());
 // }
@@ -176,7 +176,7 @@ std::vector<ConvexMesh> ModelLoader::loadConvexMeshes(const std::vector<std::str
     for(auto& name : names){
         auto meshes = find(name);
         if(meshes.empty()){
-            error("no mesh");
+            console.error("no mesh");
             return {};
         }
         for(auto mesh : meshes){
@@ -200,7 +200,7 @@ std::vector<std::string> ModelLoader::findInstances(const std::string &pattern){
         std::string meshName(mesh->mName.C_Str());
         if(std::string::npos != meshName.find(pattern)){
             out.emplace_back(meshName);
-            // info("instance", meshName);
+            // console.info("instance", meshName);
         }
     }
     return out;
@@ -213,7 +213,7 @@ std::vector<std::string> ModelLoader::findInstances(const std::string &pattern){
 /*
 InternalMeshInfo ModelLoader::load(const std::string &name){
     if(not scene){
-        error("No scene for ModelLoader");
+        console.error("No scene for ModelLoader");
         hardPause();
         return {};
     }
@@ -221,7 +221,7 @@ InternalMeshInfo ModelLoader::load(const std::string &name){
 
     auto meshes = find(name);
     if(meshes.empty()){
-        error("no mesh:", name);
+        console.error("no mesh:", name);
         return {};
     }
     for(auto mesh : meshes){
@@ -253,7 +253,7 @@ InternalMeshInfo ModelLoader::load(const std::vector<std::string> &names){
     }
 
     if(meshes.empty()){
-        error("no mesh:", names[0]);
+        console.error("no mesh:", names[0]);
         return {};
     }
     for(auto mesh : meshes){
@@ -295,7 +295,7 @@ InternalMeshInfo ModelLoader::insert(InternalMesh &intMesh){
 
 InternalMesh ModelLoader::getInternalMesh(const std::string &name){
     if(not scene){
-        error("No scene for ModelLoader");
+        console.error("No scene for ModelLoader");
         hardPause();
         return {};
     }
@@ -303,7 +303,7 @@ InternalMesh ModelLoader::getInternalMesh(const std::string &name){
 
     auto meshes = find(name);
     if(meshes.empty()){
-        error("no mesh:", name);
+        console.error("no mesh:", name);
         return {};
     }
     for(auto mesh : meshes){
@@ -348,14 +348,14 @@ std::pair<std::vector<double>, std::vector<u32>> ModelLoader::loadStatic3DMesh(c
     std::vector<double> outVerts;
     std::vector<u32> outIndices;
     if(not scene){
-        error("No scene for ModelLoader");
+        console.error("No scene for ModelLoader");
         hardPause();
         return {};
     }
 
     auto meshes = find(name);
     if(meshes.empty()){
-        error("no mesh:", name);
+        console.error("no mesh:", name);
         return {};
     }
 

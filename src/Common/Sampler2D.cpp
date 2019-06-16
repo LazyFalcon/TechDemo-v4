@@ -3,7 +3,7 @@
 #include "Sampler2D.hpp"
 #include "ImageLoader.hpp"
 #include "PMK.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 class SamplerSingleChannelU8 : public ISampler
 {
@@ -20,7 +20,7 @@ public:
         // y = std::modf(y, &dummy);
         // x = (x < 0.f) ? (1-x) : (x);
         // y = (y < 0.f) ? (1-y) : (y);
-        // error(x,y);
+        // console.error(x,y);
         // return {};
         return (*this)(u32(x * width), u32(y * height));
     }
@@ -40,7 +40,7 @@ Sampler2D::Sampler2D(const std::string &filename, u32 s){
     auto image = ImageUtils::loadToMemory(filename, ImageDataType::R8);
     width = image.width;
     height = image.height;
-    info("SAMPLER", "from:", filename, width, ":", height);
+    console.info("SAMPLER", "from:", filename, width, ":", height);
     data = std::make_unique<SamplerSingleChannelU8>(image.data, image.width, image.height);
 }
 Sampler2D::Sampler2D(u32 s){

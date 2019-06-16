@@ -1,7 +1,7 @@
 #include "core.hpp"
 #include "gl_core_4_5.hpp"
 #include "PerfTimers.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include <regex>
 extern bool CLOG_SPECIAL_VALUE;
 void TimeRecord::update(timeType dt){
@@ -20,23 +20,23 @@ CpuTimerScoped::CpuTimerScoped(const std::string &name, i32 line) : name(name + 
 }
 CpuTimerScoped::~CpuTimerScoped(){
     timer.end();
-    if(printRecords) log(name, " executed in: ", timer.get()/1000.0, "ms");
+    if(printRecords) console.log(name, " executed in: ", timer.get()/1000.0, "ms");
     if(saveRecords) cpuRecords[name].update(timer.get());
 }
 void CpuTimerScoped::between(i32 line){
     timer.middle();
-    log(name, line, " executed in: ", timer.getString(), "ms");
+    console.log(name, line, " executed in: ", timer.getString(), "ms");
 }
 void CpuTimerScoped::writeToFile(){
     std::smatch m;
     std::regex re(R"(\b(.*) .*)");
 
 
-    toFile("### CPU Measurements [ms]");
-    toFile("|Name|Last|Max|Captured|Total|Count|Average|");
-    toFile("|----|----|---|--------|-----|-----|-------|");
+    console.toFile("### CPU Measurements [ms]");
+    console.toFile("|Name|Last|Max|Captured|Total|Count|Average|");
+    console.toFile("|----|----|---|--------|-----|-----|-------|");
     for(auto &record : cpuRecords){
-        toFile(
+        console.toFile(
              "|", record.first
             ,"|", record.second.last/1000.0
             ,"|", record.second.max/1000.0
@@ -91,21 +91,21 @@ void GpuTimerScoped::init(){
 }
 void GpuTimerScoped::print(){
     return;
-    clog("### GPU Measurements");
+    console.clog("### GPU Measurements");
     u64 totalLast = 0;
     u64 totalAvg = 0;
     for(auto &it : gpuRecords){
         totalLast += it.second.second.last;
         totalAvg += it.second.second.total/it.second.second.count;
-        clog(it.first, it.second.second.last/1000.f, "ms \t|", (it.second.second.total/it.second.second.count)/1000.f);
+        console.clog(it.first, it.second.second.last/1000.f, "ms \t|", (it.second.second.total/it.second.second.count)/1000.f);
     }
-    clog("Total", totalLast/1000.f, "ms \t|", totalAvg/1000.f, "ms");
-    clog("---------------------------------------");
+    console.clog("Total", totalLast/1000.f, "ms \t|", totalAvg/1000.f, "ms");
+    console.clog("---------------------------------------");
 }
 void GpuTimerScoped::writeToFile(){
-    toFile("### GPU Measurements [ms]");
-    toFile("|Name|Last|Max|Captured|Total|Count|Average|");
-    toFile("|----|----|---|--------|-----|-----|-------|");
+    console.toFile("### GPU Measurements [ms]");
+    console.toFile("|Name|Last|Max|Captured|Total|Count|Average|");
+    console.toFile("|----|----|---|--------|-----|-----|-------|");
     TimeRecord sum {};
     double averageSum = 0;
     for(auto &record : gpuRecords){
@@ -115,7 +115,7 @@ void GpuTimerScoped::writeToFile(){
         sum.total += record.second.second.total;
         sum.count = std::max(sum.count, record.second.second.count);
         averageSum += double(record.second.second.total)/record.second.second.count/1000.0;
-        toFile(
+        console.toFile(
              "|", record.first
             ,"|", record.second.second.last/1000.0
             ,"|", record.second.second.max/1000.0
@@ -126,7 +126,7 @@ void GpuTimerScoped::writeToFile(){
             ,"|"
         );
     }
-    toFile(
+    console.toFile(
          "|Sum"
         ,"|", sum.last/1000.0
         ,"|", sum.max/1000.0
@@ -136,7 +136,7 @@ void GpuTimerScoped::writeToFile(){
         ,"|", averageSum
         ,"|"
     );
-    toFile("total/count", sum.total/sum.count/1000.0);
+    console.toFile("total/count", sum.total/sum.count/1000.0);
 }
 
 std::map<std::string, std::pair<u32, TimeRecord>> GpuTimerScoped::gpuRecords;

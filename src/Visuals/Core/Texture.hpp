@@ -1,5 +1,5 @@
 #pragma once
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 struct Texture
 {
@@ -40,14 +40,14 @@ struct Texture
                 gl::TexImage3D(type, 0, internalFormat, width, height, layers, 0, format, dataType, nullptr);
                 break;
             }
-            default : error("Unknown Texture type:", type);
+            default : console.error("Unknown Texture type:", type);
         }
 
         genMipmaps();
         gl::BindTexture(type, 0);
         int err = gl::GetError();
         if(err != gl::NO_ERROR_){
-            error("Texture initializatioin failure:", __FILE__, err);
+            console.error("Texture initializatioin failure:", __FILE__, err);
         }
     }
 

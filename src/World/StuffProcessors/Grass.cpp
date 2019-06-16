@@ -166,7 +166,7 @@ void GrassField::cleanup(){
                 noOfpatchData--;
                 trimmed++;
                 nullptrs++;
-                // log("trimmed:", i);
+                // console.log("trimmed:", i);
             }
             else return;
         }

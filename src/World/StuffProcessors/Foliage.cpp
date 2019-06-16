@@ -352,7 +352,7 @@ void RenderData::updatePhysics(glm::vec4 reference, PhysicalWorld &p){
             // p.dynamicsWorld->removeConstraint(f.rgJoint);
             // f.rgJoint = nullptr;
 
-            log("Tree cracked!", treeDeflection);
+            console.log("Tree cracked!", treeDeflection);
         }
 
 
@@ -409,14 +409,14 @@ void RenderData::updatePhysics(glm::vec4 reference, PhysicalWorld &p){
 const float maxTrees = 20;
 FoliageDensityMap::FoliageDensityMap(glm::vec2 worldSize, glm::ivec2 nodes){
     sampler.transformInput = [=](glm::vec2 p) -> glm::vec2 {
-        // log("input:", p, "mid", p/worldSize, "output", glm::repeat(p/worldSize));
+        // console.log("input:", p, "mid", p/worldSize, "output", glm::repeat(p/worldSize));
         return glm::repeat(p/worldSize+glm::vec2(0.5f));
     };
     sampler.transformOutput = [](u8 value){
         return value/11;
     };
     sampler.size = nodes/2;
-    log("FoliageDensityMap size:", sampler.size);
+    console.log("FoliageDensityMap size:", sampler.size);
 
     std::vector<u8> density(sampler.size.x*sampler.size.y, 0);
     sampler.data = std::move(density);
@@ -440,7 +440,7 @@ void FoliageDensityMap::generate(){
     // sampler.data[0] = 255;
     // sampler.data[7] = 255;
     // sampler.data[63] = 255;
-    log("*****", sampler.data.size());
+    console.log("*****", sampler.data.size());
     upload();
 }
 void FoliageDensityMap::upload(){

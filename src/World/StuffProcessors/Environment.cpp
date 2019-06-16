@@ -2,7 +2,7 @@
 #include "Environment.hpp"
 #include "GPUResources.hpp"
 #include "LightSource.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "ModelLoader.hpp"
 #include "PerfTimers.hpp"
 #include "PhysicalWorld.hpp"
@@ -34,7 +34,7 @@ void Environment::load(const std::string &sceneName, const Yaml& yaml){
     // modelLoader.m_uvSize = 3;
     modelLoader.open(path + ".dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
     if(not modelLoader.good){
-        error("Unable to load environment");
+        console.error("Unable to load environment");
         return;
     }
 

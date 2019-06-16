@@ -1,5 +1,5 @@
 #pragma once
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include <iosfwd>
 #include <boost/variant.hpp>
 #include <boost/optional.hpp>
@@ -108,7 +108,7 @@ public:
     Yaml& operator [] (const std::string &s){
         for(auto &it : container)
             if(it.m_key == s) return it;
-        // error(s, "doesn't exists in", getParents());
+        // console.error(s, "doesn't exists in", getParents());
         return push(s, "");
     }
     Yaml& operator [] (u32 i){ // what if i is far bigger than the size?
@@ -119,11 +119,11 @@ public:
     const Yaml& operator [] (const std::string &s) const {
         for(const auto &it : container)
             if(it.m_key == s) {
-                // log(s, "path:", getParents());
+                // console.log(s, "path:", getParents());
                 return it;
             }
 
-        error(s, "doesn't exists in", m_key);
+        console.error(s, "doesn't exists in", m_key);
         return *this;
     }
     const Yaml& operator [] (u32 i) const {
@@ -268,69 +268,69 @@ public:
     glm::vec4 vec4() const try {
         return boost::get<glm::vec4>(m_value);
     } catch (...){
-        error("not exists as", m_key);
+        console.error("not exists as", m_key);
         return glm::vec4();
     }
     glm::vec4 vec31() const try {
         return glm::vec4(boost::get<glm::vec4>(m_value).xyz(), 1);
     } catch (...){
-        error("not exists as", m_key);
+        console.error("not exists as", m_key);
         return glm::vec4();
     }
     glm::vec4 vec30() const try {
         return glm::vec4(boost::get<glm::vec4>(m_value).xyz(), 0);
     } catch (...){
-        error("not exists as", m_key);
+        console.error("not exists as", m_key);
         return glm::vec4();
     }
     glm::vec3 vec3() const try {
         return boost::get<glm::vec4>(m_value).xyz();
     } catch (...){
-        error("not exists as", m_key);
+        console.error("not exists as", m_key);
         return glm::vec3();
     }
     glm::vec2 vec2() const try {
         return boost::get<glm::vec4>(m_value).xy();
     } catch (...){
-        error("not exists as", m_key);
+        console.error("not exists as", m_key);
         return glm::vec2();
     }
     glm::quat quat() const try {
         auto val = boost::get<glm::vec4>(m_value);
         return glm::quat(val.x, val.y, val.z, val.w);
     } catch (...){
-        error("not exists as", m_key);
+        console.error("not exists as", m_key);
         return glm::quat();
     }
     btVector3  btVec() const try {
         auto val = boost::get<glm::vec4>(m_value);
         return btVector3(val.x, val.y, val.z);
     } catch (...){
-        error("not exists as", m_key);
+        console.error("not exists as", m_key);
         return btVector3();
     }
     u32 color() const try {
         return boost::get<u32>(m_value);
     } catch (...){
-        error("not exists as", m_key);
+        console.error("not exists as", m_key);
         return 0;
     }
 
     double number() const try {
         return boost::get<double>(m_value);
     } catch (...){
-        error("not exists as", m_key);
+        console.error("not exists as", m_key);
         return -1;
     }
     void execute() try {
         boost::get<std::function<void(void)>>(m_value)();
     } catch (...){
-        error("not exists as", m_key);
+        console.error("not exists as", m_key);
     }
     bool boolean() const try {
         return boost::get<bool>(m_value);
     } catch (...){
-        error("not exists as", m_key);
+        console.error("not exists as", m_key);
         return false;
     }
 };

@@ -2,11 +2,11 @@
 #include "App.hpp"
 #include "Lobby.hpp"
 #include "LobbyEvents.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Window.hpp"
 
 bool StartLobby::handle(App &app){
-    info("[ Start Lobby ]");
+    console.info("[ Start Lobby ]");
 
     auto lobby = std::make_shared<Lobby>(*app.imgui, *app.inputDispatcher, *app.settings);
 
@@ -17,7 +17,7 @@ bool StartLobby::handle(App &app){
 }
 
 bool ExitGame::handle(App &app){
-    info("[ Bye! ]");
+    console.info("[ Bye! ]");
     app.exit();
     return true;
 }

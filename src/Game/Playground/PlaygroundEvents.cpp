@@ -4,21 +4,21 @@
 #include "Context.hpp"
 #include "GraphicEngine.hpp"
 #include "LobbyEvents.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Playground.hpp"
 #include "PlaygroundEvents.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
 
 bool StartPlayground::handle(App &app){
-    info("[ Start Playground ]");
+    console.info("[ Start Playground ]");
 
     auto playground = std::make_shared<Playground>(*app.imgui, *app.inputDispatcher, *app.window);
 
     auto& scene = playground->loadScene(sceneName);
     // pathifinderProcessAndSaveDepthMap(scene, context);
     // TODO: extract starting point
-    if(scene.spawnPoints.size() == 0) error("Noob! Scene have to has SpawnPoints defined!");
+    if(scene.spawnPoints.size() == 0) console.error("Noob! Scene have to has SpawnPoints defined!");
     else {
         playground->spawnPlayer(vehicleName, scene.spawnPoints[0].transform);
         // if(scene.spawnPoints.size() > 1) for(auto i=1; i<scene.spawnPoints.size(); i++)

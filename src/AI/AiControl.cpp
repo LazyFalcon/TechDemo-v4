@@ -3,7 +3,7 @@
 #include "input-dispatcher.hpp"
 #include "AiControl.hpp"
 #include "AiCommand.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "PointerInfo.hpp"
 
 AiControlViaInput::AiControlViaInput(InputDispatcher& inputDispatcher, PointerInfo& pointerInfo):
@@ -12,7 +12,7 @@ AiControlViaInput::AiControlViaInput(InputDispatcher& inputDispatcher, PointerIn
 {
 
     m_input->action("RMB").off([this](){
-        log("Move order", m_pointerInfo.worldPosition);
+        console.log("Move order", m_pointerInfo.worldPosition);
         MoveCommand payload {m_pointerInfo.worldPosition+glm::vec4(0,0,2,0)};
         AiCommand command {MoveTo};
         command.payload = &payload;

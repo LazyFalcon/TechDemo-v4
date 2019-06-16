@@ -1,7 +1,7 @@
 #include "core.hpp"
 #include "gl_core_4_5.hpp"
 #include "FBO.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Texture.hpp"
 #include "Window.hpp"
 
@@ -15,7 +15,7 @@ FBO& FBO::operator[](int layer){
         case HALF_WIDE: viewport = {1, 0.5f}; return setLayer(_12_wide);
         case SHADOWMAP: viewport = {1,1}; return setLayer(shadowmap);
 
-        default: error("FBO layer:", layer, "doesn't exists");
+        default: console.error("FBO layer:", layer, "doesn't exists");
     }
     return *this;
 }

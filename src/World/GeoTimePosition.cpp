@@ -12,7 +12,7 @@ GeoTimePosition::GeoTimePosition(const Yaml &sett)
     longitude = sett["Longitude"].number();
     tweak = sett["Tweak"].boolean();
 
-    log("Game date and time:", to_simple_string(m_date));
+    console.log("Game date and time:", to_simple_string(m_date));
 
     year = date().year();
     month = date().month();

@@ -10,7 +10,7 @@
 #include "Player.hpp"
 #include "VehicleAssembler.hpp"
 
-#define logFunc() log(__FUNCTION__, ":", __LINE__);
+#define logFunc() console.log(__FUNCTION__, ":", __LINE__);
 
 VehicleAssembler::VehicleAssembler(const std::string& configName, PhysicalWorld& physics, CameraControllerFactory& camFactory) :
     m_configName(configName),
@@ -22,7 +22,7 @@ VehicleAssembler::VehicleAssembler(const std::string& configName, PhysicalWorld&
     {}
 
 void VehicleAssembler::openModelFile(){
-    log("Starting assembly of", m_configName);
+    console.log("Starting assembly of", m_configName);
     m_config = Yaml(resPath + "models/" + m_configName + ".yml");
 
     // m_modelLoader->tangents = 3; // TODO:
@@ -37,6 +37,8 @@ void VehicleAssembler::openModelFile(){
 
 // * builds common part of model, every specific should be done by inheritances
 std::shared_ptr<VehicleEquipment> VehicleAssembler::build(const glm::mat4& onPosition){
+    console_prefix(m_configName + " Assembly");
+
     openModelFile();
 
     m_skinnedMesh = std::make_shared<SkinnedMesh>();
@@ -76,12 +78,12 @@ std::shared_ptr<VehicleEquipment> VehicleAssembler::build(const glm::mat4& onPos
 void VehicleAssembler::collectAndInitializeModules(){
     for(auto & it : m_config["Modules"]){
         if(it["Type"].string() != "Module"){
-            error(it["Name"].string(), "incorrect type!");
+            console.error(it["Name"].string(), "incorrect type!");
             continue;}
 
         auto module = m_moduleFactory.createModule(it);
         if(not module){
-            error("failed to create module:", it["Name"].string());
+            console.error("failed to create module:", it["Name"].string());
             return;
         }
 
@@ -178,7 +180,7 @@ void VehicleAssembler::setMarkers(IModule& module, const Yaml& cfg){
 void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
     if(not cfg.has("Models")){
         module.moduleVisualUpdater = std::make_unique<NullModuleVisualUpdater>();
-        log("No visuals");
+        console.log("No visuals");
         return;
     }
     auto& models = cfg["Models"].strings();

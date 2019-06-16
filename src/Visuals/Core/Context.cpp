@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "Context.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Assets.hpp"
 #include "PerfTimers.hpp"
 #include "BaseStructs.hpp"
@@ -14,7 +14,7 @@ void messageCallback(GLenum source,
                                 GLsizei length,
                                 const GLchar* message,
                                 const void* userParam){
-  if(gl::DEBUG_TYPE_ERROR == type) log("GL CALLBACK:","type:", type, "severity:", severity, "message:", message);
+  if(gl::DEBUG_TYPE_ERROR == type) console.log("GL CALLBACK:","type:", type, "severity:", severity, "message:", message);
 }
 
 Context::Context(Window &window) : window(window), fbo(window){
@@ -34,15 +34,15 @@ void Context::reset(){
     { // catch error
         int err = gl::GetError();
         if(err != gl::NO_ERROR_){
-            error("FBO fail:", err);
+            console.error("FBO fail:", err);
         }
         else
-            log("[ OK ] initialisation of FBOs");
+            console.log("[ OK ] initialisation of FBOs");
     }
 }
 
 void Context::resetTextures(){
-    log("--textures");
+    console.log("--textures");
     tex.gbuffer.color = Texture(gl::TEXTURE_2D, gl::RGBA16F, window.size.x, window.size.y, 1, gl::RGBA, gl::HALF_FLOAT, gl::LINEAR, 4);
     tex.gbuffer.normals = Texture(gl::TEXTURE_2D, gl::RGBA16F, window.size.x, window.size.y, 1, gl::RGBA, gl::HALF_FLOAT, gl::LINEAR, 0);
     tex.gbuffer.depth = Texture(gl::TEXTURE_2D, gl::DEPTH_COMPONENT32F, window.size.x, window.size.y, 1, gl::DEPTH_COMPONENT, gl::FLOAT, gl::LINEAR, 0);
@@ -73,7 +73,7 @@ void Context::resetTextures(){
     tex.ldr.half.wide = Texture(gl::TEXTURE_2D, gl::RGB10_A2, window.size.x, window.size.y/2, 1, gl::RGBA, gl::UNSIGNED_INT_10_10_10_2, gl::LINEAR, 0);
 }
 void Context::resetFbo(){
-    log("--fbos");
+    console.log("--fbos");
     fbo.drawBuffers[0] = gl::COLOR_ATTACHMENT0;
     fbo.drawBuffers[1] = gl::COLOR_ATTACHMENT1;
     fbo.drawBuffers[2] = gl::COLOR_ATTACHMENT2;
@@ -116,7 +116,7 @@ void Context::resetFbo(){
         gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
 }
 void Context::resetBuffers(){
-    log("--buffers");
+    console.log("--buffers");
     defaultVAO.setup()();
     for(auto &it : randomBuffers){
         it.setup(32000, true)();
@@ -149,7 +149,7 @@ void Context::UBOs::update(glm::mat4* data, int size){
 }
 
 void Context::resetShapes(){ // TODO: zwalidować użycia tego
-    log("--shapes");
+    console.log("--shapes");
     float point[] = {0.0f, 0.0f, 0.5f, 1.f};
     float quadCentered[] = {
         -0.5f, -0.5f, 0.0f, 0.0f,
@@ -262,7 +262,7 @@ void Context::resetShapes(){ // TODO: zwalidować użycia tego
 bool Context::_errors(const std::string &text, const std::string &file, int line, const std::string &fun){
     int err = gl::GetError();
     if(err != gl::NO_ERROR_){
-        error("GLError:", err, file+"#", line, ":", fun, "::", text);
+        console.error("GLError:", err, file+"#", line, ":", fun, "::", text);
         // hardPause();
         return true;
     }

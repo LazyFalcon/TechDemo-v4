@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "gl_core_4_5.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "GPUResources.hpp"
 #include "ShaderCompiler.hpp"
 #include "Texture.hpp"
@@ -188,7 +188,7 @@ VAO& VAO::addBuffer(std::vector<glm::vec4> &buffer){
 VAO& VAO::addBuffer(std::vector<u32> &buffer){
     ibo.setup(buffer);
     triangleCount = buffer.size()/3;
-    info("VAO "+std::to_string(ID), "triangles:", triangleCount);
+    console.info("VAO "+std::to_string(ID), "triangles:", triangleCount);
     return *this;
 }
 
@@ -337,8 +337,8 @@ std::map<std::string, Shader> Shader::loadFromFile(const std::string pathTo, con
             out = compileShaders(pathTo, filename);
         }
         catch(const std::runtime_error& except){
-            log("Shader compile error, file:", filename, "because of");
-            log(except.what());
+            console.log("Shader compile error, file:", filename, "because of");
+            console.log(except.what());
             std::cin.ignore();
             continue;
         }
@@ -405,6 +405,6 @@ State& State::depthFunc(u32 func){
 void checkErrors(){
     int err = gl::GetError();
     if(err != gl::NO_ERROR_){
-        error("fail:", err);
+        console.error("fail:", err);
     }
 }

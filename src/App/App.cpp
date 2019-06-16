@@ -11,7 +11,7 @@
 #include "GraphicEngine.hpp"
 #include "input-dispatcher.hpp"
 #include "input.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "PerfTimers.hpp"
 #include "ResourceLoader.hpp"
 #include "Settings.hpp"
@@ -48,11 +48,11 @@ App::App() : inputDispatcher(std::make_unique<InputDispatcher>()), input(inputDi
     self = this;
 }
 App::~App(){
-    log("~App");
+    console.log("~App");
 };
 
 bool App::initialize(){
-    log("--initializing main systems");
+    console.log("--initializing main systems");
     audio = std::make_unique<AudioLibrary>();
     settings->load();
 
@@ -103,7 +103,7 @@ void App::initializeInputDispatcher(){
     input->action("ctrl").on([]{ CTRL_MODE = true; }).off([]{ CTRL_MODE = false; });
     input->action("alt-f2").on([this]{ quit = true; });
     // input->action("esc", "exit", [this]{ quit = true; });
-    input->action("f1").on([]{ log("Helpful message"); });
+    input->action("f1").on([]{ console.log("Helpful message"); });
     input->action("f10").on([]{ TAKE_SCREENSHOT = true; });
     input->action("f11").on([]{
             CLOG_SPECIAL_VALUE_3 != CLOG_SPECIAL_VALUE_3;
@@ -116,10 +116,10 @@ void App::initializeInputDispatcher(){
     input->action("H").on([]{ HIDE_UI = !HIDE_UI; });
     input->action("R").on([]{
             ResourceLoader loader;
-            log("Reloading shaders");
+            console.log("Reloading shaders");
             Yaml shadersToReload(rootPath + "ShadersToReload.yml");
             for(auto &it : shadersToReload){
-                log("reloading shader: ", it.string());
+                console.log("reloading shader: ", it.string());
                 loader.reloadShader(it.string());
             }});
     input->action("ctrl").on([this]{
@@ -159,7 +159,7 @@ void App::initializeInputDispatcher(){
 }
 
 void App::setCommonCallbacks(){
-    log("--setting up callbacks");
+    console.log("--setting up callbacks");
     glfwSetScrollCallback(window->window, &App::scrollCallback);
     glfwSetKeyCallback(window->window, &App::keyCallback);
     glfwSetMouseButtonCallback(window->window, &App::mouseButtonCallback);
@@ -169,7 +169,7 @@ void App::setCommonCallbacks(){
 }
 
 bool App::loadResources(){
-    log("--loading resources");
+    console.log("--loading resources");
 
     Yaml resources(dataPath + "GameResources.yml");
 
@@ -182,7 +182,7 @@ bool App::loadResources(){
 void App::run() try {
     using namespace std::chrono_literals;
     using clock = std::chrono::high_resolution_clock;
-    log("--starting main loop");
+    console.log("--starting main loop");
 
     auto timeOnStart = clock::now();
     auto lastTime = timeOnStart;
@@ -230,11 +230,11 @@ void App::run() try {
     }
 }
 catch(const std::runtime_error& err){
-    error(err.what());
+    console.error(err.what());
 }
 
 void App::render(){
-    clog("--render");
+    console.clog("--render");
 
     if(gameState) gameState->renderProcedure(*graphicEngine);
 
@@ -245,7 +245,7 @@ void App::render(){
     glfwSwapBuffers(window->window);
 }
 void App::finish(){
-    log("--finishing");
+    console.log("--finishing");
     gameState.reset();
     graphicEngine.reset();
     window.reset();
@@ -294,5 +294,5 @@ void App::exitCallback(GLFWwindow *w){
     self->quit = true;
 }
 void App::errorCallback(int errorCode, const char* description){
-    error("[GLFW]", description);
+    console.error("[GLFW]", description);
 }

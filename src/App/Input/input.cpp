@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include <GLFW/glfw3.h>
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "input.hpp"
 #include "input-dispatcher.hpp"
 

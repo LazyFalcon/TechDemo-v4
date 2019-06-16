@@ -1,5 +1,5 @@
 #pragma once
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "QuadTree.hpp"
 #include "GPUResources.hpp"
 #include <queue>
@@ -47,7 +47,7 @@ public:
                 center = owner->center + owner->dimensions*glm::vec4(-0.25, -0.25, 0, 0);
                 break;
             }
-            default : error("bad field id received:"s, fieldInChunkId);
+            default : console.error("bad field id received:"s, fieldInChunkId);
         };
     }
     // TODO: why statics? refactor to use common object

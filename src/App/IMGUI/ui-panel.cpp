@@ -1,7 +1,7 @@
 #include "core.hpp"
 #include "ui-panel.hpp"
 #include "ui.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 Panel& Panel::operator()(){
     // feedback size to parent layout

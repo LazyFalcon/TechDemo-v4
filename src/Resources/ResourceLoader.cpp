@@ -1,5 +1,5 @@
 #include "core.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "GPUResources.hpp"
 #include "Yaml.hpp"
 #include "ResourceLoader.hpp"
@@ -27,6 +27,7 @@ namespace {
 }
 
 void ResourceLoader::loadResources(const Yaml &cfg){
+    console_prefix("Resources");
     if(cfg.has("Images")) for(auto &image : cfg["Images"]){
         loadImage(image);
     }
@@ -52,7 +53,7 @@ void ResourceLoader::loadResources(const Yaml &cfg){
         modelLoader.open(resPath + "/models/CommonModels.dae", std::move(assets::layerSearch(assets::getAlbedoArray("Materials"))));
         auto names = modelLoader.getNames();
         for(auto &name : names){
-            log("Common mesh:", name);
+            console.log("Common mesh:", name);
             assets::addMesh(modelLoader.load(name), name);
         }
         assets::addVao(modelLoader.build(), "Common");
@@ -71,7 +72,7 @@ void ResourceLoader::loadImages(const std::string& dir){
         }
     }
     catch (const fs::filesystem_error& ex){
-        error("fs::filesystem ex: ", ex.what());
+        console.error("fs::filesystem ex: ", ex.what());
     }
 }
 
@@ -79,7 +80,7 @@ void ResourceLoader::loadImages(const std::string& dir){
  *  Reads shaders from ../shaders directory and its subfolders
  */
 bool ResourceLoader::loadShaders(){
-    log("---shaders");
+    console.log("---shaders");
     try {
         fs::path imports(shaderPath+"Imports");
         for(auto dir = fs::directory_iterator(imports); dir != fs::directory_iterator(); dir++){
@@ -105,7 +106,7 @@ bool ResourceLoader::loadShaders(){
     return true;
     }
     catch (const fs::filesystem_error& ex){
-        error("fs::filesystem ex: ", ex.what());
+        console.error("fs::filesystem ex: ", ex.what());
     }
     return false;
 }
@@ -121,13 +122,13 @@ bool ResourceLoader::reloadShader(const std::string &name){
 
     auto shaders = Shader::loadFromFile(pathToShader, name);
     for(auto& it: shaders) assets::getShader(it.first).reload(it.second);
-    log("[ SHADER ] reload:", name);
+    console.log("[ SHADER ] reload:", name);
 
     return true;
 }
 
 bool ResourceLoader::loadFonts(){
-    log("---fonts");
+    console.log("---fonts");
     std::vector<std::string> imagesToLoad;
     auto fontsToLoad = filter(listDirectory(resPath + "/fonts/"), ".fnt");
     for(auto &font : fontsToLoad){
@@ -160,7 +161,7 @@ Image ResourceLoader::loadImage(const std::string &filePath){
     if(image.ID != 0){
         return image;
     }
-    log("[ IMAGE ] ", exactName);
+    console.log("[ IMAGE ] ", exactName);
 
     auto imageData = ImageUtils::loadImageToGpu(filePath);
 
@@ -204,7 +205,7 @@ bool ResourceLoader::loadImageSet(const Yaml &cfg){
         assets::addImageSet(set, name);
     }
     catch(...) {
-        error("loading image set:", name);
+        console.error("loading image set:", name);
         return false;
     }
     return true;
@@ -254,12 +255,12 @@ namespace {
                     metallic.push_back(*m);
                 }
                 else {
-                    error("Cannot find roughness or metallic material for:", base.string(), basename);
+                    console.error("Cannot find roughness or metallic material for:", base.string(), basename);
                 }
             }
         }
         catch (const fs::filesystem_error& ex){
-            error("fs::filesystem ex: ", ex.what());
+            console.error("fs::filesystem ex: ", ex.what());
         }
         return std::tuple(albedo, metallic, roughness);
     }
@@ -279,9 +280,9 @@ assets::TextureArray ResourceLoader::loadTextureArray(const std::string &folder,
         out.id = ImageUtils::loadArrayToGpu(albedo).id;
         convertAndGetName(albedo, out.content);
         assets::addAlbedoArray(id, out, containerName);
-        log(containerName);
+        console.log(containerName);
         for(auto& it : out.content)
-            log("\t", it);
+            console.log("\t", it);
     }
     {
         assets::TextureArray out;
@@ -317,7 +318,7 @@ assets::TextureArray ResourceLoader::loadCubeMap(const std::string &folder){
     std::vector<std::string> files = listDirectory(resPath + "/cubemaps/" + folder);
     for(auto &it : files){
         it = resPath + "/cubemaps/" + folder + "/"s + it;
-        log("cube:", it);
+        console.log("cube:", it);
     }
 
     assets::TextureArray out;

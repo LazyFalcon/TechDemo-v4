@@ -1,7 +1,7 @@
 #include "core.hpp"
 #include "Utils.hpp"
 #include "Camera.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 void Camera::evaluate(){
     view = glm::affineInverse(orientation);
@@ -101,12 +101,12 @@ float Camera::convertDepthToWorld(float depth){
 }
 
 void Camera::printDebug(){
-    log("fov:", fov*toDeg, "\taspect:", aspectRatio);
-    log("nearDistance:", nearDistance, "\tfarDistance:", farDistance);
-    // log("rotationCenter:", rotationCenter);
-    log("position:", orientation[3]);
-    log("offset:", offset);
-    // log("euler:", euler);
-    // log("target.basis:", target.basis);
-    // log("target.parentBasis:", target.parentBasis);
+    console.log("fov:", fov*toDeg, "\taspect:", aspectRatio);
+    console.log("nearDistance:", nearDistance, "\tfarDistance:", farDistance);
+    // console.log("rotationCenter:", rotationCenter);
+    console.log("position:", orientation[3]);
+    console.log("offset:", offset);
+    // console.log("euler:", euler);
+    // console.log("target.basis:", target.basis);
+    // console.log("target.parentBasis:", target.parentBasis);
 }

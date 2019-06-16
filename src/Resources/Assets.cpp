@@ -4,7 +4,7 @@
 #include "ResourceLoader.hpp"
 #include "BaseStructs.hpp"
 #include "font.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 namespace assets {
 
@@ -66,7 +66,7 @@ Shader& getShader(const std::string &name) try {
     return shaders.at(name);
 }
 catch(std::out_of_range& err){
-    error(name, "no in shaders:", err.what());
+    console.error(name, "no in shaders:", err.what());
     throw;
 }
 
@@ -74,7 +74,7 @@ Shader& bindShader(const std::string &name) try {
     return shaders.at(name).bind();
 }
 catch(std::out_of_range& err){
-    error(name, "no in shaders:", err.what());
+    console.error(name, "no in shaders:", err.what());
     throw;
 }
 
@@ -146,7 +146,7 @@ Mesh& getMesh(const std::string &name) try {
     return meshes.at(name).get();
 }
 catch(std::out_of_range& err){
-    error(name, "no in meshes:", err.what());
+    console.error(name, "no in meshes:", err.what());
     throw;
 }
 

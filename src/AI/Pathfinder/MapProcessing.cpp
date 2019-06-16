@@ -16,7 +16,7 @@ void updateMinMax(ResultMap& inout){
 
     inout.min = min;
     inout.max = max;
-    log("map min/max:", min, max);
+    console.log("map min/max:", min, max);
 }
 
 float zFar = 150;

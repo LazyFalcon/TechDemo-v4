@@ -1,7 +1,7 @@
 ﻿#include "core.hpp"
 #include "CameraController.hpp"
 #include "Constants.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Utils.hpp"
 #include <glm/gtx/orthonormalize.hpp>
 
@@ -96,7 +96,7 @@ void CopyOnlyPosition::update(const glm::mat4& parentTransform, float dt){
 
 void CopyOnlyPosition::printDebug(){
     Camera::printDebug();
-    log("euler:", euler.x*toDeg, euler.y*toDeg, euler.z*toDeg);
+    console.log("euler:", euler.x*toDeg, euler.y*toDeg, euler.z*toDeg);
 }
 
 // -----------------------------------------------------------------
@@ -262,7 +262,7 @@ void FreeCamController::applyImpulse(float x, float y, float z){
 
 void FreeCamController::printDebug(){
     Camera::printDebug();
-    log("right", right);
-    log("up", up);
-    log("at", at);
+    console.log("right", right);
+    console.log("up", up);
+    console.log("at", at);
 }

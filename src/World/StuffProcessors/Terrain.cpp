@@ -1,7 +1,7 @@
 #include "core.hpp"
 #include "simplexnoise.h"
 #include "gl_core_4_5.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Terrain.hpp"
 #include "QuadTree.hpp"
 #include "PhysicalWorld.hpp"
@@ -45,17 +45,17 @@ void Terrain::create(const Yaml &cfg){
     map.readDescription(cfg["Params"]);
     if(isFile(cfg["Dir"].string() + "/map.png")){
         if(cfg["Generation"].string() == "LoadFromFile" or cfg["Seed"].as<u32>() == cfg["Params"]["Seed"].as<u32>()){
-            log("Terrain: load existing map");
+            console.log("Terrain: load existing map");
             load(cfg["Dir"].string());
         }
         else if(cfg["Generation"].string() == "Random"){
-            log("Terrain: create new map");
+            console.log("Terrain: create new map");
             generateRandom(cfg, map.seed, cfg["HeightRange"].number());
             save(cfg["Dir"].string());
         }
     }
     else {
-        log("Terrain: file not found, create new map");
+        console.log("Terrain: file not found, create new map");
         generateRandom(cfg, map.seed, cfg["HeightRange"].number());
         save(cfg["Dir"].string());
     }
@@ -63,8 +63,8 @@ void Terrain::create(const Yaml &cfg){
 
 bool Terrain::load(const std::string &dir){
     CPU_SCOPE_TIMER("Terrain::load");
-    log("min", map.min);
-    log("max", map.max);
+    console.log("min", map.min);
+    console.log("max", map.max);
     auto image = ImageUtils::loadToMemory(dir+"/map.png", ImageDataType::R16);
     map.data.resize(map.noOfNodes());
     // std::transform((u16*)image.data, (u16*)image.data+image.dataSize/2, map.data.begin(), [this](u16 x){
@@ -106,7 +106,7 @@ void Terrain::save(const std::string &dir){
     image.dataSize = map.data.size()*sizeof(u16);
 
     if(not ImageUtils::saveFromMemory(dir+"/map.png", ImageDataType::R16, image)){
-        error("Unable to save map");
+        console.error("Unable to save map");
     }
 }
 void Terrain::generateRandom(const Yaml &cfg, u32 seed, double range){

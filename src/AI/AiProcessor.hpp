@@ -5,7 +5,7 @@
 #include "VehicleEquipment.hpp"
 #include "Details.hpp"
 #include "RenderDataCollector.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 class AiProcessor
 {

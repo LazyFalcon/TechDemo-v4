@@ -89,7 +89,7 @@ bool saveCache(std::string fileName, const std::vector<T> &data){
     // if(file.is_open()){
         file.write((char*)data.data(), data.size()*sizeof(T));
     // }
-    // else log(__FUNCTION__, "Unable to cache file:", fileName);
+    // else console.log(__FUNCTION__, "Unable to cache file:", fileName);
     file.close();
     return true;
 }

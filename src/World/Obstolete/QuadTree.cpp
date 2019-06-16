@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "QuadTree.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "PerfTimers.hpp"
 #include "PerfCounter.hpp"
 #include "Terrain.hpp"
@@ -27,10 +27,10 @@ void QuadTree::init(const Yaml &cfg){
     // dany jest wymiar mapy, ilosc wierzcholkow i ilosc wierzcholkow w chunku
     //
 
-    info("QT", "nodes:", nodes);
-    info("QT", "size:", size);
-    info("QT", "chunk size:", chunkSize);
-    info("QT", "node distance:", chunkSize/32.f);
+    console.info("QT", "nodes:", nodes);
+    console.info("QT", "size:", size);
+    console.info("QT", "chunk size:", chunkSize);
+    console.info("QT", "node distance:", chunkSize/32.f);
     QTNodes.resize(numberOfChunksInAllLevels);
 
     QTNodes[0].center = glm::vec4(0,0,0,1);

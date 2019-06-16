@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "DummyDriveSystem.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 /*
 * Uproszczony model sterowania droną: drona śledzi punkt(pozycja + orientacja)
@@ -92,7 +92,7 @@ void DummyDriveSystem::torquePart(float dt, btTransform& tr){
     eq.rgBody->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
     eq.rgBody->applyTorque(response);
     if(eq.control.targetDirection){
-        // clog("to:", target, "from:", rotation, "by:", delta);
+        // console.clog("to:", target, "from:", rotation, "by:", delta);
         auto rotation = tr.getRotation();
         // btQuaternion target(convert(*eq.control.targetDirection), 0);
         btQuaternion target(btVector3(1,0,0), 0.1);
@@ -111,8 +111,8 @@ void DummyDriveSystem::torquePart(float dt, btTransform& tr){
 
         // auto rotationError = tr.getBasis()[m_leadingAxis].cross(convert(*eq.control.targetDirection)) + tr.getBasis()[2].cross(btVector3(0,0,1));
         // auto impulse = pdRegOrientation.goTo(btVector3(0,0,0), -rotationError)*5.91;
-        clog("tgt:", QuaternionToEulerXYZ(target), "rot:", QuaternionToEulerXYZ(rotation));
-        clog("to:", target, "from:", rotation, "by:", deltaEuler, "by:", delta);
+        console.clog("tgt:", QuaternionToEulerXYZ(target), "rot:", QuaternionToEulerXYZ(rotation));
+        console.clog("to:", target, "from:", rotation, "by:", deltaEuler, "by:", delta);
 
 
         // eq.rgBody->setAngularVelocity(delta);

@@ -1,6 +1,6 @@
 #pragma once
 #include "ModuleFactory.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Modules.hpp"
 #include "Turret.hpp"
 #include "Yaml.hpp"
@@ -59,7 +59,7 @@ public:
             return createArmor(cfg);
         }
 
-        error("Module", cfg["Name"].string(), "has undefined type:", className);
+        console.error("Module", cfg["Name"].string(), "has undefined type:", className);
         return nullptr;
     }
     std::shared_ptr<IModule> createBase(const Yaml &cfg){

@@ -3,7 +3,7 @@
 #include "Assets.hpp"
 #include "Utils.hpp"
 #include "font.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include <regex>
 #include <fstream>
 #include <iterator>
@@ -95,9 +95,9 @@ void Font::load(const std::string &name, std::vector<std::string> &imagesToLoad)
     std::ifstream file;
     file.open(path + name, std::ios::in);
     if(not file.good()){
-        error("Can't open file", path + name);
+        console.error("Can't open file", path + name);
     }
-    log("Font:", name);
+    console.log("Font:", name);
     std::string info, common, count, page;
     std::vector<std::string> lines;
     getline(file, info);
@@ -158,7 +158,7 @@ float Font::calculateTextLength(const std::u16string &text){
 //     std::string name = getName(filename);
 //     auto tokens = splitString(name, '_');
 //     if(tokens.size() != 2){
-//         error("there should be two parts in", name);
+//         console.error("there should be two parts in", name);
 //         return 0;
 //     }
 //     int id = font::idMap[tokens[0]];

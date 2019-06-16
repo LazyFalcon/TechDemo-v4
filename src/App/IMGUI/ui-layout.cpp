@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "ui-layout.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 // used with assume that
 
 void even::precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis){

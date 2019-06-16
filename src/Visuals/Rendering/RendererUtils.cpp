@@ -114,7 +114,7 @@ void RendererUtils::takeScreenShot(){
     boost::posix_time::ptime time(boost::posix_time::second_clock::local_time());
 
     if(not ImageUtils::saveFromMemory(screenshotsPath + "shot_"+boost::posix_time::to_iso_string(time), ImageDataType::RGB8, image)){
-        error("Unable to save screenshot");
+        console.error("Unable to save screenshot");
     }
 }
 

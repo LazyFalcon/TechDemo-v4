@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "Utils.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 
 glm::vec4 colorHex(uint32_t hexVal){
     return glm::vec4(
@@ -201,7 +201,7 @@ bool findFile(const std::string &from, const std::string &name, const std::strin
         return false;
     }
     catch (const fs::filesystem_error& ex){
-        error("fs::ex: ", ex.what());
+        console.error("fs::ex: ", ex.what());
         std::cin.ignore();
     }
     return false;
@@ -218,7 +218,7 @@ std::vector<std::string> filter(const std::vector<std::string>& what, const std:
 
 std::vector<std::string> listDirectory(const std::string& dir){
     std::vector<std::string> out;
-    // log("[ sDFs ] ", name, p.parent_path().string());
+    // console.log("[ sDFs ] ", name, p.parent_path().string());
     try {
         fs::path p(dir);
         auto dir_it = fs::directory_iterator(p);
@@ -228,7 +228,7 @@ std::vector<std::string> listDirectory(const std::string& dir){
         return out;
     }
     catch (const fs::filesystem_error& ex){
-        error("fs:: ex: ", ex.what());
+        console.error("fs:: ex: ", ex.what());
         std::cin.ignore();
     }
     return out;
@@ -242,7 +242,7 @@ bool writeBinary(const std::string &path, i8 *data, u32 size){
         file.write(data, size);
     }
     else {
-        error(__FUNCTION__, "Unable to open file:", path);
+        console.error(__FUNCTION__, "Unable to open file:", path);
         return false;
     }
     file.close();
@@ -262,7 +262,7 @@ bool readBinary(const std::string &path, i8 *data, u32 &size){
         file.read(data, size);
     }
     else {
-        error(__FUNCTION__, "Unable to open file:", path);
+        console.error(__FUNCTION__, "Unable to open file:", path);
         return false;
     }
     file.close();
@@ -277,7 +277,7 @@ bool writeBinary(const std::string &path, std::function<void(std::ofstream&)> &f
         fun(file);
     }
     else {
-        error(__FUNCTION__, "Unable to open file:", path);
+        console.error(__FUNCTION__, "Unable to open file:", path);
         return false;
     }
     file.close();
@@ -299,7 +299,7 @@ bool readBinary(const std::string &path, std::function<void(i8*, u32)> &fun){
         fun(data, size);
     }
     else {
-        error(__FUNCTION__, "Unable to open file:", path);
+        console.error(__FUNCTION__, "Unable to open file:", path);
         return false;
     }
     file.close();

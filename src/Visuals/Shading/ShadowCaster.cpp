@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "ShadowCaster.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Camera.hpp"
 #include "Context.hpp"
 #include "Assets.hpp"

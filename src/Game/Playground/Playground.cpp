@@ -41,7 +41,7 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         });
         m_input->action("f12").on([this]{
             CameraController::getActiveCamera().printDebug();
-            log("m_mouseWorldPos", m_mouseWorldPos);
+            console.log("m_mouseWorldPos", m_mouseWorldPos);
             });
         m_input->action("+").on([this]{ CameraController::getActiveCamera().offset.z -= 1.5; });
         m_input->action("-").on([this]{ CameraController::getActiveCamera().offset.z += 1.5; });
@@ -76,7 +76,7 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
             if(m_input->currentKey.onHoldTime > 700 and m_useFreecam){
                 m_input->currentKey.release = true;
                 m_scene->freeCams[m_selectedCamera]->changeMode();
-                log("state changed");
+                console.log("state changed");
             }
             else if(m_input->currentKey.onHoldTime > 700 and not m_useFreecam){
                 // TODO: create freecam from current camera
@@ -112,6 +112,7 @@ Playground::~Playground(){
     m_input->deactivate();
 }
 void Playground::update(float dt){
+    console_prefix("Update");
     if(m_player) m_player->updateGraphic(dt);
     for(auto & bot : m_scene->m_friendlyBots){
         bot->updateGraphic(dt);
@@ -121,6 +122,7 @@ void Playground::update(float dt){
     }
 }
 void Playground::updateWithHighPrecision(float dt){
+    console_prefix("Precise Update");
     m_physics->update(dt/1000.f);
 
     auto& currentCamera = CameraController::getActiveCamera();
@@ -148,6 +150,7 @@ void Playground::updateWithHighPrecision(float dt){
 }
 
 void Playground::renderProcedure(GraphicEngine& renderer){
+    console_prefix("Rendering");
     RenderDataCollector::collectCamera(CameraController::getActiveCamera());
     RenderDataCollector::collectWindow(m_window);
     RenderDataCollector::collectTime(FrameTime::deltaf, FrameTime::miliseconds);

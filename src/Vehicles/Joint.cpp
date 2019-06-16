@@ -75,7 +75,8 @@ public:
         m_position = rotateAndKeepIn0To2piRange(m_position, e);
     }
     glm::mat4 getTransform(){
-        return m_loc * glm::rotate(m_position, glm::vec3(0,0,1)) * glm::translate(toBOrigin.xyz());
+        // return m_loc * glm::rotate(m_position, glm::vec3(0,0,1)) * glm::translate(toBOrigin.xyz());
+        return m_loc * glm::translate(toBOrigin.xyz());
     }
 };
 
@@ -85,7 +86,7 @@ std::shared_ptr<Joint> createJoint(const Yaml& config, glm::vec4 fromSocketToOri
     if(config["Type"] == "Revolute") out = std::make_shared<Revolute>(config);
 
     out->toBOrigin = fromSocketToOrigin;
-    out->m_loc = glm::mat4(config["X"].vec31(),config["Y"].vec31(),config["Z"].vec31(),config["W"].vec31());
-
+    out->m_loc = glm::mat4(config["X"].vec30(),config["Y"].vec30(),config["Z"].vec30(),config["W"].vec31());
+    log("joint:", out->toBOrigin, out->m_loc[3]);
     return out;
 }

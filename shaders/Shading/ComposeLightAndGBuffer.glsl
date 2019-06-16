@@ -29,16 +29,15 @@ uniform float uGamma;
 void main(void){
     vec2 uv = gl_FragCoord.xy * uPixelSize;
 
-    vec3 albedo = pow(texture(uColor, vUV).rgb, vec3(uGamma));
-    // vec3 albedo = texture(uColor, vUV).rgb;
+    // vec3 albedo = pow(texture(uColor, vUV).rgb, vec3(uGamma));
+    vec3 albedo = texture(uColor, vUV).rgb;
     vec3 light = texture(uLight, vUV).rgb;
     vec3 specular = texture(uSpecular, vUV).rgb;
     float ao = texture(uAO, vUV).r;
 
-    vec3 final = albedo*light*ao + specular*ao + (1-min(ao, 1))*vec3(20,10,5)/512*0;
+    vec3 final = albedo*light*ao + specular*ao + (1-min(ao, 1))*vec3(20,10,5)/512;
     // final = (light + specular)*ao;
 
-    // vec3 final = light;
     // final = light;
     // final = specular;
     // final = albedo;

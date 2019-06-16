@@ -23,13 +23,26 @@ layout(std140) uniform uBones {
 
 out vec3 vUV;
 out vec3 vNormalWS;
+out vec3 vColor;
+out float vRoughness;
+out float vMetallic;
+out float vSpecular;
+out float vAnisotropic;
+out float vClearcoat;
+out float vEmissive;
 // out vec3 vTangentWS;
 // out vec3 vBinormalWS;
 
 void main(){
     vUV = mUV;
-    vUV.z += 0;
-    vUV.xy = vec2(0.9);
+    vColor = mColor;
+    vRoughness = mRoughness;
+    vMetallic = mMetallic;
+    vSpecular = mSpecular;
+    vAnisotropic = mAnisotropic;
+    vClearcoat = mClearcoat;
+    vEmissive = mEmissive;
+
     // int boneIndex = int(mVertex.w);
     mat4 bone = bones[mBoneIndex];
 
@@ -48,9 +61,16 @@ void main(){
 
 out layout(location = 0) vec4 outColor;
 out layout(location = 1) vec4 outNormal;
+// out layout(location = 2) vec4 outEmissive;
 
 in vec3 vUV;
 in vec3 vNormalWS;
+in vec3 vColor;
+in float vRoughness;
+in float vMetallic;
+in float vSpecular;
+in float vAnisotropic;
+in float vClearcoat;
 // in vec3 vTangentWS;
 // in vec3 vBinormalWS;
 
@@ -60,7 +80,9 @@ in vec3 vNormalWS;
 // layout(binding=3)uniform sampler2DArray uMetallicMap;
 
 void main(void){
-    outColor.rgb = vec3(0.8);
+    outColor.rgb = vColor;
+    outNormal.w = vRoughness;
+    outColor.a = vMetallic;
     // outColor.rgb = texture2DArray(uAlbedo, vUV).rgb;
     // vec3 normalTS = texture2DArray(uNormalMap, vUV*5).rgb*2.0 - 1.0;
     // outNormal.w = texture2DArray(uRoughnessMap, vUV*5).r*2;

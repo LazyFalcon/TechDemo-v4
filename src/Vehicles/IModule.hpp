@@ -2,6 +2,7 @@
 #include "DecalsAndMarkers.hpp"
 #include "VehicleEquipment.hpp"
 #include "Utils.hpp"
+#include "Logging.hpp"
 
 enum class ModuleType {
     Engine, Base, Turret, Mantlet, Camera, Cannon, Launcher, Other, Addon, Armor, Suspension, Motor, Track, Radar, Part, LoosePart, DriveSystem
@@ -28,18 +29,23 @@ public:
 
     virtual ~ModuleVisualUpdater() = default;
     virtual void setTransform(const btTransform &tr){
+        clog(__PRETTY_FUNCTION__, m_boneIndex);
         (*m_matrixContainer)[m_boneIndex] = convert(tr);
     }
     virtual void setTransform(const btTransform &tr, u32 i){
+        clog(__PRETTY_FUNCTION__, m_boneIndex);
          (*m_matrixContainer)[i] = convert(tr);
     }
     virtual void setTransform(const glm::mat4 &tr){
+        clog(__PRETTY_FUNCTION__, m_boneIndex);
         (*m_matrixContainer)[m_boneIndex] = tr;
     }
     virtual void setTransform(const glm::mat4 &tr, u32 i){
+        clog(__PRETTY_FUNCTION__, m_boneIndex);
         (*m_matrixContainer)[i] = tr;
     }
     virtual const glm::mat4& getTransform() const {
+        clog(__PRETTY_FUNCTION__, m_boneIndex);
         return (*m_matrixContainer)[m_boneIndex];
     }
 };
@@ -123,9 +129,10 @@ public:
     // ustawia jednocześnie transformację dla kości, dla potomków(również wzgledm świata) i tr compound mesha
     // transformacja jest względem rodzica
     void transform(const glm::mat4& tr){
+        clog(__PRETTY_FUNCTION__, name);
         worldTransform = getParentTransform() * tr;
         moduleVisualUpdater->setTransform(worldTransform); /// tu wrzucamy pełną trnsformację
-        // moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * tr : glm::mat4()); /// a tu względem rodzica, no nic, trzeba dodać dodatkowy wektor
+        moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * tr : glm::mat4()); /// a tu względem rodzica, no nic, trzeba dodać dodatkowy wektor
     }
     const glm::mat4& getGlmTransform() const {
         return moduleVisualUpdater->getTransform();

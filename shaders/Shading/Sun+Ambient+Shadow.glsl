@@ -132,7 +132,7 @@ void main(void){
     float metallic = albedo.w;
     vec3 N = normalize(normal.xyz);
     /// TODO: pack in single hfolat
-    float roughness = max(normal.w, 0.01) + 0.2;
+    float roughness = max(normal.w, 0.01);
     roughness *= roughness;
 
     vec3 V = normalize(uEye - P);
@@ -141,7 +141,7 @@ void main(void){
     vec3 kS;
 
     vec3 specular = calculateSpecular(V, N, L, roughness, metallic, albedo.rgb, kS)*lightPowerScale + sampleEnviroMap(N.xzy, V.xzy, roughness)*exp(-0.1*lightPowerScale)*Fresnel_Schlick(clamp(dot(N,V), 0.0, 1.0), albedo.rgb);
-    vec3 irradiance = samplePrefilteredEnviroMap(-N.yzx, 7)*0.1;
+    vec3 irradiance = samplePrefilteredEnviroMap(-N.yzx, 7);
     vec3 diffusePart = 1*light.color*OrenNayar(L, V, N, roughness, 1)*lightPowerScale + irradiance*exp(-0.1*lightPowerScale); /// *ks?
 
     float shadow = 1;// pow(CombineCSM(P, uv, dot(N, L), N), 2);

@@ -24,9 +24,9 @@ vec3 Uncharted2TonemapOperator(in vec3 x){
     return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
 }
 vec3 Uncharted2Tonemap(in vec3 color){
-    const float W = 11.2;
+    const float W = 1.2;
 
-    color = Uncharted2TonemapOperator(color*uExposure*10);
+    color = Uncharted2TonemapOperator(color*uExposure*2);
     vec3 whiteScale = 1.0f/Uncharted2TonemapOperator(vec3(W));
     color *= whiteScale;
 

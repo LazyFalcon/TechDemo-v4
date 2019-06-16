@@ -286,22 +286,22 @@ public:
     }
     void setTextureLayer(InternalMeshInfo info, float layer){
         for(u32 i=0; i<info.vertexCount; i++){
-            rawVertexData[info.vertexStart].uv[2] += layer;
+            rawVertexData[info.vertexStart + i].uv[2] += layer;
         }
     }
     void setBoneIndex(InternalMeshInfo info, float index){
         for(u32 i=0; i<info.vertexCount; i++){
-            rawVertexData[info.vertexStart].boneId += index;
+            rawVertexData[info.vertexStart + i].boneId += index;
         }
     }
     void moveModel(InternalMeshInfo info, glm::vec3 offset){
-        for(u32 i=info.vertexStart; i<info.vertexCount; i++){
-            rawVertexData[i].position += offset;
+        for(u32 i=0; i<info.vertexCount; i++){
+            rawVertexData[info.vertexStart + i].position += offset;
         }
     }
     void moveModel(const Mesh& info, glm::vec3 offset){
-        for(u32 i=info.vertexStart; i<info.vertexEnd; i++){
-            rawVertexData[i].position += offset;
+        for(u32 i=0; i<info.vertexEnd; i++){
+            rawVertexData[info.vertexStart + i].position += offset;
         }
     }
     VAO build(){

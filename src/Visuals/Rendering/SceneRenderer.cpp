@@ -187,9 +187,14 @@ void SceneRenderer::renderSkinned(Camera &camera){
             GLuint UBOBindingIndex = 0;
 
             // update buffer
-            gl::BindBuffer(gl::UNIFORM_BUFFER, context.ubo.matrices);
-            gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->bones.size(), toRender->bones.data());
-            gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
+            // gl::BindBuffer(gl::UNIFORM_BUFFER, context.ubo.matrices);
+            // gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->bones.size(), toRender->bones.data());
+            // gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
+            context.ubo.update(toRender->bones);
+            clog(__PRETTY_FUNCTION__, toRender->bones.size());
+            for(auto& it : toRender->bones){
+                clog(">>", it[3]);
+            }
 
             // use buffer
             shader.ubo("uBones", context.ubo.matrices, UBOBindingIndex, sizeof(glm::mat4) * 150);
@@ -236,12 +241,6 @@ void SceneRenderer::renderSkinnedShadows(Scene &scene, Camera &camera){
 
         { // passing bones
             GLuint UBOBindingIndex = 0;
-            // // update buffer
-            // gl::BindBuffer(gl::UNIFORM_BUFFER, context.ubo.matrices);
-            // gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(glm::mat4)*toRender->bones.size(), toRender->bones.data());
-            // gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
-
-            // use buffer
             context.ubo.update(toRender->bones);
             shader.ubo("uBones", context.ubo.matrices, UBOBindingIndex, sizeof(glm::mat4) * context.ubo.size);
         }

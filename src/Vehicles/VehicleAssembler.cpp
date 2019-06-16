@@ -79,7 +79,6 @@ void VehicleAssembler::collectAndInitializeModules(){
             error(it["Name"].string(), "incorrect type!");
             continue;}
 
-        log("module with name", it["Name"].string());
         auto module = m_moduleFactory.createModule(it);
         if(not module){
             error("failed to create module:", it["Name"].string());
@@ -87,27 +86,27 @@ void VehicleAssembler::collectAndInitializeModules(){
         }
 
         module->name = it["Name"].string();
-        m_modules[module->name] = {module, it["FromParentToOrigin"].vec30(), &it};
+        m_modules[module->name] = {.module= module,
+                                   .fromJointToOrigin = it["FromParentToOrigin"].vec30(),
+                                   .config = &it};
 
         setDecals(*module, it);
         setMarkers(*module, it);
-        setVisual(*module, it);
         // setArmor(*module, it);
     }
 }
 
 void VehicleAssembler::connectModules(ToBuildModuleLater& moduleData, IModule* parent, const Yaml* connectionProps){
-
     moduleData.module->parent = parent;
     m_vehicleEq->modules.push_back(moduleData.module);
+    setVisual(*moduleData.module, *moduleData.config);
+    setPhysical(*moduleData.module, *moduleData.config);
     if(connectionProps)
         setConnection(moduleData, *connectionProps);
-    setPhysical(*moduleData.module, *moduleData.config);
 
-    if(moduleData.config->has("Joints")) for(auto& connector : (*moduleData.config)["Joints"]){
-        if(connector.has("Connected")) for(auto& moduleName : connector["Connected"]){
-            log("creating module:", moduleName.string());
-            connectModules(m_modules.at(moduleName.string()), moduleData.module.get(), &connector);
+    if(moduleData.config->has("Joints")) for(auto& joint : (*moduleData.config)["Joints"]){
+        if(joint.has("Pinned")) for(auto& moduleName : joint["Pinned"].strings()){
+            connectModules(m_modules.at(moduleName), moduleData.module.get(), &joint);
         }
     }
 }
@@ -179,6 +178,7 @@ void VehicleAssembler::setMarkers(IModule& module, const Yaml& cfg){
 void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
     if(not cfg.has("Models")){
         module.moduleVisualUpdater = std::make_unique<NullModuleVisualUpdater>();
+        log("No visuals");
         return;
     }
     auto& models = cfg["Models"].strings();

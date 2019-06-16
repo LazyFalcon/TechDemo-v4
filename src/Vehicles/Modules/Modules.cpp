@@ -10,5 +10,5 @@ void Base::update(float dt){
     eq.invTrans = glm::inverse(tr);
     eq.glTrans = tr;
     this->transform(tr);
-    clog("Drone position", tr[3]);
+    clog(__PRETTY_FUNCTION__, tr[3]);
 }

@@ -66,8 +66,8 @@ in float vClearcoat;
 in float vEmissive;
 
 void main(void){
-    outColor.rgb = mix(vColor, texture2DArray(uAlbedo, vUV).rgb, 0.905);
-    float mixVal = 0.7;
+    outColor.rgb = mix(vColor, texture2DArray(uAlbedo, vUV).rgb, 0.1905);
+    float mixVal = 0.17;
     outColor.a = mix(vMetallic, texture2DArray(uMetallicMap, vUV).r, mixVal);
     outNormal.w = mix(vRoughness, texture2DArray(uRoughnessMap, vUV).r, mixVal);
     outNormal.xyz = normalize(vNormalWS + vNormalWS.zxy*outNormal.w*0.0);

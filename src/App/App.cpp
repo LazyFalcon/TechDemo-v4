@@ -105,12 +105,8 @@ void App::initializeInputDispatcher(){
     // input->action("esc", "exit", [this]{ quit = true; });
     input->action("f1").on([]{ console.log("Helpful message"); });
     input->action("f10").on([]{ TAKE_SCREENSHOT = true; });
-    input->action("f11").on([]{
-            CLOG_SPECIAL_VALUE_3 != CLOG_SPECIAL_VALUE_3;
-        });
     input->action("f12").on([]{
-            CLOG_SPECIAL_VALUE = true;
-            CLOG_SPECIAL_VALUE_2 = true;
+            pmkLogger.printConditionalLogs();
             GpuTimerScoped::print();
         }).off([]{ CLOG_SPECIAL_VALUE_2 = false; });
     input->action("H").on([]{ HIDE_UI = !HIDE_UI; });
@@ -204,7 +200,7 @@ void App::run() try {
         FrameTime::delta = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(deltaTime).count();
         FrameTime::deltaf = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(deltaTime).count();
 
-        CLOG_SPECIAL_VALUE = false;
+        pmkLogger.startFrame();
         updateTimers(FrameTime::miliseconds);
         imgui->restart();
         inputDispatcher->setTime(FrameTime::miliseconds);

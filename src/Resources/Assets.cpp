@@ -146,7 +146,7 @@ Mesh& getMesh(const std::string &name) try {
     return meshes.at(name).get();
 }
 catch(std::out_of_range& err){
-    console.error(name, "no in meshes:", err.what());
+    console.error(name, "not in meshes:", err.what());
     throw;
 }
 

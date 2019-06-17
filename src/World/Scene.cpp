@@ -78,8 +78,8 @@ void Scene::update(float dt, Camera &camera){
     environment->update(dt);
     // if(grass) grass->update(camera.position());
     // if(foliage) foliage->update(camera.position());
-    if(sun) sun->update(*atmosphere);
-    // if(atmosphere) atmosphere->update(sun->getVector());
+    if(sun and atmosphere) sun->update(*atmosphere);
+    if(atmosphere) atmosphere->update(sun->direction);
 }
 
 void Scene::extractSpawnPoints(const Yaml& yaml){

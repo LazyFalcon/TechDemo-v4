@@ -176,6 +176,8 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.lightRendering->lightPass(*m_scene, CameraController::getActiveCamera());
     renderer.lightRendering->compose(CameraController::getActiveCamera());
 
+    renderer.effects->scattering(*m_scene, CameraController::getActiveCamera());
+    renderer.effects->sky(*m_scene, CameraController::getActiveCamera());
 
     renderer.context->setupFramebufferForLDRProcessing();
     renderer.effects->toneMapping();

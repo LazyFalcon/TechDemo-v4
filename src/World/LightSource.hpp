@@ -14,11 +14,12 @@
 
 class Camera;
 class Frustum;
+class PhysicalWorld;
 class Yaml;
+
 // * https://docs.blender.org/manual/en/dev/render/blender_render/lighting/lights/attenuation.html
 struct LightSource : public BaseGameObject
 {
-    LightSource(){}
     enum LightType
     {
         Point=0, Spot, Area, Directional, Sun, LightTypeLast
@@ -83,11 +84,11 @@ struct LightSource : public BaseGameObject
     bool castShadows {false};
     std::string name;
 
-    btRigidBody* proxy {nullptr};
+    btRigidBody* lightProxy {nullptr};
+    btCollisionShape* lightShape {nullptr};
 
-    LightSource(const Yaml&);
-    LightSource(LightType type) : m_type(type){}
-    LightSource(const std::string &type) : m_type(getType(type)){}
+    LightSource(){}
+    LightSource(const Yaml&, PhysicalWorld &physics);
     LightSource& setType(const std::string &type);
     LightSource& setTransform(glm::vec4 position, glm::quat quaternion);
     LightSource& setTransform(const glm::mat4 &tr);
@@ -108,6 +109,7 @@ struct LightSource : public BaseGameObject
     }
 
     void readConfig(const Yaml& yaml);
+    void createCollider(PhysicalWorld &physics);
 
     void cameraInside(const glm::vec4 &eye, float scale = 1.f);
     bool cull(const Frustum &frustum);
@@ -115,6 +117,6 @@ struct LightSource : public BaseGameObject
     void update(float dt);
 
     btRigidBody* getCollider() override {
-        return proxy;
+        return lightProxy;
     }
 };

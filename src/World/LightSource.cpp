@@ -1,12 +1,15 @@
 #include "core.hpp"
 #include "LightSource.hpp"
+#include "PhysicalWorld.hpp"
 #include "RenderDataCollector.hpp"
 #include "Yaml.hpp"
+#include "Utils.hpp"
 
-LightSource::LightSource(const Yaml& yaml){
+LightSource::LightSource(const Yaml& yaml, PhysicalWorld &physics){
     name = yaml["Name"].string();
     setType(yaml["Type"].string());
     readConfig(yaml);
+    createCollider(physics);
 }
 
 LightSource& LightSource::setType(const std::string &type){
@@ -105,4 +108,14 @@ void LightSource::readConfig(const Yaml& thing){
             thing["Position"]["W"].vec31()
         ));
 }
+
+void LightSource::createCollider(PhysicalWorld &physics){
+    if(m_type == Point){
+        lightShape = new btSphereShape(m_falloff.distance);
+        btTransform tr = convert(m_transform);
+        lightProxy = physics.createRigidBodyWithMasks(0.f, tr, lightShape, COL_FOR_CULLING, COL_NOTHING);
+        lightProxy->setUserIndex(indexForBullet());
+    }
+}
+
 void LightSource::update(float dt){}

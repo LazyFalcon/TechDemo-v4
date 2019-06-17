@@ -118,7 +118,7 @@ bool Environment::loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoa
 }
 
 void Environment::loadLightSource(const Yaml &thing){
-    auto &l = m_lights.emplace_back(thing);
+    auto &l = m_lights.emplace_back(thing, physics);
     // auto collider = l->getCollider();
 
     graph.insertObject(l.getHandle(), l.m_position);

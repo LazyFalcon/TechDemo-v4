@@ -5,7 +5,7 @@
 #include "Logger.hpp"
 
 enum class ModuleType {
-    Engine, Base, Turret, Mantlet, Camera, Cannon, Launcher, Other, Addon, Armor, Suspension, Motor, Track, Radar, Part, LoosePart, DriveSystem
+    Engine, Base, Turret, Mantlet, Camera, Cannon, Launcher, Other, Addon, Armor, Suspension, Motor, Track, Radar, Part, LoosePart, DriveSystem, GunMovingPart, Gun
 };
 enum class CameraFilters {
     Clear, InfraRed, Broken, Normal, BlackWhite, NightWision

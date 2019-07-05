@@ -26,7 +26,7 @@ public:
     Joint() : Joint(identityMatrix){}
     Joint(const glm::mat4& mat) : m_loc(mat){}
 
-    const glm::mat4& getLoc() const {
+    const glm::mat4& getTransformInLocalSpace() const {
         return m_loc;
     }
 
@@ -44,7 +44,7 @@ public:
     virtual void IK_targetAtPoint(const glm::mat4& parentWS, const glm::vec4& targetPointWS){}
     virtual void toDefaults(){}
     virtual void goToTarget(float miliseconds){}
-    virtual glm::mat4 getTransform(){ // * parent WS * transform = moduleTransform
+    virtual glm::mat4 getFullTransform(){ // * parent WS * transform = moduleTransform
         return glm::mat4(1);
     }
     glm::vec4 pivotWS(){

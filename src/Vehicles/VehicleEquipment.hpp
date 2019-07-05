@@ -81,4 +81,5 @@ public:
     std::shared_ptr<DriveSystem> driveSystem; /// instead of while class Vehicle, this unit is responsible for movement, and Actor for knowing which type it is
     std::shared_ptr<Radar> radar;
     std::shared_ptr<SKO> sko;
+    std::map<std::string, int> resources; // todo: expand later
 };

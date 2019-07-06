@@ -1,5 +1,6 @@
 #pragma once
 #include "input-utils.hpp"
+#include "input-mouse-state.hpp"
 
 using Lambda = std::function<void(void)>;
 using Lambda2Inputs = std::function<void(float,float)>;
@@ -39,6 +40,8 @@ public:
     void releaseHeldKey(int k, int m);
     void activate();
     void deactivate();
+
+    const InputMouseState& getMouseState() const;
 
     Input& action(const std::string&);
     Input& defined(const std::string&);

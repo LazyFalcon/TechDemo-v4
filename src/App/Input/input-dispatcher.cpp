@@ -55,6 +55,8 @@ void InputDispatcher::heldUpKeys(){
 void InputDispatcher::scrollCallback(double dx, double dy){
     if(dy > 0) execute(SCROLL_UP, GLFW_PRESS, m_currentModifierKey);
     if(dy < 0) execute(SCROLL_DOWN, GLFW_PRESS, m_currentModifierKey);
+    m_mouseState.scrollDx = dx;
+    m_mouseState.scrollDy = dy;
 }
 void InputDispatcher::keyCallback(int key, int action, int mods){
     execute(key, action, mods);
@@ -68,10 +70,12 @@ void InputDispatcher::mouseButtonCallback(int button, int action, int mods){
     execute(button, action, mods);
 }
 void InputDispatcher::mousePosition(float x, float y){
+    m_mouseState.pointerScreenPosition = {x, y};
     for(auto& i : m_activeInputHandlers)
         if(i->active) i->executeTwoArgs(MousePosition, x, y);
 }
 void InputDispatcher::mouseMovement(float x, float y){
+    m_mouseState.pointerRelativeScreenMove = {x, y};
     for(auto& i : m_activeInputHandlers)
         if(i->active) i->executeTwoArgs(MouseMove, x, y);
 }

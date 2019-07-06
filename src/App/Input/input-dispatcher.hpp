@@ -2,6 +2,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include "input-mouse-state.hpp"
 
 class Input;
 
@@ -14,6 +15,7 @@ private:
     std::list<std::shared_ptr<Input>> m_activeInputHandlers;
     int m_currentModifierKey;
     uint m_msFromStart;
+    InputMouseState m_mouseState;
 public:
     std::shared_ptr<Input> createNew(const std::string&);
     void remove(Input*);
@@ -29,6 +31,10 @@ public:
     void mousePosition(float x, float y);
     void mouseMovement(float x, float y);
     void joyPadDispatch();
+
+    const InputMouseState& getMouseState() const {
+        return m_mouseState;
+    }
 
     void setTime(uint t){
         m_msFromStart = t;

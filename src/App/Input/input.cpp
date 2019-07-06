@@ -9,6 +9,10 @@ Input::~Input(){
     inputDispatcher.remove(this);
 }
 
+const InputMouseState& Input::getMouseState() const {
+    return inputDispatcher.getMouseState();
+}
+
 /**
  * At first check if there are binding with mode key
  * If not execute  bindings without mod keys

@@ -4,9 +4,6 @@
 #include "Utils.hpp"
 #include "Logger.hpp"
 
-enum class ModuleType {
-    Engine, Base, Turret, Mantlet, Camera, Cannon, Launcher, Other, Addon, Armor, Suspension, Motor, Track, Radar, Part, LoosePart, DriveSystem, GunMovingPart, Gun
-};
 enum class CameraFilters {
     Clear, InfraRed, Broken, Normal, BlackWhite, NightWision
 };
@@ -96,33 +93,33 @@ public:
 
 class IModule
 {
+protected:
+    VehicleEquipment &eq;
 public:
-    ModuleType type;
     std::string name;
+
+    virtual void update(float dt) = 0;
+    virtual void init(){}
+    virtual ~IModule() = default;
+};
+
+class LogicTypeModule : public IModule
+{
+public:
+    using IModule::IModule;
+};
+
+class PlainModule
+{
+public:
     std::shared_ptr<Joint> joint;
 
     IModule *parent {nullptr};
-    VehicleEquipment &eq;
 
     std::unique_ptr<ModuleVisualUpdater> moduleVisualUpdater;
     std::unique_ptr<ModuleCompoundUpdater> moduleCompoundUpdater;
 
     glm::mat4 worldTransform; // ?  maybe remove this and use transform stored in bones?
-
-    std::vector<Decal> decals;
-    std::vector<Marker> markers;
-    std::list<std::shared_ptr<LightSource>> lights;
-    void updateDecals(){
-        for(auto &it : decals){
-            it.update(moduleVisualUpdater->getTransform());
-        }
-    }
-    void updateMarkers(){
-        for(auto &it : markers)
-            it.update(moduleVisualUpdater->getTransform());
-    }
-    virtual void updateTargetPoint(glm::vec4){}
-    virtual void updateInsidePhysicsStep(float dt){}
 
     IModule(VehicleEquipment &eq, ModuleType type) : type(type), eq(eq), moduleVisualUpdater(std::make_unique<NullModuleVisualUpdater>()), moduleCompoundUpdater(std::make_unique<NullModuleCompoundUpdater>()){}
 
@@ -159,9 +156,6 @@ public:
     virtual void provideControlInterfaceForXPad(Input& input){}
     virtual void provideControlInterfaceForAI(AiControl& input){}
 
-    virtual void update(float dt) = 0;
-    virtual void init(){}
-    virtual ~IModule() = default;
 };
 
 template<typename CC, typename = std::enable_if_t<std::is_base_of<CameraController, CC>::value>>

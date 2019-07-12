@@ -4,9 +4,6 @@
 #include "Utils.hpp"
 #include "Logger.hpp"
 
-enum class ModuleType {
-    Engine, Base, Turret, Mantlet, Camera, Cannon, Launcher, Other, Addon, Armor, Suspension, Motor, Track, Radar, Part, LoosePart, DriveSystem, GunMovingPart, Gun
-};
 enum class CameraFilters {
     Clear, InfraRed, Broken, Normal, BlackWhite, NightWision
 };
@@ -96,49 +93,16 @@ public:
 
 class IModule
 {
-public:
-    ModuleType type;
+protected:
     std::string name;
-    std::shared_ptr<Joint> joint;
-
-    IModule *parent {nullptr};
-    VehicleEquipment &eq;
-
-    std::unique_ptr<ModuleVisualUpdater> moduleVisualUpdater;
-    std::unique_ptr<ModuleCompoundUpdater> moduleCompoundUpdater;
-
-    glm::mat4 worldTransform; // ?  maybe remove this and use transform stored in bones?
-
-    std::vector<Decal> decals;
-    std::vector<Marker> markers;
-    std::list<std::shared_ptr<LightSource>> lights;
-    void updateDecals(){
-        for(auto &it : decals){
-            it.update(moduleVisualUpdater->getTransform());
-        }
-    }
-    void updateMarkers(){
-        for(auto &it : markers)
-            it.update(moduleVisualUpdater->getTransform());
-    }
-    virtual void updateTargetPoint(glm::vec4){}
-    virtual void updateInsidePhysicsStep(float dt){}
-
-    IModule(VehicleEquipment &eq, ModuleType type) : type(type), eq(eq), moduleVisualUpdater(std::make_unique<NullModuleVisualUpdater>()), moduleCompoundUpdater(std::make_unique<NullModuleCompoundUpdater>()){}
-
-    // ustawia jednocześnie transformację dla kości, dla potomków(również wzgledm świata) i tr compound mesha
-    // transformacja jest względem rodzica
+    VehicleEquipment &vehicle;
     void transform(const glm::mat4& tr){
         console.clog(__PRETTY_FUNCTION__, name);
-        worldTransform = getParentTransform() * tr;
-        moduleVisualUpdater->setTransform(worldTransform); /// tu wrzucamy pełną trnsformację
+        moduleVisualUpdater->setTransform(getParentTransform() * tr); /// tu wrzucamy pełną trnsformację
         moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * tr : glm::mat4()); /// a tu względem rodzica, no nic, trzeba dodać dodatkowy wektor
     }
-    const glm::mat4& getGlmTransform() const {
-        return moduleVisualUpdater->getTransform();
-    }
     const glm::mat4& getTransform() const {
-        return worldTransform;
+        return moduleVisualUpdater->getTransform();
     }
     const glm::mat4& getLocalTransform() const {// nie używane
         return moduleCompoundUpdater->getTransform();
@@ -148,20 +112,29 @@ public:
         return parent->getTransform();
     }
     const glm::mat4& getBaseTransform() const {
-        return eq.glTrans;
+        return vehicle.glTrans;
     }
     const glm::mat4& getInvBaseTransform() const {
-        return eq.invTrans;
+        return vehicle.invTrans;
     }
-
-    void updateCommon(float dt){} // TODO: called outside fixed step loop, once per frame i.e. light updates
-    virtual void provideControlInterfaceForKeyboard(Input& input){}
-    virtual void provideControlInterfaceForXPad(Input& input){}
-    virtual void provideControlInterfaceForAI(AiControl& input){}
+public:
+    IModule(const std::string& name, VehicleEquipment &vehicle) :
+        name(name),
+        vehicle(vehicle),
+        moduleVisualUpdater(std::make_unique<NullModuleVisualUpdater>()),
+        moduleCompoundUpdater(std::make_unique<NullModuleCompoundUpdater>()){}
+    virtual ~IModule() = default;
 
     virtual void update(float dt) = 0;
-    virtual void init(){}
-    virtual ~IModule() = default;
+
+    IModule *parent {nullptr};
+    std::unique_ptr<Joint> joint;
+    std::unique_ptr<ModuleVisualUpdater> moduleVisualUpdater;
+    std::unique_ptr<ModuleCompoundUpdater> moduleCompoundUpdater;
+
+    glm::mat4 worldTransform; // ?  maybe remove this and use transform stored in bones?
+
+    IModule(VehicleEquipment &eq, ModuleType type) : vehicle(eq){}
 };
 
 template<typename CC, typename = std::enable_if_t<std::is_base_of<CameraController, CC>::value>>

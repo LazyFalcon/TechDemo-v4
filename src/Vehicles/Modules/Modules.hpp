@@ -63,22 +63,3 @@ public:
     std::vector<Actor*> nbEnemies;
     std::vector<Actor*> nbAllies;
 };
-
-/*
-* moving part of gun, responsible for calculations of rotation angle(later move to SKO)
-* rename later.
-*/
-class GunMovingPart : public IModule
-{
-public:
-    using IModule::IModule;
-    void update(float dt) override;
-};
-
-class Gun : public IModule
-{
-public:
-    using IModule::IModule;
-    void update(float dt) override;
-    std::string resource;
-};

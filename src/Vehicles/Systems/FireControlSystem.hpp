@@ -4,20 +4,24 @@ class FireControlSystem
 {
 private:
     glm::vec4 m_pointInWS;
-    glm::vec4 m_recalculatedPointInWS;
+    // todo: in futre store all kinematic link parameters
+    std::vector<glm::vec4> m_recalculatedTargetsForGuns;
 
+    bool m_isNeededToCreateNewLink {true};
+    int m_currentLinkId {0};
+    u64 m_gunParentHash {0};
 
-    glm::vec4 recalculate(glm::vec4 pointInWS){
-        return pointInWS;
-    }
+    glm::vec4 recalculate(const glm::vec4& pointInWS);
+    void allocateNewLink();
 public:
-    void updateTarget(glm::vec4 pointInWS){
-        m_pointInWS = pointInWS;
-        m_recalculatedPointInWS = recalculate(m_pointInWS);
-    }
+    FireControlSystem() : m_recalculatedTargetsForGuns(1, {0,0,0,1}){}
+    void updateTarget(const glm::vec4& pointInWS);
+    const glm::vec4& getTarget(int i) const;
 
-    const glm::vec4& getTarget() const {
-        return m_recalculatedPointInWS;
-    }
+    int idForTurret();
+    int idForGunServo();
+    int idForGun(u64 parentHash);
+
+    void recalculateForTargetMovement(const glm::vec4& position, const glm::vec4& velocity);
 
 };

@@ -4,7 +4,7 @@
 class Actor;
 class ICameras;
 class ICannon;
-class VehicleEquipment;
+class Vehicle;
 class WeaponHolder;
 
 class Actor
@@ -15,5 +15,5 @@ public:
     virtual void updateGraphic(float dt) = 0;
     virtual void focusOn() = 0;
     virtual void focusOff() = 0;
-    virtual VehicleEquipment& eq() = 0;
+    virtual Vehicle& eq() = 0;
 };

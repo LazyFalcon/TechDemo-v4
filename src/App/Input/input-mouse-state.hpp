@@ -4,4 +4,6 @@ struct InputMouseState
 {
     glm::vec2 pointerScreenPosition;
     glm::vec2 pointerRelativeScreenMove;
+    int scrollDx;
+    int scrollDy;
 };

@@ -44,7 +44,7 @@ public:
     virtual void IK_targetAtPoint(const glm::mat4& parentWS, const glm::vec4& targetPointWS){}
     virtual void toDefaults(){}
     virtual void goToTarget(float miliseconds){}
-    virtual glm::mat4 getFullTransform(){ // * parent WS * transform = moduleTransform
+    virtual glm::mat4 getTransform(){
         return glm::mat4(1);
     }
     glm::vec4 pivotWS(){
@@ -55,4 +55,4 @@ public:
     glm::mat4 m_loc; // * local coordinates and also default transform. To get module transform multiply by
 };
 
-std::shared_ptr<Joint> createJoint(const Yaml&, glm::vec4);
+std::unique_ptr<Joint> createJoint(const Yaml&, glm::vec4);

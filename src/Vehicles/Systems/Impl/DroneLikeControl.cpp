@@ -1,6 +1,8 @@
 #include "core.hpp"
-#include "DummyDriveSystem.hpp"
+#include "DroneLikeControl.hpp"
 #include "Logger.hpp"
+#include "Vehicle.hpp"
+#include "Utils.hpp"
 
 /*
 * Uproszczony model sterowania droną: drona śledzi punkt(pozycja + orientacja)
@@ -31,33 +33,33 @@ PDReg pdRegPosition = PDReg(0.99, 0.0);  // * outputs impulses
 PDReg pdRegTorque = PDReg(0.9, 0.0);  // * outputs torque
 PDReg pdRegOrientation = PDReg(0.9, 0.0);  // * outputs impulses
 
-void DummyDriveSystem::update(float dt){
+void DroneLikeControl::update(float dt){
     m_targetPosition += m_moveDirection;
 }
 
-void DummyDriveSystem::updateInsidePhysicsStep(float dt){
+void DroneLikeControl::updateInsidePhysicsStep(float dt){
     btTransform tr;
-    eq.rgBody->getMotionState()->getWorldTransform(tr);
+    vehicle.rgBody->getMotionState()->getWorldTransform(tr);
 
     forcePart(dt, tr);
     torquePart(dt, tr);
 }
 
-void DummyDriveSystem::forcePart(float dt, btTransform& tr){
-    btVector3 externalForces = eq.rgBody->getTotalForce() - m_previouslyappliedForce;
+void DroneLikeControl::forcePart(float dt, btTransform& tr){
+    btVector3 externalForces = vehicle.rgBody->getTotalForce() - m_previouslyappliedForce;
 
     btVector3 response = -externalForces;
     m_previouslyappliedForce = response;
     // btVector3 response = pdRegForce.goTo(btVector3(0,0,0), externalForces);
 
-    eq.rgBody->applyCentralForce(response);
-    eq.rgBody->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
-    if(eq.control.targetPoint){
-        auto positionError = convert(*eq.control.targetPoint) - tr.getOrigin();
+    vehicle.rgBody->applyCentralForce(response);
+    vehicle.rgBody->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
+    if(vehicle.control.targetPoint){
+        auto positionError = convert(*vehicle.control.targetPoint) - tr.getOrigin();
         auto impulse = pdRegPosition.goTo(btVector3(0,0,0), -positionError)*20;
 
-        eq.rgBody->setLinearVelocity(impulse);
-        // eq.rgBody->applyCentralImpulse(impulse);
+        vehicle.rgBody->setLinearVelocity(impulse);
+        // vehicle.rgBody->applyCentralImpulse(impulse);
     }
 
 }
@@ -82,19 +84,19 @@ btVector3 QuaternionToEulerXYZ(const glm::quat &quat)
     return euler;
 }
 
-void DummyDriveSystem::torquePart(float dt, btTransform& tr){
-    btVector3 currentTorque = eq.rgBody->getTotalTorque() - m_previouslyappliedTorque;
+void DroneLikeControl::torquePart(float dt, btTransform& tr){
+    btVector3 currentTorque = vehicle.rgBody->getTotalTorque() - m_previouslyappliedTorque;
 
     btVector3 response = -currentTorque;
     m_previouslyappliedTorque = response;
     // btVector3 response = pdRegTorque.goTo(btVector3(0,0,0), currentTorque);
 
-    eq.rgBody->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
-    eq.rgBody->applyTorque(response);
-    if(eq.control.targetDirection){
+    vehicle.rgBody->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
+    vehicle.rgBody->applyTorque(response);
+    if(vehicle.control.targetDirection){
         // console.clog("to:", target, "from:", rotation, "by:", delta);
         auto rotation = tr.getRotation();
-        // btQuaternion target(convert(*eq.control.targetDirection), 0);
+        // btQuaternion target(convert(*vehicle.control.targetDirection), 0);
         btQuaternion target(btVector3(1,0,0), 0.1);
         btQuaternion deltaOrientation = target* rotation.inverse();
         btVector3 deltaEuler = QuaternionToEulerXYZ(deltaOrientation);
@@ -102,56 +104,20 @@ void DummyDriveSystem::torquePart(float dt, btTransform& tr){
 
         auto y = convert(tr.getBasis()[m_leadingAxis]);
         auto tgt = glm::normalize(glm::vec3(-1,-1,1));
-        // auto tgt = (*eq.control.targetDirection).xyz();
+        // auto tgt = (*vehicle.control.targetDirection).xyz();
 
         auto quat = glm::rotation(y, tgt);
         auto delta = QuaternionToEulerXYZ(quat);
 
         // You basically get the scaled inverse of the torque you want to apply. Now you "just" need to find an appropriate amount to ease it in.
 
-        // auto rotationError = tr.getBasis()[m_leadingAxis].cross(convert(*eq.control.targetDirection)) + tr.getBasis()[2].cross(btVector3(0,0,1));
+        // auto rotationError = tr.getBasis()[m_leadingAxis].cross(convert(*vehicle.control.targetDirection)) + tr.getBasis()[2].cross(btVector3(0,0,1));
         // auto impulse = pdRegOrientation.goTo(btVector3(0,0,0), -rotationError)*5.91;
         console.clog("tgt:", QuaternionToEulerXYZ(target), "rot:", QuaternionToEulerXYZ(rotation));
         console.clog("to:", target, "from:", rotation, "by:", deltaEuler, "by:", delta);
 
 
-        // eq.rgBody->setAngularVelocity(delta);
-        eq.rgBody->applyTorqueImpulse(-delta*60);
+        // vehicle.rgBody->setAngularVelocity(delta);
+        vehicle.rgBody->applyTorqueImpulse(-delta*60);
     }
 }
-
-
-void DummyDriveSystem::provideControlInterfaceForKeyboard(Input& input){
-//     input.action("W").repeat([this]{m_moveDirection.x += 0.01;}); });
-//     input.action("S").repeat([this]{m_moveDirection.x += -0.01;}); });
-//     input.action("D").repeat([this]{m_moveDirection.y += 0.01;}); });
-//     input.action("A").repeat([this]{m_moveDirection.y += -0.01;}); });
-//     input.action("Alt+ScrollUp").on([this]{m_moveDirection.z += 0.01;}); });
-//     input.action("Alt+ScrollDown").on([this]{m_moveDirection.z += -0.01;}); });
-}
-void DummyDriveSystem::provideControlInterfaceForXPad(Input& input){
-
-}
-void DummyDriveSystem::provideControlInterfaceForAI(AiControl& input){
-    // * actions are defined in specific AI implementation
-    // input.action("Move Forward", [this](glm::vec4 position, glm:vec4 direction){
-    //                 m_targetPosition = convert(position, 1);
-    //                 m_targetDirection = convert(direction, 0);
-    //             });
-}
-
-// void DummyDriveSystem::provideControlInterface(ControlInterfaces& interfaces){
-        // ? da się to połaczyć? chyba nie przy mojej implementacji, hold musiałby się odpalić po czasie
-        // Spacebar off []{jump();}
-        // Spacebar hold []{jumpMore();}
-        // Ctrl+ScrollUp []{speedLimitUp()}
-        // Ctrl+ScrollDown []{speedLimitDown()}
-        // MouseMove []{m_lookDirection = }
-
-        // // * For x-pad
-        // Pad [](float x, y){m_moveDirection.x = x; m_moveDirection.y = y;}
-        // interfaces.xpad.push_back([](Input& input){ input.action("LeftJoy").on([this](float x, y){m_moveDirection.x = x; m_moveDirection.y = y;); });
-
-        // // * For AI, maybe unify with x-pad
-        // Movement [](float x, y){m_moveDirection.x = x; m_moveDirection.y = y;}
-// }

@@ -1,5 +1,6 @@
 DIRECTORIES = $(addprefix -I./,$(shell ls -d ./src/*/))
 DIRECTORIES_2 = $(addprefix -I./,$(shell ls -d ./src/*/*/))
+DIRECTORIES_3 = $(addprefix -I./,$(shell ls -d ./src/*/*/*/)) # todo: shouldn't be here, should be left for factories
 TARGET_NAME = TDv4_0_2
 
 DEFINES = \
@@ -13,7 +14,7 @@ DEFINES = \
 CORE_PCH_FILENAME=./src/core_pch.hpp
 CORE_PCH=$(CORE_PCH_FILENAME).gch
 
-CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DEFINES)
+CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 ADDITIONAL_FLAGS = \
 -Werror=return-type \
@@ -34,7 +35,7 @@ LIBS = -lPMK-audio -lboost_system -lboost_filesystem -lboost_thread -lboost_date
 -lglfw3 -lgdi32 -lglu32 -lopengl32 -lassimp.dll -lFreeImage -lFreeImagePlus -lpng -ljpeg -lz -lOpenAL32 -lvorbisfile  -lvorbis -logg -lvorbisenc -lFLAC
 # -lglew32
 
-TARGETS = $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(wildcard src/*/*/*.cpp)
+TARGETS = $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(wildcard src/*/*/*.cpp)  $(wildcard src/*/*/*/*.cpp)
 
 OBJS = $(TARGETS:%.cpp=$(OBJ_DIR)/%.o)
 

@@ -1,12 +1,12 @@
 #pragma once
-#include "DriveSystem.hpp"
+#include "VehicleControlSystem.hpp"
 
 /*
 ! Zamiast obracać pojazdem w niewiadaomym kierunku i pozycji, wyznaczyć kierunek i pozycję którą ten powinien utrzymywać
 * może to i gorsze rozwiązanie z punktu widzenia symulacji, ale całkiem wygodne i stabilne
 * po prostu poruszamy wirtualną kulką
 */
-class DummyDriveSystem : public DriveSystem
+class DroneLikeControl : public VehicleControlSystem
 {
 private:
     btVector3 m_targetPosition;
@@ -22,14 +22,7 @@ private:
     void torquePart(float dt, btTransform& tr);
 
 public:
-    DummyDriveSystem(VehicleEquipment& eq, btVector3 position) : DriveSystem(eq), m_targetPosition(position), m_lookDirection(0,1,0){}
-    void provideControlInterfaceForKeyboard(Input& input) override;
-    void provideControlInterfaceForXPad(Input& input) override;
-    void provideControlInterfaceForAI(AiControl& input) override;
-
-    // void getInputInterface(InputMethods& inputMethods){
-
-    // }
+    DroneLikeControl(Vehicle& eq, btVector3 position) : VehicleControlSystem(eq), m_targetPosition(position), m_lookDirection(0,1,0){}
 
     void update(float dt) override;
 

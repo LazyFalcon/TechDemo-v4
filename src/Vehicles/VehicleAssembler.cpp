@@ -2,7 +2,7 @@
 
 #include "Assets.hpp"
 #include "CameraControllerFactory.hpp"
-#include "DummyDriveSystem.hpp"
+#include "DroneLikeControl.hpp"
 #include "IModule.hpp"
 #include "Joint.hpp"
 #include "ModelLoader.hpp"
@@ -16,7 +16,7 @@ VehicleAssembler::VehicleAssembler(const std::string& configName, PhysicalWorld&
     m_configName(configName),
     m_modelLoader(std::make_shared<ModelLoader<VertexWithMaterialDataAndBones>>()),
     m_physics(physics),
-    m_vehicleEq(std::make_shared<VehicleEquipment>(physics)),
+    m_vehicleEq(std::make_shared<Vehicle>(physics)),
     m_moduleFactory(*m_vehicleEq, m_physics, {}),
     m_camFactory(camFactory)
     {}
@@ -36,7 +36,7 @@ void VehicleAssembler::openModelFile(){
 }
 
 // * builds common part of model, every specific should be done by inheritances
-std::shared_ptr<VehicleEquipment> VehicleAssembler::build(const glm::mat4& onPosition){
+std::shared_ptr<Vehicle> VehicleAssembler::build(const glm::mat4& onPosition){
     console_prefix(m_configName + " Assembly");
 
     openModelFile();
@@ -48,7 +48,7 @@ std::shared_ptr<VehicleEquipment> VehicleAssembler::build(const glm::mat4& onPos
     collectAndInitializeModules();
 
     auto base = std::find_if(m_modules.begin(), m_modules.end(), [](auto &it){
-        return it.second.module->type == ModuleType::Base;
+        return it.second.module->name == "Base";
     });
 
     if(base == m_modules.end()) return nullptr;
@@ -61,13 +61,9 @@ std::shared_ptr<VehicleEquipment> VehicleAssembler::build(const glm::mat4& onPos
     m_vehicleEq->compound->recalculateLocalAabb();
     m_vehicleEq->graphics.entitiesToDraw.push_back(std::move(m_skinnedMesh));
 
-    m_vehicleEq->driveSystem = std::make_shared<DummyDriveSystem>(*m_vehicleEq, convert(onPosition[3]));
-    m_vehicleEq->modulesToUpdateInsidePhysicsStep.push_back(m_vehicleEq->driveSystem);
+    m_vehicleEq->vehicleControlUnit = std::make_unique<DroneLikeControl>(*m_vehicleEq, convert(onPosition[3]));
+    // m_vehicleEq->modulesToUpdateInsidePhysicsStep.push_back(m_vehicleEq->driveSystem);
     m_physics.m_dynamicsWorld->addAction(m_vehicleEq.get());
-
-    for(auto& it : m_vehicleEq->modules){
-        it->init();
-    }
 
     buildRigidBody(onPosition);
     // m_vehicleEq->cameras[0]->focus();
@@ -132,16 +128,16 @@ void VehicleAssembler::setDecals(IModule& module, const Yaml& cfg){
     auto& decals = cfg["Decals"];
 
     for(auto& decal : decals){
-        module.decals.emplace_back();
-        module.decals.back().layer = assets::getAlbedoArray("Decals").find(decal["Layer"].string());
-        glm::mat4 tr(
-                decal["LocX"].vec30(),
-                glm::normalize(cross(decal["LocX"].vec30(), decal["LocZ"].vec30())),
-                decal["LocZ"].vec30(),
-                glm::vec4(0,0,0,1)
-            );
+        // module.decals.emplace_back();
+        // module.decals.back().layer = assets::getAlbedoArray("Decals").find(decal["Layer"].string());
+        // glm::mat4 tr(
+        //         decal["LocX"].vec30(),
+        //         glm::normalize(cross(decal["LocX"].vec30(), decal["LocZ"].vec30())),
+        //         decal["LocZ"].vec30(),
+        //         glm::vec4(0,0,0,1)
+        //     );
 
-        module.decals.back().transform = glm::translate(-decal["Position"].vec3()) * tr * glm::scale(decal["Scale"].vec3()*0.9f);
+        // module.decals.back().transform = glm::translate(-decal["Position"].vec3()) * tr * glm::scale(decal["Scale"].vec3()*0.9f);
     }
 }
 
@@ -165,13 +161,13 @@ void VehicleAssembler::setMarkers(IModule& module, const Yaml& cfg){
 
             m_vehicleEq->cameras.push_back(camera);
         }
-        else if("EndOfBarrel"s == marker["Type"].string() and module.type == ModuleType::Cannon){
+        // else if("EndOfBarrel"s == marker["Type"].string() and module.type == ModuleType::Cannon){
             // Cannon& gun = module;
             // gun->endOf = marker["Position"].vec31();
-        }
-        else if("Light"s == marker["Type"].string()){
+        // }
+        // else if("Light"s == marker["Type"].string()){
             // modulesToAddLater.emplace_back(m_moduleFactory.createHeadlight(marker));
-        }
+        // }
     }
 }
 
@@ -198,9 +194,10 @@ void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
 // * can have different number of dof
 // * lack of limits means that connection is rigid
 void VehicleAssembler::setConnection(VehicleAssembler::ToBuildModuleLater& moduleData, const Yaml& cfg){
-    moduleData.module->joint = createJoint(cfg, moduleData.fromJointToOrigin);
-    glm::mat4 tr = moduleData.module->joint->getTransform();
-    moduleData.module->transform(tr);
+    auto joint = createJoint(cfg, moduleData.fromJointToOrigin);
+    // glm::mat4 tr = joint->getTransform();
+    moduleData.module->setJoint(std::move(joint));
+    // ->transform(tr);
 }
 
 // * when module has rigidBody created

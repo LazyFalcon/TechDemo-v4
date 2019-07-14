@@ -6,9 +6,9 @@
 #include "IPathfinder.hpp"
 #include "NoPathfinder.hpp"
 #include "Pathfinder.hpp"
-#include "VehicleEquipment.hpp"
+#include "Vehicle.hpp"
 
-AI::AI(std::unique_ptr<AiControl> control, std::unique_ptr<IPathfinder> pathfinder, VehicleEquipment& vehicle):
+AI::AI(std::unique_ptr<AiControl> control, std::unique_ptr<IPathfinder> pathfinder, Vehicle& vehicle):
         m_control(std::move(control)),
         m_pathfinder(std::move(pathfinder)),
         m_vehicle(vehicle)

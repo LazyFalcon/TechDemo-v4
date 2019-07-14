@@ -5,7 +5,7 @@
 #include "Player.hpp"
 
 
-Player::Player(InputDispatcher& inputDispatcher, VehicleEquipment& vehicle) :
+Player::Player(InputDispatcher& inputDispatcher, Vehicle& vehicle) :
     m_input(inputDispatcher.createNew("Player")),
     m_vehicle(vehicle),
     mouseSampler(std::make_unique<GBufferSampler>()),
@@ -66,13 +66,13 @@ void Player::updateGraphic(float dt){
     m_vehicle.graphics.toBeRendered();
 }
 void Player::update(float dt){
-    // mouseSampler->samplePosition = KeyState::mousePosition;
+    mouseSampler->samplePosition = m_input->getMouseState().pointerScreenPosition;
 
     // crosshair = m_vehicle.cameras[cameraId]->focusPoint;
-    // if(not isLockedOnPoint) targetPointPosition = convert(crosshairSampler->position);
+    if(not isLockedOnPoint) targetPointPosition = convert(mouseSampler->position);
 
     // // m_vehicle.setTargetPoint(targetPointPosition, 0);
-    // m_vehicle.sko->updateTarget(convert(targetPointPosition, 1));
+    m_vehicle.fireControlUnit->updateTarget(convert(targetPointPosition, 1));
     m_vehicle.updateModules(dt);
     // m_vehicle.driveSystem->update(controlXValue, controlYValue, dt);
     // m_vehicle.compound->recalculateLocalAabb();

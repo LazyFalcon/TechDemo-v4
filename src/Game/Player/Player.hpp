@@ -3,10 +3,9 @@
 #include "CameraController.hpp"
 #include "GBufferSampler.hpp"
 #include "Utils.hpp"
-#include "VehicleEquipment.hpp"
+#include "Vehicle.hpp"
 
 class Cannon;
-class Tank;
 class Imgui;
 class Input;
 class InputDispatcher;
@@ -15,7 +14,7 @@ class Player : public Actor
 {
 private:
     std::shared_ptr<Input> m_input;
-    VehicleEquipment m_vehicle;
+    Vehicle& m_vehicle;
     std::unique_ptr<GBufferSampler> mouseSampler;
     std::unique_ptr<GBufferSampler> crosshairSampler;
 
@@ -52,13 +51,13 @@ private:
     void initInputContext();
     void looseFocus();
 public:
-    Player(InputDispatcher&, VehicleEquipment&);
+    Player(InputDispatcher&, Vehicle&);
     ~Player();
     void update(float dt);
     void updateGraphic(float dt);
     void focusOn();
     void focusOff();
-    VehicleEquipment& eq(){
+    Vehicle& eq(){
         return m_vehicle;
     }
 

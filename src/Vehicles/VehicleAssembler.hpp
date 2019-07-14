@@ -26,7 +26,7 @@ private:
     std::string m_configName;
     std::shared_ptr<ModelLoader<VertexWithMaterialDataAndBones>> m_modelLoader;
     PhysicalWorld& m_physics;
-    std::shared_ptr<VehicleEquipment> m_vehicleEq;
+    std::shared_ptr<Vehicle> m_vehicleEq;
     ModuleFactory m_moduleFactory;
     CameraControllerFactory& m_camFactory;
 
@@ -53,6 +53,6 @@ private:
 public:
     VehicleAssembler(const std::string& configName, PhysicalWorld& physics, CameraControllerFactory& camFactory);
 
-    std::shared_ptr<VehicleEquipment> build(const glm::mat4& onPosition);
+    std::shared_ptr<Vehicle> build(const glm::mat4& onPosition);
 
 };

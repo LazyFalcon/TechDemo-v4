@@ -176,12 +176,13 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.lightRendering->lightPass(*m_scene, CameraController::getActiveCamera());
     renderer.lightRendering->compose(CameraController::getActiveCamera());
 
-    renderer.effects->scattering(*m_scene, CameraController::getActiveCamera());
+    // renderer.effects->scattering(*m_scene, CameraController::getActiveCamera());
     renderer.effects->sky(*m_scene, CameraController::getActiveCamera());
 
     renderer.context->setupFramebufferForLDRProcessing();
     renderer.effects->toneMapping();
     renderer.effects->FXAA();
+    // renderer.effects->chromaticDistortion(glm::vec3(1,0.5,0));
     renderer.effects->filmGrain();
 
     renderer.context->tex.gbuffer.color.genMipmaps();

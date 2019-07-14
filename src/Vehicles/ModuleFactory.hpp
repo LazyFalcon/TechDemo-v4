@@ -2,22 +2,15 @@
 #include "ModuleFactory.hpp"
 #include "Logger.hpp"
 #include "Modules.hpp"
-#include "Turret.hpp"
 #include "Yaml.hpp"
-#include "VehicleEquipment.hpp"
+#include "Vehicle.hpp"
 
-class IModule;
-class IMotor;
 class PhysicalWorld;
-class Tank;
-class TrackSim;
-class VehicleEquipment;
-class Yaml;
 
 class ModuleFactory
 {
 private:
-    VehicleEquipment &m_vehicleEq;
+    Vehicle &m_vehicleEq;
     PhysicalWorld &physics;
     btVector3 startPosition;
     int weaponId {0};
@@ -27,12 +20,12 @@ private:
 public:
     btRigidBody *vehicle;
 
-    ModuleFactory(VehicleEquipment &eq, PhysicalWorld &physics, glm::vec4 startPosition)
+    ModuleFactory(Vehicle &eq, PhysicalWorld &physics, glm::vec4 startPosition)
     : m_vehicleEq(eq), physics(physics), startPosition(convert(startPosition)) {
         m_moduleMap["Hull"] = [this](const Yaml& cfg){ return std::make_shared<Base>("Hull", m_vehicleEq); };
         m_moduleMap["TurretBase"] = [this](const Yaml& cfg){ return std::make_shared<GunMovingPart>("TurretBase", m_vehicleEq); };
         m_moduleMap["TurretPart"] = [this](const Yaml& cfg){ return std::make_shared<GunMovingPart>("TurretPart", m_vehicleEq); };
-        m_moduleMap["GunMovingPart"] = [this](const Yaml& cfg){ return std::make_shared<GunMovingPart>(""GunMovingPart, m_vehicleEq); };
+        m_moduleMap["GunMovingPart"] = [this](const Yaml& cfg){ return std::make_shared<GunMovingPart>("GunMovingPart", m_vehicleEq); };
         m_moduleMap["Gun"] = [this](const Yaml& cfg){ return std::make_shared<Gun>("Gun", m_vehicleEq); };
         m_moduleMap["Addon"] = [this](const Yaml& cfg){ return std::make_shared<Addon>("Addon", m_vehicleEq); };
         m_moduleMap["LoosePart"] = [this](const Yaml& cfg){ return std::make_shared<Addon>("LoosePart", m_vehicleEq); };

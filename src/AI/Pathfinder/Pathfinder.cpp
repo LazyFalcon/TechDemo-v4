@@ -6,7 +6,7 @@
 #include<iostream>
 #include<cmath>
 #include "Scene.hpp"
-#include "VehicleEquipment.hpp"
+#include "Vehicle.hpp"
 #include "AI.hpp"
 
 

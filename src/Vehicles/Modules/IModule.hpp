@@ -1,8 +1,7 @@
 #pragma once
-#include "DecalsAndMarkers.hpp"
-#include "VehicleEquipment.hpp"
+#include "Joint.hpp"
 #include "Utils.hpp"
-#include "Logger.hpp"
+#include "Vehicle.hpp"
 
 enum class CameraFilters {
     Clear, InfraRed, Broken, Normal, BlackWhite, NightWision
@@ -13,11 +12,11 @@ class IModule;
 class Input;
 class Joint;
 class LightSource;
-class VehicleEquipment;
 
 // matrixContainer contains transformations in world space
 class ModuleVisualUpdater
 {
+private:
     std::vector<glm::mat4>* m_matrixContainer {nullptr};
     uint m_boneIndex;
 public:
@@ -61,8 +60,9 @@ public:
 
 class ModuleCompoundUpdater
 {
+private:
     btCompoundShape* m_compound {nullptr};
-    glm::mat4 m_currentTransform;
+    glm::mat4 m_transformRelativeToBase;
     uint m_childIndex;
 public:
     ModuleCompoundUpdater() = default;
@@ -74,10 +74,10 @@ public:
     }
     virtual void setTransform(const glm::mat4& tr){
         m_compound->updateChildTransform(m_childIndex, convert(tr), false);
-        m_currentTransform = tr;
+        m_transformRelativeToBase = tr;
     }
     virtual const glm::mat4& getTransform() const {
-        return m_currentTransform;
+        return m_transformRelativeToBase;
     }
 };
 
@@ -94,13 +94,20 @@ public:
 class IModule
 {
 protected:
-    std::string name;
-    VehicleEquipment &vehicle;
     void transform(const glm::mat4& tr){
         console.clog(__PRETTY_FUNCTION__, name);
         moduleVisualUpdater->setTransform(getParentTransform() * tr); /// tu wrzucamy pełną trnsformację
         moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * tr : glm::mat4()); /// a tu względem rodzica, no nic, trzeba dodać dodatkowy wektor
     }
+public:
+    IModule(const std::string& name, Vehicle &vehicle) :
+        name(name),
+        vehicle(vehicle),
+        moduleVisualUpdater(std::make_unique<NullModuleVisualUpdater>()),
+        moduleCompoundUpdater(std::make_unique<NullModuleCompoundUpdater>()){}
+    virtual ~IModule() = default;
+
+    virtual void update(float dt) = 0;
     const glm::mat4& getTransform() const {
         return moduleVisualUpdater->getTransform();
     }
@@ -117,24 +124,16 @@ protected:
     const glm::mat4& getInvBaseTransform() const {
         return vehicle.invTrans;
     }
-public:
-    IModule(const std::string& name, VehicleEquipment &vehicle) :
-        name(name),
-        vehicle(vehicle),
-        moduleVisualUpdater(std::make_unique<NullModuleVisualUpdater>()),
-        moduleCompoundUpdater(std::make_unique<NullModuleCompoundUpdater>()){}
-    virtual ~IModule() = default;
+    void setJoint(std::unique_ptr<Joint> j){
+        joint = std::move(j);
+    }
 
-    virtual void update(float dt) = 0;
-
+    std::string name;
+    Vehicle &vehicle;
     IModule *parent {nullptr};
     std::unique_ptr<Joint> joint;
     std::unique_ptr<ModuleVisualUpdater> moduleVisualUpdater;
     std::unique_ptr<ModuleCompoundUpdater> moduleCompoundUpdater;
-
-    glm::mat4 worldTransform; // ?  maybe remove this and use transform stored in bones?
-
-    IModule(VehicleEquipment &eq, ModuleType type) : vehicle(eq){}
 };
 
 template<typename CC, typename = std::enable_if_t<std::is_base_of<CameraController, CC>::value>>
@@ -150,6 +149,6 @@ public:
 
     void update(float dt) override {
         // CC::updateBaseTransform(m_module->getGlmTransform());
-        CC::update(m_module->getGlmTransform()*glm::translate(m_position), dt);
+        CC::update(m_module->getTransform()*glm::translate(m_position), dt);
     }
 };

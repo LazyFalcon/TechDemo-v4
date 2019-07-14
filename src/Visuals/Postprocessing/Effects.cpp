@@ -314,13 +314,12 @@ void Effects::FXAA(){
 }
 void Effects::chromaticDistortion(glm::vec3 strenght){
     GPU_SCOPE_TIMER();
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.full.a.ID, 0);
+    context.fbo.tex(context.tex.full.a)();
 
     gl::Disable(gl::DEPTH_TEST);
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::BLEND);
-    auto shader = assets::getShader("ChromaticDistortion");
-    shader.bind();
+    auto shader = assets::getShader("ChromaticDistortion").bind();
 
     shader.uniform("uStrenght", strenght);
     shader.uniform("uPixelSize", window.pixelSize);
@@ -434,7 +433,7 @@ void Effects::filmGrain(){
     *   size: full
     * ");
     */
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.full.a.ID, 0);
+    context.fbo.tex(context.tex.full.a)();
     auto shader = assets::bindShader("FilmGrain");
     shader.texture("uTexture", context.tex.gbuffer.color);
 

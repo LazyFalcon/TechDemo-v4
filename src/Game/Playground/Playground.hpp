@@ -12,7 +12,7 @@ class InputDispatcher;
 class PhysicalWorld;
 class Player;
 class Scene;
-class VehicleEquipment;
+class Vehicle;
 class Window;
 
 class Playground : public GameState
@@ -20,7 +20,7 @@ class Playground : public GameState
 private:
     std::shared_ptr<Input> m_input;
     std::shared_ptr<Player> m_player;
-    std::vector<std::shared_ptr<VehicleEquipment>> m_vehicles;
+    std::vector<std::shared_ptr<Vehicle>> m_vehicles;
     std::unique_ptr<PhysicalWorld> m_physics;
     Window& m_window;
     std::unique_ptr<Scene> m_scene;

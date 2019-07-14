@@ -15,7 +15,7 @@ CameraController::CameraController(glm::vec2 windowSize){
     // * defaults
     Camera::aspectRatio = windowSize.x/windowSize.y;
     Camera::nearDistance = 0.10f;
-    Camera::farDistance = 900.f;
+    Camera::farDistance = 1500.f;
     Camera::fov = 85*toRad;
     Camera::inertia = 1;
     Camera::offset = glm::vec4(0);

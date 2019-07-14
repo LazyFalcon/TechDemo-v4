@@ -17,7 +17,6 @@ private:
     int weaponId {0};
     std::map<std::string, std::function<std::shared_ptr<IModule>(const Yaml&)>> m_moduleMap;
 
-
 public:
     btRigidBody *vehicle;
 
@@ -38,8 +37,9 @@ public:
             console.error("No module of type", type);
             return {};
         }
-
-        return m_moduleMap[type](cfg);
+        auto out = m_moduleMap[type](cfg);
+        console.log("Module of type", type, "named", out->name);
+        return out;
     }
 
 

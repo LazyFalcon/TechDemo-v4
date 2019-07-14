@@ -32,6 +32,7 @@ int FireControlSystem::idForGunServo(){
 }
 int FireControlSystem::idForGun(u64 parentHash){
     if(m_gunParentHash != parentHash) allocateNewLink();
+    m_gunParentHash = parentHash;
     m_isNeededToCreateNewLink = true;
 
     return m_currentLinkId;

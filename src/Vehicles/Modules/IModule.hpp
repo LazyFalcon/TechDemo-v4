@@ -126,6 +126,7 @@ public:
     }
     void setJoint(std::unique_ptr<Joint> j){
         joint = std::move(j);
+        transform(joint->getTransform());
     }
 
     std::string name;

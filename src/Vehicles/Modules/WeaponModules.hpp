@@ -3,10 +3,16 @@
 
 class Turret : public IModule
 {
+private:
+    int m_targetIndex;
+    const glm::vec4& getTarget(){
+        return vehicle.fireControlUnit->getTarget(m_targetIndex);
+    }
 public:
-    Turret(const std::string& name, Vehicle &vehicle) : IModule(name, vehicle){}
+    Turret(const std::string& name, Vehicle &vehicle) : IModule(name, vehicle){
+        m_targetIndex = vehicle.fireControlUnit->idForTurret();
+    }
     void update(float dt) override {
-    console.clog(__PRETTY_FUNCTION__, joint->getTransform()[3]);
 
         // auto target = vehicle.vehicleControlUnit->getTarget();
 
@@ -18,10 +24,16 @@ public:
 
 class GunServo : public IModule
 {
+private:
+    int m_targetIndex;
+    const glm::vec4& getTarget(){
+        return vehicle.fireControlUnit->getTarget(m_targetIndex);
+    }
 public:
-    GunServo(const std::string& name, Vehicle &vehicle) : IModule(name, vehicle){}
+    GunServo(const std::string& name, Vehicle &vehicle) : IModule(name, vehicle){
+        m_targetIndex = vehicle.fireControlUnit->idForGunServo();
+    }
     void update(float dt) override {
-    console.clog(__PRETTY_FUNCTION__, joint->getTransform()[3]);
 
         // auto target = vehicle.vehicleControlUnit->getTarget();
 
@@ -33,10 +45,16 @@ public:
 
 class Gun : public IModule
 {
+private:
+    int m_targetIndex;
+    const glm::vec4& getTarget(){
+        return vehicle.fireControlUnit->getTarget(m_targetIndex);
+    }
 public:
-    Gun(const std::string& name, Vehicle &vehicle) : IModule(name, vehicle){}
+    Gun(const std::string& name, Vehicle &vehicle) : IModule(name, vehicle){
+        m_targetIndex = vehicle.fireControlUnit->idForGun(reinterpret_cast<u64>(parent));
+    }
     void update(float dt) override {
-        console.clog(__PRETTY_FUNCTION__, joint->getTransform()[3]);
         this->transform(joint->getTransform());
     }
     std::string resource;

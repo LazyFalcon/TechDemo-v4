@@ -9,7 +9,7 @@ private:
         return vehicle.fireControlUnit->getTarget(m_targetIndex);
     }
 public:
-    Turret(const std::string& name, Vehicle &vehicle) : IModule(name, vehicle){
+    Turret(const std::string& name, Vehicle &vehicle, IModule* parent) : IModule(name, vehicle, parent){
         m_targetIndex = vehicle.fireControlUnit->idForTurret();
     }
     void update(float dt) override {
@@ -30,7 +30,7 @@ private:
         return vehicle.fireControlUnit->getTarget(m_targetIndex);
     }
 public:
-    GunServo(const std::string& name, Vehicle &vehicle) : IModule(name, vehicle){
+    GunServo(const std::string& name, Vehicle &vehicle, IModule* parent) : IModule(name, vehicle, parent){
         m_targetIndex = vehicle.fireControlUnit->idForGunServo();
     }
     void update(float dt) override {
@@ -51,7 +51,7 @@ private:
         return vehicle.fireControlUnit->getTarget(m_targetIndex);
     }
 public:
-    Gun(const std::string& name, Vehicle &vehicle) : IModule(name, vehicle){
+    Gun(const std::string& name, Vehicle &vehicle, IModule* parent) : IModule(name, vehicle, parent){
         m_targetIndex = vehicle.fireControlUnit->idForGun(reinterpret_cast<u64>(parent));
     }
     void update(float dt) override {

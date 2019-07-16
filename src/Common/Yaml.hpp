@@ -136,10 +136,10 @@ public:
 
         return false;
     }
-    template<typename predicat>
-    boost::optional<Yaml&> find(){
+    template<typename UnaryPredicate>
+    boost::optional<Yaml&> find(UnaryPredicate predicate){
         for(auto & it : container){
-            if(predicat(it)) return it;
+            if(predicate(it)) return it;
         }
         return boost::none;
     }

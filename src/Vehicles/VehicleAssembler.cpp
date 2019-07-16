@@ -16,10 +16,22 @@ VehicleAssembler::VehicleAssembler(const std::string& configName, PhysicalWorld&
     m_configName(configName),
     m_modelLoader(std::make_shared<ModelLoader<VertexWithMaterialDataAndBones>>()),
     m_physics(physics),
-    m_vehicleEq(std::make_shared<Vehicle>(physics)),
-    m_moduleFactory(*m_vehicleEq, m_physics, {}),
+    m_vehicle(std::make_shared<Vehicle>(physics)),
+    m_moduleFactory(*m_vehicle, m_physics, {}),
     m_camFactory(camFactory)
     {}
+
+// * builds common part of model, every specific should be done by inheritances
+std::shared_ptr<Vehicle> VehicleAssembler::build(const glm::mat4& onPosition){
+    console_prefix(m_configName + " Assembly");
+
+    openModelFile();
+    initializeVehicle(onPosition);
+    assemblyVehicleModules();
+    finishAssembly(onPosition);
+
+    return m_vehicle;
+}
 
 void VehicleAssembler::openModelFile(){
     console.log("Starting assembly of", m_configName);
@@ -35,76 +47,64 @@ void VehicleAssembler::openModelFile(){
     m_modelLoader->open(resPath + "models/" + m_configName + ".dae", assets::layerSearch(assets::getAlbedoArray("Materials")));
 }
 
-// * builds common part of model, every specific should be done by inheritances
-std::shared_ptr<Vehicle> VehicleAssembler::build(const glm::mat4& onPosition){
-    console_prefix(m_configName + " Assembly");
-
-    openModelFile();
-
+void VehicleAssembler::initializeVehicle(const glm::mat4& onPosition){
+    m_vehicle->fireControlUnit = std::make_unique<FireControlSystem>();
+    m_vehicle->vehicleControlUnit = std::make_unique<DroneLikeControl>(*m_vehicle, convert(onPosition[3]));
+    m_vehicle->compound = new btCompoundShape();
     m_skinnedMesh = std::make_shared<SkinnedMesh>();
-    m_vehicleEq->compound = new btCompoundShape();
     m_skinnedMesh->mesh = m_modelLoader->beginMesh();
+}
 
-    collectAndInitializeModules();
-
-    auto base = std::find_if(m_modules.begin(), m_modules.end(), [](auto &it){
-        return it.second.module->name == "Base";
+void VehicleAssembler::assemblyVehicleModules(){
+    auto base = m_config["Modules"].find([](auto &it){
+        return it["Class"].string() == "Hull";
     });
 
-    if(base == m_modules.end()) return nullptr;
+    if(not base){
+        console.error("No module of class Hull to begin with!");
+        return;
+    }
 
-    connectModules(base->second, nullptr, nullptr);
+    assemblyModuleAndItsChildren(nullptr, *base, nullptr);
+}
 
+void VehicleAssembler::finishAssembly(const glm::mat4& onPosition){
     // * put model to GPU
     m_modelLoader->endMesh(m_skinnedMesh->mesh);
     m_skinnedMesh->vao = m_modelLoader->build();
-    m_vehicleEq->compound->recalculateLocalAabb();
-    m_vehicleEq->graphics.entitiesToDraw.push_back(std::move(m_skinnedMesh));
+    m_vehicle->compound->recalculateLocalAabb();
+    m_vehicle->graphics.entitiesToDraw.push_back(std::move(m_skinnedMesh));
 
-    m_vehicleEq->vehicleControlUnit = std::make_unique<DroneLikeControl>(*m_vehicleEq, convert(onPosition[3]));
-    // m_vehicleEq->modulesToUpdateInsidePhysicsStep.push_back(m_vehicleEq->driveSystem);
-    m_physics.m_dynamicsWorld->addAction(m_vehicleEq.get());
+    // m_vehicle->modulesToUpdateInsidePhysicsStep.push_back(m_vehicle->driveSystem);
+    m_physics.m_dynamicsWorld->addAction(m_vehicle.get());
 
     buildRigidBody(onPosition);
-    // m_vehicleEq->cameras[0]->focus();
-
-    return m_vehicleEq;
+    // m_vehicle->cameras[0]->focus();
 }
 
-void VehicleAssembler::collectAndInitializeModules(){
-    for(auto & it : m_config["Modules"]){
-        if(it["Type"].string() != "Module"){
-            console.error(it["Name"].string(), "incorrect type!");
-            continue;}
-
-        auto module = m_moduleFactory.createModule(it);
-        if(not module){
-            console.error("failed to create module:", it["Name"].string());
-            return;
-        }
-
-        module->name = it["Name"].string();
-        m_modules[module->name] = {.module= module,
-                                   .fromJointToOrigin = it["FromParentToOrigin"].vec30(),
-                                   .config = &it};
-
-        setDecals(*module, it);
-        setMarkers(*module, it);
-        // setArmor(*module, it);
+void VehicleAssembler::assemblyModuleAndItsChildren(IModule* parent, const Yaml& params, const Yaml* connectionParams){
+    auto module = m_moduleFactory.createModule(params, parent);
+    if(not module){
+        console.error("failed to create module:", params["Name"].string());
+        return;
     }
-}
 
-void VehicleAssembler::connectModules(ToBuildModuleLater& moduleData, IModule* parent, const Yaml* connectionProps){
-    moduleData.module->parent = parent;
-    m_vehicleEq->modules.push_back(moduleData.module);
-    setVisual(*moduleData.module, *moduleData.config);
-    setPhysical(*moduleData.module, *moduleData.config);
-    if(connectionProps)
-        setConnection(moduleData, *connectionProps);
+    module->name += ": " + params["Name"].string();
+    m_vehicle->modules.push_back(module);
 
-    if(moduleData.config->has("Joints")) for(auto& joint : (*moduleData.config)["Joints"]){
+    setDecals(*module, params);
+    setMarkers(*module, params);
+    // setArmor(*module, params);
+    setVisual(*module, params);
+    setPhysical(*module, params);
+    if(connectionParams) setConnection(*module, params["FromParentToOrigin"].vec30(), *connectionParams);
+
+    if(params.has("Joints")) for(auto& joint : params["Joints"]){
         if(joint.has("Pinned")) for(auto& moduleName : joint["Pinned"].strings()){
-            connectModules(m_modules.at(moduleName), moduleData.module.get(), &joint);
+            assemblyModuleAndItsChildren(module.get(),
+                                         *m_config["Modules"].find([&moduleName](auto &it){
+                                               return it["Name"].string() == moduleName;}),
+                                         &joint);
         }
     }
 }
@@ -116,11 +116,11 @@ void VehicleAssembler::buildRigidBody(const glm::mat4& onPosition){
 
     // float mass = descriptionForModules["mass"].number();
     float mass = 20;
-    m_vehicleEq->rgBody = m_physics.createRigidBody(mass, tr, m_vehicleEq->compound);
+    m_vehicle->rgBody = m_physics.createRigidBody(mass, tr, m_vehicle->compound);
     // vehicleEquipment.rgBody->setUserPointer((void *)(&vehicleEquipment));
 
-    m_vehicleEq->rgBody->setDamping(0.2f, 0.2f);
-    m_vehicleEq->rgBody->setActivationState(DISABLE_DEACTIVATION);
+    m_vehicle->rgBody->setDamping(0.2f, 0.2f);
+    m_vehicle->rgBody->setActivationState(DISABLE_DEACTIVATION);
 }
 
 void VehicleAssembler::setDecals(IModule& module, const Yaml& cfg){
@@ -159,7 +159,7 @@ void VehicleAssembler::setMarkers(IModule& module, const Yaml& cfg){
             camera->recalucuateProjectionMatrix();
             camera->evaluate();
 
-            m_vehicleEq->cameras.push_back(camera);
+            m_vehicle->cameras.push_back(camera);
         }
         // else if("EndOfBarrel"s == marker["Type"].string() and module.type == ModuleType::Cannon){
             // Cannon& gun = module;
@@ -193,11 +193,9 @@ void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
 // * creates connection between parent and child module, usually this connection is updated by child
 // * can have different number of dof
 // * lack of limits means that connection is rigid
-void VehicleAssembler::setConnection(VehicleAssembler::ToBuildModuleLater& moduleData, const Yaml& cfg){
-    auto joint = createJoint(cfg, moduleData.fromJointToOrigin);
-    // glm::mat4 tr = joint->getTransform();
-    moduleData.module->setJoint(std::move(joint));
-    // ->transform(tr);
+void VehicleAssembler::setConnection(IModule& module, glm::vec4 fromJointToOrigin, const Yaml& connectionParams){
+    auto joint = createJoint(connectionParams, fromJointToOrigin);
+    module.setJoint(std::move(joint));
 }
 
 // * when module has rigidBody created
@@ -213,13 +211,13 @@ void VehicleAssembler::setPhysical(IModule& module, const Yaml& cfg){
         auto meshes = m_modelLoader->loadConvexMeshes(cfg["Physical"]["CollisionModels"].strings());
 
         addToCompound(createCompoundShape(meshes, (void*)(&module)), localTransformation, (void*)(&module));
-        module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_vehicleEq->compound, m_compoundIndex++);
+        module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_vehicle->compound, m_compoundIndex++);
     }
     else {
         // TODO: create dummy collision model
 
         addToCompound(new btBoxShape(btVector3(2,2,2)), localTransformation, (void*)(&module));
-        module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_vehicleEq->compound, m_compoundIndex++);
+        module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_vehicle->compound, m_compoundIndex++);
     }
 }
 
@@ -228,7 +226,7 @@ void VehicleAssembler::setArmor(IModule& module, const Yaml& cfg){}
 void VehicleAssembler::addToCompound(btCollisionShape* collShape, const glm::mat4& transform, void* owner){
     btTransform localTrans = convert(transform);
     collShape->setUserPointer(owner);
-    m_vehicleEq->compound->addChildShape(localTrans, collShape);
+    m_vehicle->compound->addChildShape(localTrans, collShape);
 }
 
 

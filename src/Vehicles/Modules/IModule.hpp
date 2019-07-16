@@ -100,9 +100,10 @@ protected:
         moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * tr : glm::mat4()); /// a tu względem rodzica, no nic, trzeba dodać dodatkowy wektor
     }
 public:
-    IModule(const std::string& name, Vehicle &vehicle) :
+    IModule(const std::string& name, Vehicle &vehicle, IModule* parent) :
         name(name),
         vehicle(vehicle),
+        parent(parent),
         moduleVisualUpdater(std::make_unique<NullModuleVisualUpdater>()),
         moduleCompoundUpdater(std::make_unique<NullModuleCompoundUpdater>()){}
     virtual ~IModule() = default;

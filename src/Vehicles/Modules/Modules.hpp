@@ -1,7 +1,7 @@
 #pragma once
 #include "IModule.hpp"
 
-class Base : public IModule
+class Hull : public IModule
 {
 public:
     using IModule::IModule;

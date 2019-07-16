@@ -17,16 +17,10 @@ struct VertexWithMaterialDataAndBones;
 class VehicleAssembler
 {
 private:
-    struct ToBuildModuleLater
-    {
-        std::shared_ptr<IModule> module;
-        glm::vec4 fromJointToOrigin;
-        Yaml* config;
-    };
     std::string m_configName;
     std::shared_ptr<ModelLoader<VertexWithMaterialDataAndBones>> m_modelLoader;
     PhysicalWorld& m_physics;
-    std::shared_ptr<Vehicle> m_vehicleEq;
+    std::shared_ptr<Vehicle> m_vehicle;
     ModuleFactory m_moduleFactory;
     CameraControllerFactory& m_camFactory;
 
@@ -34,15 +28,18 @@ private:
     uint m_boneMatrixIndex {};
     uint m_compoundIndex {};
     Yaml m_config;
-    std::map<std::string, ToBuildModuleLater> m_modules;
 
     void openModelFile();
+    void initializeVehicle(const glm::mat4& onPosition);
+    void assemblyVehicleModules();
+    void finishAssembly(const glm::mat4& onPosition);
+    void assemblyModuleAndItsChildren(IModule*, const Yaml&, const Yaml*);
+    void setConnection(IModule& module, glm::vec4 fromJointToOrigin, const Yaml& connectionParams);
+
     void collectAndInitializeModules();
-    void connectModules(ToBuildModuleLater& module, IModule* parent, const Yaml* connectionProps);
     void setDecals(IModule& module, const Yaml& cfg);
     void setMarkers(IModule& module, const Yaml& cfg);
     void setVisual(IModule& module, const Yaml& cfg);
-    void setConnection(VehicleAssembler::ToBuildModuleLater& moduleData, const Yaml& cfg);
     void setPhysical(IModule& module, const Yaml& cfg);
     void setArmor(IModule& module, const Yaml& cfg);
     void buildRigidBody(const glm::mat4& onPosition);

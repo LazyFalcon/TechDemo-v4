@@ -8,6 +8,8 @@
 
 class PhysicalWorld;
 
+#define moduleCreateMacro(Type) m_moduleMap[#Type] = [this](const Yaml& cfg, IModule* parent){ return std::make_shared<Type>(#Type, m_vehicleEq, parent); };
+
 class ModuleFactory
 {
 private:
@@ -15,32 +17,32 @@ private:
     PhysicalWorld &physics;
     btVector3 startPosition;
     int weaponId {0};
-    std::map<std::string, std::function<std::shared_ptr<IModule>(const Yaml&)>> m_moduleMap;
+    std::map<std::string, std::function<std::shared_ptr<IModule>(const Yaml&, IModule* parent)>> m_moduleMap;
 
 public:
     btRigidBody *vehicle;
 
     ModuleFactory(Vehicle &eq, PhysicalWorld &physics, glm::vec4 startPosition)
     : m_vehicleEq(eq), physics(physics), startPosition(convert(startPosition)) {
-        m_moduleMap["Hull"] = [this](const Yaml& cfg){ return std::make_shared<Base>("Hull", m_vehicleEq); };
-        m_moduleMap["Turret"] = [this](const Yaml& cfg){ return std::make_shared<Turret>("Turret", m_vehicleEq); };
-        m_moduleMap["GunServo"] = [this](const Yaml& cfg){ return std::make_shared<GunServo>("GunServo", m_vehicleEq); };
-        m_moduleMap["Gun"] = [this](const Yaml& cfg){ return std::make_shared<Gun>("Gun", m_vehicleEq); };
-        m_moduleMap["Addon"] = [this](const Yaml& cfg){ return std::make_shared<Addon>("Addon", m_vehicleEq); };
-        m_moduleMap["LoosePart"] = [this](const Yaml& cfg){ return std::make_shared<Addon>("LoosePart", m_vehicleEq); };
-        m_moduleMap["Armor"] = [this](const Yaml& cfg){ return std::make_shared<Armor>("Armor", m_vehicleEq); };
+        moduleCreateMacro(Hull)
+        moduleCreateMacro(Turret)
+        moduleCreateMacro(GunServo)
+        moduleCreateMacro(Gun)
+        moduleCreateMacro(Addon)
+        moduleCreateMacro(LoosePart)
+        moduleCreateMacro(Armor)
     }
 
-    std::shared_ptr<IModule> createModule(const Yaml& cfg){
+    std::shared_ptr<IModule> createModule(const Yaml& cfg, IModule* parent){
         auto type = cfg["Class"].string();
         if(m_moduleMap.count(type) == 0){
             console.error("No module of type", type);
             return {};
         }
-        auto out = m_moduleMap[type](cfg);
+        auto out = m_moduleMap[type](cfg, parent);
         console.log("Module of type", type, "named", out->name);
         return out;
     }
-
-
 };
+
+#undef moduleCreateMacro

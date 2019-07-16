@@ -11,6 +11,12 @@
 #include "VehicleAssembler.hpp"
 
 #define logFunc() console.log(__FUNCTION__, ":", __LINE__);
+glm::mat4 matrixFromYaml(const Yaml& params){
+    return glm::mat4(params["X"].vec30(),
+                     params["Y"].vec30(),
+                     params["Z"].vec30(),
+                     params["W"].vec31());
+}
 
 VehicleAssembler::VehicleAssembler(const std::string& configName, PhysicalWorld& physics, CameraControllerFactory& camFactory) :
     m_configName(configName),
@@ -65,7 +71,7 @@ void VehicleAssembler::assemblyVehicleModules(){
         return;
     }
 
-    assemblyModuleAndItsChildren(nullptr, *base, nullptr);
+    assemblyModuleAndItsChildren(nullptr, *base);
 }
 
 void VehicleAssembler::finishAssembly(const glm::mat4& onPosition){
@@ -82,7 +88,7 @@ void VehicleAssembler::finishAssembly(const glm::mat4& onPosition){
     // m_vehicle->cameras[0]->focus();
 }
 
-void VehicleAssembler::assemblyModuleAndItsChildren(IModule* parent, const Yaml& params, const Yaml* connectionParams){
+void VehicleAssembler::assemblyModuleAndItsChildren(IModule* parent, const Yaml& params){
     auto module = m_moduleFactory.createModule(params, parent);
     if(not module){
         console.error("failed to create module:", params["Name"].string());
@@ -91,22 +97,20 @@ void VehicleAssembler::assemblyModuleAndItsChildren(IModule* parent, const Yaml&
 
     module->name += ": " + params["Name"].string();
     m_vehicle->modules.push_back(module);
+    module->localTransform = matrixFromYaml(params["Relative Position"]);
 
     setDecals(*module, params);
     setMarkers(*module, params);
     // setArmor(*module, params);
     setVisual(*module, params);
+    if(parent) setServoAndMotionLimits(*module);
     setPhysical(*module, params);
-    if(connectionParams) setConnection(*module, params["FromParentToOrigin"].vec30(), *connectionParams);
 
-    if(params.has("Joints")) for(auto& joint : params["Joints"]){
-        if(joint.has("Pinned")) for(auto& moduleName : joint["Pinned"].strings()){
+    params.for_each("Attached Modules", [&](const Yaml& yml){
+        for(auto moduleName : yml["Modules"].strings())
             assemblyModuleAndItsChildren(module.get(),
-                                         *m_config["Modules"].find([&moduleName](auto &it){
-                                               return it["Name"].string() == moduleName;}),
-                                         &joint);
-        }
-    }
+                                         m_config["Modules"][moduleName]);
+    });
 }
 
 void VehicleAssembler::buildRigidBody(const glm::mat4& onPosition){
@@ -145,14 +149,8 @@ void VehicleAssembler::setMarkers(IModule& module, const Yaml& cfg){
     if(not cfg.has("Markers")) return;
     auto& markers = cfg["Markers"];
     for(auto& marker : markers){
-        glm::mat4 mat(
-            marker["X"].vec30(),
-            marker["Y"].vec30(),
-            marker["Z"].vec30(),
-            marker["W"].vec31()
-        );
         if("Camera"s == marker["Type"].string()){
-            auto camera = createModuleFollower(&module, marker["Mode"].string(), marker["W"].vec3(), mat);
+            auto camera = createModuleFollower(&module, marker["Mode"].string(), marker["W"].vec3(), matrixFromYaml(marker));
             camera->offset = marker["Offset"].vec31();
             camera->fov = marker["FOV"].number()*toRad;
             camera->inertia = marker["Inertia"].number();
@@ -193,9 +191,9 @@ void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
 // * creates connection between parent and child module, usually this connection is updated by child
 // * can have different number of dof
 // * lack of limits means that connection is rigid
-void VehicleAssembler::setConnection(IModule& module, glm::vec4 fromJointToOrigin, const Yaml& connectionParams){
-    auto joint = createJoint(connectionParams, fromJointToOrigin);
-    module.setJoint(std::move(joint));
+void VehicleAssembler::setServoAndMotionLimits(IModule& module){
+    // auto joint = createJoint(connectionParams, fromJointToOrigin);
+    // module.setJoint(std::move(joint));
 }
 
 // * when module has rigidBody created
@@ -228,7 +226,6 @@ void VehicleAssembler::addToCompound(btCollisionShape* collShape, const glm::mat
     collShape->setUserPointer(owner);
     m_vehicle->compound->addChildShape(localTrans, collShape);
 }
-
 
 std::shared_ptr<CameraController> VehicleAssembler::createModuleFollower(IModule *module, const std::string& type, glm::vec3 position, const glm::mat4& mat){
     if(type == "CopyPosition"){

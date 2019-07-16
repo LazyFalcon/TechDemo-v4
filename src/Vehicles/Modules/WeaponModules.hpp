@@ -18,7 +18,7 @@ public:
 
         // joint->IK_targetAtPoint(getTransform(), target);
 
-        this->transform(joint->getTransform());
+        // this->transform(joint->getTransform());
     }
 };
 
@@ -39,7 +39,7 @@ public:
 
         // joint->IK_targetAtPoint(getTransform(), target);
 
-        this->transform(joint->getTransform());
+        // this->transform(joint->getTransform());
     }
 };
 
@@ -55,7 +55,7 @@ public:
         m_targetIndex = vehicle.fireControlUnit->idForGun(reinterpret_cast<u64>(parent));
     }
     void update(float dt) override {
-        this->transform(joint->getTransform());
+        // this->transform(joint->getTransform());
     }
     std::string resource;
 };

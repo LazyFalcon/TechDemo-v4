@@ -116,7 +116,7 @@ public:
             push("");
         return container[i];
     }
-    const Yaml& operator [] (const std::string &s) const {
+    const Yaml& get(const std::string &s) const {
         for(const auto &it : container)
             if(it.m_key == s) {
                 // console.log(s, "path:", getParents());
@@ -125,6 +125,9 @@ public:
 
         console.error(s, "doesn't exists in", m_key);
         return *this;
+    }
+    const Yaml& operator [] (const std::string &s) const {
+        return get(s);
     }
     const Yaml& operator [] (u32 i) const {
         return container.at(i);
@@ -136,12 +139,26 @@ public:
 
         return false;
     }
+
     template<typename UnaryPredicate>
-    boost::optional<Yaml&> find(UnaryPredicate predicate){
+    boost::optional<const Yaml&> find(UnaryPredicate predicate) const {
         for(auto & it : container){
             if(predicate(it)) return it;
         }
         return boost::none;
+    }
+
+    template<typename UnaryPredicate>
+    void for_each(UnaryPredicate predicate) const {
+        for(auto & it : container){
+            predicate(it);
+        }
+    }
+
+    template<typename UnaryPredicate>
+    void for_each(const std::string& key, UnaryPredicate predicate) const {
+        if(not has(key)) return;
+        get(key).for_each(predicate);
     }
 
     bool operator == (const std::string& compareTo) const

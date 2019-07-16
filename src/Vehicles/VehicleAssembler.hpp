@@ -33,8 +33,8 @@ private:
     void initializeVehicle(const glm::mat4& onPosition);
     void assemblyVehicleModules();
     void finishAssembly(const glm::mat4& onPosition);
-    void assemblyModuleAndItsChildren(IModule*, const Yaml&, const Yaml*);
-    void setConnection(IModule& module, glm::vec4 fromJointToOrigin, const Yaml& connectionParams);
+    void assemblyModuleAndItsChildren(IModule*, const Yaml&);
+    void setServoAndMotionLimits(IModule& module);
 
     void collectAndInitializeModules();
     void setDecals(IModule& module, const Yaml& cfg);

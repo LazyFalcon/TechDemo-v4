@@ -95,9 +95,8 @@ class IModule
 {
 protected:
     void transform(const glm::mat4& tr){
-        console.clog(__PRETTY_FUNCTION__, name);
-        moduleVisualUpdater->setTransform(getParentTransform() * tr); /// tu wrzucamy pełną trnsformację
-        moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * tr : glm::mat4()); /// a tu względem rodzica, no nic, trzeba dodać dodatkowy wektor
+        moduleVisualUpdater->setTransform(getParentTransform() * localTransform * tr); // here goes full world transform for rendering
+        moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * localTransform * tr : glm::mat4()); // and here local transform for bullets compound
     }
 public:
     IModule(const std::string& name, Vehicle &vehicle, IModule* parent) :
@@ -109,17 +108,17 @@ public:
     virtual ~IModule() = default;
 
     virtual void update(float dt) = 0;
-    const glm::mat4& getTransform() const {
+    const glm::mat4& getTransform() const { // full world transform
         return moduleVisualUpdater->getTransform();
     }
-    const glm::mat4& getLocalTransform() const {// nie używane
+    const glm::mat4& getLocalTransform() const { // full transform in vehicle space
         return moduleCompoundUpdater->getTransform();
     }
-    const glm::mat4& getParentTransform() const {
+    const glm::mat4& getParentTransform() const { // full world transform of parent module
         if(not parent) return identityMatrix;
         return parent->getTransform();
     }
-    const glm::mat4& getBaseTransform() const {
+    const glm::mat4& getBaseTransform() const { // full world transform of
         return vehicle.glTrans;
     }
     const glm::mat4& getInvBaseTransform() const {
@@ -133,6 +132,7 @@ public:
     std::string name;
     Vehicle &vehicle;
     IModule *parent {nullptr};
+    glm::mat4 localTransform; // from parent module to origin, apply before local transormations!
     std::unique_ptr<Joint> joint;
     std::unique_ptr<ModuleVisualUpdater> moduleVisualUpdater;
     std::unique_ptr<ModuleCompoundUpdater> moduleCompoundUpdater;

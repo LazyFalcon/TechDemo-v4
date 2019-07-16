@@ -200,10 +200,8 @@ void VehicleAssembler::setServoAndMotionLimits(IModule& module){
 void VehicleAssembler::setPhysical(IModule& module, const Yaml& cfg){
     if(not cfg.has("Physical")) return;
 
-    auto tr = module.getParentTransform() * module.joint->getTransform();
-
     // glm::vec4 cnvPos = glm::vec4(module.joint.toPivot + module.joint.toOrigin);
-    auto localTransformation = module.joint->getTransform();
+    auto localTransformation = module.localTransform;
 
     if(cfg["Physical"].has("CollisionModels") and cfg["Physical"]["CollisionModels"] != "none"){
         auto meshes = m_modelLoader->loadConvexMeshes(cfg["Physical"]["CollisionModels"].strings());

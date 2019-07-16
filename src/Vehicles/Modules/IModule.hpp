@@ -93,11 +93,6 @@ public:
 
 class IModule
 {
-protected:
-    void transform(const glm::mat4& tr){
-        moduleVisualUpdater->setTransform(getParentTransform() * localTransform * tr); // here goes full world transform for rendering
-        moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * localTransform * tr : glm::mat4()); // and here local transform for bullets compound
-    }
 public:
     IModule(const std::string& name, Vehicle &vehicle, IModule* parent) :
         name(name),
@@ -108,6 +103,10 @@ public:
     virtual ~IModule() = default;
 
     virtual void update(float dt) = 0;
+    void transform(const glm::mat4& tr){
+        moduleVisualUpdater->setTransform(getParentTransform() * localTransform * tr); // here goes full world transform for rendering
+        moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * localTransform * tr : glm::mat4()); // and here local transform for bullets compound
+    }
     const glm::mat4& getTransform() const { // full world transform
         return moduleVisualUpdater->getTransform();
     }
@@ -124,16 +123,11 @@ public:
     const glm::mat4& getInvBaseTransform() const {
         return vehicle.invTrans;
     }
-    void setJoint(std::unique_ptr<Joint> j){
-        joint = std::move(j);
-        transform(joint->getTransform());
-    }
 
     std::string name;
     Vehicle &vehicle;
     IModule *parent {nullptr};
     glm::mat4 localTransform; // from parent module to origin, apply before local transormations!
-    std::unique_ptr<Joint> joint;
     std::unique_ptr<ModuleVisualUpdater> moduleVisualUpdater;
     std::unique_ptr<ModuleCompoundUpdater> moduleCompoundUpdater;
 };

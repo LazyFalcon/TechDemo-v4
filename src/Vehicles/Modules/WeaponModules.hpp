@@ -1,15 +1,22 @@
 #pragma once
 #include "IModule.hpp"
+#include "Servomechanism.hpp"
 
+// local Y axis is used as look direction
+class Yaml;
 class Turret : public IModule
 {
 private:
     int m_targetIndex;
+    Servomechanism servo;
     const glm::vec4& getTarget(){
         return vehicle.fireControlUnit->getTarget(m_targetIndex);
     }
 public:
-    Turret(const std::string& name, Vehicle &vehicle, IModule* parent) : IModule(name, vehicle, parent){
+    Turret(const std::string& name, Vehicle &vehicle, IModule* parent, const Yaml& yaml) :
+        IModule(name, vehicle, parent),
+        servo(yaml)
+    {
         m_targetIndex = vehicle.fireControlUnit->idForTurret();
     }
     void update(float dt) override {
@@ -26,11 +33,15 @@ class GunServo : public IModule
 {
 private:
     int m_targetIndex;
+    Servomechanism servo;
     const glm::vec4& getTarget(){
         return vehicle.fireControlUnit->getTarget(m_targetIndex);
     }
 public:
-    GunServo(const std::string& name, Vehicle &vehicle, IModule* parent) : IModule(name, vehicle, parent){
+    GunServo(const std::string& name, Vehicle &vehicle, IModule* parent, const Yaml& yaml) :
+        IModule(name, vehicle, parent),
+        servo(yaml)
+    {
         m_targetIndex = vehicle.fireControlUnit->idForGunServo();
     }
     void update(float dt) override {

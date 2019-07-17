@@ -12,13 +12,24 @@ float differenceBetweenAngles(float a, float b){
 
 }
 
+std::optional<MinMax> Servomechanism::isAxisLocked(const Yaml& params, int idx){
+
+    MinMax minmax {false, params["Min"][idx].number(), params["Max"][idx].number()};
+    if(not params["Limits"][idx].boolean()) return std::none;
+    if(not minmax.areMinAndMaxClose()){
+        minmax.isSet = true;
+        return minmax;
+    }
+    return minmax;
+}
+
 Servomechanism::Servomechanism(const Yaml& moduleParams){
     auto& params = moduleParams["Rotation constriants"];
     // False means free rotation, True and min!= max also, True and min==max disables rotation
-    if(params["Limits"][0].boolean()){
-        if((params["Min"], params["Max"]))
+    if(auto isx = isAxisLocked(params, 0); isx){
+
     }
-    else axis.x = {0,0};
+
 }
 
 void Servomechanism::setTarget(float x, float y, float z){

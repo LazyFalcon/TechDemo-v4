@@ -14,6 +14,9 @@ private:
         float clamp(float x){
             return isSet ? glm::clamp(x, min, max) : x;
         }
+        bool areMinAndMaxClose(){
+            return glm::epsilonEqual(min, max, 0.0001f);
+        }
     };
 
     struct ValueTarget
@@ -34,6 +37,8 @@ private:
         MinMax z;
     } limit;
     float vMax {0.05f};
+    std::optional<MinMax> isAxisLocked(const Yaml& params, int idx);
+
 public:
     Servomechanism(const Yaml& params);
     void setTarget(float x, float y, float z);

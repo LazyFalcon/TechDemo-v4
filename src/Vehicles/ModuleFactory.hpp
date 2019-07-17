@@ -25,8 +25,8 @@ public:
     ModuleFactory(Vehicle &eq, PhysicalWorld &physics, glm::vec4 startPosition)
     : m_vehicleEq(eq), physics(physics), startPosition(convert(startPosition)) {
         moduleCreateMacro(Hull)
-        moduleCreateMacro(Turret)
-        moduleCreateMacro(GunServo)
+        m_moduleMap["Turret"] = [this](const Yaml& params, IModule* parent){ return std::make_shared<Turret>("Turret", m_vehicleEq, parent, params); };
+        m_moduleMap["GunServo"] = [this](const Yaml& params, IModule* parent){ return std::make_shared<GunServo>("GunServo", m_vehicleEq, parent, params); };
         moduleCreateMacro(Gun)
         moduleCreateMacro(Addon)
         moduleCreateMacro(LoosePart)

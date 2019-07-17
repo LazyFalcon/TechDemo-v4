@@ -26,6 +26,7 @@ public:
         // joint->IK_targetAtPoint(getTransform(), target);
 
         // this->transform(joint->getTransform());
+        this->transform(glm::mat4(1));
     }
 };
 
@@ -50,7 +51,7 @@ public:
 
         // joint->IK_targetAtPoint(getTransform(), target);
 
-        // this->transform(joint->getTransform());
+        this->transform(glm::mat4(1));
     }
 };
 
@@ -67,6 +68,7 @@ public:
     }
     void update(float dt) override {
         // this->transform(joint->getTransform());
+        this->transform(glm::mat4(1));
     }
     std::string resource;
 };

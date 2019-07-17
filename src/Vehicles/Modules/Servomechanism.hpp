@@ -35,10 +35,10 @@ private:
         MinMax x;
         MinMax y;
         MinMax z;
-    } limit;
+    } limit {};
     float vMax {0.05f};
-    std::optional<MinMax> isAxisLocked(const Yaml& params, int idx);
-
+    std::optional<MinMax> isAxisLocked(const Yaml& params, int idx) const;
+    float move(float diff, float dt) const;
 public:
     Servomechanism(const Yaml& params);
     void setTarget(float x, float y, float z);

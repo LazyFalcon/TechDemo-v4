@@ -13,7 +13,7 @@ class Addon : public IModule
 public:
     using IModule::IModule;
     void update(float dt) override {
-        this->transform(joint->getTransform());
+        // this->transform(joint->getTransform());
     }
 };
 
@@ -22,7 +22,7 @@ class LoosePart : public IModule
 public:
     using IModule::IModule;
     void update(float dt) override {
-        this->transform(joint->getTransform());
+        // this->transform(joint->getTransform());
     }
 };
 

@@ -12,6 +12,10 @@
 
 #define logFunc() console.log(__FUNCTION__, ":", __LINE__);
 glm::mat4 matrixFromYaml(const Yaml& params){
+    console.log("matrix", params["X"].vec30(),
+                     params["Y"].vec30(),
+                     params["Z"].vec30(),
+                     params["W"].vec31());
     return glm::mat4(params["X"].vec30(),
                      params["Y"].vec30(),
                      params["Z"].vec30(),

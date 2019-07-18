@@ -25,8 +25,8 @@ public:
 
         // joint->IK_targetAtPoint(getTransform(), target);
 
-        // this->transform(joint->getTransform());
         this->transform(glm::mat4(1));
+        console.clog("Turret", getTransform()[3]);
     }
 };
 
@@ -52,6 +52,7 @@ public:
         // joint->IK_targetAtPoint(getTransform(), target);
 
         this->transform(glm::mat4(1));
+        console.clog("GunServo", getTransform()[3]);
     }
 };
 
@@ -67,8 +68,8 @@ public:
         m_targetIndex = vehicle.fireControlUnit->idForGun(reinterpret_cast<u64>(parent));
     }
     void update(float dt) override {
-        // this->transform(joint->getTransform());
         this->transform(glm::mat4(1));
+        console.clog("Gun", getTransform()[3]);
     }
     std::string resource;
 };

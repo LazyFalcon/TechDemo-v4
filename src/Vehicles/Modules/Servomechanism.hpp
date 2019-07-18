@@ -12,7 +12,7 @@ private:
         float min;
         float max;
         float clamp(float x){
-            return glm::clamp(x, min, max) : x;
+            return glm::clamp(x, min, max);
         }
     };
 
@@ -24,7 +24,7 @@ private:
         float target;
         float speed;
         void setTarget(float v){
-            target = limit ? limit.clamp(v) : v;
+            target = limit ? limit->clamp(v) : v;
         }
         std::optional<MinMax> limit;
     };

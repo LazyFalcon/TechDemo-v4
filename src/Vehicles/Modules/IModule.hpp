@@ -104,8 +104,8 @@ public:
 
     virtual void update(float dt) = 0;
     void transform(const glm::mat4& tr){
-        moduleVisualUpdater->setTransform(getParentTransform() * localTransform * tr); // here goes full world transform for rendering
-        moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * localTransform * tr : glm::mat4()); // and here local transform for bullets compound
+        moduleVisualUpdater->setTransform(getParentTransform() * (localTransform * tr)); // here goes full world transform for rendering
+        moduleCompoundUpdater->setTransform(parent ? parent->getLocalTransform() * (localTransform * tr) : glm::mat4(1)); // and here local transform for bullets compound
     }
     const glm::mat4& getTransform() const { // full world transform
         return moduleVisualUpdater->getTransform();

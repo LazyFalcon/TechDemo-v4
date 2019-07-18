@@ -18,7 +18,7 @@ struct Stringify : public boost::static_visitor<std::string>
         return stream.str();
     }
 
-    std::string operator()(const double &d) const {
+    std::string operator()(const float &d) const {
         std::stringstream stream;
         stream<<d;
         return stream.str();
@@ -71,10 +71,10 @@ struct StringifyWithInfo : public boost::static_visitor<std::string>
         return "color: "s + stream.str();
     }
 
-    std::string operator()(const double &d) const {
+    std::string operator()(const float &d) const {
         std::stringstream stream;
         stream<<d;
-        return "double: "s + stream.str();
+        return "float: "s + stream.str();
     }
 
     std::string operator()(const glm::vec4 &v) const {
@@ -161,7 +161,7 @@ std::string Yaml::debugString() const {
 
 // ! here! most important function!
 Variants Yaml::decode(std::string s){
-    std::regex rFloat(R"(-?[0-9]+\.?[0-9]*)");
+    std::regex rFloat(R"(-?[0-9]+[.]?[eE]?-?+?[0-9]*)");
     std::regex rColor3("([0-9a-fA-F]{6})");
     std::regex rColor4("([0-9a-fA-F]{8})");
     std::smatch result;
@@ -202,7 +202,7 @@ Variants Yaml::decode(std::string s){
     }
 
     if(std::regex_match(s, rFloat)){
-        return std::stod(s);
+        return std::stof(s);
     }
     if(std::regex_search(s, result, rColor4)){
         return (u32)std::stoul(result[1], nullptr, 16);
@@ -211,8 +211,8 @@ Variants Yaml::decode(std::string s){
         return (u32)std::stoul(std::string(result[1])+"ff"s, nullptr, 16);
     }
 
-    if(s == "yes" || s == "True" || s == "true") return true;
-    if(s == "no" || s == "False" || s == "false") return false;
+    if(s == "yes" or s == "True" or s == "true") return true;
+    if(s == "no" or s == "False" or s == "false") return false;
 
     return s;
 }

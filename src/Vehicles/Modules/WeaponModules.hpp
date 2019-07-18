@@ -24,7 +24,7 @@ public:
         // auto target = vehicle.vehicleControlUnit->getTarget();
 
         // joint->IK_targetAtPoint(getTransform(), target);
-
+        servo.run(dt);
         this->transform(glm::mat4(1));
         console.clog("Turret", getTransform()[3]);
     }
@@ -51,6 +51,7 @@ public:
 
         // joint->IK_targetAtPoint(getTransform(), target);
 
+        servo.run(dt);
         this->transform(glm::mat4(1));
         console.clog("GunServo", getTransform()[3]);
     }

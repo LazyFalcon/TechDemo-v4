@@ -75,7 +75,8 @@ void Environment::loadObject(const Yaml &yaml, ModelLoader<VertexWithMaterialDat
 }
 
 void Environment::loadVisualPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity &e, const Yaml &yaml){
-    e.graphic.mesh = modelLoader.load(yaml["Models"].strings());
+    auto strings = yaml["Models"].strings();
+    e.graphic.mesh = modelLoader.load(strings);
 }
 
 void Environment::createSimpleBoxCollider(EnviroEntity &entity, float mass){

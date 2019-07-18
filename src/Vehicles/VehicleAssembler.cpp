@@ -12,10 +12,6 @@
 
 #define logFunc() console.log(__FUNCTION__, ":", __LINE__);
 glm::mat4 matrixFromYaml(const Yaml& params){
-    console.log("matrix", params["X"].vec30(),
-                     params["Y"].vec30(),
-                     params["Z"].vec30(),
-                     params["W"].vec31());
     return glm::mat4(params["X"].vec30(),
                      params["Y"].vec30(),
                      params["Z"].vec30(),
@@ -181,7 +177,7 @@ void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
         console.log("No visuals");
         return;
     }
-    auto& models = cfg["Models"].strings();
+    auto models = cfg["Models"].strings();
 
     m_skinnedMesh->bones.push_back(identityMatrix);
     module.moduleVisualUpdater = std::make_unique<ModuleVisualUpdater>(m_skinnedMesh->bones, m_boneMatrixIndex);

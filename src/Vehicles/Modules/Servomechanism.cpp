@@ -14,11 +14,12 @@ float differenceBetweenAngles(float a, float b){
 
 std::optional<Servomechanism::ValueTarget> Servomechanism::retrieveAxis(const Yaml& params, int idx) const {
     std::optional<Servomechanism::ValueTarget> out;
-    if(not params["Axis"][idx].boolean()) return out;
+    if(not params["Axis"][idx].boolean())
+        return out;
 
     out.emplace(params["Value"][idx].number(), 0.02f);
 
-    if(params["Min"][idx].number() == params["Max"][idx].number())
+    if(params["Limits"][idx].boolean())
         out->limit.emplace(params["Min"][idx].number(), params["Max"][idx].number());
 
     return out;

@@ -15,16 +15,13 @@
 
 struct Yaml;
 
-typedef std::vector<float> floatVec;
-typedef std::vector<std::string> stringVec;
-typedef std::vector<glm::vec4> vec4Vec;
 typedef boost::variant<
         std::string,             // 0
         u32,                     // bitfields? colors etc
         float,                  // 1
         glm::vec4,               // TODO: maybe small vector instead? it will better handle vec2, etc cases?
-        floatVec,                // 3, czy jest jakiś sens na te typy?
-        stringVec,                // 3, czy jest jakiś sens na te typy?
+        // floatVec,                // 3, czy jest jakiś sens na te typy?
+        // stringVec,                // 3, czy jest jakiś sens na te typy?
         bool,                    //
         std::function<void(void)>// ? why store callbacks? were there reason for this?
     > Variants;
@@ -41,8 +38,8 @@ namespace {
     struct is_from_true_types<float>: std::true_type {};
     template<>
     struct is_from_true_types<glm::vec4>: std::true_type {};
-    template<>
-    struct is_from_true_types<floatVec>: std::true_type {};
+    // template<>
+    // struct is_from_true_types<floatVec>: std::true_type {};
     // template<>
     // struct is_from_true_types<bool>: std::true_type {};
     template<>
@@ -190,6 +187,9 @@ public:
     auto size() const {
         return container.size();
     }
+    bool empty() const {
+        return container.empty();
+    }
 
     Variants decode(std::string s);
     void load(const std::string& filepath);
@@ -243,44 +243,8 @@ public:
     std::string string() const;
     std::string debugString() const;
 
-
-    // operator glm::vec2() const {
-    //     return vec2();
-    // }
-    operator glm::vec3() const {
-        return vec3();
-    }
-    operator glm::vec4() const {
-        return vec4();
-    }
-    // operator glm::quat() const {
-    //     return quat();
-    // }
-    // operator btVector3() const {
-    //     return btVec();
-    // }
-    operator float() const {
-        return number();
-    }
-    // operator float() const {
-    //     return number();
-    // }
-    // operator bool() const {
-    //     return boolean();
-    // }
-
-    const floatVec& floats() const {
-        return boost::get<floatVec>(m_value);
-    }
-    float floats(int i) const {
-        return boost::get<floatVec>(m_value)[i];
-    }
-    const stringVec& strings() const {
-        return boost::get<stringVec>(m_value);
-    }
-    const std::string& strings(int i) const {
-        return boost::get<stringVec>(m_value)[i];
-    }
+    std::vector<std::string> strings() const;
+    std::vector<float> numbers() const;
 
     glm::vec4 vec4() const try {
         return boost::get<glm::vec4>(m_value);
@@ -319,7 +283,7 @@ public:
         console.error("not exists as", m_key);
         return glm::quat();
     }
-    btVector3  btVec() const try {
+    btVector3 btVec() const try {
         auto val = boost::get<glm::vec4>(m_value);
         return btVector3(val.x, val.y, val.z);
     } catch (...){

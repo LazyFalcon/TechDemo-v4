@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <regex>
+#include <algorithm>
 #include <boost/algorithm/string/trim.hpp>
 
 struct Stringify : public boost::static_visitor<std::string>
@@ -27,26 +28,6 @@ struct Stringify : public boost::static_visitor<std::string>
     std::string operator()(const glm::vec4 &v) const {
         std::stringstream stream;
         stream<< "< "<<v.x<<" "<<v.y<<" "<<v.z<<" "<<v.w<<" >"s;
-        return stream.str();
-    }
-
-    std::string operator()(const floatVec &v) const {
-        std::stringstream stream;
-        stream<<"[ ";
-        for(const auto &it : v){
-            stream<<it<<" "s;
-        }
-        stream<<"]";
-        return stream.str();
-    }
-
-    std::string operator()(const stringVec &v) const {
-        std::stringstream stream;
-        stream<<"[ ";
-        for(const auto &it : v){
-            stream<<"'"<<it<<"' "s;
-        }
-        stream<<"]";
         return stream.str();
     }
 
@@ -83,26 +64,6 @@ struct StringifyWithInfo : public boost::static_visitor<std::string>
         return "glm: "s + stream.str();
     }
 
-    std::string operator()(const floatVec &v) const {
-        std::stringstream stream;
-        stream<<"[ ";
-        for(const auto &it : v){
-            stream<<it<<" "s;
-        }
-        stream<<"]";
-        return "vector "s + stream.str();
-    }
-
-    std::string operator()(const stringVec &v) const {
-        std::stringstream stream;
-        stream<<"[ ";
-        for(const auto &it : v){
-            stream<<"'"<<it<<"' "s;
-        }
-        stream<<"]";
-        return "vector "s + stream.str();
-    }
-
     std::string operator()(const bool &b) const {
         return "bool: " + (b ? "yes"s : "no"s);
     }
@@ -111,6 +72,22 @@ struct StringifyWithInfo : public boost::static_visitor<std::string>
         return "std::function<void(void)>";
     }
 };
+
+std::vector<std::string> Yaml::strings() const {
+    std::vector<std::string> out(container.size());
+    std::transform(container.begin(), container.end(), out.begin(), [this](const Yaml& yml){
+        return yml.string();
+    });
+    return out;
+}
+std::vector<float> Yaml::numbers() const {
+    std::vector<float> out(container.size());
+    std::transform(container.begin(), container.end(), out.begin(), [this](const Yaml& yml){
+        return yml.number();
+    });
+    return out;
+}
+
 
 struct Line
 {
@@ -166,7 +143,7 @@ Variants Yaml::decode(std::string s){
     std::regex rColor4("([0-9a-fA-F]{8})");
     std::smatch result;
 
-
+    // glm::vector
     if(s.front() == '<' and s.back() == '>'){ // * mathutilsVector:<Vector (1.0000, 2.0000, 3.0000, 4.0000)>
         std::regex_iterator<std::string::iterator> rit ( s.begin(), s.end(), rFloat );
         std::regex_iterator<std::string::iterator> rend;
@@ -178,27 +155,20 @@ Variants Yaml::decode(std::string s){
         }
         return out;
     }
-    if(s.find("'")!=std::string::npos and (s.front() == '{' and s.back() == '}' or s.front() == '[' and s.back() == ']')){ // * then match array of strings
-        stringVec out;
+    if(s == "[]") return "";
+    if(s == "{} ") return "";
+    // array of simple types
+    if(((s.front() == '{' and s.back() == '}') or (s.front() == '[' and s.back() == ']'))){
         auto posA = s.find("'");
+        console.log("From", s);
         while(posA != std::string::npos){ // woho! unsafe
             auto posB = s.find("'", posA+1);
 
-            out.push_back(s.substr(posA+1, posB-posA-1));
-
+            push(s.substr(posA+1, posB-posA-1));
+            console.log("Pushing", s.substr(posA+1, posB-posA-1));
             posA = s.find("'", posB+1);
         }
-        return out;
-    }
-    if((s.front() == '{' and s.back() == '}') or (s.front() == '[' and s.back() == ']')){ // * then match array of floats
-        std::regex_iterator<std::string::iterator> rit ( s.begin(), s.end(), rFloat );
-        std::regex_iterator<std::string::iterator> rend;
-        floatVec out;
-        while(rit!=rend){
-            out.push_back(stof(rit->str()));
-            ++rit;
-        }
-        return out;
+        return "";
     }
 
     if(std::regex_match(s, rFloat)){
@@ -291,7 +261,9 @@ public:
 
 void Yaml::load(const std::string& filename)
 try {
+    console_prefix("YAML");
     YamlLoader loader(filename, *this);
+    console.log(filename);
     loader.run();
 }
 catch(...){

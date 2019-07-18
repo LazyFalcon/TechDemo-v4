@@ -12,39 +12,29 @@ float differenceBetweenAngles(float a, float b){
 
 }
 
-std::optional<Servomechanism::MinMax> Servomechanism::isAxisLocked(const Yaml& params, int idx) const {
+std::optional<Servomechanism::ValueTarget> Servomechanism::retrieveAxis(const Yaml& params, int idx) const {
+    Servomechanism::ValueTarget out;
+    if(not params["Axis"][idx].boolean()) return out;
 
-    Servomechanism::MinMax minmax {false, (float)params["Min"][idx].number(), (float)params["Max"][idx].number()};
-    if(not params["Limits"][idx].boolean()) return std::nullopt;
-    if(not minmax.areMinAndMaxClose()){
-        minmax.isSet = true;
-        return minmax;
-    }
-    return minmax;
+    out.emplace(params["Value"][idx].number(), 0.02f);
+
+    if(params["Min"][idx].number() == params["Max"][idx].number())
+        out.limits.emplace(params["Min"][idx].number() == params["Max"][idx].number());
+
+    return out;
 }
 
 Servomechanism::Servomechanism(const Yaml& moduleParams){
     auto& params = moduleParams["Rotation constriants"];
-    // False means free rotation, True and min!= max also, True and min==max disables rotation
-    if(auto isx = isAxisLocked(params, 0); isx){
-        axis.x = ValueTarget{0,0};
-        limit.x = *isx;
-    }
-    if(auto isy = isAxisLocked(params, 1); isy){
-        axis.y = ValueTarget{0,0};
-        limit.y = *isy;
-    }
-    if(auto isz = isAxisLocked(params, 2); isz){
-        axis.z = ValueTarget{0,0};
-        limit.z = *isz;
-    }
-
+    axis.x = retrieveAxis(params, 0);
+    axis.y = retrieveAxis(params, 1);
+    axis.z = retrieveAxis(params, 2);
 }
 
 void Servomechanism::setTarget(float x, float y, float z){
-    if(x) axis.x->target = limit.x.clamp(x);
-    if(y) axis.y->target = limit.y.clamp(y);
-    if(z) axis.z->target = limit.z.clamp(z);
+    if(axis.x) axis.x->setTarget(x);
+    if(axis.y) axis.y->setTarget(y);
+    if(axis.z) axis.z->setTarget(z);
 }
 
 float Servomechanism::move(float diff, float dt) const {

@@ -8,21 +8,25 @@ class Servomechanism
 private:
     struct MinMax
     {
-        bool isSet;
+        MinMax(float min, float max) : min(min), max(max){}
         float min;
         float max;
         float clamp(float x){
-            return isSet ? glm::clamp(x, min, max) : x;
-        }
-        bool areMinAndMaxClose(){
-            return glm::epsilonEqual(min, max, 0.0001f);
+            return glm::clamp(x, min, max) : x;
         }
     };
 
     struct ValueTarget
     {
+        ValueTarget() = default;
+        ValueTarget(float v, float s) : value(v), target(v), speed(s){}
         float value;
         float target;
+        float speed;
+        void setTarget(float v){
+            target = limit ? limit.clamp(v) : v;
+        }
+        std::optional<MinMax> limit;
     };
 
     // todo: later convert to glm::vec3
@@ -31,13 +35,9 @@ private:
         std::optional<ValueTarget> y;
         std::optional<ValueTarget> z;
     } axis;
-    struct {
-        MinMax x;
-        MinMax y;
-        MinMax z;
-    } limit {};
+
     float vMax {0.05f};
-    std::optional<MinMax> isAxisLocked(const Yaml& params, int idx) const;
+    std::optional<Servomechanism::ValueTarget> retrieveAxis(const Yaml& params, int idx) const;
     float move(float diff, float dt) const;
 public:
     Servomechanism(const Yaml& params);

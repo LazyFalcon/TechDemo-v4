@@ -21,7 +21,7 @@ typedef std::vector<glm::vec4> vec4Vec;
 typedef boost::variant<
         std::string,             // 0
         u32,                     // bitfields? colors etc
-        double,                  // 1
+        float,                  // 1
         glm::vec4,               // TODO: maybe small vector instead? it will better handle vec2, etc cases?
         floatVec,                // 3, czy jest jakiś sens na te typy?
         stringVec,                // 3, czy jest jakiś sens na te typy?
@@ -38,7 +38,7 @@ namespace {
     template<>
     struct is_from_true_types<std::string>: std::true_type {};
     template<>
-    struct is_from_true_types<double>: std::true_type {};
+    struct is_from_true_types<float>: std::true_type {};
     template<>
     struct is_from_true_types<glm::vec4>: std::true_type {};
     template<>
@@ -204,9 +204,9 @@ public:
     void operator = (const T &val){
         m_value = val;
     }
-    template<typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value && !std::is_same<T, double>::value>>
+    template<typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value && !std::is_same<T, float>::value>>
     void operator = (T val){
-        m_value = (double)val;
+        m_value = (float)val;
     }
     void operator = (const std::string &val){
         m_value = val;
@@ -235,9 +235,9 @@ public:
     }
     template<
         typename T,
-        typename = std::enable_if_t<std::is_arithmetic<T>::value && !std::is_same<T, double>::value>>
+        typename = std::enable_if_t<std::is_arithmetic<T>::value && !std::is_same<T, float>::value>>
     T as() const {
-        return boost::get<double>(m_value);
+        return boost::get<float>(m_value);
     }
 
     std::string string() const;
@@ -262,7 +262,7 @@ public:
     operator float() const {
         return number();
     }
-    // operator double() const {
+    // operator float() const {
     //     return number();
     // }
     // operator bool() const {
@@ -333,8 +333,8 @@ public:
         return 0;
     }
 
-    double number() const try {
-        return boost::get<double>(m_value);
+    float number() const try {
+        return boost::get<float>(m_value);
     } catch (...){
         console.error("not exists as", m_key);
         return -1;

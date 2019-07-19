@@ -8,7 +8,7 @@
 /**
  *  http://stackoverflow.com/questions/24628099/group-class-template-specializations grupowanie typów, specjalizacje
  *  dla grup
- *  SFINE & type_triats  :http://eli.thegreenplace.net/2014/sfinae-and-enable_if/
+ *  SFINE&  type_triats  :http://eli.thegreenplace.net/2014/sfinae-and-enable_if/
  *
  *  https://rmf.io/cxx11/almost-static-if/ :best?
  */
@@ -49,15 +49,17 @@ namespace {
 
 class Yaml {
 private:
+    std::vector<Yaml> container;
     std::string m_key;
     Variants m_value;
     Yaml* m_parent{nullptr};
-    std::vector<Yaml> container;
     void printToStream(std::ostream& output, std::string indent="  ", std::string indentation="", bool isPartOfArray=false) const;
+    Variants decode(std::string s);
 public:
-    bool isArray {false};
+    bool m_isArray {false};
     Yaml() = default;
-    Yaml(const std::string &key, const Variants &val) : m_key(key), m_value(val) {}
+    Yaml(const std::string& key, const std::string& val) : m_key(key), m_value(decode(val)) {}
+    // Yaml(const std::string& key, const Variants& val) : m_key(key), m_value(val) {}
     Yaml(const Yaml&) = default;
     Yaml(Yaml&&) = default;
     ~Yaml() { }
@@ -67,30 +69,18 @@ public:
         load(filepath);
     }
     bool isDict() const {
-        return container.size() and not isArray;
+        return container.size() and not m_isArray;
     }
-    // bool isArray() const {
-    //     return container.size() and isArray;
-    // }
+    bool isArray() const {
+        return container.size() and m_isArray;
+    }
     const std::vector<Yaml>& getContainer() const {
         return container;
     }
 
-    Yaml& push(const Yaml &node){
-        container.push_back(node);
-        container.back().m_parent = this;
-        return container.back();
-    }
-    Yaml& push(const std::string &key, const std::string  &val){
-        container.emplace_back(key, decode(val));
-        container.back().m_parent = this;
-        return container.back();
-    }
-    Yaml& push(const std::string &val){
-        container.emplace_back(std::to_string(container.size()), decode(val));
-        container.back().m_parent = this;
-        return container.back();
-    }
+    Yaml& push(const Yaml& node);
+    Yaml& push(const std::string& key, const std::string & val);
+    Yaml& push(const std::string& val);
 
     std::string getParents() const {
         Yaml* parent = m_parent;
@@ -102,8 +92,8 @@ public:
         return out;
     }
 
-    Yaml& operator [] (const std::string &s){
-        for(auto &it : container)
+    Yaml& operator [] (const std::string& s){
+        for(auto& it : container)
             if(it.m_key == s) return it;
         // console.error(s, "doesn't exists in", getParents());
         return push(s, "");
@@ -113,8 +103,8 @@ public:
             push("");
         return container[i];
     }
-    const Yaml& get(const std::string &s) const {
-        for(const auto &it : container)
+    const Yaml& get(const std::string& s) const {
+        for(const auto& it : container)
             if(it.m_key == s) {
                 // console.log(s, "path:", getParents());
                 return it;
@@ -123,15 +113,15 @@ public:
         console.error(s, "doesn't exists in", m_key);
         return *this;
     }
-    const Yaml& operator [] (const std::string &s) const {
+    const Yaml& operator [] (const std::string& s) const {
         return get(s);
     }
     const Yaml& operator [] (u32 i) const {
         return container.at(i);
     }
 
-    bool has(const std::string &s) const {
-        for(const auto &it : container)
+    bool has(const std::string& s) const {
+        for(const auto& it : container)
             if(it.m_key == s) return true;
 
         return false;
@@ -139,7 +129,7 @@ public:
 
     template<typename UnaryPredicate>
     boost::optional<const Yaml&> find(UnaryPredicate predicate) const {
-        for(auto & it : container){
+        for(auto&  it : container){
             if(predicate(it)) return it;
         }
         return boost::none;
@@ -147,7 +137,7 @@ public:
 
     template<typename UnaryPredicate>
     void for_each(UnaryPredicate predicate) const {
-        for(auto & it : container){
+        for(auto&  it : container){
             predicate(it);
         }
     }
@@ -191,7 +181,6 @@ public:
         return container.empty();
     }
 
-    Variants decode(std::string s);
     void load(const std::string& filepath);
     void save(const std::string& filepath) const;
     void print(bool isPartOfArray=false) const;
@@ -201,27 +190,27 @@ public:
         m_value = val;
     }
     template<typename T, typename = std::enable_if_t<is_from_true_types<T>::value>>
-    void operator = (const T &val){
+    void operator = (const T& val){
         m_value = val;
     }
     template<typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value && !std::is_same<T, float>::value>>
     void operator = (T val){
         m_value = (float)val;
     }
-    void operator = (const std::string &val){
+    void operator = (const std::string& val){
         m_value = val;
     }
     void operator = (const Yaml &&node){
         m_value = node.m_value;
         m_parent = node.m_parent;
         container = node.container;
-        isArray = node.isArray;
+        m_isArray = node.m_isArray;
     }
-    void operator = (const Yaml &node){
+    void operator = (const Yaml& node){
         m_value = node.m_value;
         m_parent = node.m_parent;
         container = node.container;
-        isArray = node.isArray;
+        m_isArray = node.m_isArray;
     }
     void operator = (glm::vec2 v){
         m_value = glm::vec4(v, 0, 0);

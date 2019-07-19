@@ -4,76 +4,78 @@
 #include <fstream>
 #include <regex>
 #include <algorithm>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
 struct Stringify : public boost::static_visitor<std::string>
 {
 
-    std::string operator()(const std::string &s) const {
+    std::string operator()(const std::string& s) const {
         return s;
     }
 
-    std::string operator()(const u32 &u) const {
+    std::string operator()(const u32& u) const {
         std::stringstream stream;
         stream<<std::hex<<u;
         return stream.str();
     }
 
-    std::string operator()(const float &d) const {
+    std::string operator()(const float& d) const {
         std::stringstream stream;
         stream<<d;
         return stream.str();
     }
 
-    std::string operator()(const glm::vec4 &v) const {
+    std::string operator()(const glm::vec4& v) const {
         std::stringstream stream;
         stream<< "< "<<v.x<<" "<<v.y<<" "<<v.z<<" "<<v.w<<" >"s;
         return stream.str();
     }
 
-    std::string operator()(const bool &b) const {
+    std::string operator()(const bool& b) const {
         return b ? "yes"s : "no"s;
     }
 
-    std::string operator()(const std::function<void(void)> &f) const {
+    std::string operator()(const std::function<void(void)>& f) const {
         return "std::function<void(void)>";
     }
 };
 struct StringifyWithInfo : public boost::static_visitor<std::string>
 {
 
-    std::string operator()(const std::string &s) const {
+    std::string operator()(const std::string& s) const {
         return "string: "s + s;
     }
 
-    std::string operator()(const u32 &u) const {
+    std::string operator()(const u32& u) const {
         std::stringstream stream;
         stream<<std::hex<<u;
         return "color: "s + stream.str();
     }
 
-    std::string operator()(const float &d) const {
+    std::string operator()(const float& d) const {
         std::stringstream stream;
         stream<<d;
         return "float: "s + stream.str();
     }
 
-    std::string operator()(const glm::vec4 &v) const {
+    std::string operator()(const glm::vec4& v) const {
         std::stringstream stream;
         stream<< "< "<<v.x<<" "<<v.y<<" "<<v.z<<" "<<v.w<<" >"s;
         return "glm: "s + stream.str();
     }
 
-    std::string operator()(const bool &b) const {
+    std::string operator()(const bool& b) const {
         return "bool: " + (b ? "yes"s : "no"s);
     }
 
-    std::string operator()(const std::function<void(void)> &f) const {
+    std::string operator()(const std::function<void(void)>& f) const {
         return "std::function<void(void)>";
     }
 };
 
 std::vector<std::string> Yaml::strings() const {
+    console.log("stringify, size:", container.size());
     std::vector<std::string> out(container.size());
     std::transform(container.begin(), container.end(), out.begin(), [this](const Yaml& yml){
         return yml.string();
@@ -88,45 +90,19 @@ std::vector<float> Yaml::numbers() const {
     return out;
 }
 
-
-struct Line
-{
-    int depth;
-    std::string key;
-    std::string value;
-    bool isArrayElement {false};
-    Line(const std::string& line){
-        countSpaces(line);
-        splitLine(line);
-    }
-
-
-    void countSpaces(const std::string &s){
-        depth = 0;
-        for(auto& it : s){
-            if(it == '-'){
-                //! ++depth; // it's easiet to traverse when array notifier has different depth
-                isArrayElement = true;
-            }
-            else if(it == ' ') ++depth;
-            else return;
-        }
-    }
-    void splitLine(const std::string &s){
-        auto res = s.find(':');
-        if(res == std::string::npos){ // then weve got only value
-            value = s.substr(depth);
-            boost::trim(value);
-        }
-        else {
-            key = s.substr(depth, res - depth);
-            if(auto valStart=s.find_first_not_of(' ', res+1); valStart != std::string::npos) value = s.substr(valStart);
-            boost::trim(key);
-            boost::trim(value);
-        }
-    }
-
-};
+Yaml& Yaml::push(const Yaml& node){
+    container.push_back(node);
+    container.back().m_parent = this;
+    return container.back();
+}
+Yaml& Yaml::push(const std::string& val){
+    return push(std::to_string(container.size()), val);
+}
+Yaml& Yaml::push(const std::string& key, const std::string & val){
+    auto& yml = container.emplace_back(key, val);
+    yml.m_parent = this;
+    return yml;
+}
 
 std::string Yaml::string() const {
     return boost::apply_visitor(Stringify(), m_value);
@@ -145,7 +121,7 @@ Variants Yaml::decode(std::string s){
 
     // glm::vector
     if(s.front() == '<' and s.back() == '>'){ // * mathutilsVector:<Vector (1.0000, 2.0000, 3.0000, 4.0000)>
-        std::regex_iterator<std::string::iterator> rit ( s.begin(), s.end(), rFloat );
+        std::regex_iterator<std::string::iterator> rit (s.begin(), s.end(), rFloat);
         std::regex_iterator<std::string::iterator> rend;
         glm::vec4 out(0);
         u32 i=0;
@@ -155,18 +131,19 @@ Variants Yaml::decode(std::string s){
         }
         return out;
     }
-    if(s == "[]") return "";
-    if(s == "{} ") return "";
+    if(s == "[]" or s == "{} ") return "";
     // array of simple types
     if(((s.front() == '{' and s.back() == '}') or (s.front() == '[' and s.back() == ']'))){
-        auto posA = s.find("'");
-        console.log("From", s);
-        while(posA != std::string::npos){ // woho! unsafe
-            auto posB = s.find("'", posA+1);
-
-            push(s.substr(posA+1, posB-posA-1));
-            console.log("Pushing", s.substr(posA+1, posB-posA-1));
-            posA = s.find("'", posB+1);
+        auto bigSubstr = s.substr(1, s.size()-2);
+        size_t posA = 0;
+        size_t posB = 0;
+        while(posB != std::string::npos){
+            posB = bigSubstr.find(",", posA+1);
+            auto subs = bigSubstr.substr(posA, posB-posA);
+            boost::trim(subs);
+            boost::replace_all(subs, "'", "");
+            push(subs);
+            posA = s.find(",", posB+1);
         }
         return "";
     }
@@ -190,7 +167,7 @@ Variants Yaml::decode(std::string s){
 void Yaml::save(const std::string& filename) const {
     std::fstream file(filename, std::fstream::out);
     for(auto& it : container){
-        it.printToStream(file, "    ", "", isArray);
+        it.printToStream(file, "    ", "", m_isArray);
     }
     file << "\n";
     file.close();
@@ -199,7 +176,7 @@ void Yaml::save(const std::string& filename) const {
 void Yaml::print(bool isPartOfArray) const {
 
     for(auto& it : container){
-        it.printToStream(std::cout, "    ", "  ", isArray);
+        it.printToStream(std::cout, "    ", "  ", m_isArray);
         // printToStream(std::cout, "  ", "  ", isPartOfArray);
     }
 }
@@ -209,7 +186,7 @@ void Yaml::printOnlyThis(bool isPartOfArray) const {
     for(auto& it : container){
         std::cout <<"    "<< it.key() << ": ";
         if(not it.container.empty()){
-            std::cout<< (it.isArray ? "[]" : "{}");
+            std::cout<< (it.m_isArray ? "[]" : "{}");
         }
         else std::cout<<it.string();
         std::cout <<"\n";
@@ -226,17 +203,54 @@ void Yaml::printToStream(std::ostream& output, std::string indent, std::string i
 
         bool printWithoutIndent = string().empty();
         for(auto& it : container){
-            it.printToStream(output, indent, printWithoutIndent ? "" : (indentation + indent), isArray);
+            it.printToStream(output, indent, printWithoutIndent ? "" : (indentation + indent), m_isArray);
             printWithoutIndent = false;
         }
     }
     else {
         output << indentation << m_key << ": " << string() << "" << std::endl;
         for(auto& it : container){
-            it.printToStream(output, indent, indentation + (isArray ? "" : indent), isArray);
+            it.printToStream(output, indent, indentation + (m_isArray ? "" : indent), m_isArray);
         }
     }
 }
+
+struct Line
+{
+    int depth;
+    std::string key;
+    std::string value;
+    bool isArrayElement {false};
+    Line(const std::string& line){
+        countSpaces(line);
+        splitLine(line);
+    }
+
+    void countSpaces(const std::string& s){
+        depth = 0;
+        for(auto& it : s){
+            if(it == '-'){
+                //! ++depth; // it's easiet to traverse when array notifier has different depth
+                isArrayElement = true;
+            }
+            else if(it == ' ') ++depth;
+            else return;
+        }
+    }
+    void splitLine(const std::string& s){
+        auto res = s.find(':');
+        if(res == std::string::npos){ // then weve got only value
+            value = s.substr(depth);
+            boost::trim(value);
+        }
+        else {
+            key = s.substr(depth, res - depth);
+            if(auto valStart=s.find_first_not_of(' ', res+1); valStart != std::string::npos) value = s.substr(valStart);
+            boost::trim(key);
+            boost::trim(value);
+        }
+    }
+};
 
 class YamlLoader
 {
@@ -247,7 +261,7 @@ private:
     int m_currentLine {0};
     std::string m_filename;
 public:
-    YamlLoader(const std::string &filename, Yaml& yaml): m_root(yaml){
+    YamlLoader(const std::string& filename, Yaml& yaml): m_root(yaml){
         m_filename = filename;
         file.open(m_filename, std::fstream::in);
     }
@@ -271,7 +285,7 @@ catch(...){
 }
 
 bool YamlLoader::isCommentOrEmpty(const std::string& s) const {
-    for(auto &it : s)
+    for(auto& it : s)
         if(it == '#') return true;
         else if(it != ' ') return false;
     return true;
@@ -293,8 +307,8 @@ void YamlLoader::run(){
 
     if(not lines.empty()){
         auto& line = lines[m_currentLine];
-        m_root.isArray = line.isArrayElement;
-        fill(m_root, m_root.isArray? 1:0, line.isArrayElement and line.key.size());
+        m_root.m_isArray = line.isArrayElement;
+        fill(m_root, m_root.m_isArray? 1:0, line.isArrayElement and line.key.size());
     }
 }
 
@@ -316,7 +330,7 @@ void YamlLoader::fill(Yaml& nodeToFill, int expectedDepth, bool ignoreArrayEleme
         else { // inside current block
             if(line.key.size() and (ignoreArrayElement or not line.isArrayElement)/* and line.value.size() */){ //* key: value
                 // console.log("\t creating:", line.key, line.value, "for ", nodeToFill.key());
-                childNode = &(nodeToFill.push(line.key, line.value));
+                childNode =& (nodeToFill.push(line.key, line.value));
                 if(ignoreArrayElement){
                     ignoreArrayElement = false;
                 }
@@ -324,12 +338,12 @@ void YamlLoader::fill(Yaml& nodeToFill, int expectedDepth, bool ignoreArrayEleme
             }
             else if(line.key.empty() and line.isArrayElement){ //* - value
                 // console.log("\t simple array element for", nodeToFill.key());
-                nodeToFill.isArray = true;
-                childNode = &(nodeToFill.push(line.value));
+                nodeToFill.m_isArray = true;
+                childNode =& (nodeToFill.push(line.value));
                 m_currentLine++;
             }
             else if(line.key.size() and line.isArrayElement){ //* - key: value - unnamed node
-                nodeToFill.isArray = true;
+                nodeToFill.m_isArray = true;
                 // console.log("\t node array() element for", nodeToFill.key());
                 fill((nodeToFill.push("")), line.depth+1, true); //* array nodes have two depths: pne for '-' and second for value
             }

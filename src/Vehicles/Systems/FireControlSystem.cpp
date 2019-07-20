@@ -4,7 +4,7 @@
 #include "FireControlSystem.hpp"
 
 glm::vec4 FireControlSystem::recalculate(const glm::vec4& pointInWS){
-    return m_pointInWS;
+    return pointInWS;
 }
 void FireControlSystem::updateTarget(const glm::vec4& pointInWS){
     m_pointInWS = pointInWS;

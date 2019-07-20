@@ -17,7 +17,8 @@ std::optional<Servomechanism::ValueTarget> Servomechanism::retrieveAxis(const Ya
     if(not params["Axis"][idx].boolean())
         return out;
 
-    out.emplace(params["Value"][idx].number(), 0.02f);
+    out.emplace(0, 0.002f);
+    // out.emplace(params["Value"][idx].number(), 0.002f);
 
     if(params["Limits"][idx].boolean())
         out->limit.emplace(params["Min"][idx].number(), params["Max"][idx].number());
@@ -32,6 +33,11 @@ Servomechanism::Servomechanism(const Yaml& moduleParams){
     axis.z = retrieveAxis(params, 2);
 }
 
+void Servomechanism::updateTarget(float x, float y, float z){
+    if(axis.x) axis.x->setTarget(axis.x->value + x);
+    if(axis.y) axis.y->setTarget(axis.y->value + y);
+    if(axis.z) axis.z->setTarget(axis.z->value + z);
+}
 void Servomechanism::setTarget(float x, float y, float z){
     if(axis.x) axis.x->setTarget(x);
     if(axis.y) axis.y->setTarget(y);

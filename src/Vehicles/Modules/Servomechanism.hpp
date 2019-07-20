@@ -41,6 +41,7 @@ private:
     float move(float diff, float dt) const;
 public:
     Servomechanism(const Yaml& params);
+    void updateTarget(float x, float y, float z);
     void setTarget(float x, float y, float z);
     void run(float dt);
     glm::mat4 getTransform();

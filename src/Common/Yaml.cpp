@@ -75,7 +75,6 @@ struct StringifyWithInfo : public boost::static_visitor<std::string>
 };
 
 std::vector<std::string> Yaml::strings() const {
-    console.log("stringify, size:", container.size());
     std::vector<std::string> out(container.size());
     std::transform(container.begin(), container.end(), out.begin(), [this](const Yaml& yml){
         return yml.string();

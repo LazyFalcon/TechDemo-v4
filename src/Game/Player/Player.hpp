@@ -21,7 +21,7 @@ private:
     int cameraId {0};
     glm::vec2 crosshair;
 
-    btVector3 targetPointPosition {0,1000,0};
+    glm::vec4 targetPointPosition {0, 1000, 0, 1};
     bool isLockedOnPoint { false };
 
     float controlXValue {0};

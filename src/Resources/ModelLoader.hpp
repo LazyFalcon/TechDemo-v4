@@ -194,7 +194,7 @@ public:
         }
 
         if(models.empty()){
-            console.error("no models:", names[0]);
+            console.error("no models:", names.empty() ? "empty request list" : names[0]);
             return {};
         }
         for(auto submodel : models){

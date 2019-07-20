@@ -107,6 +107,10 @@ public:
         m_printClogs = true;
     }
 
+    void resetCounters(){
+        m_counter = 0;
+    }
+
     void startFrame(){
         m_printClogs = false;
         ++m_counter;
@@ -158,6 +162,15 @@ public:
     template <typename... Args>
     PmkLogger& clog(const Args &... args){
         if(m_severity >= SEVERITY_ALL or m_printClogs){
+            m_output += toString(args...);
+            std::cout << m_output << std::endl;
+        }
+
+        return *this;
+    }
+    template <typename... Args>
+    PmkLogger& flog(const Args &... args){
+        if(m_counter < 6){
             m_output += toString(args...);
             std::cout << m_output << std::endl;
         }

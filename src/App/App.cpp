@@ -189,6 +189,7 @@ void App::run() try {
     eventProcessor->process();
 
     while(not quit){
+        GameState* currentGamestate = gameState.get();
         incrFrame();
         CPU_SCOPE_TIMER("Main loop update");
         auto deltaTime = clock::now() - lastTime;
@@ -206,6 +207,7 @@ void App::run() try {
         inputDispatcher->setTime(FrameTime::miliseconds);
         inputDispatcher->heldUpKeys();
         glfwPollEvents();
+        if(gameState.get() == currentGamestate) eventProcessor->process();
 
         while(lag > timestep and not quit){
             lag -= timestep;
@@ -213,16 +215,15 @@ void App::run() try {
         }
         ONCE_IN_FRAME = true;
 
-        if(gameState) gameState->updateWithHighPrecision(FrameTime::deltaf);
-        if(gameState) gameState->update(FrameTime::deltaf);
+        if(gameState.get() == currentGamestate) gameState->updateWithHighPrecision(FrameTime::deltaf);
+        if(gameState.get() == currentGamestate) gameState->update(FrameTime::deltaf);
 
-        eventProcessor->process();
         // particleProcessor->update(dt);
 
         // debugScreen->show(*ui, true);
         // debugScreen->options(*ui);
         // uiUpdater->end();
-        render();
+        if(gameState.get() == currentGamestate) render();
     }
 }
 catch(const std::runtime_error& err){
@@ -250,6 +251,7 @@ void App::finish(){
 void App::setGameState(std::shared_ptr<GameState> p_gameState){
     // cleanup after previous state?
     // cleanup resources, czy też zrobi się to automatycznie? automat będzie lepszy
+    console.resetCounters();
     gameState = p_gameState;
 }
 

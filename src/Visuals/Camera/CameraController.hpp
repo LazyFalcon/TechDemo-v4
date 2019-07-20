@@ -13,6 +13,11 @@ public:
     virtual ~CameraController();
     virtual void rotateByMouse(float, float, const glm::vec4&){}
     virtual void roll(float){}
+    virtual void changeMode(){}
+    virtual void zoomToMouse(const glm::vec4&){}
+    virtual void zoomOutMouse(const glm::vec4&){}
+    virtual void releaseRotationCenter(){}
+    virtual void applyImpulse(float, float, float){}
     virtual void update(float dt){}
     virtual void update(const glm::mat4& parentTransform, float dt){}
 
@@ -75,7 +80,7 @@ private:
         glm::vec4 storedOffset;
     } rotationAroundPoint;
 
-    enum class Mode {Around, InPlace} mode {Mode::InPlace};
+    enum class Mode {Around, InPlace} mode {Mode::Around};
 
 public:
     FreeCamController(const glm::mat4& initialPosition, glm::vec2 windowSize);

@@ -85,7 +85,6 @@ void VehicleAssembler::finishAssembly(const glm::mat4& onPosition){
     m_physics.m_dynamicsWorld->addAction(m_vehicle.get());
 
     buildRigidBody(onPosition);
-    // m_vehicle->cameras[0]->focus();
 }
 
 void VehicleAssembler::assemblyModuleAndItsChildren(IModule* parent, const Yaml& params){
@@ -105,6 +104,7 @@ void VehicleAssembler::assemblyModuleAndItsChildren(IModule* parent, const Yaml&
     setVisual(*module, params);
     if(parent) setServoAndMotionLimits(*module);
     setPhysical(*module, params);
+    if(params.has("Cameras")) attachCameras(*module, params["Cameras"]);
 
     params.for_each("Attached Modules", [&](const Yaml& yml){
         for(auto moduleName : yml["Modules"].strings())
@@ -149,16 +149,6 @@ void VehicleAssembler::setMarkers(IModule& module, const Yaml& cfg){
     if(not cfg.has("Markers")) return;
     auto& markers = cfg["Markers"];
     for(auto& marker : markers){
-        if("Camera"s == marker["Type"].string()){
-            auto camera = createModuleFollower(&module, marker["Mode"].string(), marker["W"].vec3(), matrixFromYaml(marker));
-            camera->offset = marker["Offset"].vec31();
-            camera->fov = marker["FOV"].number()*toRad;
-            camera->inertia = marker["Inertia"].number();
-            camera->recalucuateProjectionMatrix();
-            camera->evaluate();
-
-            m_vehicle->cameras.push_back(camera);
-        }
         // else if("EndOfBarrel"s == marker["Type"].string() and module.type == ModuleType::Cannon){
             // Cannon& gun = module;
             // gun->endOf = marker["Position"].vec31();
@@ -166,6 +156,23 @@ void VehicleAssembler::setMarkers(IModule& module, const Yaml& cfg){
         // else if("Light"s == marker["Type"].string()){
             // modulesToAddLater.emplace_back(m_moduleFactory.createHeadlight(marker));
         // }
+    }
+}
+
+
+void VehicleAssembler::attachCameras(IModule& module, const Yaml& names){
+    for(const auto& name : names){
+        const auto& params = m_config["Cameras"][name.string()];
+        // todo: load full camera transformation matrix
+        auto camera = createModuleFollower(&module, params["Mode"].string(), params["Relative Position"]["W"].vec3(), matrixFromYaml(params["Relative Position"]));
+        camera->offset = params["Offset"].vec31();
+        camera->fov = params["FOV"].number();
+        camera->inertia = params["Inertia"].number();
+        camera->recalucuateProjectionMatrix();
+        camera->evaluate();
+
+        m_vehicle->cameras.add(camera);
+        console.log("Camera:", name.string());
     }
 }
 

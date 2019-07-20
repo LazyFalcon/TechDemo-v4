@@ -1,5 +1,6 @@
 #pragma once
 #include "SceneGraph.hpp"
+#include "CollectionOfCameras.hpp"
 
 class AI;
 class Atmosphere;
@@ -42,7 +43,7 @@ struct Scene : private boost::noncopyable
     std::unique_ptr<Terrain> terrain;
     std::vector<SpawnPoint> spawnPoints;
     CameraControllerFactory& camFactory;
-    std::vector<std::shared_ptr<FreeCamController>> freeCams;
+    CollectionOfCameras freeCams;
 
     std::vector<std::shared_ptr<AI>> m_friendlyBots;
     std::vector<std::shared_ptr<AI>> m_hostileBots;

@@ -5,6 +5,7 @@
 #include "MountedWeapon.hpp"
 #include "VehicleControlSystem.hpp"
 #include "FireControlSystem.hpp"
+#include "CollectionOfCameras.hpp"
 /**
     Stores informations about vehicle(universal for each type, vehicle is build from modules), can be used in HUD
     Where goes hitpoints, or vehicle vitality
@@ -71,7 +72,7 @@ public:
     // std::vector<btTransform> transforms;
     std::vector<std::shared_ptr<IModule>> modules; /// hierarchical for updateMarkers
     // std::vector<std::shared_ptr<IModule>> modulesToUpdateInsidePhysicsStep;
-    std::vector<std::shared_ptr<CameraController>> cameras;
+    CollectionOfCameras cameras;
     std::vector<MountedWeapon> mountedWeapons;
     // std::unique_ptr<PowerShield> powerShield;
     // std::unique_ptr<Radar> radar;

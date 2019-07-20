@@ -46,11 +46,11 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         m_input->action("+").on([this]{ CameraController::getActiveCamera().offset.z -= 1.5; });
         m_input->action("-").on([this]{ CameraController::getActiveCamera().offset.z += 1.5; });
         m_input->action("scrollUp").on([=]{
-                if(m_useFreecam) m_scene->freeCams[m_selectedCamera]->zoomToMouse(m_mouseSampler->position);
+                if(m_useFreecam) m_scene->freeCams.getController().zoomToMouse(m_mouseSampler->position);
                 else CameraController::getActiveCamera().changeFov(+15*toRad);
             });
         m_input->action("scrollDown").on([=]{
-                if(m_useFreecam) m_scene->freeCams[m_selectedCamera]->zoomOutMouse(m_mouseSampler->position);
+                if(m_useFreecam) m_scene->freeCams.getController().zoomOutMouse(m_mouseSampler->position);
                 else CameraController::getActiveCamera().changeFov(-15*toRad);
             });
         m_input->action("RMB").on([this]{
@@ -61,21 +61,21 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
                 m_mouseWorldPos = m_mouseSampler->position;
             }).off([this]{
                 m_cameraRotate = false;
-                if(m_useFreecam) m_scene->freeCams[m_selectedCamera]->releaseRotationCenter();
+                if(m_useFreecam) m_scene->freeCams.getController().releaseRotationCenter();
             });
         m_input->action("Q").on([this]{ CameraController::getActiveCamera().roll(-15*toRad); });
         m_input->action("E").on([this]{ CameraController::getActiveCamera().roll(+15*toRad); });
 
-        m_input->action("W").hold([this, m_freecamSpeed]{ m_scene->freeCams[m_selectedCamera]->applyImpulse(0,0,m_freecamSpeed); });
-        m_input->action("S").hold([this, m_freecamSpeed]{ m_scene->freeCams[m_selectedCamera]->applyImpulse(0,0,-m_freecamSpeed); });
-        m_input->action("A").hold([this, m_freecamSpeed]{ m_scene->freeCams[m_selectedCamera]->applyImpulse(-m_freecamSpeed,0,0); });
-        m_input->action("D").hold([this, m_freecamSpeed]{ m_scene->freeCams[m_selectedCamera]->applyImpulse(m_freecamSpeed,0,0); });
-        m_input->action("Z").hold([this, m_freecamSpeed]{ m_scene->freeCams[m_selectedCamera]->applyImpulse(0,m_freecamSpeed,0); });
-        m_input->action("X").hold([this, m_freecamSpeed]{ m_scene->freeCams[m_selectedCamera]->applyImpulse(0,-m_freecamSpeed,0); });
+        m_input->action("W").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(0,0,m_freecamSpeed); });
+        m_input->action("S").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(0,0,-m_freecamSpeed); });
+        m_input->action("A").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(-m_freecamSpeed,0,0); });
+        m_input->action("D").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(m_freecamSpeed,0,0); });
+        m_input->action("Z").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(0,m_freecamSpeed,0); });
+        m_input->action("X").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(0,-m_freecamSpeed,0); });
         m_input->action("\\").hold([this]{
             if(m_input->currentKey.onHoldTime > 700 and m_useFreecam){
                 m_input->currentKey.release = true;
-                m_scene->freeCams[m_selectedCamera]->changeMode();
+                m_scene->freeCams.getController().changeMode();
                 console.log("state changed");
             }
             else if(m_input->currentKey.onHoldTime > 700 and not m_useFreecam){
@@ -90,11 +90,11 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
             else {
                 m_useFreecam = true;
                 if(m_player) m_player->focusOff();
-                m_scene->freeCams[m_selectedCamera]->focus();
+                m_scene->freeCams.focus();
             }
          });
-        m_input->action("[").on([this]{ if(m_useFreecam) cyclicDecr(m_selectedCamera, m_scene->freeCams.size()); });
-        m_input->action("]").on([this]{ if(m_useFreecam) cyclicIncr(m_selectedCamera, m_scene->freeCams.size()); });
+        m_input->action("[").on([this]{ if(m_useFreecam) m_scene->freeCams.prev(); });
+        m_input->action("]").on([this]{ if(m_useFreecam) m_scene->freeCams.next(); });
 
         m_input->action("MousePosition").on([this](float x, float y){
             m_mousePos = glm::vec2(x,y);
@@ -126,8 +126,8 @@ void Playground::updateWithHighPrecision(float dt){
     m_physics->update(dt/1000.f);
 
     auto& currentCamera = CameraController::getActiveCamera();
-    if(m_useFreecam and not m_scene->freeCams[m_selectedCamera]->hasFocus()){ // * I hope player doesn't have control over it's cameras
-        m_scene->freeCams[m_selectedCamera]->focus();
+    if(m_useFreecam and not m_scene->freeCams.getController().hasFocus()){ // * I hope player doesn't have control over it's cameras
+        m_scene->freeCams.focus();
     }
 
 
@@ -139,7 +139,6 @@ void Playground::updateWithHighPrecision(float dt){
         bot->update(dt);
     }
     m_scene->update(dt, currentCamera);
-
 
     if(m_cameraRotate) currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f, m_mouseWorldPos);
 
@@ -202,6 +201,8 @@ void Playground::spawnPlayer(const std::string& configName, const glm::mat4& spa
     auto& vehicle = m_vehicles.emplace_back(builder.build(spawnPoint));
 
     m_player = std::make_shared<Player>(m_input->getDispatcher(), *vehicle);
+    m_player->focusOn();
+    m_useFreecam = false;
 }
 void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnPoint, Context& renderingContext){
 

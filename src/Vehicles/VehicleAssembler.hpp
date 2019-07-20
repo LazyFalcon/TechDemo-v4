@@ -42,6 +42,7 @@ private:
     void setVisual(IModule& module, const Yaml& cfg);
     void setPhysical(IModule& module, const Yaml& cfg);
     void setArmor(IModule& module, const Yaml& cfg);
+    void attachCameras(IModule& module, const Yaml& names);
     void buildRigidBody(const glm::mat4& onPosition);
 
     void addToCompound(btCollisionShape* collShape, const glm::mat4& transform, void* owner);

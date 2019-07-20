@@ -92,17 +92,16 @@ void Scene::extractSpawnPoints(const Yaml& yaml){
 }
 void Scene::extractCameras(const Yaml& yaml){
     if(yaml.has("Cameras")) for(auto & it : yaml["Cameras"]){
-
         auto x = it["Position"]["X"].vec30();
         auto y = it["Position"]["Y"].vec30();
         auto z = it["Position"]["Z"].vec30();
         auto w = it["Position"]["W"].vec31();
         glm::mat4 mat(x,y,z,w);
 
-        freeCams.emplace_back(camFactory.create<FreeCamController>(mat));
-
+        freeCams.add(camFactory.create<FreeCamController>(mat));
     }
-    freeCams[0]->focus();
+    else console.error("There is no free camera defined in scene");
+    freeCams.focus();
 }
 
 glm::vec4 Scene::getSceneDimensions(){

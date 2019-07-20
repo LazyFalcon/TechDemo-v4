@@ -27,22 +27,9 @@ private:
     float controlXValue {0};
     float controlYValue {0};
 
-
     // bool processHit(projectiles::Projectile &p);
     bool doFire = false;
     void fire();
-    void nextCamera(){
-        cyclicDecr(cameraId, m_vehicle.cameras.size());
-    }
-    void prevCamera(){
-        cyclicIncr(cameraId, m_vehicle.cameras.size());
-    }
-    Camera& getCamera(){
-        return *(m_vehicle.cameras[cameraId]);
-    }
-    CameraController& getCameraController(){
-        return *(m_vehicle.cameras[cameraId]);
-    }
     void updateCameras(float dt);
 
     void setTarget(btVector3 t);

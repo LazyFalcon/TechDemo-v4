@@ -52,8 +52,8 @@ void Player::initInputContext(){
     // m_input->action("ctrl-x").name("lock guns").on([this]{ m_vehicle.lockCannonsInDefaultPosition(); });
     m_input->action("ctrl-c").name("lock guns on point").on([this]{ isLockedOnPoint = !isLockedOnPoint; });
     m_input->action("RMB").name("Fire").hold([this]{ doFire = true; });
-    m_input->action("[").on([this]{ nextCamera(); });
-    m_input->action("]").on([this]{ prevCamera(); });
+    m_input->action("[").on([this]{ m_vehicle.cameras.prev(); });
+    m_input->action("]").on([this]{ m_vehicle.cameras.next(); });
     // m_input->action("P").name("Lost focus").on([this]{ focusOff(); });
 
     m_input->activate();
@@ -71,9 +71,6 @@ void Player::update(float dt){
     // crosshair = m_vehicle.cameras[cameraId]->focusPoint;
     if(not isLockedOnPoint) targetPointPosition = mouseSampler->position;
 
-    console.flog("[Player]", mouseSampler->position);
-
-    // // m_vehicle.setTargetPoint(targetPointPosition, 0);
     m_vehicle.fireControlUnit->updateTarget(targetPointPosition);
     // m_vehicle.fireControlUnit->updateTarget(glm::vec4(200,200,90,1));
     m_vehicle.updateModules(dt);
@@ -95,7 +92,7 @@ void Player::updateCameras(float dt){
 }
 
 void Player::focusOn(){
-    m_vehicle.cameras[cameraId]->focus();
+    m_vehicle.cameras.focus();
     m_input->activate();
 }
 void Player::focusOff(){

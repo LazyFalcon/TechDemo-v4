@@ -29,6 +29,7 @@ bool StartPlayground::handle(App &app){
     app.showMouse();
     app.setGameState(playground);
 
+    console.log("*Game has been started*");
     return true;
 }
 

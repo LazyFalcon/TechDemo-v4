@@ -16,7 +16,6 @@ InverseKinematics::InverseKinematics(const Yaml& moduleParams){
         }
     }
 }
-int guard = 0;
 
 std::array<float, 3> InverseKinematics::calculate(const glm::mat4& moduleWS, glm::vec4 targetWS) const {
     const auto targetingAxis = moduleWS[targetingAxisIdx].xyz();
@@ -30,12 +29,9 @@ std::array<float, 3> InverseKinematics::calculate(const glm::mat4& moduleWS, glm
     target = glm::normalize(target); // target becomes vector pointing on point
 
     const auto angle = glm::orientedAngle(target, targetingAxis, rotateAroundAxis);
-    if(guard < 6){
-        guard++;
-        console.log(rotateAroundAxisIdx, angle, target, targetingAxis, rotateAroundAxis);
-    }
+    console.flog(rotateAroundAxisIdx,targetWS, angle, target, targetingAxis, rotateAroundAxis);
 
     std::array<float, 3> out {};
-    out[rotateAroundAxisIdx] = angle;
+    out[rotateAroundAxisIdx] = isnormal(angle) ? angle : 0;
     return out;
 }

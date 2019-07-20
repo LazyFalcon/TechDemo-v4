@@ -20,8 +20,8 @@ std::optional<Servomechanism::ValueTarget> Servomechanism::retrieveAxis(const Ya
     out.emplace(0, 0.002f);
     // out.emplace(params["Value"][idx].number(), 0.002f);
 
-    if(params["Limits"][idx].boolean())
-        out->limit.emplace(params["Min"][idx].number(), params["Max"][idx].number());
+    // if(params["Limits"][idx].boolean())
+    //     out->limit.emplace(params["Min"][idx].number(), params["Max"][idx].number());
 
     return out;
 }

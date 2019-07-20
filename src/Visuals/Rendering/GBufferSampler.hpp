@@ -30,9 +30,9 @@ struct GBufferSampler : boost::noncopyable
     ~GBufferSampler(){
         GBufferSamplers::deregisterMe(this);
     }
-    glm::vec4 position;
-    glm::vec4 normal;
-    float depth;
-    glm::vec2 samplePosition;
+    glm::vec4 position {0,0,0,1};
+    glm::vec4 normal {};
+    float depth {0.5f};
+    glm::vec2 samplePosition {};
     bool relativePosition {false};
 };

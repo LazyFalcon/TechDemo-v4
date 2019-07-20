@@ -71,9 +71,11 @@ void Player::update(float dt){
     // crosshair = m_vehicle.cameras[cameraId]->focusPoint;
     if(not isLockedOnPoint) targetPointPosition = mouseSampler->position;
 
+    console.flog("[Player]", mouseSampler->position);
+
     // // m_vehicle.setTargetPoint(targetPointPosition, 0);
     m_vehicle.fireControlUnit->updateTarget(targetPointPosition);
-    m_vehicle.fireControlUnit->updateTarget(glm::vec4(200,200,90,1));
+    // m_vehicle.fireControlUnit->updateTarget(glm::vec4(200,200,90,1));
     m_vehicle.updateModules(dt);
     // m_vehicle.driveSystem->update(controlXValue, controlYValue, dt);
     // m_vehicle.compound->recalculateLocalAabb();

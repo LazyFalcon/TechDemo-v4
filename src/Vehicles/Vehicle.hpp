@@ -19,8 +19,10 @@ class Suspension;
 
 struct VehicleControl
 {
-    std::optional<glm::vec4> targetPoint;
-    std::optional<glm::vec4> targetDirection;
+    std::optional<glm::vec4> virtualPosition;
+    std::optional<glm::vec4> virtualDirection;
+    glm::vec4 controlOnAxes {};
+    glm::vec4 aimingAt {};
 };
 
 struct VehicleSharedData
@@ -43,7 +45,7 @@ public:
     void updateAction(btCollisionWorld *collisionWorld, btScalar dt) override ;
 
     PhysicalWorld& physics;
-    VehicleControl control;
+    VehicleControl control {};
     GraphicComponent graphics;
     // * Trzeba gdzieś tu wrzucić dane które będą służyć do komunikacji z modułami, w obie strony
     VehicleSharedData shared;

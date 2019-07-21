@@ -42,7 +42,7 @@ public:
     void deactivate();
 
     const InputMouseState& getMouseState() const;
-
+    // todo: maybe add something like context? to not perform actions when other window is focused? Like in vs code
     Input& action(const std::string&);
     Input& defined(const std::string&);
     Input& forward(std::function<void(const std::string&)>&&);

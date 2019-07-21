@@ -5,6 +5,7 @@
 
 std::map<std::string, int> stringToKey = {
     { "space", GLFW_KEY_SPACE },
+    { "spacebar", GLFW_KEY_SPACE },
     { "esc", GLFW_KEY_ESCAPE },
     { "enter", GLFW_KEY_ENTER },
     { "tab", GLFW_KEY_TAB },

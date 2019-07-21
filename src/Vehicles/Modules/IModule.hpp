@@ -25,23 +25,18 @@ public:
 
     virtual ~ModuleVisualUpdater() = default;
     virtual void setTransform(const btTransform &tr){
-        console.clog(__PRETTY_FUNCTION__, m_boneIndex);
         (*m_matrixContainer)[m_boneIndex] = convert(tr);
     }
     virtual void setTransform(const btTransform &tr, u32 i){
-        console.clog(__PRETTY_FUNCTION__, m_boneIndex);
          (*m_matrixContainer)[i] = convert(tr);
     }
     virtual void setTransform(const glm::mat4 &tr){
-        console.clog(__PRETTY_FUNCTION__, m_boneIndex);
         (*m_matrixContainer)[m_boneIndex] = tr;
     }
     virtual void setTransform(const glm::mat4 &tr, u32 i){
-        console.clog(__PRETTY_FUNCTION__, m_boneIndex);
         (*m_matrixContainer)[i] = tr;
     }
     virtual const glm::mat4& getTransform() const {
-        console.clog(__PRETTY_FUNCTION__, m_boneIndex);
         return (*m_matrixContainer)[m_boneIndex];
     }
 };

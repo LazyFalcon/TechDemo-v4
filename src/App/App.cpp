@@ -209,12 +209,14 @@ void App::run() try {
         glfwPollEvents();
         if(gameState.get() == currentGamestate) eventProcessor->process();
 
+        // considered as stable loop
         while(lag > timestep and not quit){
             lag -= timestep;
             ONCE_IN_FRAME = false;
         }
         ONCE_IN_FRAME = true;
 
+        // todo: consider combine it and put into stable loop
         if(gameState.get() == currentGamestate) gameState->updateWithHighPrecision(FrameTime::deltaf);
         if(gameState.get() == currentGamestate) gameState->update(FrameTime::deltaf);
 

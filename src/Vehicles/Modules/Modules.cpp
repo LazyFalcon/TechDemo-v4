@@ -10,5 +10,6 @@ void Hull::update(float dt){
     vehicle.invTrans = glm::inverse(tr);
     vehicle.glTrans = tr;
     this->transform(tr);
-    console.clog(__PRETTY_FUNCTION__, tr[3]);
+    console.flog(tr[3]);
+    console.clog(tr[3]);
 }

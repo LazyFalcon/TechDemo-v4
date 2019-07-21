@@ -22,40 +22,40 @@ Player::~Player(){
 
 void Player::initInputContext(){
     m_input->action("W").name("Forward").hold([this]{
-            // controlYValue += 0.1f * (1-controlYValue);
-            controlYValue += 0.01;
-            controlYValue = glm::clamp(controlYValue, -1.f, 1.f);
+            m_vehicle.control.controlOnAxes.y = 1;
         }).off([this]{
-            controlYValue = 0;
-        } );
+            m_vehicle.control.controlOnAxes.y = 0;
+        });
     m_input->action("S").name("Backward").hold([this]{
-            // controlYValue += 0.1f * (controlYValue-1);
-            controlYValue -= 0.01;
-            controlYValue = glm::clamp(controlYValue, -1.f, 1.f);
+            m_vehicle.control.controlOnAxes.y = -1;
         }).off([this]{
-            controlYValue = 0;
+            m_vehicle.control.controlOnAxes.y = 0;
         });
-    m_input->action("D").name("Turn right").hold([this]{
-            controlXValue += 0.01f;
-            controlXValue = glm::clamp(controlXValue, 0.f, 1.f);
-            // controlXValue = std::max(1.f, 0.01f * (1-controlXValue));
+    m_input->action("D").name("Strafe right").hold([this]{
+            m_vehicle.control.controlOnAxes.x = -1;
         }).off([this]{
-            controlXValue = 0;
+            m_vehicle.control.controlOnAxes.x = 0;
         });
-    m_input->action("A").name("Turn left").hold([this]{
-            controlXValue -= 0.01f;
-            controlXValue = glm::clamp(controlXValue, -1.f, 0.f);
-            // controlXValue = std::min(-1.f, 0.01f * (controlXValue-1));
+    m_input->action("A").name("Strafe left").hold([this]{
+            m_vehicle.control.controlOnAxes.x = 1;
         }).off([this]{
-            controlXValue = 0;
+            m_vehicle.control.controlOnAxes.x = 0;
+        });
+    m_input->action("space").name("Up").hold([this]{
+            m_vehicle.control.controlOnAxes.z = 1;
+        }).off([this]{
+            m_vehicle.control.controlOnAxes.z = 0;
+        });
+    m_input->action("C").name("Down").hold([this]{
+            m_vehicle.control.controlOnAxes.z = -1;
+        }).off([this]{
+            m_vehicle.control.controlOnAxes.z = 0;
         });
     // m_input->action("ctrl-x").name("lock guns").on([this]{ m_vehicle.lockCannonsInDefaultPosition(); });
     m_input->action("ctrl-c").name("lock guns on point").on([this]{ isLockedOnPoint = !isLockedOnPoint; });
     m_input->action("RMB").name("Fire").hold([this]{ doFire = true; });
     m_input->action("[").on([this]{ m_vehicle.cameras.prev(); });
     m_input->action("]").on([this]{ m_vehicle.cameras.next(); });
-    // m_input->action("P").name("Lost focus").on([this]{ focusOff(); });
-
     m_input->activate();
 }
 
@@ -72,6 +72,7 @@ void Player::update(float dt){
     if(not isLockedOnPoint) targetPointPosition = mouseSampler->position;
 
     m_vehicle.fireControlUnit->updateTarget(targetPointPosition);
+    m_vehicle.control.aimingAt = targetPointPosition;
     // m_vehicle.fireControlUnit->updateTarget(glm::vec4(200,200,90,1));
     m_vehicle.updateModules(dt);
     // m_vehicle.driveSystem->update(controlXValue, controlYValue, dt);

@@ -44,8 +44,8 @@ public:
     void update(float dt) override { // ? in ms?
         if(m_path.empty()){ // * current path finished
             if(m_queue.empty()){ // * queue of targets empty
-                m_vehicle.control.targetPoint.reset();
-                m_vehicle.control.targetDirection.reset();
+                m_vehicle.control.virtualPosition.reset();
+                m_vehicle.control.virtualDirection.reset();
                 return;
             }
             else calculateNewPath();
@@ -67,8 +67,8 @@ public:
             m_path.clear();
         }
 
-        m_vehicle.control.targetPoint = next.position;
-        m_vehicle.control.targetDirection = next.direction;
+        m_vehicle.control.virtualPosition = next.position;
+        m_vehicle.control.virtualDirection = next.direction;
     }
 
 

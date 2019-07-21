@@ -166,7 +166,7 @@ void VehicleAssembler::attachCameras(IModule& module, const Yaml& names){
         // todo: load full camera transformation matrix
         auto camera = createModuleFollower(&module, params["Mode"].string(), params["Relative Position"]["W"].vec3(), matrixFromYaml(params["Relative Position"]));
         camera->offset = params["Offset"].vec31();
-        camera->fov = params["FOV"].number();
+        camera->fov = params["Angle"].number();
         camera->inertia = params["Inertia"].number();
         camera->recalucuateProjectionMatrix();
         camera->evaluate();

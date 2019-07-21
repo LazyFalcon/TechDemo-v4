@@ -87,7 +87,7 @@ private:
     std::string m_output;
     bool m_printClogs {false};
     bool m_printFile {false};
-    bool m_printFunction {false};
+    bool m_printFunction {true};
     unsigned long int m_counter {0};
     LoggerSeverity m_severity {SEVERITY_DEBUG};
 public:
@@ -118,25 +118,26 @@ public:
 
     PmkLogger& regularPrefix(const std::string& filename, int line, const std::string& funcname){
         m_output = std::string();
-        if(m_printFile) pmk::adjustFilename(filename) + ":" + std::to_string(line) + ": ";
-        if(m_printFunction) m_output += pmk::adjustFuncname(funcname) + ": ";
         m_output += prefix +" ";
+        if(m_printFile) pmk::adjustFilename(filename) + ":" + std::to_string(line) + ": ";
+        // if(m_printFunction)
+        m_output += pmk::adjustFuncname(funcname) + ": ";
 
         return *this;
     }
 
     template <typename... Args>
     PmkLogger& error(const Args &... args){
-        m_output +=  "[ERROR] " + toString(args...);
-        std::cerr << m_output << std::endl;
+        std::cerr << "[ERROR] " << m_output << toString(args...) << std::endl;
+        m_output = "";
 
         return *this;
     }
     template <typename... Args>
     PmkLogger& warn(const Args &... args){
         if(m_severity >= SEVERITY_WARNING){
-            m_output += "[WARNING] " + toString(args...);
-            std::cerr << m_output << std::endl;
+            std::cerr << "[WARNING] " << m_output << toString(args...) << std::endl;
+            m_output = "";
         }
 
         return *this;
@@ -144,8 +145,8 @@ public:
     template <typename... Args>
     PmkLogger& info(const Args &... args){
         if(m_severity >= SEVERITY_INFO){
-            m_output += toString(args...);
-            std::cout << m_output << std::endl;
+            std::cout << m_output << toString(args...) << std::endl;
+            m_output = "";
         }
 
         return *this;
@@ -153,35 +154,32 @@ public:
     template <typename... Args>
     PmkLogger& log(const Args &... args){
         if(m_severity >= SEVERITY_DEBUG){
-            m_output += toString(args...);
-            std::cout << m_output << std::endl;
+            std::cout << m_output << toString(args...) << std::endl;
+            m_output = "";
         }
-
         return *this;
     }
     template <typename... Args>
     PmkLogger& clog(const Args &... args){
         if(m_severity >= SEVERITY_ALL or m_printClogs){
-            m_output += toString(args...);
-            std::cout << m_output << std::endl;
+            std::cout << m_output << toString(args...) << std::endl;
+            m_output = "";
         }
-
         return *this;
     }
     template <typename... Args>
     PmkLogger& flog(const Args &... args){
-        if(m_counter < 6){
-            m_output += toString(args...);
-            std::cout << m_output << std::endl;
+        if(m_counter < 6 or m_printClogs){
+            std::cout << m_output << toString(args...) << std::endl;
+            m_output = "";
         }
-
         return *this;
     }
     template <typename... Args>
     PmkLogger& toFile(const Args &... args){
         if(m_severity >= SEVERITY_ALL or m_printClogs){
-            m_output += toString(args...);
-            std::cout << m_output << std::endl;
+            std::cout << m_output << toString(args...) << std::endl;
+            m_output = "";
         }
 
         return *this;

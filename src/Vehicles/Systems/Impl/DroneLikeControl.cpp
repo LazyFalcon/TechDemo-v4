@@ -29,19 +29,43 @@ float DroneLikeControl::accelerationAccordingToState() const {
     }
 }
 
+btVector3 DroneLikeControl::getMoveDirection(glm::vec4 control){
+    auto mat = vehicle.btTrans;
+    auto forward = mat[1];
+    auto right = mat[0];
+    btVector3 up = btVector3(0,0,1);
+    return (forward*control.y + right*control.x + up*control.z).normalized();
+}
+
+void DroneLikeControl::adjustTargetHeightIfNeeded(btVector3& position){
+    if(not m_heightAboveSurface) return;
+
+    // perform raycast and read height
+}
+
+void DroneLikeControl::adjustDirection(btVector3& direction){
+    auto angle = direction.angle(btVector3(0,0,1));
+    if(float limit = toRad*40; abs(angle) > limit){
+        direction = direction.rotate(direction.cross(btVector3(0,0,1), limit - angle));
+    }
+}
+
 void DroneLikeControl::updateInsidePhysicsStep(float dt){
     computeState();
+    auto virtualPointMoveDirection = getMoveDirection(vehicle.control.controlOnAxes);
+
+    m_virtualDirection = (convert(vehicle.control.aimingAt) - m_virtualPosition).normalized();
 
     m_velocity += accelerationAccordingToState()*dt;
-    m_virtualPosition += m_virtualDirection * m_velocity*dt;
-    m_virtualDirection = (convert(vehicle.control.aimingAt) - m_virtualPosition).normalized();
-    // console.flog((int)state, vehicle.rgBody->getLinearVelocity().length2(), vehicle.control.controlOnAxes, m_velocity, m_virtualPosition);
+    m_virtualPosition += virtualPointMoveDirection * m_velocity*dt;
+    adjustTargetHeightIfNeeded();
+    adjustDirection();
+
     btTransform tr;
     vehicle.rgBody->getMotionState()->getWorldTransform(tr);
 
-
     positionPart(dt, tr);
-    // orientationPart(dt, tr);
+    orientationPart(dt, tr);
 }
 
 class PDReg
@@ -68,12 +92,11 @@ PDReg pdRegTorque = PDReg(0.9, 0.0);  // * outputs torque
 PDReg pdRegOrientation = PDReg(0.9, 0.0);  // * outputs impulses
 
 void DroneLikeControl::positionPart(float dt, btTransform& tr){
+    // cleanup forces
     btVector3 externalForces = vehicle.rgBody->getTotalForce() - m_previouslyappliedForce;
-
     btVector3 response = -externalForces;
     m_previouslyappliedForce = response;
     // btVector3 response = pdRegForce.goTo(btVector3(0,0,0), externalForces);
-
     vehicle.rgBody->applyCentralForce(response);
 
     auto positionError = m_virtualPosition - tr.getOrigin();
@@ -90,57 +113,57 @@ void DroneLikeControl::positionPart(float dt, btTransform& tr){
 }
 btVector3 QuaternionToEulerXYZ(const btQuaternion &quat){
     btVector3 euler;
-	btScalar w=quat.getW();	btScalar x=quat.getX();	btScalar y=quat.getY();	btScalar z=quat.getZ();
-	double sqw = w*w; double sqx = x*x; double sqy = y*y; double sqz = z*z;
-	euler.setZ((atan2(2.0 * (x*y + z*w),(sqx - sqy - sqz + sqw))));
-	euler.setX((atan2(2.0 * (y*z + x*w),(-sqx - sqy + sqz + sqw))));
-	euler.setY((asin(-2.0 * (x*z - y*w))));
+    btScalar w=quat.getW();	btScalar x=quat.getX();	btScalar y=quat.getY();	btScalar z=quat.getZ();
+    double sqw = w*w; double sqx = x*x; double sqy = y*y; double sqz = z*z;
+    euler.setZ((atan2(2.0 * (x*y + z*w),(sqx - sqy - sqz + sqw))));
+    euler.setX((atan2(2.0 * (y*z + x*w),(-sqx - sqy + sqz + sqw))));
+    euler.setY((asin(-2.0 * (x*z - y*w))));
     return euler;
 }
 btVector3 QuaternionToEulerXYZ(const glm::quat &quat){
     btVector3 euler;
-	btScalar w=quat.w;	btScalar x=quat.x;	btScalar y=quat.y;	btScalar z=quat.z;
-	double sqw = w*w; double sqx = x*x; double sqy = y*y; double sqz = z*z;
-	euler.setZ((atan2(2.0 * (x*y + z*w),(sqx - sqy - sqz + sqw))));
-	euler.setX((atan2(2.0 * (y*z + x*w),(-sqx - sqy + sqz + sqw))));
-	euler.setY((asin(-2.0 * (x*z - y*w))));
+    btScalar w=quat.w;	btScalar x=quat.x;	btScalar y=quat.y;	btScalar z=quat.z;
+    double sqw = w*w; double sqx = x*x; double sqy = y*y; double sqz = z*z;
+    euler.setZ((atan2(2.0 * (x*y + z*w),(sqx - sqy - sqz + sqw))));
+    euler.setX((atan2(2.0 * (y*z + x*w),(-sqx - sqy + sqz + sqw))));
+    euler.setY((asin(-2.0 * (x*z - y*w))));
     return euler;
 }
 
 void DroneLikeControl::orientationPart(float dt, btTransform& tr){
-    // btVector3 currentTorque = vehicle.rgBody->getTotalTorque() - m_previouslyappliedTorque;
+    btVector3 currentTorque = vehicle.rgBody->getTotalTorque() - m_previouslyappliedTorque;
 
-    // btVector3 response = -currentTorque;
-    // m_previouslyappliedTorque = response;
-    // // btVector3 response = pdRegTorque.goTo(btVector3(0,0,0), currentTorque);
+    btVector3 response = -currentTorque;
+    m_previouslyappliedTorque = response;
+    // btVector3 response = pdRegTorque.goTo(btVector3(0,0,0), currentTorque);
 
-    // vehicle.rgBody->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
-    // vehicle.rgBody->applyTorque(response);
-    // if(vehicle.control.targetDirection){
-    //     // console.clog("to:", target, "from:", rotation, "by:", delta);
-    //     auto rotation = tr.getRotation();
-    //     // btQuaternion target(convert(*vehicle.control.targetDirection), 0);
-    //     btQuaternion target(btVector3(1,0,0), 0.1);
-    //     btQuaternion deltaOrientation = target* rotation.inverse();
-    //     btVector3 deltaEuler = QuaternionToEulerXYZ(deltaOrientation);
-
-
-    //     auto y = convert(tr.getBasis()[m_leadingAxis]);
-    //     auto tgt = glm::normalize(glm::vec3(-1,-1,1));
-    //     // auto tgt = (*vehicle.control.targetDirection).xyz();
-
-    //     auto quat = glm::rotation(y, tgt);
-    //     auto delta = QuaternionToEulerXYZ(quat);
-
-    //     // You basically get the scaled inverse of the torque you want to apply. Now you "just" need to find an appropriate amount to ease it in.
-
-    //     // auto rotationError = tr.getBasis()[m_leadingAxis].cross(convert(*vehicle.control.targetDirection)) + tr.getBasis()[2].cross(btVector3(0,0,1));
-    //     // auto impulse = pdRegOrientation.goTo(btVector3(0,0,0), -rotationError)*5.91;
-    //     console.clog("tgt:", QuaternionToEulerXYZ(target), "rot:", QuaternionToEulerXYZ(rotation));
-    //     console.clog("to:", target, "from:", rotation, "by:", deltaEuler, "by:", delta);
+    vehicle.rgBody->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
+    vehicle.rgBody->applyTorque(response);
+    if(vehicle.control.targetDirection){
+        // console.clog("to:", target, "from:", rotation, "by:", delta);
+        auto rotation = tr.getRotation();
+        // btQuaternion target(convert(*vehicle.control.targetDirection), 0);
+        btQuaternion target(btVector3(1,0,0), 0.1);
+        btQuaternion deltaOrientation = target* rotation.inverse();
+        btVector3 deltaEuler = QuaternionToEulerXYZ(deltaOrientation);
 
 
-    //     // vehicle.rgBody->setAngularVelocity(delta);
-    //     vehicle.rgBody->applyTorqueImpulse(-delta*60);
-    // }
+        auto y = convert(tr.getBasis()[m_leadingAxis]);
+        auto tgt = glm::normalize(glm::vec3(-1,-1,1));
+        // auto tgt = (*vehicle.control.targetDirection).xyz();
+
+        auto quat = glm::rotation(y, tgt);
+        auto delta = QuaternionToEulerXYZ(quat);
+
+        // You basically get the scaled inverse of the torque you want to apply. Now you "just" need to find an appropriate amount to ease it in.
+
+        // auto rotationError = tr.getBasis()[m_leadingAxis].cross(convert(*vehicle.control.targetDirection)) + tr.getBasis()[2].cross(btVector3(0,0,1));
+        // auto impulse = pdRegOrientation.goTo(btVector3(0,0,0), -rotationError)*5.91;
+        console.clog("tgt:", QuaternionToEulerXYZ(target), "rot:", QuaternionToEulerXYZ(rotation));
+        console.clog("to:", target, "from:", rotation, "by:", deltaEuler, "by:", delta);
+
+
+        // vehicle.rgBody->setAngularVelocity(delta);
+        vehicle.rgBody->applyTorqueImpulse(-delta*60);
+    }
 }

@@ -17,6 +17,7 @@ private:
     float m_velocity {};
     float m_velocityCap;
     float m_acceleeration;
+    std::optional<float> m_heightAboveSurface;
 
     btVector3 m_targetPosition;
     btVector3 m_targetDirection;
@@ -27,8 +28,11 @@ private:
     btVector3 m_previouslyappliedForce {};
     btVector3 m_previouslyappliedTorque {};
     void computeState();
+    btVector3 getMoveDirection(glm::vec4 control);
     float accelerationAccordingToState() const;
 
+    void adjustTargetHeightIfNeeded(btVector3&);
+    void adjustDirection(btVector3&);
     void positionPart(float dt, btTransform& tr);
     void orientationPart(float dt, btTransform& tr);
 

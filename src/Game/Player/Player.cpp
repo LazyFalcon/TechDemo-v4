@@ -32,12 +32,12 @@ void Player::initInputContext(){
             m_vehicle.control.controlOnAxes.y = 0;
         });
     m_input->action("D").name("Strafe right").hold([this]{
-            m_vehicle.control.controlOnAxes.x = -1;
+            m_vehicle.control.controlOnAxes.x = 1;
         }).off([this]{
             m_vehicle.control.controlOnAxes.x = 0;
         });
     m_input->action("A").name("Strafe left").hold([this]{
-            m_vehicle.control.controlOnAxes.x = 1;
+            m_vehicle.control.controlOnAxes.x = -1;
         }).off([this]{
             m_vehicle.control.controlOnAxes.x = 0;
         });

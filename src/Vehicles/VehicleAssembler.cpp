@@ -115,14 +115,14 @@ void VehicleAssembler::assemblyModuleAndItsChildren(IModule* parent, const Yaml&
 
 void VehicleAssembler::buildRigidBody(const glm::mat4& onPosition){
     btTransform tr(convert(onPosition));
-    // tr.setIdentity();
-    // tr.setOrigin(convert(onPosition[3]));
 
     // float mass = descriptionForModules["mass"].number();
     float mass = 20;
     m_vehicle->rgBody = m_physics.createRigidBody(mass, tr, m_vehicle->compound);
     // vehicleEquipment.rgBody->setUserPointer((void *)(&vehicleEquipment));
 
+    m_vehicle->btTrans = tr;
+    m_vehicle->glTrans = onPosition;
     m_vehicle->rgBody->setDamping(0.2f, 0.2f);
     m_vehicle->rgBody->setActivationState(DISABLE_DEACTIVATION);
 }
@@ -233,6 +233,10 @@ void VehicleAssembler::addToCompound(btCollisionShape* collShape, const glm::mat
 }
 
 std::shared_ptr<CameraController> VehicleAssembler::createModuleFollower(IModule *module, const std::string& type, glm::vec3 position, const glm::mat4& mat){
+    // todo: add option to camera to always rotate with mouse
+    if(type == "CopyPlane"){ // TODO: finish it!
+        return nullptr;
+    }
     if(type == "CopyPosition"){
         return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, position, mat);
     }

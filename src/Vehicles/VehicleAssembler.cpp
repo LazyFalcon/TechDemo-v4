@@ -114,6 +114,8 @@ void VehicleAssembler::assemblyModuleAndItsChildren(IModule* parent, const Yaml&
 }
 
 void VehicleAssembler::buildRigidBody(const glm::mat4& onPosition){
+    if(not m_hasAnyPhysicalPart) console.error("Vehicle doesn't have any physical part!");
+
     btTransform tr(convert(onPosition));
 
     // float mass = descriptionForModules["mass"].number();
@@ -206,6 +208,7 @@ void VehicleAssembler::setServoAndMotionLimits(IModule& module){
 // * when module has rigidBody created
 void VehicleAssembler::setPhysical(IModule& module, const Yaml& cfg){
     if(not cfg.has("Physical")) return;
+    m_hasAnyPhysicalPart = true;
 
     // glm::vec4 cnvPos = glm::vec4(module.joint.toPivot + module.joint.toOrigin);
     auto localTransformation = module.localTransform;

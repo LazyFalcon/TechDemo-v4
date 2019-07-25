@@ -55,7 +55,7 @@ btVector3 DroneLikeControl::getMoveDirection(glm::vec4 control){
     auto right = mat.getBasis().getColumn(0);
     btVector3 up = btVector3(0,0,1);
     auto out = (forward*control.y + right*control.x + up*control.z).normalized();
-    console.flog(forward, right, out);
+
     return out;
 }
 
@@ -166,14 +166,12 @@ void DroneLikeControl::orientationPart(float dt, btTransform& tr){
     // vehicle.rgBody->applyTorque(response);
 
     const btVector3 yaxis(0,1,0);
+    btVector3 dir(m_virtualDirection[0], m_virtualDirection[1], 0);
+    dir.normalize();
 
-    btQuaternion quat(yaxis.cross(m_virtualDirection).normalized(), abs(yaxis.angle(m_virtualDirection)));
+    btQuaternion quat(dir.cross(yaxis).normalized(), yaxis.angle(dir));
     float x,y,z;
     quat.getEulerZYX(z,x,y);
-
-    // m_constraint->getRotationalLimitMotor(0)->m_enableMotor = true;
-    // m_constraint->getRotationalLimitMotor(1)->m_enableMotor = true;
-    // m_constraint->getRotationalLimitMotor(2)->m_enableMotor = true;
 
     m_constraint->setAngularLowerLimit({x,y,z});
     m_constraint->setAngularUpperLimit({x,y,z});

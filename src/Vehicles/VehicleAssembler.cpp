@@ -55,7 +55,6 @@ void VehicleAssembler::openModelFile(){
 
 void VehicleAssembler::initializeVehicle(const glm::mat4& onPosition){
     m_vehicle->fireControlUnit = std::make_unique<FireControlSystem>();
-    m_vehicle->vehicleControlUnit = std::make_unique<DroneLikeControl>(*m_vehicle, convert(onPosition[3]));
     m_vehicle->compound = new btCompoundShape();
     m_skinnedMesh = std::make_shared<SkinnedMesh>();
     m_skinnedMesh->mesh = m_modelLoader->beginMesh();
@@ -85,6 +84,7 @@ void VehicleAssembler::finishAssembly(const glm::mat4& onPosition){
     m_physics.m_dynamicsWorld->addAction(m_vehicle.get());
 
     buildRigidBody(onPosition);
+    m_vehicle->vehicleControlUnit = std::make_unique<DroneLikeControl>(m_physics, *m_vehicle, convert(onPosition[3]));
 }
 
 void VehicleAssembler::assemblyModuleAndItsChildren(IModule* parent, const Yaml& params){

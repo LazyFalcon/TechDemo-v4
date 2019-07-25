@@ -4,12 +4,32 @@
 #include "Logger.hpp"
 #include "Vehicle.hpp"
 #include "Utils.hpp"
+#include "PhysicalWorld.hpp"
 
 /*
 * Uproszczony model sterowania droną: drona śledzi punkt(pozycja + orientacja)
 * Silnik zajmuje się redukcją wszystkich zewnętrzych sił działających na obiekt(z opóźnieniem, żeby było ładniej)
 * Osiąganie punktu odbywa się za pomocą sił, jedynie na podstawie różnicy pozycji(potem jeszcze prędkość i przyspieszenie w połączeniu z predykcją trasy)
 */
+
+DroneLikeControl::DroneLikeControl(PhysicalWorld& physics, Vehicle& eq, btVector3 position) :
+    VehicleControlSystem(eq),
+    m_physics(physics),
+    m_virtualPosition(position),
+    m_lookDirection(0,1,0)
+{
+    m_constraint = new btGeneric6DofConstraint(*vehicle.rgBody, btTransform::getIdentity(), true);
+    // m_constraint->setAngularLowerLimit(btVector3(-1.0, -1.0, -1.0));
+    // m_constraint->setAngularUpperLimit(btVector3(1.0, 1.0, 1.0));
+    m_constraint->setLinearLowerLimit(btVector3(-100,-100,-100));
+    m_constraint->setLinearUpperLimit(btVector3(100,100,100));
+
+    m_physics.m_dynamicsWorld->addConstraint(m_constraint);
+}
+DroneLikeControl::~DroneLikeControl(){
+    // m_physics.m_dynamicsWorld->removeConstraint(m_constraint);
+    // delete m_constraint;
+}
 
 void DroneLikeControl::update(float dt){}
 
@@ -23,8 +43,8 @@ void DroneLikeControl::computeState(){
 float DroneLikeControl::accelerationAccordingToState() const {
     switch(state){
         case Steady: return 0.f;
-        case Breaking: return 0.f;
-        case Moving: return 2.f;
+        case Breaking: return 1.f;
+        case Moving: return 3.f;
         default: return 0;
     }
 }
@@ -55,7 +75,10 @@ void DroneLikeControl::adjustDirection(btVector3& direction){
 void DroneLikeControl::updateInsidePhysicsStep(float dt){
     computeState();
 
-    m_virtualDirection = (convert(vehicle.control.aimingAt) - m_virtualPosition).normalized();
+    auto aimAt = convert(vehicle.control.aimingAt);
+
+    if(m_virtualPosition.distance(aimAt) > 20.f)
+        m_virtualDirection = (aimAt - m_virtualPosition).normalized();
 
     if(state == Moving){
         auto virtualPointMoveDirection = getMoveDirection(vehicle.control.controlOnAxes);
@@ -104,7 +127,7 @@ void DroneLikeControl::positionPart(float dt, btTransform& tr){
     vehicle.rgBody->applyCentralForce(response);
 
     auto positionError = m_virtualPosition - tr.getOrigin();
-    auto impulse = pdRegPosition.goTo(btVector3(0,0,0), -positionError)*20;
+    auto impulse = pdRegPosition.goTo(btVector3(0,0,0), -positionError);
 
     vehicle.rgBody->setLinearVelocity(impulse);
     console.flog("impulse:", impulse,
@@ -113,6 +136,7 @@ void DroneLikeControl::positionPart(float dt, btTransform& tr){
                  "m_virtualPosition:", m_virtualPosition,
                  "positionError:", positionError);
     // vehicle.rgBody->applyCentralImpulse(impulse);
+
 
 }
 btVector3 QuaternionToEulerXYZ(const btQuaternion &quat){
@@ -139,44 +163,18 @@ void DroneLikeControl::orientationPart(float dt, btTransform& tr){
 
     btVector3 response = -currentTorque;
     m_previouslyappliedTorque = response;
-    // btVector3 response = pdRegTorque.goTo(btVector3(0,0,0), currentTorque);
-
-    // vehicle.rgBody->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
     // vehicle.rgBody->applyTorque(response);
 
-    const auto y = tr.getBasis().getColumn(1);
-    // if(abs(m_virtualDirection.dot(y)) < 0.998f){
-        auto cross = y.cross(m_virtualDirection);
-        vehicle.rgBody->applyTorqueImpulse(cross);
-        m_previouslyappliedTorque -= cross;
-        console.clog(cross, y, m_virtualDirection, m_virtualDirection.dot(y), cos(1), currentTorque);
-    // }
+    const btVector3 yaxis(0,1,0);
 
+    btQuaternion quat(yaxis.cross(m_virtualDirection).normalized(), abs(yaxis.angle(m_virtualDirection)));
+    float x,y,z;
+    quat.getEulerZYX(z,x,y);
 
+    // m_constraint->getRotationalLimitMotor(0)->m_enableMotor = true;
+    // m_constraint->getRotationalLimitMotor(1)->m_enableMotor = true;
+    // m_constraint->getRotationalLimitMotor(2)->m_enableMotor = true;
 
-
-
-    // auto rotation = tr.getRotation();
-    // btQuaternion target(m_virtualDirection, 0);
-    // btQuaternion target(btVector3(1,0,0), 0.1);
-    // btQuaternion deltaOrientation = target* rotation.inverse();
-    // btVector3 deltaEuler = QuaternionToEulerXYZ(deltaOrientation);
-
-
-    // auto y = convert(tr.getBasis()[m_leadingAxis]);
-    // auto tgt = glm::normalize(glm::vec3(-1,-1,1));
-    // auto tgt = (*vehicle.control.targetDirection).xyz();
-
-    // auto quat = glm::rotation(y, tgt);
-    // auto delta = QuaternionToEulerXYZ(quat);
-
-    // You basically get the scaled inverse of the torque you want to apply. Now you "just" need to find an appropriate amount to ease it in.
-
-    // auto rotationError = tr.getBasis()[m_leadingAxis].cross(convert(*vehicle.control.targetDirection)) + tr.getBasis()[2].cross(btVector3(0,0,1));
-    // auto impulse = pdRegOrientation.goTo(btVector3(0,0,0), -rotationError)*5.91;
-    // console.clog("tgt:", QuaternionToEulerXYZ(target), "rot:", QuaternionToEulerXYZ(rotation));
-    // console.clog("to:", target, "from:", rotation, "by:", deltaEuler, "by:", delta);
-
-    // vehicle.rgBody->setAngularVelocity(delta);
-    // vehicle.rgBody->applyTorqueImpulse(-delta*60);
+    m_constraint->setAngularLowerLimit({x,y,z});
+    m_constraint->setAngularUpperLimit({x,y,z});
 }

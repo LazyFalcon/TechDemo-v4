@@ -175,13 +175,14 @@ bool App::loadResources(){
 
     return true;
 }
+
 void App::run() try {
     using namespace std::chrono_literals;
     using clock = std::chrono::high_resolution_clock;
     console.log("--starting main loop");
 
-    auto timeOnStart = clock::now();
-    auto lastTime = timeOnStart;
+    FrameTime::timeOnStart = clock::now();
+    FrameTime::lastTimePoint = FrameTime::timeOnStart;
     std::chrono::nanoseconds timestep(16ms);
     std::chrono::nanoseconds lag(0ns);
 
@@ -192,12 +193,12 @@ void App::run() try {
         GameState* currentGamestate = gameState.get();
         incrFrame();
         CPU_SCOPE_TIMER("Main loop update");
-        auto deltaTime = clock::now() - lastTime;
-        lastTime = clock::now();
+        auto deltaTime = clock::now() - FrameTime::lastTimePoint;
+        FrameTime::lastTimePoint = clock::now();
         lag += std::chrono::duration_cast<std::chrono::nanoseconds>(deltaTime);
 
-        FrameTime::miliseconds = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(lastTime - timeOnStart).count();
-        FrameTime::nanoseconds = std::chrono::duration_cast<std::chrono::duration<uint, std::micro>>(lastTime - timeOnStart).count();
+        FrameTime::miliseconds = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(FrameTime::lastTimePoint - FrameTime::timeOnStart).count();
+        FrameTime::nanoseconds = std::chrono::duration_cast<std::chrono::duration<uint, std::micro>>(FrameTime::lastTimePoint - FrameTime::timeOnStart).count();
         FrameTime::delta = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(deltaTime).count();
         FrameTime::deltaf = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(deltaTime).count();
 
@@ -217,6 +218,7 @@ void App::run() try {
         ONCE_IN_FRAME = true;
 
         // todo: consider combine it and put into stable loop
+        console.flog("Frame time:", FrameTime::deltaf);
         if(gameState.get() == currentGamestate) gameState->updateWithHighPrecision(FrameTime::deltaf);
         if(gameState.get() == currentGamestate) gameState->update(FrameTime::deltaf);
 
@@ -250,7 +252,11 @@ void App::finish(){
     window.reset();
 }
 
+// todo: reset game loop on start..
+// put in in some function that can be easliy called again when needed
 void App::setGameState(std::shared_ptr<GameState> p_gameState){
+    FrameTime::timeOnStart = std::chrono::high_resolution_clock::now();
+    FrameTime::lastTimePoint = FrameTime::timeOnStart;
     // cleanup after previous state?
     // cleanup resources, czy też zrobi się to automatycznie? automat będzie lepszy
     console.resetCounters();

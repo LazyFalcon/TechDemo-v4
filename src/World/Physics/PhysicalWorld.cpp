@@ -109,7 +109,7 @@ void PhysicalWorld::removeBody(btRigidBody *body){
 
 void PhysicalWorld::update(float step){
     CPU_SCOPE_TIMER("Update world physics");
-    m_dynamicsWorld->stepSimulation(step, 10, 1.0/60.0/4.0);
+    m_dynamicsWorld->stepSimulation(step, 10, 1.0/60.0);
 
     return;
     int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();

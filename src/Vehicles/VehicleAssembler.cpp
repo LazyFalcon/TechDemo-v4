@@ -125,7 +125,7 @@ void VehicleAssembler::buildRigidBody(const glm::mat4& onPosition){
 
     m_vehicle->btTrans = tr;
     m_vehicle->glTrans = onPosition;
-    m_vehicle->rgBody->setDamping(0.2f, 0.2f);
+    m_vehicle->rgBody->setDamping(0.6f, 0.6f);
     m_vehicle->rgBody->setActivationState(DISABLE_DEACTIVATION);
 }
 

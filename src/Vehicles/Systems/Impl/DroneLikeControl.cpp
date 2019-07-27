@@ -164,6 +164,8 @@ void DroneLikeControl::orientationPart(float dt, const btTransform& tr){
 
     btVector3 response = -currentTorque;
     m_previouslyappliedTorque = response;
+
+    const float maxInclination = pi/7;
     // vehicle.rgBody->applyTorque(response);
     if(false){ // hold horizontal
         auto locZ = tr.getBasis().getColumn(2);
@@ -226,12 +228,15 @@ void DroneLikeControl::orientationPart(float dt, const btTransform& tr){
         }
 
         const float maxSpeed = pi/3; // half of rotation in one second
+        const float maxVelocityChange = maxSpeed * 60.f/3.f; // reach max speed in 3 frames maxSpeed/
         const auto orientedAngle = -dir.angle(locY) * ((dir.cross(locY).dot(locZ) > 0.f) ? 1.f : -1.f);
-        const float desiredSpeed = glm::sign(orientedAngle) * std::min(abs(orientedAngle)/dt/3, maxSpeed);
-        console.flog(orientedAngle, maxSpeed, desiredSpeed);
+        // const float desiredSpeed = glm::sign(orientedAngle) * std::min(abs(orientedAngle)/dt/3, maxSpeed);
+        const float desiredSpeed = glm::sign(orientedAngle) * glm::smoothstep(0.f, pi/20, abs(orientedAngle))*maxSpeed;
+
+        const auto speedDelta = desiredSpeed - localAngularVelocity[2];
+        const auto speedChange = glm::sign(speedDelta) * std::min(abs(speedDelta), maxVelocityChange);
+
         if(abs(orientedAngle) > 0.001f)
-            vehicle.rgBody->setAngularVelocity(locZ*desiredSpeed);
-        else
-            vehicle.rgBody->setAngularVelocity({0,0,0});
+            vehicle.rgBody->setAngularVelocity(locZ*(localAngularVelocity[2]+speedChange));
     }
 }

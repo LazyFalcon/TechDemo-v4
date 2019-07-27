@@ -79,7 +79,6 @@ void DroneLikeControl::updateInsidePhysicsStep(float dt){
 
     // todo: aimAt nie powieni sięzmieniać ..
     m_virtualDirection = (aimAt - m_virtualPosition).normalized();
-    m_virtualDirection = btVector3(1,0,0);
 
     if(state == Moving){
         auto virtualPointMoveDirection = getMoveDirection(vehicle.control.controlOnAxes);
@@ -131,6 +130,7 @@ void DroneLikeControl::positionPart(float dt, btTransform& tr){
     auto impulse = pdRegPosition.goTo(btVector3(0,0,0), -positionError);
 
     vehicle.rgBody->setLinearVelocity(impulse);
+    vehicle.rgBody->setLinearFactor({0,0,0});
     console.flog("impulse:", impulse,
                  "m_virtualDirection:", m_virtualDirection,
                  "m_velocity:", m_velocity,
@@ -165,7 +165,7 @@ void DroneLikeControl::orientationPart(float dt, const btTransform& tr){
     btVector3 response = -currentTorque;
     m_previouslyappliedTorque = response;
     // vehicle.rgBody->applyTorque(response);
-    { // hold horizontal
+    if(false){ // hold horizontal
         auto locZ = tr.getBasis().getColumn(2);
         auto wrdZ = btVector3(0,0,1);
 
@@ -184,7 +184,7 @@ void DroneLikeControl::orientationPart(float dt, const btTransform& tr){
         }
     }
 
-    { // rotate to target
+    if(false){ // rotate to target
         auto locZ = btVector3(0,0,1);
         // auto locZ = tr.getBasis().getColumn(2);
         auto dir = btVector3(m_virtualDirection[0], m_virtualDirection[1], 0).normalized();
@@ -200,7 +200,7 @@ void DroneLikeControl::orientationPart(float dt, const btTransform& tr){
         auto cachedVelocity = vehicle.rgBody->getAngularVelocity();
         const float maxVelocity = pi/1000.f; // half of rotation in one second
 
-        console.flog(">> ", vehicle.rgBody->getInvInertiaTensorWorld()*btVector3(0,0,1), vehicle.rgBody->getAngularFactor());
+        console.flog(">> ", vehicle.rgBody->getInvInertiaTensorWorld()*btVector3(0,1,1), vehicle.rgBody->getAngularFactor());
 
         if(velocity < maxVelocity){ // velocity is lower, needs to accelerate
             vehicle.rgBody->applyTorqueImpulse(-locZ * 100.f * glm::smoothstep(0.f, pi/20.f, abs(angle))*glm::sign(angle));
@@ -212,5 +212,26 @@ void DroneLikeControl::orientationPart(float dt, const btTransform& tr){
         //     console.flog("B", locZ,  glm::smoothstep(0.f, pi/50.f, maxVelocity-velocity));
         // }
         console.flog("velocity difference:", velocity, "vs", vehicle.rgBody->getAngularVelocity()-cachedVelocity);
+    }
+    { // control velocites directly, but consider previous velocity, so there is a cap for applied velocity change
+        const auto worldAngularVelocity = vehicle.rgBody->getAngularVelocity();
+        const auto localAngularVelocity = tr.getBasis().solve33(worldAngularVelocity);
+
+        const auto locZ = tr.getBasis().getColumn(2);
+        const auto locY = tr.getBasis().getColumn(1);
+        auto dir = m_virtualDirection;
+        { // move dir to plane of vehicle
+            auto distance = dir.dot(locZ);
+            dir  -= locZ*distance;
+        }
+
+        const float maxSpeed = pi/3; // half of rotation in one second
+        const auto orientedAngle = -dir.angle(locY) * ((dir.cross(locY).dot(locZ) > 0.f) ? 1.f : -1.f);
+        const float desiredSpeed = glm::sign(orientedAngle) * std::min(abs(orientedAngle)/dt/3, maxSpeed);
+        console.flog(orientedAngle, maxSpeed, desiredSpeed);
+        if(abs(orientedAngle) > 0.001f)
+            vehicle.rgBody->setAngularVelocity(locZ*desiredSpeed);
+        else
+            vehicle.rgBody->setAngularVelocity({0,0,0});
     }
 }

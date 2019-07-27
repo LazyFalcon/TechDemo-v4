@@ -140,7 +140,8 @@ void Playground::updateWithHighPrecision(float dt){
     }
     m_scene->update(dt, currentCamera);
 
-    if(m_cameraRotate) currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f, m_mouseWorldPos);
+    if(m_useFreecam and m_cameraRotate) currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f, m_mouseWorldPos);
+    else currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f, m_mouseWorldPos);
 
     for(auto &cam : CameraController::listOf){
         cam->update(dt);

@@ -71,8 +71,10 @@ void Player::update(float dt){
     // crosshair = m_vehicle.cameras[cameraId]->focusPoint;
     if(not isLockedOnPoint) targetPointPosition = mouseSampler->position;
 
-    m_vehicle.fireControlUnit->updateTarget(targetPointPosition);
-    m_vehicle.control.aimingAt = targetPointPosition;
+    if(glm::distance(m_vehicle.getPosition(), targetPointPosition) >= 20.f){
+        m_vehicle.fireControlUnit->updateTarget(targetPointPosition);
+        m_vehicle.control.aimingAt = targetPointPosition;
+    }
     // m_vehicle.fireControlUnit->updateTarget(glm::vec4(200,200,90,1));
     m_vehicle.updateModules(dt);
     // m_vehicle.driveSystem->update(controlXValue, controlYValue, dt);

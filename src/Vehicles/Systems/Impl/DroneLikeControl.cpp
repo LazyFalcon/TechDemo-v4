@@ -18,13 +18,13 @@ DroneLikeControl::DroneLikeControl(PhysicalWorld& physics, Vehicle& eq, btVector
     m_virtualPosition(position),
     m_lookDirection(0,1,0)
 {
-    m_constraint = new btGeneric6DofConstraint(*vehicle.rgBody, btTransform::getIdentity(), true);
+    // m_constraint = new btGeneric6DofConstraint(*vehicle.rgBody, btTransform::getIdentity(), true);
     // m_constraint->setAngularLowerLimit(btVector3(-1.0, -1.0, -1.0));
     // m_constraint->setAngularUpperLimit(btVector3(1.0, 1.0, 1.0));
-    m_constraint->setLinearLowerLimit(btVector3(-100,-100,-100));
-    m_constraint->setLinearUpperLimit(btVector3(100,100,100));
+    // m_constraint->setLinearLowerLimit(btVector3(-100,-100,-100));
+    // m_constraint->setLinearUpperLimit(btVector3(100,100,100));
 
-    m_physics.m_dynamicsWorld->addConstraint(m_constraint);
+    // m_physics.m_dynamicsWorld->addConstraint(m_constraint);
 }
 DroneLikeControl::~DroneLikeControl(){
     // m_physics.m_dynamicsWorld->removeConstraint(m_constraint);
@@ -49,8 +49,8 @@ float DroneLikeControl::accelerationAccordingToState() const {
     }
 }
 
-btVector3 DroneLikeControl::getMoveDirection(glm::vec4 control){
-    auto mat = vehicle.btTrans;
+btVector3 DroneLikeControl::getMoveDirection(glm::vec4 control) const {
+    const auto& mat = vehicle.btTrans;
     auto forward = mat.getBasis().getColumn(1);
     auto right = mat.getBasis().getColumn(0);
     btVector3 up = btVector3(0,0,1);
@@ -77,8 +77,9 @@ void DroneLikeControl::updateInsidePhysicsStep(float dt){
 
     auto aimAt = convert(vehicle.control.aimingAt);
 
-    if(m_virtualPosition.distance(aimAt) > 20.f)
-        m_virtualDirection = (aimAt - m_virtualPosition).normalized();
+    // todo: aimAt nie powieni sięzmieniać ..
+    m_virtualDirection = (aimAt - m_virtualPosition).normalized();
+    m_virtualDirection = btVector3(1,0,0);
 
     if(state == Moving){
         auto virtualPointMoveDirection = getMoveDirection(vehicle.control.controlOnAxes);
@@ -86,7 +87,7 @@ void DroneLikeControl::updateInsidePhysicsStep(float dt){
         m_virtualPosition += virtualPointMoveDirection * m_velocity*dt;
     }
     adjustTargetHeightIfNeeded(m_virtualPosition);
-    adjustDirection(m_virtualDirection);
+    // adjustDirection(m_virtualDirection);
 
     btTransform tr;
     vehicle.rgBody->getMotionState()->getWorldTransform(tr);
@@ -158,21 +159,58 @@ btVector3 QuaternionToEulerXYZ(const glm::quat &quat){
     return euler;
 }
 
-void DroneLikeControl::orientationPart(float dt, btTransform& tr){
+void DroneLikeControl::orientationPart(float dt, const btTransform& tr){
     btVector3 currentTorque = vehicle.rgBody->getTotalTorque() - m_previouslyappliedTorque;
 
     btVector3 response = -currentTorque;
     m_previouslyappliedTorque = response;
     // vehicle.rgBody->applyTorque(response);
+    { // hold horizontal
+        auto locZ = tr.getBasis().getColumn(2);
+        auto wrdZ = btVector3(0,0,1);
 
-    const btVector3 yaxis(0,1,0);
-    btVector3 dir(m_virtualDirection[0], m_virtualDirection[1], 0);
-    dir.normalize();
+        auto rotAxis = locZ.cross(wrdZ).normalized();
+        auto angle = locZ.angle(wrdZ); // []
 
-    btQuaternion quat(dir.cross(yaxis).normalized(), yaxis.angle(dir));
-    float x,y,z;
-    quat.getEulerZYX(z,x,y);
+        auto velocity = (angle - m_prevZAngle)/dt;
+        m_prevZAngle = angle;
 
-    m_constraint->setAngularLowerLimit({x,y,z});
-    m_constraint->setAngularUpperLimit({x,y,z});
+        const float maxVelocity = pi/100.f; // half of rotation in tenth of second
+        if(velocity < maxVelocity){ // velocity is lower, needs to accelerate
+            // vehicle.rgBody->applyTorqueImpulse(rotAxis * 2.f * glm::smoothstep(0.f, pi/20.f, angle));
+        }
+        else if(velocity > maxVelocity*0.15f){ // velocity is a too high, deccelerate
+            // vehicle.rgBody->applyTorqueImpulse(-rotAxis * 2.f * glm::smoothstep(0.f, pi/50.f, maxVelocity-velocity));
+        }
+    }
+
+    { // rotate to target
+        auto locZ = btVector3(0,0,1);
+        // auto locZ = tr.getBasis().getColumn(2);
+        auto dir = btVector3(m_virtualDirection[0], m_virtualDirection[1], 0).normalized();
+        auto y = tr.getBasis().getColumn(1);
+        y.setZ(0);
+        y.normalize();
+
+        auto angle = dir.angle(y) * ((dir.cross(y).dot(tr.getBasis().getColumn(2)) > 0.f) ? 1.f : -1.f); // orientedAngle
+        // auto velocity = (angle - m_prevYAngle)/dt;
+        auto velocity = vehicle.rgBody->getAngularVelocity()[2];
+        console.flog("Angles:", angle, m_prevYAngle, velocity, y, dir, dt);
+        m_prevYAngle = angle;
+        auto cachedVelocity = vehicle.rgBody->getAngularVelocity();
+        const float maxVelocity = pi/1000.f; // half of rotation in one second
+
+        console.flog(">> ", vehicle.rgBody->getInvInertiaTensorWorld()*btVector3(0,0,1), vehicle.rgBody->getAngularFactor());
+
+        if(velocity < maxVelocity){ // velocity is lower, needs to accelerate
+            vehicle.rgBody->applyTorqueImpulse(-locZ * 100.f * glm::smoothstep(0.f, pi/20.f, abs(angle))*glm::sign(angle));
+            console.flog("A", locZ,  glm::smoothstep(0.f, pi/20.f, abs(angle))*glm::sign(angle));
+            // console.flog("A", m_invInertiaTensorWorld * torque * m_angularFactor;);
+        }
+        // else if(velocity > maxVelocity*0.15f){ // velocity is a too high, deccelerate
+        //     vehicle.rgBody->applyTorqueImpulse(-locZ * 2.f * glm::smoothstep(0.f, pi/50.f, maxVelocity-velocity));
+        //     console.flog("B", locZ,  glm::smoothstep(0.f, pi/50.f, maxVelocity-velocity));
+        // }
+        console.flog("velocity difference:", velocity, "vs", vehicle.rgBody->getAngularVelocity()-cachedVelocity);
+    }
 }

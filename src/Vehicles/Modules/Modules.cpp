@@ -9,6 +9,7 @@ void Hull::update(float dt){
     auto tr = convert(btTr);
     vehicle.invTrans = glm::inverse(tr);
     vehicle.glTrans = tr;
+    vehicle.btTrans = btTr;
     this->transform(tr);
     console.flog(tr[3]);
     console.clog(tr[3]);

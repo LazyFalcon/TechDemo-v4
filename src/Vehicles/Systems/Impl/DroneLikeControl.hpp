@@ -24,6 +24,9 @@ private:
 
     btGeneric6DofConstraint* m_constraint;
 
+    float m_prevYAngle {0.f};
+    float m_prevZAngle {0.f};
+
 
     btVector3 m_targetPosition;
     btVector3 m_targetDirection;
@@ -34,13 +37,13 @@ private:
     btVector3 m_previouslyappliedForce {};
     btVector3 m_previouslyappliedTorque {};
     void computeState();
-    btVector3 getMoveDirection(glm::vec4 control);
+    btVector3 getMoveDirection(glm::vec4 control) const;
     float accelerationAccordingToState() const;
 
     void adjustTargetHeightIfNeeded(btVector3&);
     void adjustDirection(btVector3&);
     void positionPart(float dt, btTransform& tr);
-    void orientationPart(float dt, btTransform& tr);
+    void orientationPart(float dt, const btTransform& tr);
 
 public:
     DroneLikeControl(PhysicalWorld& physics, Vehicle& eq, btVector3 position);

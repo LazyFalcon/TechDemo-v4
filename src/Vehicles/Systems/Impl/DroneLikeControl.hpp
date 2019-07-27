@@ -42,6 +42,7 @@ private:
 
     void adjustTargetHeightIfNeeded(btVector3&);
     void adjustDirection(btVector3&);
+    btVector3 getDesiredAngles(const btVector3&, const btVector3&, const btVector3&);
     void positionPart(float dt, btTransform& tr);
     void orientationPart(float dt, const btTransform& tr);
 

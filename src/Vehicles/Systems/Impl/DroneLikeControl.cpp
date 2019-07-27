@@ -65,10 +65,14 @@ void DroneLikeControl::adjustTargetHeightIfNeeded(btVector3& position){
     // perform raycast and read height
 }
 
+float angleToPlane(const btVector3& planeNormal, const btVector3& vector){
+    return (pi/2 - planeNormal.angle(vector));
+}
+
 void DroneLikeControl::adjustDirection(btVector3& direction){
-    auto angle = direction.angle(btVector3(0,0,1));
-    if(float limit = toRad*40; abs(angle) > limit){
-        direction = direction.rotate(direction.cross(btVector3(0,0,1)), limit - angle);
+    auto inclination = angleToPlane(btVector3(0,0,1), direction);
+    if(float maxInclination = toRad*40; abs(inclination) > maxInclination){
+        direction = direction.rotate(direction.cross(btVector3(0,0,1)), maxInclination - inclination);
     }
 }
 
@@ -79,6 +83,7 @@ void DroneLikeControl::updateInsidePhysicsStep(float dt){
 
     // todo: aimAt nie powieni sięzmieniać ..
     m_virtualDirection = (aimAt - m_virtualPosition).normalized();
+    // m_virtualDirection = btVector3(1,1,1).normalized();
 
     if(state == Moving){
         auto virtualPointMoveDirection = getMoveDirection(vehicle.control.controlOnAxes);
@@ -159,84 +164,67 @@ btVector3 QuaternionToEulerXYZ(const glm::quat &quat){
     return euler;
 }
 
+btVector3 DroneLikeControl::getDesiredAngles(const btVector3& targetDir, const btVector3& normalToPlane, const btVector3& rightAxis){
+    return btVector3(
+        angleToPlane(normalToPlane, targetDir),
+        angleToPlane(normalToPlane, rightAxis),
+        -atan2(targetDir[0], targetDir[1])
+    );
+}
+
 void DroneLikeControl::orientationPart(float dt, const btTransform& tr){
-    btVector3 currentTorque = vehicle.rgBody->getTotalTorque() - m_previouslyappliedTorque;
 
-    btVector3 response = -currentTorque;
-    m_previouslyappliedTorque = response;
+    const auto worldAngularVelocity = vehicle.rgBody->getAngularVelocity();
+    const auto localAngularVelocity = tr.getBasis().solve33(worldAngularVelocity);
+    const auto directionInLocalSpace = tr.getBasis().solve33(m_virtualDirection);
+    const auto locX = tr.getBasis().getColumn(0);
+    const auto locY = tr.getBasis().getColumn(1);
+    const auto locZ = tr.getBasis().getColumn(2);
+    const btVector3 targetLocalAngles(
+        angleToPlane(locZ, m_virtualDirection),
+        angleToPlane(btVector3(0,0,1), locX),
+        -atan2(directionInLocalSpace[0], directionInLocalSpace[1])
+    );
 
-    const float maxInclination = pi/7;
-    // vehicle.rgBody->applyTorque(response);
-    if(false){ // hold horizontal
-        auto locZ = tr.getBasis().getColumn(2);
-        auto wrdZ = btVector3(0,0,1);
+    btVector3 angularVelocityToApply(0,0,0);
 
-        auto rotAxis = locZ.cross(wrdZ).normalized();
-        auto angle = locZ.angle(wrdZ); // []
+    // console.log(targetLocalAngles, directionInLocalSpace, localAngularVelocity);
+    //  [ 0.61548, -0, -0.785398 ] [ 0.57735, 0.57735, 0.57735 ] [ 0, 0, 0 ]
+    { // control inclination, allow to small move with target direction - best is to limit it directly in target
+        const float maxSpeed = pi/2; // full rotation in one second, needs to be quick
+        const float maxVelocityChange = maxSpeed * 60.f/2.f; // reach max speed in 3 frames maxSpeed/
+        { // for X axis
+            const auto orientedAngle = targetLocalAngles[0];
+            const float desiredSpeed = glm::sign(orientedAngle) * glm::smoothstep(0.f, pi/30, abs(orientedAngle))*maxSpeed;
+            const auto speedDelta = desiredSpeed - localAngularVelocity[0];
+            const auto speedChange = glm::sign(speedDelta) * std::min(abs(speedDelta), maxVelocityChange);
 
-        auto velocity = (angle - m_prevZAngle)/dt;
-        m_prevZAngle = angle;
-
-        const float maxVelocity = pi/100.f; // half of rotation in tenth of second
-        if(velocity < maxVelocity){ // velocity is lower, needs to accelerate
-            // vehicle.rgBody->applyTorqueImpulse(rotAxis * 2.f * glm::smoothstep(0.f, pi/20.f, angle));
+            if(abs(orientedAngle) > 0.001f)
+                angularVelocityToApply += locX*(localAngularVelocity[0]+speedChange);
         }
-        else if(velocity > maxVelocity*0.15f){ // velocity is a too high, deccelerate
-            // vehicle.rgBody->applyTorqueImpulse(-rotAxis * 2.f * glm::smoothstep(0.f, pi/50.f, maxVelocity-velocity));
+        { // for Y axis
+            const auto orientedAngle = targetLocalAngles[1];
+            const float desiredSpeed = glm::sign(orientedAngle) * glm::smoothstep(0.f, pi/30, abs(orientedAngle))*maxSpeed;
+            const auto speedDelta = desiredSpeed - localAngularVelocity[1];
+            const auto speedChange = glm::sign(speedDelta) * std::min(abs(speedDelta), maxVelocityChange);
+
+            if(abs(orientedAngle) > 0.001f)
+                angularVelocityToApply += locY*(localAngularVelocity[1]+speedChange);
         }
-    }
-
-    if(false){ // rotate to target
-        auto locZ = btVector3(0,0,1);
-        // auto locZ = tr.getBasis().getColumn(2);
-        auto dir = btVector3(m_virtualDirection[0], m_virtualDirection[1], 0).normalized();
-        auto y = tr.getBasis().getColumn(1);
-        y.setZ(0);
-        y.normalize();
-
-        auto angle = dir.angle(y) * ((dir.cross(y).dot(tr.getBasis().getColumn(2)) > 0.f) ? 1.f : -1.f); // orientedAngle
-        // auto velocity = (angle - m_prevYAngle)/dt;
-        auto velocity = vehicle.rgBody->getAngularVelocity()[2];
-        console.flog("Angles:", angle, m_prevYAngle, velocity, y, dir, dt);
-        m_prevYAngle = angle;
-        auto cachedVelocity = vehicle.rgBody->getAngularVelocity();
-        const float maxVelocity = pi/1000.f; // half of rotation in one second
-
-        console.flog(">> ", vehicle.rgBody->getInvInertiaTensorWorld()*btVector3(0,1,1), vehicle.rgBody->getAngularFactor());
-
-        if(velocity < maxVelocity){ // velocity is lower, needs to accelerate
-            vehicle.rgBody->applyTorqueImpulse(-locZ * 100.f * glm::smoothstep(0.f, pi/20.f, abs(angle))*glm::sign(angle));
-            console.flog("A", locZ,  glm::smoothstep(0.f, pi/20.f, abs(angle))*glm::sign(angle));
-            // console.flog("A", m_invInertiaTensorWorld * torque * m_angularFactor;);
-        }
-        // else if(velocity > maxVelocity*0.15f){ // velocity is a too high, deccelerate
-        //     vehicle.rgBody->applyTorqueImpulse(-locZ * 2.f * glm::smoothstep(0.f, pi/50.f, maxVelocity-velocity));
-        //     console.flog("B", locZ,  glm::smoothstep(0.f, pi/50.f, maxVelocity-velocity));
-        // }
-        console.flog("velocity difference:", velocity, "vs", vehicle.rgBody->getAngularVelocity()-cachedVelocity);
     }
     { // control velocites directly, but consider previous velocity, so there is a cap for applied velocity change
-        const auto worldAngularVelocity = vehicle.rgBody->getAngularVelocity();
-        const auto localAngularVelocity = tr.getBasis().solve33(worldAngularVelocity);
-
-        const auto locZ = tr.getBasis().getColumn(2);
-        const auto locY = tr.getBasis().getColumn(1);
-        auto dir = m_virtualDirection;
-        { // move dir to plane of vehicle
-            auto distance = dir.dot(locZ);
-            dir  -= locZ*distance;
-        }
-
         const float maxSpeed = pi/3; // half of rotation in one second
         const float maxVelocityChange = maxSpeed * 60.f/3.f; // reach max speed in 3 frames maxSpeed/
-        const auto orientedAngle = -dir.angle(locY) * ((dir.cross(locY).dot(locZ) > 0.f) ? 1.f : -1.f);
-        // const float desiredSpeed = glm::sign(orientedAngle) * std::min(abs(orientedAngle)/dt/3, maxSpeed);
-        const float desiredSpeed = glm::sign(orientedAngle) * glm::smoothstep(0.f, pi/20, abs(orientedAngle))*maxSpeed;
+        const auto orientedAngle = targetLocalAngles[2];
+        // const auto orientedAngle = dir.angle(locY) * ((locY.cross(dir).dot(locZ) > 0.f) ? 1.f : -1.f);
+        const float desiredSpeed = glm::sign(orientedAngle) * glm::smoothstep(0.f, pi/20, abs(orientedAngle))*maxSpeed; // smooth speed near target angle
 
         const auto speedDelta = desiredSpeed - localAngularVelocity[2];
         const auto speedChange = glm::sign(speedDelta) * std::min(abs(speedDelta), maxVelocityChange);
 
         if(abs(orientedAngle) > 0.001f)
-            vehicle.rgBody->setAngularVelocity(locZ*(localAngularVelocity[2]+speedChange));
+            angularVelocityToApply += locZ*(localAngularVelocity[2]+speedChange);
+        // else try to zero velocity
     }
+    vehicle.rgBody->setAngularVelocity(angularVelocityToApply);
 }

@@ -47,7 +47,7 @@ private:
     void buildRigidBody(const glm::mat4& onPosition);
 
     void addToCompound(btCollisionShape* collShape, const glm::mat4& transform, void* owner);
-    std::shared_ptr<CameraController> createModuleFollower(IModule *module, const std::string& type, glm::vec3 position, const glm::mat4& mat);
+    std::shared_ptr<CameraController> createModuleFollower(IModule& module, const std::string& type, const glm::mat4& cameraRelativeMatrix);
 
 public:
     VehicleAssembler(const std::string& configName, PhysicalWorld& physics, CameraControllerFactory& camFactory);

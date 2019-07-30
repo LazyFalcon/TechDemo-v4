@@ -39,7 +39,7 @@ CameraController& CameraController::getActiveCamera(){
 }
 
 // -----------------------------------------------------------------
-CopyOnlyPosition::CopyOnlyPosition(const glm::mat4& initialPosition, glm::vec2 windowSize) : CameraController(windowSize){
+CopyOnlyPosition::CopyOnlyPosition(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : CameraController(windowSize){
     euler = glm::vec3(69*toRad, 14*toRad, 0);
     glm::extractEulerAngleXYZ(initialPosition, euler.x, euler.y, euler.z);
     rotationCenter = initialPosition[3];
@@ -100,7 +100,7 @@ void CopyOnlyPosition::printDebug(){
 }
 
 // -----------------------------------------------------------------
-CopyTransform::CopyTransform(const glm::mat4& initialPosition, glm::vec2 windowSize) : CopyOnlyPosition(initialPosition, windowSize){
+CopyTransform::CopyTransform(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : CopyOnlyPosition(parentMatrix, cameraRelativeMatrix, windowSize){
     euler = glm::vec3(90*toRad, 0, 0);
     glm::extractEulerAngleXYZ(initialPosition, euler.x, euler.y, euler.z);
     rotationCenter = initialPosition[3];
@@ -144,7 +144,7 @@ void CopyTransform::update(const glm::mat4& parentTransform, float dt){
 /*
 * Camera rotates around center point(constant before camera, or under mouse), offset is in camera space and thanks to it camera is not facing directly at rotation point
 */
-FreeCamController::FreeCamController(const glm::mat4& initialPosition, glm::vec2 windowSize) : CameraController(windowSize){
+FreeCamController::FreeCamController(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : CameraController(windowSize){
     // * reverse configuration from camera position
     offset = glm::vec4(0,2,15,0);
     inertia = 0.2;

@@ -49,10 +49,9 @@ float DroneLikeControl::accelerationAccordingToState() const {
     }
 }
 
-btVector3 DroneLikeControl::getMoveDirection(glm::vec4 control) const {
-    const auto& mat = vehicle.btTrans;
-    auto forward = mat.getBasis().getColumn(1);
-    auto right = mat.getBasis().getColumn(0);
+btVector3 DroneLikeControl::getMoveDirection(glm::vec4 control, const btTransform& tr) const {
+    auto forward = tr.getBasis().getColumn(1);
+    auto right = tr.getBasis().getColumn(0);
     btVector3 up = btVector3(0,0,1);
     auto out = (forward*control.y + right*control.x + up*control.z).normalized();
 
@@ -79,6 +78,9 @@ void DroneLikeControl::adjustDirection(btVector3& direction){
 void DroneLikeControl::updateInsidePhysicsStep(float dt){
     computeState();
 
+    btTransform tr = vehicle.rgBody->getCenterOfMassTransform();
+    // vehicle.rgBody->getMotionState()->getWorldTransform(tr);
+
     auto aimAt = convert(vehicle.control.aimingAt);
 
     // todo: aimAt nie powieni sięzmieniać ..
@@ -86,15 +88,13 @@ void DroneLikeControl::updateInsidePhysicsStep(float dt){
     // m_virtualDirection = btVector3(1,1,1).normalized();
 
     if(state == Moving){
-        auto virtualPointMoveDirection = getMoveDirection(vehicle.control.controlOnAxes);
+        auto virtualPointMoveDirection = getMoveDirection(vehicle.control.controlOnAxes, tr);
         m_velocity += accelerationAccordingToState()*dt;
         m_virtualPosition += virtualPointMoveDirection * m_velocity*dt;
     }
     adjustTargetHeightIfNeeded(m_virtualPosition);
     // adjustDirection(m_virtualDirection);
 
-    btTransform tr;
-    vehicle.rgBody->getMotionState()->getWorldTransform(tr);
 
     positionPart(dt, tr);
     orientationPart(dt, tr);
@@ -123,7 +123,7 @@ PDReg pdRegPosition = PDReg(0.99, 0.0);  // * outputs impulses
 PDReg pdRegTorque = PDReg(0.9, 0.0);  // * outputs torque
 PDReg pdRegOrientation = PDReg(0.9, 0.0);  // * outputs impulses
 
-void DroneLikeControl::positionPart(float dt, btTransform& tr){
+void DroneLikeControl::positionPart(float dt, const btTransform& tr){
     // cleanup forces
     btVector3 externalForces = vehicle.rgBody->getTotalForce() - m_previouslyappliedForce;
     btVector3 response = -externalForces;
@@ -134,14 +134,14 @@ void DroneLikeControl::positionPart(float dt, btTransform& tr){
     auto positionError = m_virtualPosition - tr.getOrigin();
     auto impulse = pdRegPosition.goTo(btVector3(0,0,0), -positionError);
 
-    vehicle.rgBody->setLinearVelocity(impulse);
-    vehicle.rgBody->setLinearFactor({0,0,0});
+    // vehicle.rgBody->setLinearVelocity(impulse);
+    // vehicle.rgBody->setLinearFactor({0,0,0});
     console.flog("impulse:", impulse,
                  "m_virtualDirection:", m_virtualDirection,
                  "m_velocity:", m_velocity,
                  "m_virtualPosition:", m_virtualPosition,
                  "positionError:", positionError);
-    // vehicle.rgBody->applyCentralImpulse(impulse);
+    vehicle.rgBody->applyImpulse(impulse, tr.getBasis().getColumn(2)*10.5);
 
 
 }

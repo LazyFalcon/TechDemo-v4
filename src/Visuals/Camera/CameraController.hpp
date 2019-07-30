@@ -40,8 +40,9 @@ protected:
     glm::vec4 rotationCenter;
     glm::vec3 euler;
     CameraConstraints constraints;
+    void calculateEyePositionOffset(const glm::mat4& initialPosition);
 public:
-    CopyOnlyPosition(const glm::mat4& initialPosition, glm::vec2 windowSize);
+    CopyOnlyPosition(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
     void applyTransform(float);
     void rotateByMouse(float, float, const glm::vec4&);
     void roll(float);
@@ -55,7 +56,7 @@ class CopyTransform : public CopyOnlyPosition
 {
 private:
 public:
-    CopyTransform(const glm::mat4& initialPosition, glm::vec2 windowSize);
+    CopyTransform(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
     void applyTransform(const glm::mat4&, float) ;
     void update(const glm::mat4& parentTransform, float dt) override;
 };
@@ -83,7 +84,7 @@ private:
     enum class Mode {Around, InPlace} mode {Mode::Around};
 
 public:
-    FreeCamController(const glm::mat4& initialPosition, glm::vec2 windowSize);
+    FreeCamController(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
     void update(float dt) override;
     void zoomToMouse(const glm::vec4&);
     void zoomOutMouse(const glm::vec4&);

@@ -37,13 +37,13 @@ private:
     btVector3 m_previouslyappliedForce {};
     btVector3 m_previouslyappliedTorque {};
     void computeState();
-    btVector3 getMoveDirection(glm::vec4 control) const;
+    btVector3 getMoveDirection(glm::vec4 control,  const btTransform&) const;
     float accelerationAccordingToState() const;
 
     void adjustTargetHeightIfNeeded(btVector3&);
     void adjustDirection(btVector3&);
     btVector3 getDesiredAngles(const btVector3&, const btVector3&, const btVector3&);
-    void positionPart(float dt, btTransform& tr);
+    void positionPart(float dt, const btTransform& tr);
     void orientationPart(float dt, const btTransform& tr);
 
 public:

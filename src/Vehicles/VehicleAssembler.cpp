@@ -166,7 +166,7 @@ void VehicleAssembler::attachCameras(IModule& module, const Yaml& names){
     for(const auto& name : names){
         const auto& params = m_config["Cameras"][name.string()];
         // todo: load full camera transformation matrix
-        auto camera = createModuleFollower(&module, params["Mode"].string(), params["Relative Position"]["W"].vec3(), matrixFromYaml(params["Relative Position"]));
+        auto camera = createModuleFollower(module, params["Mode"].string(), matrixFromYaml(params["Relative Position"]));
         camera->offset = params["Offset"].vec31();
         camera->fov = params["Angle"].number();
         camera->inertia = params["Inertia"].number();
@@ -190,7 +190,8 @@ void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
 
     m_skinnedMesh->bones.push_back(identityMatrix);
     module.moduleVisualUpdater = std::make_unique<ModuleVisualUpdater>(m_skinnedMesh->bones, m_boneMatrixIndex);
-    module.moduleVisualUpdater->setTransform(identityMatrix);
+    // module.moduleVisualUpdater->setTransform(identityMatrix);
+    module.moduleVisualUpdater->setTransform(module.getParentTransform() * module.localTransform * tr);
 
     m_modelLoader->setBoneIndex(m_modelLoader->loadOnly(models), m_boneMatrixIndex);
 
@@ -210,21 +211,17 @@ void VehicleAssembler::setPhysical(IModule& module, const Yaml& cfg){
     if(not cfg.has("Physical")) return;
     m_hasAnyPhysicalPart = true;
 
-    // glm::vec4 cnvPos = glm::vec4(module.joint.toPivot + module.joint.toOrigin);
-    auto localTransformation = module.localTransform;
+    auto localTransformation = module.getParentLocalTransform()*module.localTransform;
 
     if(cfg["Physical"].has("CollisionModels") and cfg["Physical"]["CollisionModels"] != "none"){
         auto meshes = m_modelLoader->loadConvexMeshes(cfg["Physical"]["CollisionModels"].strings());
-
         addToCompound(createCompoundShape(meshes, (void*)(&module)), localTransformation, (void*)(&module));
-        module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_vehicle->compound, m_compoundIndex++);
     }
     else {
         // TODO: create dummy collision model
-
         addToCompound(new btBoxShape(btVector3(2,2,2)), localTransformation, (void*)(&module));
-        module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_vehicle->compound, m_compoundIndex++);
     }
+    module.moduleCompoundUpdater = std::make_unique<ModuleCompoundUpdater>(m_vehicle->compound, m_compoundIndex++);
 }
 
 void VehicleAssembler::setArmor(IModule& module, const Yaml& cfg){}
@@ -235,19 +232,19 @@ void VehicleAssembler::addToCompound(btCollisionShape* collShape, const glm::mat
     m_vehicle->compound->addChildShape(localTrans, collShape);
 }
 
-std::shared_ptr<CameraController> VehicleAssembler::createModuleFollower(IModule *module, const std::string& type, glm::vec3 position, const glm::mat4& mat){
+std::shared_ptr<CameraController> VehicleAssembler::createModuleFollower(IModule& module, const std::string& type, const glm::mat4& cameraRelativeMatrix){
     // todo: add option to camera to always rotate with mouse
     if(type == "CopyPlane"){ // TODO: finish it!
         return nullptr;
     }
     if(type == "CopyPosition"){
-        return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, position, mat);
+        return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, cameraRelativeMatrix);
     }
     else if(type == "CopyTransform"){
-        return m_camFactory.create<ModuleFollower<CopyTransform>>(module, position, mat);
+        return m_camFactory.create<ModuleFollower<CopyTransform>>(module, cameraRelativeMatrix);
     }
     else if(type == "Free"){
-        return m_camFactory.create<FreeCamController>(mat);
+        return m_camFactory.create<FreeCamController>(cameraRelativeMatrix);
     }
     return nullptr;
 }

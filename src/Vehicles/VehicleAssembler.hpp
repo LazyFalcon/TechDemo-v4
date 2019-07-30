@@ -28,6 +28,7 @@ private:
     uint m_boneMatrixIndex {};
     uint m_compoundIndex {};
     Yaml m_config;
+    bool m_hasAnyPhysicalPart {false};
 
     void openModelFile();
     void initializeVehicle(const glm::mat4& onPosition);

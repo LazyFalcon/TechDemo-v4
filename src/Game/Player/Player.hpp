@@ -26,7 +26,7 @@ private:
 
     float controlXValue {0};
     float controlYValue {0};
-
+    bool hasFocus {false};
     // bool processHit(projectiles::Projectile &p);
     bool doFire = false;
     void fire();

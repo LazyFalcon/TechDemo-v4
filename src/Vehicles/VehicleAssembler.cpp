@@ -55,7 +55,6 @@ void VehicleAssembler::openModelFile(){
 
 void VehicleAssembler::initializeVehicle(const glm::mat4& onPosition){
     m_vehicle->fireControlUnit = std::make_unique<FireControlSystem>();
-    m_vehicle->vehicleControlUnit = std::make_unique<DroneLikeControl>(*m_vehicle, convert(onPosition[3]));
     m_vehicle->compound = new btCompoundShape();
     m_skinnedMesh = std::make_shared<SkinnedMesh>();
     m_skinnedMesh->mesh = m_modelLoader->beginMesh();
@@ -85,6 +84,7 @@ void VehicleAssembler::finishAssembly(const glm::mat4& onPosition){
     m_physics.m_dynamicsWorld->addAction(m_vehicle.get());
 
     buildRigidBody(onPosition);
+    m_vehicle->vehicleControlUnit = std::make_unique<DroneLikeControl>(m_physics, *m_vehicle, convert(onPosition[3]));
 }
 
 void VehicleAssembler::assemblyModuleAndItsChildren(IModule* parent, const Yaml& params){
@@ -114,16 +114,18 @@ void VehicleAssembler::assemblyModuleAndItsChildren(IModule* parent, const Yaml&
 }
 
 void VehicleAssembler::buildRigidBody(const glm::mat4& onPosition){
+    if(not m_hasAnyPhysicalPart) console.error("Vehicle doesn't have any physical part!");
+
     btTransform tr(convert(onPosition));
-    // tr.setIdentity();
-    // tr.setOrigin(convert(onPosition[3]));
 
     // float mass = descriptionForModules["mass"].number();
     float mass = 20;
     m_vehicle->rgBody = m_physics.createRigidBody(mass, tr, m_vehicle->compound);
     // vehicleEquipment.rgBody->setUserPointer((void *)(&vehicleEquipment));
 
-    m_vehicle->rgBody->setDamping(0.2f, 0.2f);
+    m_vehicle->btTrans = tr;
+    m_vehicle->glTrans = onPosition;
+    m_vehicle->rgBody->setDamping(0.6f, 0.6f);
     m_vehicle->rgBody->setActivationState(DISABLE_DEACTIVATION);
 }
 
@@ -206,6 +208,7 @@ void VehicleAssembler::setServoAndMotionLimits(IModule& module){
 // * when module has rigidBody created
 void VehicleAssembler::setPhysical(IModule& module, const Yaml& cfg){
     if(not cfg.has("Physical")) return;
+    m_hasAnyPhysicalPart = true;
 
     // glm::vec4 cnvPos = glm::vec4(module.joint.toPivot + module.joint.toOrigin);
     auto localTransformation = module.localTransform;
@@ -233,6 +236,10 @@ void VehicleAssembler::addToCompound(btCollisionShape* collShape, const glm::mat
 }
 
 std::shared_ptr<CameraController> VehicleAssembler::createModuleFollower(IModule *module, const std::string& type, glm::vec3 position, const glm::mat4& mat){
+    // todo: add option to camera to always rotate with mouse
+    if(type == "CopyPlane"){ // TODO: finish it!
+        return nullptr;
+    }
     if(type == "CopyPosition"){
         return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, position, mat);
     }

@@ -12,7 +12,7 @@ Player::Player(InputDispatcher& inputDispatcher, Vehicle& vehicle) :
     crosshairSampler(std::make_unique<GBufferSampler>())
     {
         mouseSampler->samplePosition = glm::vec2(0,0);
-        crosshairSampler->samplePosition = glm::vec2(0.5);
+        crosshairSampler->samplePosition = glm::vec2(0.5f, 0.7f);
         crosshairSampler->relativePosition = true;
 
         initInputContext();
@@ -32,12 +32,12 @@ void Player::initInputContext(){
             m_vehicle.control.controlOnAxes.y = 0;
         });
     m_input->action("D").name("Strafe right").hold([this]{
-            m_vehicle.control.controlOnAxes.x = -1;
+            m_vehicle.control.controlOnAxes.x = 1;
         }).off([this]{
             m_vehicle.control.controlOnAxes.x = 0;
         });
     m_input->action("A").name("Strafe left").hold([this]{
-            m_vehicle.control.controlOnAxes.x = 1;
+            m_vehicle.control.controlOnAxes.x = -1;
         }).off([this]{
             m_vehicle.control.controlOnAxes.x = 0;
         });
@@ -69,10 +69,12 @@ void Player::update(float dt){
     mouseSampler->samplePosition = m_input->getMouseState().pointerScreenPosition;
 
     // crosshair = m_vehicle.cameras[cameraId]->focusPoint;
-    if(not isLockedOnPoint) targetPointPosition = mouseSampler->position;
+    if(not isLockedOnPoint) targetPointPosition = hasFocus ? crosshairSampler->position : mouseSampler->position;
 
-    m_vehicle.fireControlUnit->updateTarget(targetPointPosition);
-    m_vehicle.control.aimingAt = targetPointPosition;
+    if(glm::distance(m_vehicle.getPosition(), targetPointPosition) >= 20.f){
+        m_vehicle.fireControlUnit->updateTarget(targetPointPosition);
+        m_vehicle.control.aimingAt = targetPointPosition;
+    }
     // m_vehicle.fireControlUnit->updateTarget(glm::vec4(200,200,90,1));
     m_vehicle.updateModules(dt);
     // m_vehicle.driveSystem->update(controlXValue, controlYValue, dt);
@@ -93,10 +95,12 @@ void Player::updateCameras(float dt){
 }
 
 void Player::focusOn(){
+    hasFocus = true;
     m_vehicle.cameras.focus();
     m_input->activate();
 }
 void Player::focusOff(){
+    hasFocus = false;
     m_input->deactivate();
 }
 

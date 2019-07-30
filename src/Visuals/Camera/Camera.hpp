@@ -45,7 +45,9 @@ public:
     float farDistance;
 
     float inertia;
+    float smoothing;
     glm::vec4 offset;
+    float offsetScale;
 
     // * calculated. each cam has it's own, not sure if useful
     glm::mat4 view;

@@ -5,53 +5,62 @@
 namespace pmk {
     inline void toStream(std::ostream& out){}
     template <typename T>
-    inline void toStream(std::ostream& out, T val){
+    inline void toStream(std::ostream& out, const T& val){
         out<<val<<" ";
     }
     template <typename T, typename... Args>
-    inline void toStream(std::ostream& out, T val, Args... args){
+    inline void toStream(std::ostream& out, const T& val, Args... args){
         toStream(out, val);
         toStream(out, args...);
     }
 
     template <>
-    inline void toStream(std::ostream& out, glm::vec2 val){
+    inline void toStream(std::ostream& out, const glm::vec2& val){
         out<<"[ "<<val.x<<", "<<val.y<<" ] ";
     }
     template <>
-    inline void toStream(std::ostream& out, glm::ivec2 val){
+    inline void toStream(std::ostream& out, const glm::ivec2& val){
         out<<"[ "<<val.x<<", "<<val.y<<" ] ";
     }
     template <>
-    inline void toStream(std::ostream& out, glm::vec4 val){
+    inline void toStream(std::ostream& out, const glm::vec4& val){
         out<<"[ "<<val.x<<", "<<val.y<<", "<<val.z<<", "<<val.w<<" ] ";
     }
     template <>
-    inline void toStream(std::ostream& out, glm::ivec4 val){
+    inline void toStream(std::ostream& out, const glm::ivec4& val){
         out<<"[ "<<val.x<<", "<<val.y<<", "<<val.z<<", "<<val.w<<" ] ";
     }
     template <>
-    inline void toStream(std::ostream& out, glm::quat val){
+    inline void toStream(std::ostream& out, const glm::quat& val){
         out<<"[ "<<val.x<<", "<<val.y<<", "<<val.z<<", "<<val.w<<" ] ";
     }
     template <>
-    inline void toStream(std::ostream& out, glm::vec3 val){
+    inline void toStream(std::ostream& out, const glm::vec3& val){
         out<<"[ "<<val.x<<", "<<val.y<<", "<<val.z<<" ] ";
     }
     template <>
-    inline void toStream(std::ostream& out, glm::ivec3 val){
+    inline void toStream(std::ostream& out, const glm::ivec3& val){
         out<<"[ "<<val.x<<", "<<val.y<<", "<<val.z<<" ] ";
     }
     template <>
-    inline void toStream(std::ostream& out, btVector3 val){
+    inline void toStream(std::ostream& out, const btVector3& val){
         out<<"[ "<<val[0]<<", "<<val[1]<<", "<<val[2]<<" ] ";
     }
     template <>
-    inline void toStream(std::ostream& out, btQuaternion val){
+    inline void toStream(std::ostream& out, const btQuaternion& val){
         out<<"[ "<<val[0]<<", "<<val[1]<<", "<<val[2]<<", "<<val[3]<<" ] ";
     }
+    template <>
+    inline void toStream(std::ostream& out, const glm::mat4& val){
+        out << "[ ";
+        toStream(out, val[0]);
+        toStream(out, val[1]);
+        toStream(out, val[2]);
+        toStream(out, val[3]);
+        out << " ] ";
+    }
     template <typename T>
-    inline void toStream(std::ostream& out, const std::vector<T> &val){
+    inline void toStream(std::ostream& out, const std::vector<T>& val){
         out<<"{ ";
         for(auto &it : val){
             toStream(out, it);

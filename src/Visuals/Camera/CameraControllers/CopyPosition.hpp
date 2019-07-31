@@ -38,14 +38,20 @@ protected:
     CameraConstraints constraints;
 
     ValueFollower<glm::vec4> origin;
-    glm::vec4 offset fromOriginToEye;
+    glm::vec4 fromOriginToEye;
     glm::vec4 eyePosition;
     glm::quat orientation;
     bool areConstraintsInLocalSpaceOfFollowedObject {false};
-    glm::vec4 calculateEyePositionOffset(const glm::mat4& initialPosition, const glm::vec4& originWorldPosition){}
+    glm::vec4 calculateEyePositionOffset(const glm::vec4& cameraRelativeMatrix) const {
+        // matrix describes camera relative position in space of module, so now we need to inverse camera matrix to get distance of module origin on each camera axis
+        auto inv = glm::affineInverse(cameraRelativeMatrix);
+        return inv[3]-glm::vec4(0,0,0,1);
+    }
 
 public:
-    CopyOnlyPosition(const glm::mat4& initialPosition, glm::vec2 windowSize) : CameraController(windowSize){
+    CopyOnlyPosition(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize)
+    : CameraController(windowSize)
+    {
         euler = glm::vec3(69*toRad, 14*toRad, 0);
         glm::extractEulerAngleXYZ(initialPosition, euler.x, euler.y, euler.z);
         rotationCenter = initialPosition[3];
@@ -57,6 +63,8 @@ public:
         constraints.roll = {{ -90*toRad, 90*toRad }};
         constraints.fov = {{ 30*toRad, 120*toRad }};
         constraints.offset = {{{{-5,-5,-5, 0}, {5,5,25, 0}}}};
+
+        fromOriginToEye = calculateEyePositionOffset(parentMatrix[3], cameraRelativeMatrix);
 
         applyTransform(0);
         Camera::evaluate();
@@ -101,5 +109,12 @@ public:
     void printDebug(){
         Camera::printDebug();
         console.log("euler:", euler.x*toDeg, euler.y*toDeg, euler.z*toDeg);
+    }
+
+    void zoomByFov(float scaleChange){
+        // make scale change non linear - when closer steps are smaller, but in a way that is reversible
+    }
+    void zoomByDistance(float scaleChange){
+        // make scale change non linear - when closer steps are smaller, but in a way that is reversible
     }
 };

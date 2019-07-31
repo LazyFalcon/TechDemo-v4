@@ -97,7 +97,7 @@ void DroneLikeControl::updateInsidePhysicsStep(float dt){
 
 
     positionPart(dt, tr);
-    orientationPart(dt, tr);
+    // orientationPart(dt, tr);
 }
 
 class PDReg

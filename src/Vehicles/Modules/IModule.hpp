@@ -140,9 +140,9 @@ public:
     ModuleFollower(IModule& module) : m_module(module){}
 
     template<typename... Args>
-    ModuleFollower(IModule *module, const glm::mat4& cameraRelativeMatrix, Args&... args) : CC(m_module->getTransform(), cameraRelativeMatrix, args...), m_module(module){}
+    ModuleFollower(IModule& module, const glm::mat4& cameraRelativeMatrix, Args&... args) : CC(module.getTransform(), cameraRelativeMatrix, args...), m_module(module){}
 
     void update(float dt) override {
-        CC::update(m_module->getTransform(), dt);
+        CC::update(m_module.getTransform(), dt);
     }
 };

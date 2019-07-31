@@ -84,7 +84,7 @@ private:
     enum class Mode {Around, InPlace} mode {Mode::Around};
 
 public:
-    FreeCamController(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
+    FreeCamController(const glm::mat4& cameraMatrix, glm::vec2 windowSize);
     void update(float dt) override;
     void zoomToMouse(const glm::vec4&);
     void zoomOutMouse(const glm::vec4&);

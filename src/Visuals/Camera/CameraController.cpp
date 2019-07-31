@@ -38,13 +38,21 @@ CameraController& CameraController::getActiveCamera(){
     return *activeCamera;
 }
 
+glm::vec4 calculateEyePositionOffset2(const glm::mat4& cameraRelativeMatrix){
+    auto inv = glm::affineInverse(cameraRelativeMatrix);
+    return glm::vec4(0,0,0,1) - inv[3];
+}
+
 // -----------------------------------------------------------------
 CopyOnlyPosition::CopyOnlyPosition(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : CameraController(windowSize){
     euler = glm::vec3(69*toRad, 14*toRad, 0);
-    glm::extractEulerAngleXYZ(initialPosition, euler.x, euler.y, euler.z);
-    rotationCenter = initialPosition[3];
+    glm::extractEulerAngleXYZ(cameraRelativeMatrix, euler.x, euler.y, euler.z);
+    rotationCenter = parentMatrix[3];
     target.euler = euler;
     target.rotationCenter = rotationCenter;
+
+    Camera::offset = calculateEyePositionOffset2(cameraRelativeMatrix);
+    console.log("Camera::offset", Camera::offset, "around:", rotationCenter, "calculated from: ", cameraRelativeMatrix, "and", parentMatrix[3]);
 
     constraints.yaw = {{ -pi, pi }, true};
     constraints.pitch = {{ 0 , 160*toRad }};
@@ -82,7 +90,7 @@ void CopyOnlyPosition::applyTransform(float dt){
     orientation = glm::eulerAngleZ(euler.y) * glm::eulerAngleX(euler.x) * glm::eulerAngleZ(euler.z); // * yaw, pitch, roll
     rotationCenter = glm::mix(rotationCenter, target.rotationCenter, glm::smoothstep(0.f, 1.f, inertia * dt/16.f));
 
-    orientation[3] = rotationCenter + orientation * glm::vec4(offset.x*(0.1f + offset.z/25.f), offset.y*(0.1f + offset.z/25.f), offset.z, 0);
+    orientation[3] = rotationCenter + orientation * offset;
 }
 
 void CopyOnlyPosition::update(const glm::mat4& parentTransform, float dt){
@@ -102,8 +110,8 @@ void CopyOnlyPosition::printDebug(){
 // -----------------------------------------------------------------
 CopyTransform::CopyTransform(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : CopyOnlyPosition(parentMatrix, cameraRelativeMatrix, windowSize){
     euler = glm::vec3(90*toRad, 0, 0);
-    glm::extractEulerAngleXYZ(initialPosition, euler.x, euler.y, euler.z);
-    rotationCenter = initialPosition[3];
+    glm::extractEulerAngleXYZ(cameraRelativeMatrix, euler.x, euler.y, euler.z);
+    rotationCenter = parentMatrix[3];
     target.euler = euler;
     target.rotationCenter = rotationCenter;
 
@@ -112,7 +120,7 @@ CopyTransform::CopyTransform(const glm::mat4& parentMatrix, const glm::mat4& cam
     constraints.roll = {{ -90*toRad, 90*toRad }};
     constraints.offset = {{{{0,0,0, 0}, {0,0,25, 0}}}};
 
-    applyTransform(initialPosition, 0);
+    applyTransform(cameraRelativeMatrix, 0);
     Camera::evaluate();
 }
 
@@ -144,15 +152,15 @@ void CopyTransform::update(const glm::mat4& parentTransform, float dt){
 /*
 * Camera rotates around center point(constant before camera, or under mouse), offset is in camera space and thanks to it camera is not facing directly at rotation point
 */
-FreeCamController::FreeCamController(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : CameraController(windowSize){
+FreeCamController::FreeCamController(const glm::mat4& cameraMatrix, glm::vec2 windowSize) : CameraController(windowSize){
     // * reverse configuration from camera position
     offset = glm::vec4(0,2,15,0);
     inertia = 0.2;
-    auto normalized = glm::orthonormalize(glm::mat3(initialPosition));
+    auto normalized = glm::orthonormalize(glm::mat3(cameraMatrix));
     m_cam = glm::toQuat(normalized); // glm::angleAxis(0.f, glm::normalize(glm::vec3(1,0,-0.2)));
-    // m_cam =  glm::angleAxis(0.f, glm::normalize(initialPosition[2].xyz()));
+    // m_cam =  glm::angleAxis(0.f, glm::normalize(cameraMatrix[2].xyz()));
     // m_rotationCenter = glm::vec4(0,0,0,1); //
-    m_rotationCenter = initialPosition[3] - glm::vec4(normalized*offset.xyz(), 0);
+    m_rotationCenter = cameraMatrix[3] - glm::vec4(normalized*offset.xyz(), 0);
     m_target.rotationCenter = m_rotationCenter;
     m_target.cam = m_cam;
     m_target.impulse = {};

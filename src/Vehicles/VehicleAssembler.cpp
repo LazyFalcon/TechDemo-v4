@@ -161,13 +161,11 @@ void VehicleAssembler::setMarkers(IModule& module, const Yaml& cfg){
     }
 }
 
-
 void VehicleAssembler::attachCameras(IModule& module, const Yaml& names){
     for(const auto& name : names){
         const auto& params = m_config["Cameras"][name.string()];
         // todo: load full camera transformation matrix
         auto camera = createModuleFollower(module, params["Mode"].string(), matrixFromYaml(params["Relative Position"]));
-        camera->offset = params["Offset"].vec31();
         camera->fov = params["Angle"].number();
         camera->inertia = params["Inertia"].number();
         camera->recalucuateProjectionMatrix();
@@ -191,7 +189,7 @@ void VehicleAssembler::setVisual(IModule& module, const Yaml& cfg){
     m_skinnedMesh->bones.push_back(identityMatrix);
     module.moduleVisualUpdater = std::make_unique<ModuleVisualUpdater>(m_skinnedMesh->bones, m_boneMatrixIndex);
     // module.moduleVisualUpdater->setTransform(identityMatrix);
-    module.moduleVisualUpdater->setTransform(module.getParentTransform() * module.localTransform * tr);
+    module.moduleVisualUpdater->setTransform(module.getParentTransform() * module.localTransform);
 
     m_modelLoader->setBoneIndex(m_modelLoader->loadOnly(models), m_boneMatrixIndex);
 

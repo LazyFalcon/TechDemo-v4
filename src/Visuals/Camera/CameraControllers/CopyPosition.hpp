@@ -1,8 +1,9 @@
 #pragma once
 #include "CameraController.hpp"
-
+namespace Utils
+{
 template<typename T>
-struct ValueFollower()
+struct ValueFollower
 {
     T value;
     T target;
@@ -19,25 +20,58 @@ struct ValueFollower()
     }
     const T& update(float dt){
 
-        value = glm::mix(value, target, glm::smoothstep(0.f, 1.f, smoothness * dt/0.016.f));
+        value = glm::mix(value, target, glm::smoothstep(0.f, 1.f, smoothness * dt/16.f));
 
         return value;
     }
+};
+
+template<typename T>
+class Limits
+{
+private:
+    T min;
+    T max;
+    T value;
+public:
+    Limits(T value) : min(1), max(-1), value(value){}
+    Limits(T value, T min, T max) : min(min), max(max), value(value){}
+    Limits(const Limits& o) : min(o.min), max(o.max), value(o.value){}
+    Limits& operator=(const Limits& o){
+        min = o.min;
+        max = o.max;
+        value = o.value;
+    }
+
+    Limits& operator * (){
+        update();
+        return value;
+    }
+
+    void update(){
+        if(min < max) value = glm::clamp(value, min, max);
+    }
+};
 
 }
 
-class CopyOnlyPosition : public CameraController
+class CopyOnlyPosition2 : public CameraController
 {
 protected:
+    Utils::Limits<float> yaw;
+    Utils::Limits<float> pitch;
+    Utils::Limits<float> roll;
+    Utils::Limits<std::reference_wrapper<float>> fovLimited;
+
+
     struct {
         glm::vec4 rotationCenter;
-        glm::vec3 euler;
     } target;
     glm::vec4 rotationCenter;
     glm::vec3 euler;
     CameraConstraints constraints;
 
-    ValueFollower<glm::vec4> origin;
+    Utils::ValueFollower<glm::vec4> origin;
     glm::vec4 fromOriginToEye;
     glm::vec4 eyePosition;
     glm::quat orientation;
@@ -49,20 +83,20 @@ protected:
     }
 
 public:
-    CopyOnlyPosition(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize)
-    : CameraController(windowSize)
+    CopyOnlyPosition2(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize)
+        : CameraController(windowSize),
+        yaw(0),
+        pitch(0, -pi/3, pi/3),
+        roll(0, -pi/2, pi/2),
+        fovLimited(std::ref(fov), 30*toRad, 120*toRad)
     {
-        euler = glm::vec3(69*toRad, 14*toRad, 0);
-        glm::extractEulerAngleXYZ(initialPosition, euler.x, euler.y, euler.z);
-        rotationCenter = initialPosition[3];
-        target.euler = euler;
+        glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
+
+        rotationCenter = parentMatrix[3];
         target.rotationCenter = rotationCenter;
 
-        constraints.yaw = {{ -pi, pi }, true};
-        constraints.pitch = {{ 0 , 160*toRad }};
-        constraints.roll = {{ -90*toRad, 90*toRad }};
-        constraints.fov = {{ 30*toRad, 120*toRad }};
-        constraints.offset = {{{{-5,-5,-5, 0}, {5,5,25, 0}}}};
+        // constraints.fov = {{ 30*toRad, 120*toRad }};
+        // constraints.offset = {{{{-5,-5,-5, 0}, {5,5,25, 0}}}};
 
         fromOriginToEye = calculateEyePositionOffset(parentMatrix[3], cameraRelativeMatrix);
 
@@ -70,11 +104,11 @@ public:
         Camera::evaluate();
     }
     void applyTransform(float dt){
-        constraints.yaw(target.euler.y);
-        constraints.pitch(target.euler.x);
-        constraints.roll(target.euler.z);
-        constraints.fov(Camera::fov);
-        constraints.offset(Camera::offset);
+        // constraints.yaw(target.euler.y);
+        // constraints.pitch(target.euler.x);
+        // constraints.roll(target.euler.z);
+        // constraints.fov(Camera::fov);
+        // constraints.offset(Camera::offset);
 
 
         euler = glm::mix(euler, target.euler, glm::smoothstep(0.f, 1.f, inertia * dt/16.f));

@@ -4,6 +4,7 @@
 #include "Logger.hpp"
 #include "Utils.hpp"
 #include <glm/gtx/orthonormalize.hpp>
+#include "CopyPosition.hpp"
 
 CameraController* CameraController::activeCamera {nullptr};
 std::list<CameraController*> CameraController::listOf;
@@ -52,7 +53,6 @@ CopyOnlyPosition::CopyOnlyPosition(const glm::mat4& parentMatrix, const glm::mat
     target.rotationCenter = rotationCenter;
 
     Camera::offset = calculateEyePositionOffset2(cameraRelativeMatrix);
-    console.log("Camera::offset", Camera::offset, "around:", rotationCenter, "calculated from: ", cameraRelativeMatrix, "and", parentMatrix[3]);
 
     constraints.yaw = {{ -pi, pi }, true};
     constraints.pitch = {{ 0 , 160*toRad }};
@@ -85,9 +85,10 @@ void CopyOnlyPosition::applyTransform(float dt){
     constraints.fov(Camera::fov);
     constraints.offset(Camera::offset);
 
-    euler = glm::mix(euler, target.euler, glm::smoothstep(0.f, 1.f, inertia * dt/16.f));
-    // orientation = glm::slerp(orientation, target.basis, basisSmooth*dt/16.f);
-    orientation = glm::eulerAngleZ(euler.y) * glm::eulerAngleX(euler.x) * glm::eulerAngleZ(euler.z); // * yaw, pitch, roll
+    target.transform = glm::angleAxis(target.euler.y, Z3) * glm::angleAxis(target.euler.x, X3);
+
+    transform = glm::slerp(transform, target.transform, 0.09f*dt/16.f);
+    orientation = glm::toMat4(transform);
     rotationCenter = glm::mix(rotationCenter, target.rotationCenter, glm::smoothstep(0.f, 1.f, inertia * dt/16.f));
 
     orientation[3] = rotationCenter + orientation * offset;

@@ -36,7 +36,9 @@ protected:
     struct {
         glm::vec4 rotationCenter;
         glm::vec3 euler;
-    } target;
+        glm::quat transform;
+    } target{};
+    glm::quat transform{};
     glm::vec4 rotationCenter;
     glm::vec3 euler;
     CameraConstraints constraints;

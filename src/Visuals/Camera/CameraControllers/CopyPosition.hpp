@@ -1,77 +1,146 @@
 #pragma once
 #include "CameraController.hpp"
+
 namespace Utils
 {
-template<typename T>
-struct ValueFollower
-{
-    T value;
-    T target;
-    // float& smoothness;
-    float smoothness;
-    // float& inertia;
-    float inertia;
+template<typename TT>
+TT& defaultClampFunction(TT& value, const TT& min, const TT& max){
+    if(min < max) value = glm::clamp(value, min, max);
+    return value;
+}
 
-    void set(T val){
-        target = val;
-    }
-    const T& get(){
-        return value;
-    }
-    const T& update(float dt){
+template<typename TT>
+TT& no_op(TT& value, const TT& min, const TT& max){
+    return value;
+}
 
-        value = glm::mix(value, target, glm::smoothstep(0.f, 1.f, smoothness * dt/16.f));
-
-        return value;
-    }
-};
-
-template<typename T>
+template<typename T, auto WrapFunction = defaultClampFunction<T>>
 class Limits
 {
 private:
-    T min;
-    T max;
+    std::remove_reference_t<T> m_min {};
+    std::remove_reference_t<T> m_max {};
     T value;
 public:
-    Limits(T value) : min(1), max(-1), value(value){}
-    Limits(T value, T min, T max) : min(min), max(max), value(value){}
-    Limits(const Limits& o) : min(o.min), max(o.max), value(o.value){}
-    Limits& operator=(const Limits& o){
-        min = o.min;
-        max = o.max;
-        value = o.value;
+    Limits(T value) : value(value){}
+    template<typename T2, typename T3>
+    Limits(T value, T2 min, T3 max) : m_min(min), m_max(max), value(value){}
+
+    template<typename T3>
+    void operator=(T3 v){
+        value = v;
+        update();
     }
 
-    Limits& operator * (){
-        update();
+    operator T() const {
         return value;
     }
 
-    void update(){
-        if(min < max) value = glm::clamp(value, min, max);
+    template<typename T2, typename T3>
+    void setBounds(T2 min, T3 max){
+        m_min = min;
+        m_max = max;
+    }
+
+    T& operator * (){
+        return WrapFunction(value, m_min, m_max);
+    }
+
+    T& set(const T& val){
+        value = val;
+        return update();
+    }
+
+    auto update(){
+        return WrapFunction(value, m_min, m_max);
     }
 };
+
+template<typename T>
+T defaultMixFunction(const T& value, const T&  target, float miliseconds, float smoothness){
+    const float frameTime = 1000.f/60.f;
+    return glm::mix(value, target, smoothness * miliseconds/frameTime);
+    // return glm::mix(rotationCenter, target.rotationCenter, glm::smoothstep(0.f, 1.f, inertia * dt/frameTime));
+    // smoothstep ma sens wtedy gdy przy ustaleniu wartosci, zapiszemy startową wartość, i będziemy robiliinterpolację nie po czasie a po
+    // różnicy, znaczy e = t-v0; i v += smootshstep(0, <warość od kiedy zaczynamy wygładzenie>, e);
+}
+
+glm::quat quaternionSlerpFunction(const glm::quat&  value, const glm::quat&  target, float miliseconds, float smoothness){
+    const float frameTime = 1000.f/60.f;
+    return glm::slerp(value, target, smoothness * miliseconds/frameTime);
+}
+
+template<typename T, typename HightType = T, auto InterpolateFunction = defaultMixFunction<T>>
+class ValueFollower
+{
+private:
+    float m_smoothness {1};
+    float m_inertia {0};
+    std::remove_reference_t<T> m_target {};
+    HightType value;
+public:
+    ValueFollower(HightType value, float smoothness, float inertia) : m_smoothness(smoothness), m_inertia(inertia), m_target(value), value(value){}
+
+    template<typename T3>
+    void operator=(T3 v){
+        m_target = v;
+    }
+    template<typename T3>
+    void set(const T3& v){
+        value = v;
+        m_target = value;
+    }
+
+    operator T() const {
+        return value;
+    }
+
+    template<typename T2, typename T3>
+    void setBounds(T2 smoothness, T3 inertia){
+        m_smoothness = smoothness;
+        m_inertia = inertia;
+    }
+
+    T& set(const T& val){
+        m_target = val;
+    }
+
+    void update(float dt){
+        value =  InterpolateFunction(value, m_target, dt, m_smoothness);
+    }
+};
+
+/*
+ Usage:
+    using namespace Utils;
+    float value(10);
+    Limits<float&> l(value, 0, 15.f);
+    Limits<float> l4(56, 0, 15.f);
+    Limits<float&, no_op<float>> l2(value, 0, 15.f);
+    Limits<float> l3(value, 0, 15.f);
+    ValueFollower<float, Limits<float, float&>> f(l, 0.1f, 1);
+    ValueFollower<float, Limits<float&>&> f2(l, 0.06f, 1);
+    ValueFollower<glm::quat, glm::quat, quaternionSlerpFunction> q(glm::angleAxis(3.14f, glm::vec3(0,0,1)), 0.06f, 1.f);
+
+ */
 
 }
 
 class CopyOnlyPosition2 : public CameraController
 {
 protected:
-    Utils::Limits<float> yaw;
+    using namespace Utils;
+    Utils::Limits<float, no_op<float>> yaw;
     Utils::Limits<float> pitch;
     Utils::Limits<float> roll;
-    Utils::Limits<std::reference_wrapper<float>> fovLimited;
+    Utils::Limits<float&> fovLimited;
 
+    Utils::ValueFollower<glm::vec4> origin;
 
-    struct {
-        glm::vec4 rotationCenter;
-    } target;
     glm::vec4 rotationCenter;
     glm::vec3 euler;
     CameraConstraints constraints;
 
-    Utils::ValueFollower<glm::vec4> origin;
     glm::vec4 fromOriginToEye;
     glm::vec4 eyePosition;
     glm::quat orientation;
@@ -88,7 +157,7 @@ public:
         yaw(0),
         pitch(0, -pi/3, pi/3),
         roll(0, -pi/2, pi/2),
-        fovLimited(std::ref(fov), 30*toRad, 120*toRad)
+        fovLimited(fov, 30*toRad, 120*toRad)
     {
         glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
 

@@ -27,7 +27,7 @@ protected:
     ~Camera() = default;
 public:
     // * from camera transform calculate view matrix. call once per frame, before rendering phase
-    void evaluate();
+    void recalculate();
     void recalucuateProjectionMatrix();
     void recalucuateFrustum();
     void changeFov(float delta); // ! radians please!

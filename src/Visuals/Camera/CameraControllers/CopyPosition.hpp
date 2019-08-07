@@ -14,6 +14,17 @@ TT& no_op(TT& value, const TT& min, const TT& max){
     return value;
 }
 
+template<typename TT>
+TT& periodicAngle(TT& value, const TT&, const TT&){
+    if(value > pi) value -= 2*pi;
+    if(value < -pi) value += 2*pi;
+
+    // auto diff = fmod(value + pi, pi2) - pi; // wrap difference to range -pi;pi
+    // return diff < -pi ? diff + pi2 : diff;
+
+    return value;
+}
+// todo: nie wiem czy to jest do końca takie najszczęśliwsze rozwiązanie
 template<typename T, auto WrapFunction = defaultClampFunction<T>>
 class Limits
 {
@@ -105,6 +116,11 @@ public:
         m_target = val;
     }
 
+    T& reset(const T& val){
+        value = val;
+        m_target = val;
+    }
+
     void update(float dt){
         value =  InterpolateFunction(value, m_target, dt, m_smoothness);
     }
@@ -126,25 +142,32 @@ public:
 
 }
 
+
+/*
+Opcje:
+    |> dwa sposoby przybliżania: fov i dystans
+    |> reagowanie na zachowanie sledzonego obiektu: żadne, kopiowanie poziomego obrotu
+
+    |> dodatkowo chciałbym zrobić by kamerą obracać za pomocą punktu w który ma patrzeć,
+       Zadaniem kontrolera byłoby patrzenie się w ten punkt.
+       Obracając kamerę myszą, obracamy wektor którym celujemy, wektor trafia gdzieś w przestrzeń, w ten punk ma się kamera patrzeć
+
+    todo: na starcie konwertuj offset na wektor i wartość skali
+    ? a jak zrobić by zoomować fow i dystans niejednorodnie, ale powtarzalnie? trzeb jakąś fcjęnapisać, w głowie nie wymyślę
+    ? a jakby rozbić to na komponenty? np Controller(ViewByPoint, CopyOrientation, FollowPosition)?
+*/
 class CopyOnlyPosition2 : public CameraController
 {
 protected:
     using namespace Utils;
-    Utils::Limits<float, no_op<float>> yaw;
-    Utils::Limits<float> pitch;
-    Utils::Limits<float> roll;
+    Utils::Limits<float, periodicAngle<float>> yaw; // y, around Z axis
+    Utils::Limits<float> pitch; // x, around X axis
+    Utils::Limits<float> roll; // z, around Y axis
     Utils::Limits<float&> fovLimited;
 
     Utils::ValueFollower<glm::vec4> origin;
+    Utils::ValueFollower<glm::quat, glm::quat, quaternionSlerpFunction> rotation;
 
-    glm::vec4 rotationCenter;
-    glm::vec3 euler;
-    CameraConstraints constraints;
-
-    glm::vec4 fromOriginToEye;
-    glm::vec4 eyePosition;
-    glm::quat orientation;
-    bool areConstraintsInLocalSpaceOfFollowedObject {false};
     glm::vec4 calculateEyePositionOffset(const glm::vec4& cameraRelativeMatrix) const {
         // matrix describes camera relative position in space of module, so now we need to inverse camera matrix to get distance of module origin on each camera axis
         auto inv = glm::affineInverse(cameraRelativeMatrix);
@@ -157,67 +180,64 @@ public:
         yaw(0),
         pitch(0, -pi/3, pi/3),
         roll(0, -pi/2, pi/2),
-        fovLimited(fov, 30*toRad, 120*toRad)
+        fovLimited(fov, 30*toRad, 120*toRad),
+        origin(parentMatrix[3], 0.1f, 0.5f)
+        rotation(glm::quat(0), 0.1f, 0.5f)
     {
         glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
+        offset = calculateEyePositionOffset(parentMatrix[3], cameraRelativeMatrix);
 
-        rotationCenter = parentMatrix[3];
-        target.rotationCenter = rotationCenter;
-
-        // constraints.fov = {{ 30*toRad, 120*toRad }};
-        // constraints.offset = {{{{-5,-5,-5, 0}, {5,5,25, 0}}}};
-
-        fromOriginToEye = calculateEyePositionOffset(parentMatrix[3], cameraRelativeMatrix);
-
-        applyTransform(0);
-        Camera::evaluate();
+        recalculateCamera();
     }
-    void applyTransform(float dt){
-        // constraints.yaw(target.euler.y);
-        // constraints.pitch(target.euler.x);
-        // constraints.roll(target.euler.z);
-        // constraints.fov(Camera::fov);
-        // constraints.offset(Camera::offset);
 
-
-        euler = glm::mix(euler, target.euler, glm::smoothstep(0.f, 1.f, inertia * dt/16.f));
-        // orientation = glm::slerp(orientation, target.basis, basisSmooth*dt/16.f);
-        orientation = glm::eulerAngleZ(euler.y) * glm::eulerAngleX(euler.x) * glm::eulerAngleZ(euler.z); // * yaw, pitch, roll
-        // rotationCenter = glm::mix(rotationCenter, target.rotationCenter, glm::smoothstep(0.f, 1.f, inertia * dt/16.f));
+    void updateMovement(float dt){
+        rotation = glm::angleAxis(yaw, Z3) * glm::angleAxis(target.euler.x, X3);
+        rotation.update(dt);
         origin.update(dt);
-
-        orientation[3] = origin.get() + orientation * (offset * offsetScale);
+        // update filters
+        // update exposture and camera aperture
+        // view depth changes with exposture :D
     }
-    void rotateByMouse(float screenX, float screenY, const glm::vec4&){
-        // * take into accout camera roll
-        glm::vec2 v(screenY*cos(-euler.z) - screenX*sin(-euler.z),
-                    screenY*sin(-euler.z) + screenX*cos(-euler.z));
+    void recalculateCamera(){
+        target.transform = glm::angleAxis(target.euler.y, Z3) * glm::angleAxis(target.euler.x, X3);
 
-        // TODO: is screenX <> euler.y proper math? cleanup this
-        target.euler.x -= (v.x * 12.f * fov)/pi;
-        target.euler.y -= (v.y * 12.f * fov)/pi;
+        orientation = glm::toMat4(transform);
+        orientation[3] = rotationCenter + orientation * offset;
+
+        Camera::recalculate();
     }
+
+    void rotateInViewPlane(float horizontal, float vertical){
+        glm::vec2 v(vertical*cos(-roll) - horizontal*sin(-roll),
+                    vertical*sin(-roll) + horizontal*cos(-roll));
+
+        pitch -= (v.x * 12.f * fov)/pi;
+        yaw -= (v.y * 12.f * fov)/pi;
+    }
+
     void roll(float angle){
         target.euler.z += angle;
     }
     void update(const glm::mat4& parentTransform, float dt){
         if(not hasFocus()) return;
-
-        // target.rotationCenter = parentTransform[3];
-        origin.set(parentTransform[3]);
-        // applyBounds(target.rotationCenter);
-        applyTransform(dt);
-        Camera::evaluate();
+        updateMovement(dt);
+        recalculateCamera();
     }
+
+    void modView(float change){
+        if(mode == ZOOM_BY_FOV) modFov(change);
+        else if(mode == ZOOM_BY_DISTANCE) modDistance(change);
+    }
+
+    void modFov(float scaleChange){
+        // make scale change non linear - when closer steps are smaller, but in a way that is reversible
+    }
+    void modDistance(float scaleChange){
+        // make scale change non linear - when closer steps are smaller, but in a way that is reversible
+    }
+
     void printDebug(){
         Camera::printDebug();
-        console.log("euler:", euler.x*toDeg, euler.y*toDeg, euler.z*toDeg);
-    }
-
-    void zoomByFov(float scaleChange){
-        // make scale change non linear - when closer steps are smaller, but in a way that is reversible
-    }
-    void zoomByDistance(float scaleChange){
-        // make scale change non linear - when closer steps are smaller, but in a way that is reversible
+        console.log("yaw, pitch, roll:", yaw*toDeg, pitch*toDeg, roll*toDeg);
     }
 };

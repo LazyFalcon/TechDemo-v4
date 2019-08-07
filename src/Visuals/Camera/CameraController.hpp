@@ -4,6 +4,31 @@
 
 class CommonHUDData;
 
+class CameraController
+{
+private:
+    Camera camera;
+public:
+    virtual void updateMovement(float dt) = 0;
+    virtual void recalculateCamera() = 0;
+    virtual void rotateInViewPlane(float horizontal, float vertical) = 0;
+    virtual void roll(float angle) = 0;
+    virtual void update(const glm::mat4& parentTransform, float dt) = 0;
+    virtual void modView(float change) = 0;
+    virtual void modFov(float scaleChange) = 0;
+    virtual void modDistance(float scaleChange) = 0;
+
+    void focus();
+    bool hasFocus() const;
+    virtual void printDebug(){}
+    static CameraController& getActiveCamera();
+    static std::list<CameraController*> listOf;
+};
+
+
+
+
+
 class CameraController : public Camera
 {
 private:

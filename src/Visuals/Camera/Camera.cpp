@@ -3,7 +3,7 @@
 #include "Camera.hpp"
 #include "Logger.hpp"
 
-void Camera::evaluate(){
+void Camera::recalculate(){
     view = glm::affineInverse(orientation);
 
     right = orientation[0];

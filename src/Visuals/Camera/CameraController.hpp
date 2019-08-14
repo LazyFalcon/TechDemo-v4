@@ -25,10 +25,6 @@ public:
     static std::list<CameraController*> listOf;
 };
 
-
-
-
-
 class CameraController : public Camera
 {
 private:

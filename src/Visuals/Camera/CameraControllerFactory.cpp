@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "CameraControllerFactory.hpp"
-#include "CameraController.hpp"
+#include "camera-controller.hpp"
 #include "Window.hpp"
 
 CameraControllerFactory::CameraControllerFactory(Window &window) : windowSize(window.size){}

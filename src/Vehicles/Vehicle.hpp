@@ -1,5 +1,5 @@
 #pragma once
-#include "CameraController.hpp"
+#include "camera-controller.hpp"
 #include "BulletDynamics\Dynamics\btActionInterface.h"
 #include "GraphicComponent.hpp"
 #include "MountedWeapon.hpp"

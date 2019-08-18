@@ -1,6 +1,6 @@
 #pragma once
-#include "CameraController.hpp"
-#include "CamcontrolUtils.hpp"
+#include "camera-controller.hpp"
+#include "camera-utils.hpp"
 
 
 /*
@@ -23,7 +23,6 @@ protected:
     Utils::Limits<float, periodicAngle<float>> yaw; // y, around Z axis
     Utils::Limits<float> pitch; // x, around X axis
     Utils::Limits<float> roll; // z, around Y axis
-    Utils::Limits<float&> fovLimited;
 
     Utils::ValueFollower<glm::vec4> origin;
     Utils::ValueFollower<glm::quat, glm::quat, quaternionSlerpFunction> rotation;
@@ -63,7 +62,7 @@ public:
         target.transform = glm::angleAxis(target.euler.y, Z3) * glm::angleAxis(target.euler.x, X3);
 
         orientation = glm::toMat4(transform);
-        orientation[3] = rotationCenter + orientation * offset;
+        orientation[3] = origin + orientation * offset;
 
         Camera::recalculate();
     }

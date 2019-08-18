@@ -1,14 +1,14 @@
 #pragma once
-#include "CameraController.hpp"
+#include "camera-controller.hpp"
 
 class Camera;
 class CollectionOfCameras
 {
 private:
     int m_idx {0};
-    std::vector<std::shared_ptr<CameraController>> m_cameras;
+    std::vector<std::shared_ptr<Camera::Controller>> m_cameras;
 public:
-    void add(std::shared_ptr<CameraController> toAdd){
+    void add(std::shared_ptr<Camera::Controller> toAdd){
         m_cameras.push_back(toAdd);
     }
 

@@ -2,6 +2,9 @@
 #include "Frustum.hpp"
 #include "Filters.hpp"
 
+namespace Camera
+{
+
 template<typename T>
 struct constr
 {
@@ -72,3 +75,5 @@ public:
         return frustum;
     }
 };
+
+}

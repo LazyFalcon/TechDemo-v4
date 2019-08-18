@@ -6,7 +6,7 @@
 #include <typeinfo>
 
 class ArmoredVehicleTracks;
-class Camera;
+class Camera::Camera;
 class Details;
 class GraphicEngine;
 class LightSource;
@@ -48,7 +48,7 @@ public:
     static std::vector<LightSource*> lights[10]; // * lights collected by type, and relation to camera: index = type + isCameraInsideEnum
     static std::vector<LightSource*> lightsCastingShadows;
 
-    static void collectCamera(Camera& camera);
+    static void collectCamera(Camera::Camera& camera);
     static void collectWindow(Window& window);
     static void collectTime(float lastFrame, u64 sinceStart);
 

@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Camera.hpp"
+#include "camera.hpp"
 #include <list>
 
 class CommonHUDData;

@@ -13,7 +13,7 @@ private:
 public:
     static void registerMe(GBufferSampler*);
     static void deregisterMe(GBufferSampler*);
-    void sampleGBuffer(Camera &camera);
+    void sampleGBuffer(Camera::Camera &camera);
     GBufferSamplers(Window &window, Context &context) : window(window), context(context){}
 };
 

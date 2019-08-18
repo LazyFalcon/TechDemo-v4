@@ -1,10 +1,10 @@
 #include "core.hpp"
 #include "3DDebugTools.hpp"
-#include "Camera.hpp"
+#include "camera.hpp"
 
 namespace graphic {
 
-void drawCubes(Camera &camera){
+void drawCubes(Camera::Camera &camera){
     // auto &cubes = getDebugCubes();
     // if(cubes.empty()) return;
 
@@ -23,7 +23,7 @@ void drawCubes(Camera &camera){
     // CHECK_FOR_ERRORS
 }
 
-void drawDebug(Camera &camera){
+void drawDebug(Camera::Camera &camera){
     // return;
     // gl::Enable(gl::DEPTH_TEST);
     // gl::DepthMask(gl::TRUE_);

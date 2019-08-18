@@ -1,5 +1,5 @@
 ﻿#include "core.hpp"
-#include "CameraController.hpp"
+#include "CameraControllerDeprecated.hpp"
 #include "Constants.hpp"
 #include "Logger.hpp"
 #include "Utils.hpp"

@@ -4,7 +4,7 @@
 
 class AI;
 class Atmosphere;
-class Camera;
+class Camera::Camera;
 class CameraController;
 class CameraControllerFactory;
 class Environment;
@@ -49,7 +49,7 @@ struct Scene : private boost::noncopyable
     std::vector<std::shared_ptr<AI>> m_hostileBots;
 
     bool load(const std::string &name);
-    void update(float dt, Camera &camera);
+    void update(float dt, Camera::Camera &camera);
     void extractSpawnPoints(const Yaml& yaml);
     void extractCameras(const Yaml& yaml);
 

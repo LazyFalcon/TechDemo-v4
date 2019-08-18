@@ -1,6 +1,5 @@
 #pragma once
 #include "Actor.hpp"
-#include "CameraController.hpp"
 #include "GBufferSampler.hpp"
 #include "Utils.hpp"
 #include "Vehicle.hpp"

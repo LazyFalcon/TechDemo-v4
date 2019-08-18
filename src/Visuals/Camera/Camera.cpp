@@ -1,8 +1,9 @@
 #include "core.hpp"
 #include "Utils.hpp"
-#include "Camera.hpp"
+#include "camera.hpp"
 #include "Logger.hpp"
-
+namespace Camera
+{
 void Camera::recalculate(){
     view = glm::affineInverse(orientation);
 
@@ -109,4 +110,5 @@ void Camera::printDebug(){
     // console.log("euler:", euler);
     // console.log("target.basis:", target.basis);
     // console.log("target.parentBasis:", target.parentBasis);
+}
 }

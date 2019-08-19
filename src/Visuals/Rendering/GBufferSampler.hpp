@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+namespace camera { class Camera; }
 struct GBufferSampler;
 class Context;
 class Window;

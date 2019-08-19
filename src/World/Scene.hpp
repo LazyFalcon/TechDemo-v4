@@ -7,8 +7,8 @@ class Atmosphere;
 namespace camera{
     class Camera;
     class Controller;
+    class Factory;
 }
-class CameraControllerFactory;
 class Environment;
 class Foliage;
 class FreeCamController;
@@ -28,7 +28,7 @@ struct SpawnPoint
 
 struct Scene : private boost::noncopyable
 {
-    Scene(PhysicalWorld &physics, CameraControllerFactory& camFactory);
+    Scene(PhysicalWorld &physics, camera::Factory& camFactory);
     ~Scene();
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
@@ -44,7 +44,7 @@ struct Scene : private boost::noncopyable
     std::unique_ptr<Sun> sun;
     std::unique_ptr<Terrain> terrain;
     std::vector<SpawnPoint> spawnPoints;
-    CameraControllerFactory& camFactory;
+    camera::Factory& camFactory;
     CollectionOfCameras freeCams;
 
     std::vector<std::shared_ptr<AI>> m_friendlyBots;

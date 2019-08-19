@@ -2,7 +2,7 @@
 #include "Yaml.hpp"
 #include "ModuleFactory.hpp"
 
-class CameraControllerFactory;
+namespace camera { class Factory; }
 class GraphicComponent;
 class IModule;
 class Joint;
@@ -22,7 +22,7 @@ private:
     PhysicalWorld& m_physics;
     std::shared_ptr<Vehicle> m_vehicle;
     ModuleFactory m_moduleFactory;
-    CameraControllerFactory& m_camFactory;
+    camera::Factory& m_camFactory;
 
     std::shared_ptr<SkinnedMesh> m_skinnedMesh;
     uint m_boneMatrixIndex {};
@@ -47,10 +47,9 @@ private:
     void buildRigidBody(const glm::mat4& onPosition);
 
     void addToCompound(btCollisionShape* collShape, const glm::mat4& transform, void* owner);
-    std::shared_ptr<camera::Controller> createModuleFollower(IModule& module, const std::string& type, const glm::mat4& cameraRelativeMatrix);
 
 public:
-    VehicleAssembler(const std::string& configName, PhysicalWorld& physics, CameraControllerFactory& camFactory);
+    VehicleAssembler(const std::string& configName, PhysicalWorld& physics, camera::Factory& camFactory);
 
     std::shared_ptr<Vehicle> build(const glm::mat4& onPosition);
 

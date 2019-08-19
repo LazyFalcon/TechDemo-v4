@@ -1,8 +1,24 @@
 #pragma once
 
-// todo: ciekawe czy będę potrzebował renderować do małego canvasa?
-// i co z UI i wyświetlaniem tekstur?
-namespace camera
-{
+class Window;
 
+namespace camera {
+
+class Camera;
+class Controller;
+
+class Factory
+{
+private:
+    glm::vec2& windowSize;
+public:
+    Factory(Window &window);
+
+    template<typename ControllerType, typename... Args>
+    std::shared_ptr<ControllerType> create(Args&&... args){
+        auto out(std::make_shared<ControllerType>(args..., windowSize));
+        // dummyInitCamera(*out);
+        return out;
+    }
+};
 }

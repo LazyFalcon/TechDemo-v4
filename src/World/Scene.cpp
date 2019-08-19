@@ -4,7 +4,7 @@
 #include "Atmosphere.hpp"
 #include "camera-data.hpp"
 #include "camera-controller.hpp"
-#include "CameraControllerFactory.hpp"
+#include "camera-factory.hpp"
 #include "Environment.hpp"
 #include "Foliage.hpp"
 #include "GeoTimePosition.hpp"
@@ -21,7 +21,7 @@
 
 namespace graphic {void renderTopViewOfTerrain(Scene &scene);}
 
-Scene::Scene(PhysicalWorld &physics, CameraControllerFactory& camFactory) : physics(physics), camFactory(camFactory){}
+Scene::Scene(PhysicalWorld &physics, camera::Factory& camFactory) : physics(physics), camFactory(camFactory){}
 Scene::~Scene(){
     console.log("~Scene");
 }
@@ -73,7 +73,7 @@ bool Scene::load(const std::string &sceneName){
 void Scene::update(float dt, camera::Camera &camera){
     CPU_SCOPE_TIMER("Scene::update");
     const Frustum &frustum = camera.getFrustum();
-    todo: const Frustum frustum(camera);
+    // todo: const Frustum frustum(camera);
     // if(geoTimePosition) geoTimePosition->update(dt*10);
     if(graph) graph->cullCells(frustum);
     environment->update(dt);
@@ -99,7 +99,7 @@ void Scene::extractCameras(const Yaml& yaml){
         auto w = it["Position"]["W"].vec31();
         glm::mat4 mat(x,y,z,w);
         // todo: fill the rest of params!
-        freeCams.add(camFactory.create<FreeCamController>(mat));
+        freeCams.add(camFactory.create<camera::Controller>(mat, "freecam global-euler"));
     }
     else console.error("There is no free camera defined in scene");
     freeCams.focus();

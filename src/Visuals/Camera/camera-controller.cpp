@@ -13,7 +13,7 @@ Controller& active(){
     return activeCamera;
 }
 
-Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize):
+Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, std::string_view type, glm::vec2 windowSize):
     yaw(0),
     pitch(0, -pi/3, pi/3),
     roll(0, -pi/2, pi/2),
@@ -23,6 +23,8 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
 {
     listOfControllers.push_back(this);
     if(not activeCamera) focusOn();
+
+    setBehavior(type);
 
     glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
     offset = calculateEyePositionOffset(cameraRelativeMatrix);

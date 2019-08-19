@@ -130,21 +130,3 @@ public:
     std::unique_ptr<ModuleVisualUpdater> moduleVisualUpdater;
     std::unique_ptr<ModuleCompoundUpdater> moduleCompoundUpdater;
 };
-
-// todo: is this correct inheitance?
-// ten wrapper nie jest polimorphic friendly!
-template<typename CC, typename = std::enable_if_t<std::is_base_of<camera::Controller, CC>::value>>
-class ModuleFollower : public CC
-{
-private:
-    IModule& m_module {nullptr};
-public:
-    ModuleFollower(IModule& module) : m_module(module){}
-
-    template<typename... Args>
-    ModuleFollower(IModule& module, const glm::mat4& cameraRelativeMatrix, Args&... args) : CC(module.getTransform(), cameraRelativeMatrix, args...), m_module(module){}
-
-    void update(float dt) override {
-        CC::update(m_module.getTransform(), dt);
-    }
-};

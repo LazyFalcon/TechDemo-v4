@@ -90,14 +90,15 @@ private:
     }
 
 public:
-    Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
+    Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, std::string_view type, glm::vec2 windowSize);
+    Controller(const glm::mat4& cameraRelativeMatrix, std::string_view type, glm::vec2 windowSize) : Controller(glm::mat4(1), cameraRelativeMatrix, type, windowSize){}
     virtual ~Controller();
 
     void focusOn();
     bool hasFocus() const;
 
     void setBehavior(std::string_view type){
-        auto idx = type.find('-');
+        auto idx = type.find(' ');
         setState(type.substr(0, idx));
         setState(type.substr(idx+1, type.size()-idx-1));
     }

@@ -1,7 +1,7 @@
 #include "core.hpp"
 
 #include "Assets.hpp"
-#include "CameraControllerFactory.hpp"
+#include "camera-factory.hpp"
 #include "DroneLikeControl.hpp"
 #include "IModule.hpp"
 #include "Joint.hpp"
@@ -10,7 +10,19 @@
 #include "Player.hpp"
 #include "VehicleAssembler.hpp"
 
-#define logFunc() console.log(__FUNCTION__, ":", __LINE__);
+class ModuleFollower : public camera::Controller
+{
+private:
+    IModule& m_module;
+public:
+    template<typename... Args>
+    ModuleFollower(IModule& module, const glm::mat4& cameraRelativeMatrix, Args&... args) : camera::Controller(module.getTransform(), cameraRelativeMatrix, args...), m_module(module){}
+
+    void update(float dt) override {
+        camera::Controller::update(m_module.getTransform(), dt);
+    }
+};
+
 glm::mat4 matrixFromYaml(const Yaml& params){
     return glm::mat4(params["X"].vec30(),
                      params["Y"].vec30(),
@@ -18,7 +30,7 @@ glm::mat4 matrixFromYaml(const Yaml& params){
                      params["W"].vec31());
 }
 
-VehicleAssembler::VehicleAssembler(const std::string& configName, PhysicalWorld& physics, CameraControllerFactory& camFactory) :
+VehicleAssembler::VehicleAssembler(const std::string& configName, PhysicalWorld& physics, camera::Factory& camFactory) :
     m_configName(configName),
     m_modelLoader(std::make_shared<ModelLoader<VertexWithMaterialDataAndBones>>()),
     m_physics(physics),
@@ -165,7 +177,7 @@ void VehicleAssembler::attachCameras(IModule& module, const Yaml& names){
     for(const auto& name : names){
         const auto& params = m_config["Cameras"][name.string()];
         // todo: load full camera transformation matrix
-        auto camera = createModuleFollower(module, params["Mode"].string(), matrixFromYaml(params["Relative Position"]));
+        auto camera = m_camFactory.create<ModuleFollower>(module, matrixFromYaml(params["Relative Position"]), params["Mode"].string());
         camera->fov = params["Angle"].number();
         camera->inertia = params["Inertia"].number();
         camera->recalucuateProjectionMatrix();
@@ -228,12 +240,4 @@ void VehicleAssembler::addToCompound(btCollisionShape* collShape, const glm::mat
     btTransform localTrans = convert(transform);
     collShape->setUserPointer(owner);
     m_vehicle->compound->addChildShape(localTrans, collShape);
-}
-
-std::shared_ptr<camera::Controller> VehicleAssembler::createModuleFollower(IModule& module, const std::string& type, const glm::mat4& cameraRelativeMatrix){
-    auto out = m_camFactory.create<ModuleFollower<camera::Controller>>(module, cameraRelativeMatrix);
-
-    out->setBehavior(type);
-
-    return out;
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "CameraControllerFactory.hpp"
+#include "camera-factory.hpp"
 
 class GLFWwindow;
 class App;
@@ -25,5 +25,5 @@ public:
     float aspect;
     GLFWwindow *window;
     App &app;
-    CameraControllerFactory camFactory;
+    camera::Factory camFactory;
 };

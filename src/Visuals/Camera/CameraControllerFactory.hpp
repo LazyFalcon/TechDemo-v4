@@ -1,7 +1,9 @@
 #pragma once
 
+namespace camera {
 class Camera;
-class CameraController;
+class Controller;
+}
 class Window;
 
 class CameraControllerFactory

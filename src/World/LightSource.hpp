@@ -12,7 +12,7 @@
 #include "GPUResources.hpp"
 #include "BaseGameObject.hpp"
 
-class Camera;
+namespace camera{ class Camera; }
 class Frustum;
 class PhysicalWorld;
 class Yaml;

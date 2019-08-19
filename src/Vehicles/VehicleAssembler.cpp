@@ -169,7 +169,7 @@ void VehicleAssembler::attachCameras(IModule& module, const Yaml& names){
         camera->fov = params["Angle"].number();
         camera->inertia = params["Inertia"].number();
         camera->recalucuateProjectionMatrix();
-        camera->evaluate();
+        camera->update(0.f);
 
         m_vehicle->cameras.add(camera);
         console.log("Camera:", name.string());
@@ -230,19 +230,10 @@ void VehicleAssembler::addToCompound(btCollisionShape* collShape, const glm::mat
     m_vehicle->compound->addChildShape(localTrans, collShape);
 }
 
-std::shared_ptr<CameraController> VehicleAssembler::createModuleFollower(IModule& module, const std::string& type, const glm::mat4& cameraRelativeMatrix){
-    // todo: add option to camera to always rotate with mouse
-    if(type == "CopyPlane"){ // TODO: finish it!
-        return nullptr;
-    }
-    if(type == "CopyPosition"){
-        return m_camFactory.create<ModuleFollower<CopyOnlyPosition>>(module, cameraRelativeMatrix);
-    }
-    else if(type == "CopyTransform"){
-        return m_camFactory.create<ModuleFollower<CopyTransform>>(module, cameraRelativeMatrix);
-    }
-    else if(type == "Free"){
-        return m_camFactory.create<FreeCamController>(cameraRelativeMatrix);
-    }
-    return nullptr;
+std::shared_ptr<camera::Controller> VehicleAssembler::createModuleFollower(IModule& module, const std::string& type, const glm::mat4& cameraRelativeMatrix){
+    auto out = m_camFactory.create<ModuleFollower<camera::Controller>>(module, cameraRelativeMatrix);
+
+    out->setBehavior(type);
+
+    return out;
 }

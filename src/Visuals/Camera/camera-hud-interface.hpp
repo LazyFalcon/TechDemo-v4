@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Camera
+namespace camera
 {
 
 class CameraHUDInterface

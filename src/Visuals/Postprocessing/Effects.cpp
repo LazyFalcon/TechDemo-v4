@@ -3,7 +3,7 @@
 #include "Assets.hpp"
 #include "Atmosphere.hpp"
 #include "BaseStructs.hpp"
-#include "camera.hpp"
+#include "camera-data.hpp"
 #include "DecalsAndMarkers.hpp"
 #include "Effects.hpp"
 #include "PerfTimers.hpp"
@@ -16,7 +16,7 @@
 
 std::vector<Decal> Decal::decalList;
 
-void Effects::scattering(Scene &scene, Camera::Camera &camera){
+void Effects::scattering(Scene &scene, camera::Camera &camera){
     GPU_SCOPE_TIMER();
     if(not scene.atmosphere || not scene.sun) return;
 
@@ -63,7 +63,7 @@ void Effects::scattering(Scene &scene, Camera::Camera &camera){
 
     context.errors();
 }
-void Effects::scatteringShadowed(Scene &scene, Camera::Camera &camera){
+void Effects::scatteringShadowed(Scene &scene, camera::Camera &camera){
     GPU_SCOPE_TIMER();
     if(not scene.atmosphere || not scene.sun) return;
 
@@ -116,7 +116,7 @@ void Effects::scatteringShadowed(Scene &scene, Camera::Camera &camera){
 
     context.errors();
 }
-void Effects::sky(Scene &scene, Camera::Camera &camera){
+void Effects::sky(Scene &scene, camera::Camera &camera){
     GPU_SCOPE_TIMER();
 
     if(not scene.atmosphere || not scene.sun) return;
@@ -164,7 +164,7 @@ void Effects::sky(Scene &scene, Camera::Camera &camera){
 
     context.errors();
 }
-void Effects::starfield(Scene &scene, Camera::Camera &camera){
+void Effects::starfield(Scene &scene, camera::Camera &camera){
     GPU_SCOPE_TIMER();
     if(not scene.starfield and not scene.sun) return;
     gl::DepthMask(0);
@@ -188,7 +188,7 @@ void Effects::starfield(Scene &scene, Camera::Camera &camera){
     gl::Disable(gl::BLEND);
     context.errors();
 }
-void Effects::drawDecals(Camera::Camera &camera){
+void Effects::drawDecals(camera::Camera &camera){
     // TODO: enable culling
     auto &decals = Decal::decalList;
     if(decals.empty()) return;
@@ -229,7 +229,7 @@ void Effects::drawDecals(Camera::Camera &camera){
     gl::Disable(gl::BLEND);
     gl::DepthMask(gl::TRUE_);
 }
-void Effects::SSAO(Camera::Camera &camera){
+void Effects::SSAO(camera::Camera &camera){
     GPU_SCOPE_TIMER();
     /// maybe disable if for sky? Enable depth test for not eqial 1?
 
@@ -397,7 +397,7 @@ void Effects::bloomSpecular(){
 
     context.errors();
 }
-void Effects::matcap(Camera::Camera &camera){
+void Effects::matcap(camera::Camera &camera){
     gl::Disable(gl::BLEND);
     gl::Disable(gl::DEPTH_TEST);
     gl::Disable(gl::CULL_FACE);

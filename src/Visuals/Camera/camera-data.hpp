@@ -2,7 +2,7 @@
 #include "Frustum.hpp"
 #include "Filters.hpp"
 
-namespace Camera
+namespace camera
 {
 
 template<typename T>
@@ -23,7 +23,7 @@ struct CameraConstraints
     constr<float> fov {{ 2.5f * toRad, 150.f * toRad }};
     constr<glm::vec4> offset {{{ {-5,-5, -5, 0}, {5,5,25, 0} }}};
 };
-
+// todo: wepchać tu więcej
 class Camera
 {
 protected:

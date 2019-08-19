@@ -2,8 +2,8 @@
 #include "gl_core_4_5.hpp"
 
 #include "Atmosphere.hpp"
-#include "camera.hpp"
-#include "CameraCocamera-controllerntroller.hpp"
+#include "camera-data.hpp"
+#include "camera-controller.hpp"
 #include "CameraControllerFactory.hpp"
 #include "Environment.hpp"
 #include "Foliage.hpp"
@@ -70,9 +70,10 @@ bool Scene::load(const std::string &sceneName){
     return true;
 }
 
-void Scene::update(float dt, Camera::Camera &camera){
+void Scene::update(float dt, camera::Camera &camera){
     CPU_SCOPE_TIMER("Scene::update");
     const Frustum &frustum = camera.getFrustum();
+    todo: const Frustum frustum(camera);
     // if(geoTimePosition) geoTimePosition->update(dt*10);
     if(graph) graph->cullCells(frustum);
     environment->update(dt);

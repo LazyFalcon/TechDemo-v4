@@ -1,14 +1,13 @@
 #pragma once
 #include "camera-controller.hpp"
 
-class Camera;
 class CollectionOfCameras
 {
 private:
     int m_idx {0};
-    std::vector<std::shared_ptr<Camera::Controller>> m_cameras;
+    std::vector<std::shared_ptr<camera::Controller>> m_cameras;
 public:
-    void add(std::shared_ptr<Camera::Controller> toAdd){
+    void add(std::shared_ptr<camera::Controller> toAdd){
         m_cameras.push_back(toAdd);
     }
 
@@ -20,7 +19,7 @@ public:
     }
 
     void focus(){
-        if(not m_cameras.empty()) m_cameras[m_idx]->focus();
+        if(not m_cameras.empty()) m_cameras[m_idx]->focusOn();
     }
     void next(){
         ++m_idx;
@@ -35,10 +34,10 @@ public:
     bool hasAny() const {
         return not m_cameras.empty();
     }
-    Camera& get(){
+    camera::Camera& get(){
         return *m_cameras[m_idx];
     }
-    CameraController& getController(){
+    camera::Controller& getController(){
         return *m_cameras[m_idx];
     }
 };

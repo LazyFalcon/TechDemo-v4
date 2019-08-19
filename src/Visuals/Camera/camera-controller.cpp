@@ -1,22 +1,67 @@
 #include "core.hpp"
+#include "Logging.hpp"
 #include "camera-controller.hpp"
 
-namespace Camera
+namespace camera
 {
+
+std::list<Controller*> listOfControllers;
+Controller* activeCamera;
+// todo: stack of previously active cameras?
+
+Controller& active(){
+    return activeCamera;
+}
+
+Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize):
+    yaw(0),
+    pitch(0, -pi/3, pi/3),
+    roll(0, -pi/2, pi/2),
+    fovLimited(Camera::fov, 30*toRad, 120*toRad),
+    origin(parentMatrix[3], 0.1f, 0.5f),
+    rotation(glm::angleAxis(0.f, Z3), 0.1f, 0.5f)
+{
+    listOfControllers.push_back(this);
+    if(not activeCamera) focusOn();
+
+    glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
+    offset = calculateEyePositionOffset(cameraRelativeMatrix);
+    recalculateCamera();
+}
+
+Controller::~Controller(){
+    listOfControllers.remove(this);
+    if(activeCamera == this and not listOfControllers.empty()) listOfControllers.front()->focus();
+
+}
+
+void Controller::focusOn(){
+    activeCamera = this;
+}
+bool Controller::hasFocus() const {
+    return activeCamera == this;
+}
+
+void Controller::printDebug(){
+    Camera::printDebug();
+    console.log("yaw, pitch, roll:", yaw*toDeg, pitch*toDeg, roll*toDeg);
+}
+
+
 
 std::map<std::string, positionControlState> Controller::positionControlStates =
 {
-    {"xxxxx", {"xxxxx", &Controller::initState, &Controller::freecamPosition}},
-    {"xxxxx", {"xxxxx", &Controller::initState, &Controller::pinnedPosition}},
+    {"freecam", {"freecam", &Controller::initState, &Controller::freecamPosition}},
+    {"pinned", {"pinned", &Controller::initState, &Controller::pinnedPosition}},
 };
 std::map<std::string, rotationControlState> Controller::rotationControlStates =
 {
-    {"xxxxx", {"xxxxx", &Controller::initState, &Controller::global_euler}},
-    {"xxxxx", {"xxxxx", &Controller::initState, &Controller::global_euler_copyUp}},
-    {"xxxxx", {"xxxxx", &Controller::initState, &Controller::local_euler}},
-    {"xxxxx", {"xxxxx", &Controller::initState, &Controller::local_euler_stablized}},
-    {"xxxxx", {"xxxxx", &Controller::initState, &Controller::local_focused}},
-    {"xxxxx", {"xxxxx", &Controller::initState, &Controller::local_focused_stabilized}},
+    {"global-euler", {"global-euler", &Controller::initState, &Controller::global_euler}},
+    {"global-euler-copyUp", {"global-euler-copyUp", &Controller::initState, &Controller::global_euler_copyUp}},
+    {"local-euler", {"local-euler", &Controller::initState, &Controller::local_euler}},
+    {"local-euler-stablilized", {"local-euler-stablilized", &Controller::initState, &Controller::local_euler_stablized}},
+    {"local-focused", {"local-focused", &Controller::initState, &Controller::local_focused}},
+    {"local-focused-stablized", {"local-focused-stablized", &Controller::initState, &Controller::local_focused_stabilized}},
 };
 
 

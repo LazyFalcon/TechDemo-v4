@@ -1,6 +1,6 @@
 #include "core.hpp"
 #include "Assets.hpp"
-#include "camera.hpp"
+#include "camera-data.hpp"
 #include "Context.hpp"
 #include "Environment.hpp"
 #include "LightRendering.hpp"
@@ -19,12 +19,12 @@ int isCameraInside(const glm::vec4& position, LightSource& light){
 }
 }
 
-void LightRendering::lightPass(Scene &scene, Camera::Camera &camera){
+void LightRendering::lightPass(Scene &scene, camera::Camera &camera){
     if(scene.sun) renderSun(*scene.sun, camera);
     renderPointLights(camera);
 }
 
-void LightRendering::renderSun(Sun& sun, Camera::Camera &camera){
+void LightRendering::renderSun(Sun& sun, camera::Camera &camera){
     GPU_SCOPE_TIMER();
     gl::Enable(gl::BLEND);
     gl::BlendFunc(gl::ONE, gl::ONE);
@@ -65,7 +65,7 @@ void LightRendering::renderSun(Sun& sun, Camera::Camera &camera){
 
     context.errors();
 }
-void LightRendering::renderPointLights(Camera::Camera &camera){
+void LightRendering::renderPointLights(camera::Camera &camera){
     GPU_SCOPE_TIMER();
     float lightScale = 1;
     // fillStencil(camera, scene, Textures::LightIntensity);
@@ -130,7 +130,7 @@ void LightRendering::renderPointLights(Camera::Camera &camera){
     gl::Disable(gl::CULL_FACE);
     gl::DepthFunc(gl::LEQUAL);
 }
-void LightRendering::hemisphericalAmbient(Scene &scene, Camera::Camera &camera){
+void LightRendering::hemisphericalAmbient(Scene &scene, camera::Camera &camera){
     GPU_SCOPE_TIMER();
     // setupFBO_11_withDepth(Textures::LightIntensity);
     gl::Enable(gl::BLEND);
@@ -155,7 +155,7 @@ void LightRendering::hemisphericalAmbient(Scene &scene, Camera::Camera &camera){
 
     context.errors();
 }
-void LightRendering::renderShinyObjects(Scene &scene, Camera::Camera &camera){
+void LightRendering::renderShinyObjects(Scene &scene, camera::Camera &camera){
 
 }
 float LightRendering::calculateLuminance(){
@@ -187,7 +187,7 @@ float LightRendering::calculateLuminance(){
     // return luminance;
     return 1;
 }
-void LightRendering::compose(Camera::Camera &camera){
+void LightRendering::compose(camera::Camera &camera){
     GPU_SCOPE_TIMER();
     context.fbo[1].tex(context.tex.full.a).tex(context.tex.gbuffer.depth)();
     gl::Disable(gl::BLEND);

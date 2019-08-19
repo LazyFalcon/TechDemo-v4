@@ -40,18 +40,18 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
             event<ExitPlayground>();
         });
         m_input->action("f12").on([this]{
-            Camera::getActiveCamera().printDebug();
+            camera::getActiveCamera().printDebug();
             console.log("m_mouseWorldPos", m_mouseWorldPos);
             });
-        m_input->action("+").on([this]{ Camera::getActiveCamera().offset.z -= 1.5; });
-        m_input->action("-").on([this]{ Camera::getActiveCamera().offset.z += 1.5; });
+        m_input->action("+").on([this]{ camera::getActiveCamera().offset.z -= 1.5; });
+        m_input->action("-").on([this]{ camera::getActiveCamera().offset.z += 1.5; });
         m_input->action("scrollUp").on([=]{
                 if(m_useFreecam) m_scene->freeCams.getController().zoomToMouse(m_mouseSampler->position);
-                else Camera::getActiveCamera().changeFov(+15*toRad);
+                else camera::getActiveCamera().changeFov(+15*toRad);
             });
         m_input->action("scrollDown").on([=]{
                 if(m_useFreecam) m_scene->freeCams.getController().zoomOutMouse(m_mouseSampler->position);
-                else Camera::getActiveCamera().changeFov(-15*toRad);
+                else camera::getActiveCamera().changeFov(-15*toRad);
             });
         m_input->action("RMB").on([this]{
                 // TODO: move freecam, in a way that mouse world position is preserved
@@ -63,8 +63,8 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
                 m_cameraRotate = false;
                 if(m_useFreecam) m_scene->freeCams.getController().releaseRotationCenter();
             });
-        m_input->action("Q").on([this]{ Camera::getActiveCamera().roll(-15*toRad); });
-        m_input->action("E").on([this]{ Camera::getActiveCamera().roll(+15*toRad); });
+        m_input->action("Q").on([this]{ camera::getActiveCamera().roll(-15*toRad); });
+        m_input->action("E").on([this]{ camera::getActiveCamera().roll(+15*toRad); });
 
         m_input->action("W").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(0,0,m_freecamSpeed); });
         m_input->action("S").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(0,0,-m_freecamSpeed); });
@@ -125,7 +125,7 @@ void Playground::updateWithHighPrecision(float dt){
     console_prefix("Precise Update");
     m_physics->update(dt/1000.f);
 
-    auto& currentCamera = Camera::getActiveCamera();
+    auto& currentCamera = camera::getActiveCamera();
     if(m_useFreecam and not m_scene->freeCams.getController().hasFocus()){ // * I hope player doesn't have control over it's cameras
         m_scene->freeCams.focus();
     }
@@ -144,15 +144,17 @@ void Playground::updateWithHighPrecision(float dt){
     if(m_useFreecam and m_cameraRotate) currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f, m_mouseWorldPos);
     else if(not m_useFreecam) currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f, m_mouseWorldPos);
 
-    for(auto &cam : CameraController::listOf){
-        cam->update(dt);
-    }
+    // todo:? wtf?
+    camera::active().update(dt);
+    // for(auto &cam : CameraController::listOf){
+    //     cam->update(dt);
+    // }
     m_mouseTranslationNormalized = {};
 }
 
 void Playground::renderProcedure(GraphicEngine& renderer){
     console_prefix("Rendering");
-    RenderDataCollector::collectCamera(Camera::getActiveCamera());
+    RenderDataCollector::collectCamera(camera::getActiveCamera());
     RenderDataCollector::collectWindow(m_window);
     RenderDataCollector::collectTime(FrameTime::deltaf, FrameTime::miliseconds);
 
@@ -161,7 +163,7 @@ void Playground::renderProcedure(GraphicEngine& renderer){
     renderer.context->beginFrame();
     renderer.context->setupFramebufferForGBufferGeneration();
     // renderer.utils->drawBackground("nebula2");
-    renderer.sceneRenderer->renderScene(*m_scene, Camera::getActiveCamera());
+    renderer.sceneRenderer->renderScene(*m_scene, camera::getActiveCamera());
 
     renderer.details->executeAtEndOfFrame();
 
@@ -169,16 +171,16 @@ void Playground::renderProcedure(GraphicEngine& renderer){
 
     m_pointerInfo.worldPosition = m_mouseSampler->position;
 
-    renderer.effects->SSAO(Camera::getActiveCamera());
+    renderer.effects->SSAO(camera::getActiveCamera());
 
     // renderer.shadowCaster->updateShadows();
 
     renderer.context->setupFramebufferForLighting();
-    renderer.lightRendering->lightPass(*m_scene, Camera::getActiveCamera());
-    renderer.lightRendering->compose(Camera::getActiveCamera());
+    renderer.lightRendering->lightPass(*m_scene, camera::getActiveCamera());
+    renderer.lightRendering->compose(camera::getActiveCamera());
 
     // renderer.effects->scattering(*m_scene, CameraController::getActiveCamera());
-    renderer.effects->sky(*m_scene, Camera::getActiveCamera());
+    renderer.effects->sky(*m_scene, camera::getActiveCamera());
 
     renderer.context->setupFramebufferForLDRProcessing();
     renderer.effects->toneMapping();

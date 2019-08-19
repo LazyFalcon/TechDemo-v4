@@ -46,6 +46,10 @@ public:
         return value;
     }
 
+    T get() const {
+        return value;
+    }
+
     template<typename T2, typename T3>
     void setBounds(T2 min, T3 max){
         m_min = min;
@@ -68,16 +72,14 @@ public:
 
 template<typename T>
 T defaultMixFunction(const T& value, const T&  target, float miliseconds, float smoothness){
-    const float frameTime = 1000.f/60.f;
-    return glm::mix(value, target, smoothness * miliseconds/frameTime);
+    return glm::mix(value, target, smoothness * miliseconds/frameMs);
     // return glm::mix(rotationCenter, target.rotationCenter, glm::smoothstep(0.f, 1.f, inertia * dt/frameTime));
     // smoothstep ma sens wtedy gdy przy ustaleniu wartosci, zapiszemy startową wartość, i będziemy robiliinterpolację nie po czasie a po
     // różnicy, znaczy e = t-v0; i v += smootshstep(0, <warość od kiedy zaczynamy wygładzenie>, e);
 }
 
 glm::quat quaternionSlerpFunction(const glm::quat&  value, const glm::quat&  target, float miliseconds, float smoothness){
-    const float frameTime = 1000.f/60.f;
-    return glm::slerp(value, target, smoothness * miliseconds/frameTime);
+    return glm::slerp(value, target, smoothness * miliseconds/frameMs);
 }
 
 template<typename T, typename HightType = T, auto InterpolateFunction = defaultMixFunction<T>>
@@ -95,11 +97,6 @@ public:
     void operator=(T3 v){
         m_target = v;
     }
-    template<typename T3>
-    void set(const T3& v){
-        value = v;
-        m_target = value;
-    }
 
     operator T() const {
         return value;
@@ -113,6 +110,10 @@ public:
 
     T& set(const T& val){
         m_target = val;
+    }
+
+    T get(){
+        return value;
     }
 
     T& reset(const T& val){

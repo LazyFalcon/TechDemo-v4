@@ -1,7 +1,7 @@
 #include "core.hpp"
 #include "Assets.hpp"
 #include "BaseStructs.hpp"
-#include "camera.hpp"
+#include "camera-data.hpp"
 #include "Context.hpp"
 #include "Environment.hpp"
 #include "GraphicComponent.hpp" // TODO: rename
@@ -14,7 +14,7 @@
 #include "Sun.hpp"
 
 
-void SceneRenderer::renderSceneStuff(Scene &scene, Camera::Camera &camera){
+void SceneRenderer::renderSceneStuff(Scene &scene, camera::Camera &camera){
     // GPU_SCOPE_TIMER();
     // ! not used anymore, scene is rendered via indirect draw call formed from renderData gloabal
     // if(not scene.environment) return;
@@ -49,7 +49,7 @@ void SceneRenderer::renderSceneStuff(Scene &scene, Camera::Camera &camera){
 
     // context.errors();
 }
-void SceneRenderer::renderTerrain(Scene &scene, Camera::Camera &camera){
+void SceneRenderer::renderTerrain(Scene &scene, camera::Camera &camera){
     // ! no longer used
     // GPU_SCOPE_TIMER();
     // if(not scene.graph) return;
@@ -73,7 +73,7 @@ void SceneRenderer::renderTerrain(Scene &scene, Camera::Camera &camera){
 
     // context.errors();
 }
-void SceneRenderer::renderFoliage(Scene &scene, Camera::Camera &camera){
+void SceneRenderer::renderFoliage(Scene &scene, camera::Camera &camera){
     GPU_SCOPE_TIMER();
     if(not scene.foliage) return;
     glm::vec4 lightDir(1,1,-1, 0);
@@ -126,7 +126,7 @@ void SceneRenderer::renderFoliage(Scene &scene, Camera::Camera &camera){
 
     context.errors();
 }
-void SceneRenderer::renderGrass(Scene &scene, Camera::Camera &camera){
+void SceneRenderer::renderGrass(Scene &scene, camera::Camera &camera){
     GPU_SCOPE_TIMER();
     if(not scene.grass) return;
 
@@ -158,19 +158,19 @@ void SceneRenderer::renderGrass(Scene &scene, Camera::Camera &camera){
 }
 
 
-void SceneRenderer::renderScene(Scene &scene, Camera::Camera &camera){
+void SceneRenderer::renderScene(Scene &scene, camera::Camera &camera){
     renderSkinned(camera);
     render_SimpleModelPbr(camera);
     // renderTracks(camera);
 }
-void SceneRenderer::renderShadows(Scene &scene, Camera::Camera &camera){
+void SceneRenderer::renderShadows(Scene &scene, camera::Camera &camera){
     renderSkinnedShadows(scene, camera);
 }
-void SceneRenderer::renderGlossyObjects(Camera::Camera &camera){
+void SceneRenderer::renderGlossyObjects(camera::Camera &camera){
 }
 
 
-void SceneRenderer::renderSkinned(Camera::Camera &camera){
+void SceneRenderer::renderSkinned(camera::Camera &camera){
     GPU_SCOPE_TIMER();
 
     auto shader = assets::bindShader("skinned-model-pbr");
@@ -227,7 +227,7 @@ void SceneRenderer::renderSkinned(Camera::Camera &camera){
     gl::BindTexture(gl::TEXTURE_2D, 0);
 };
 
-void SceneRenderer::renderSkinnedShadows(Scene &scene, Camera::Camera &camera){
+void SceneRenderer::renderSkinnedShadows(Scene &scene, camera::Camera &camera){
     GPU_SCOPE_TIMER();
     glm::vec4 lightDir(1,1,-1, 0);
     if(scene.sun) lightDir = scene.sun->direction;
@@ -254,7 +254,7 @@ void SceneRenderer::renderSkinnedShadows(Scene &scene, Camera::Camera &camera){
     context.errors();
 };
 
-void SceneRenderer::render_SimpleModelPbr(Camera::Camera &camera){
+void SceneRenderer::render_SimpleModelPbr(camera::Camera &camera){
     // GPU_SCOPE_TIMER();
     gl::Enable(gl::CULL_FACE);
 

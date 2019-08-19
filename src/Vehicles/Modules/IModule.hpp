@@ -131,7 +131,9 @@ public:
     std::unique_ptr<ModuleCompoundUpdater> moduleCompoundUpdater;
 };
 
-template<typename CC, typename = std::enable_if_t<std::is_base_of<CameraController, CC>::value>>
+// todo: is this correct inheitance?
+// ten wrapper nie jest polimorphic friendly!
+template<typename CC, typename = std::enable_if_t<std::is_base_of<camera::Controller, CC>::value>>
 class ModuleFollower : public CC
 {
 private:

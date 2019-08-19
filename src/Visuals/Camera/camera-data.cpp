@@ -1,8 +1,8 @@
 #include "core.hpp"
 #include "Utils.hpp"
-#include "camera.hpp"
+#include "camera-data.hpp"
 #include "Logger.hpp"
-namespace Camera
+namespace camera
 {
 void Camera::recalculate(){
     view = glm::affineInverse(orientation);

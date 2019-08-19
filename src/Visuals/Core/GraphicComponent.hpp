@@ -3,7 +3,7 @@
 #include "RenderDataCollector.hpp"
 #include "Logger.hpp"
 
-class Camera;
+namespace camera{ class Camera; }
 class GraphicDataCollector;
 class Scene;
 class Track;

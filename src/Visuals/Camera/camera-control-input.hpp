@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Camera
+namespace camera
 {
 
 // ? jeśli controller będzie jeden(ze stanami), to czemu by nie włożyć tego do controllera?

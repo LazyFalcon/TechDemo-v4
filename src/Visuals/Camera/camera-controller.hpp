@@ -1,11 +1,14 @@
 #pragma once
-#include "camera.hpp"
+#include "camera-data.hpp"
 #include "camera-utils.hpp"
 #include "camera-hud-interface.hpp"
 #include "camera-control-input.hpp"
 
-namespace Camera
+namespace camera
 {
+
+class Controller;
+Controller& active();
 
 class Controller: public Camera,
                   public ControlInput,
@@ -30,19 +33,19 @@ private:
     {
         std::string name;
         initStateFunc init;
-        T control;
+        T func;
     };
     using positionControlState = LocalState<positionControlFunc>;
     using rotationControlState = LocalState<rotationControlFunc>;
 
-    static std::map<std::string, positionControlState> positionControlStates;
-    static std::map<std::string, rotationControlState> rotationControlStates;
+    static std::map<std::string, positionControlState, std::less<>> positionControlStates;
+    static std::map<std::string, rotationControlState, std::less<>> rotationControlStates;
 
     positionControlState positionControl;
     rotationControlState rotationControl;
 
     void initState(ControlInput&){};
-    void setstate(const std::string& name){
+    void setState(std::string_view name){
         if(auto it = positionControlStates.find(name); it != positionControlStates.end() and positionControl.name != name){
             positionControl = it->second;
             std::invoke(positionControl.init, this, *this);
@@ -69,23 +72,9 @@ private:
         return inv[3] - glm::vec4(0,0,0,1);
     }
 
-public:
-    Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize):
-        yaw(0),
-        pitch(0, -pi/3, pi/3),
-        roll(0, -pi/2, pi/2),
-        fovLimited(fov, 30*toRad, 120*toRad),
-        origin(parentMatrix[3], 0.1f, 0.5f),
-        rotation(glm::angleAxis(0.f, Z3), 0.1f, 0.5f)
-    {
-        glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
-        offset = calculateEyePositionOffset(cameraRelativeMatrix);
-        recalculateCamera();
-    }
-
     void updateMovement(const glm::mat4& parentTransform, float dt){
-        rotation = std::invoke(rotationControl, this, parentTransform, *this, dt);
-        origin = std::invoke(positionControl, this, parentTransform, *this);
+        origin = std::invoke(positionControl.func, this, parentTransform, *this, dt);
+        rotation = std::invoke(rotationControl.func, this, parentTransform, *this);
         rotation.update(dt);
         origin.update(dt);
         // update filters
@@ -94,51 +83,60 @@ public:
     }
 
     void recalculateCamera(){
-        orientation = glm::toMat4(orientation);
-        orientation[3] = origin + orientation * offset;
+        Camera::orientation = glm::toMat4(rotation.get());
+        Camera::orientation[3] = origin.get() + Camera::orientation * offset;
 
         Camera::recalculate();
     }
 
-    void rotateInViewPlane(float horizontal, float vertical){
-        glm::vec2 v(vertical*cos(-roll) - horizontal*sin(-roll),
-                    vertical*sin(-roll) + horizontal*cos(-roll));
+public:
+    Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
+    virtual ~Controller();
 
-        pitch -= (v.x * 12.f * fov)/pi;
-        yaw -= (v.y * 12.f * fov)/pi;
+    void focusOn();
+    bool hasFocus() const;
+
+    void setBehavior(std::string_view type){
+        auto idx = type.find('-');
+        setState(type.substr(0, idx));
+        setState(type.substr(idx+1, type.size()-idx-1));
     }
 
-    void roll(float angle){
-        target.euler.z += angle;
-    }
+    // void rotateInViewPlane(float horizontal, float vertical){
+    //     glm::vec2 v(vertical*cos(-roll.get()) - horizontal*sin(-roll.get()),
+    //                 vertical*sin(-roll.get()) + horizontal*cos(-roll.get()));
 
+    //     pitch = pitch - (v.x * 12.f * fov)/pi;
+    //     yaw = yaw - (v.y * 12.f * fov)/pi;
+    // }
+
+    // void roll(float angle){
+    //     roll = roll + angle;
+    // }
+
+    virtual void update(float dt) {
+        update(glm::mat4(1), dt);
+    }
     void update(const glm::mat4& parentTransform, float dt){
         if(not hasFocus()) return;
         updateMovement(parentTransform, dt);
         recalculateCamera();
     }
 
-    void modView(float change){
-        if(mode == ZOOM_BY_FOV) modFov(change);
-        else if(mode == ZOOM_BY_DISTANCE) modDistance(change);
-    }
+    // void modView(float change){
+    //     // if(mode == ZOOM_BY_FOV) modFov(change);
+    //     // else if(mode == ZOOM_BY_DISTANCE) modDistance(change);
+    // }
 
-    void modFov(float scaleChange){
-        // make scale change non linear - when closer steps are smaller, but in a way that is reversible
-    }
+    // void modFov(float scaleChange){
+    //     // make scale change non linear - when closer steps are smaller, but in a way that is reversible
+    // }
 
-    void modDistance(float scaleChange){
-        // make scale change non linear - when closer steps are smaller, but in a way that is reversible
-    }
+    // void modDistance(float scaleChange){
+    //     // make scale change non linear - when closer steps are smaller, but in a way that is reversible
+    // }
 
-    void printDebug(){
-        Camera::printDebug();
-        console.log("yaw, pitch, roll:", yaw*toDeg, pitch*toDeg, roll*toDeg);
-    }
-
-private:
-    std::variant<> movementPolicy;
-    std::unique_ptr<ControlPolicy> orientationPolicy;
+    void printDebug();
 };
 
 }

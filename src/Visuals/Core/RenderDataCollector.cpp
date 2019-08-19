@@ -1,5 +1,5 @@
 #include "core.hpp"
-#include "camera.hpp"
+#include "camera-data.hpp"
 #include "Constants.hpp"
 #include "GraphicEngine.hpp"
 #include "LightSource.hpp"
@@ -18,7 +18,7 @@ Details& RenderDataCollector::details(){
     return *(enginePtr->details);
 }
 
-void RenderDataCollector::collectCamera(Camera::Camera& camera){
+void RenderDataCollector::collectCamera(camera::Camera& camera){
     uniforms.uFovTan = (float)tan(camera.fov*0.5f);
     uniforms.uNear = camera.nearDistance;
     uniforms.uFar = camera.farDistance;

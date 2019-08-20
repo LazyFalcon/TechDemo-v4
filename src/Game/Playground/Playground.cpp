@@ -46,11 +46,12 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         m_input->action("+").on([this]{ camera::active().offset.z -= 1.5; });
         m_input->action("-").on([this]{ camera::active().offset.z += 1.5; });
         m_input->action("scrollUp").on([=]{
-                if(m_useFreecam) m_scene->freeCams.getController().zoomToMouse(m_mouseSampler->position);
+                if(m_useFreecam) m_scene->freeCams.getController().pointerPosition = m_mouseSampler->position;
+                // if(m_useFreecam) m_scene->freeCams.getController().zoomToMouse(m_mouseSampler->position);
                 else camera::active().changeFov(+15*toRad);
             });
         m_input->action("scrollDown").on([=]{
-                if(m_useFreecam) m_scene->freeCams.getController().zoomOutMouse(m_mouseSampler->position);
+                if(m_useFreecam) m_scene->freeCams.getController().pointerPosition = m_mouseSampler->position;
                 else camera::active().changeFov(-15*toRad);
             });
         m_input->action("RMB").on([this]{
@@ -104,6 +105,7 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         m_input->action("MouseMove").on([this](float x, float y){
             m_mouseTranslation = glm::vec2(x,y) * m_window.size * 2.f;
             m_mouseTranslationNormalized = glm::vec2(x,y);
+            camera::active().once.pointerTranslation = glm::vec2(x,y);
         });
         m_input->activate();
     }

@@ -11,6 +11,24 @@ Z drugiej strony różne stany kamery potrzebują różnego inputu, myslę że n
 */
 struct ControlInput
 {
+    // może zbierzmy co jest potrzeben dla każdego modułu?
+
+    // freecam:
+    glm::vec3 directionOfMovement
+    bool switchToMovementOnWorldAxes {false};
+    std::optional<glm::vec4> rotateAroundThisPoint;
+    struct {
+        float vertical;
+        float horizontal;
+        float roll;
+    } pointerMovement;
+    bool reqiuresToHavePointerInTheSamePosition;
+
+
+
+
+
+
     glm::vec4 targetPosition;
     glm::vec2 relativePointerMove;
     std::optional<glm::vec4> setDirection;

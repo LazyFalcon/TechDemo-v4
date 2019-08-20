@@ -11,6 +11,31 @@ Z drugiej strony różne stany kamery potrzebują różnego inputu, myslę że n
 */
 struct ControlInput
 {
+    bool keepRightAxisHorizontal = false; // target right vector always in horizontal plane so roll will be zero
+    bool parentRotationAffectCurrentRotation = false; // parent rotation messes with current rotation
+    bool smoothParentRotation = false; // slerp of current rotation with parent rotation
+
+    std::optional<glm::vec4> worldPointToFocusOn; // artifical input or updated when moving camera
+    glm::vec4 directionToAlignCamera; // applies to target rotation
+    bool directionIsInLocalSpace = false; // multiply target by parent rotation
+
+    // powinno być gdzieś indziej
+    bool whenNotMovingFocusOnPoint = false;
+    std::optional<glm::vec4> worldPointToFocusOnWhenNotMoving; // updated when moving camera
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // może zbierzmy co jest potrzeben dla każdego modułu?
 
     // freecam:

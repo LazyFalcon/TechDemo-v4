@@ -80,51 +80,6 @@ std::map<std::string, rotationControlState> Controller::rotationControlStates =
     {"local-focused", {"local-focused", &Controller::initState, &Controller::local_focused}},
     /* Stabilizacja osi poziomej, tej w bok */
     {"local-focused-stablized", {"local-focused-stablized", &Controller::initState, &Controller::local_focused_stabilized}},
-
-    /* Zachowanie offsetu od środka obrotu, no zawsze obraca się z kamerą,
-        żeby kamera obracała się dookoła punktu innego niż origin, trzeba by jakoś zamrozić pozycję eye względem pojazdu, np. specjalnym stanem,
-        offset i jego obrót sie zamraża a kamera obraca sie wokół eye
-        albo moduł podaje inny pounkt obrotu, nie wokół swojego środka, np kawałek w bok*/
-
-    /* Zachowanie myszy przy trybie focused:
-        ponieważ obraca się kamera, a pozyjca myszy na ekranie się nie zmieni to kamera zgłupieje i będzie obracać się w nieskończoność
-        -> dlatego też trzeba by w tej sytuacji pozycja myszy się zmieniała tak by wskaźnik pokazywał zawsze ten sam punkt świata
-        -> jak zrobić obrót takiego punktu? gdy punkt jest widoczny na ekranie:
-            znamy ruch kursora, wystarczy pobrać nowy punkt, ustawić kamerze, obrócić kamerę, skorygować położenie punktu
-          punkt poza ekranem:
-            bawimy się w raycasting
-            albo zamiast puntu kazemy kamerze wyrówać się do jakiegoś wektora(punkt mocujemy na niebie) po prostu distance leci w nieskończoność a obroty lecą na podstwie kątów, nie muszą być precyzyjne
-        A punkt jest po to żeby kamera patrzyła się cały czas w to samo miejsce, np. gdy pojazd rusza się na boki kamera patrzy w ten sam punkt, on też, mysz mu nie ucieknie
-            ? ym, a jak będziemy się ruszać do przodu to co? miniemy ten punkt? fuck, o tym nie pomyślałem, punk jest spoko jesli robimy adsa i ktoś nas potrąci, albo idziemy na boki
-            ? poza tą sytuacjąmoże być irytujący
-            to moze jakiś globalny wektor? ale on sie nie będzie różnił od eulera..
-
-            Taki focus on point kiedy ma sens? Jak celujemy w coś, tak to chyba wystarczy utrzymywać kierunek,
-            czyli co? kamera ma się obrócić tak by kursor znalazł się na środku, do tego wystaczy wyznaczyć kierunek, wektor przechodzący przez kursor,
-            ale jak wtedy z zachowaniem pozycji kursora? eh, trzeba by coś globalnego wymyślać
-            -> na pewno potrzebny jest jakis przełącznik -> skup się na tym punkcie(** ADS, focus na wrogu, albo jak pojazd sie nie przesuwa -> przetestować **), a jak nie to patrz w tamtym kierunku,
-            ! częśc z tych rzeczy to nie powinna być w ogóle odpowiedzialnosć kamery, a część zachowania pojazdu, wtedy ma to więcej sensu, zrób po prostu zachowanie:
-            ! -> patrz na ten punkt i wyliczaj kierunek dynamicznie
-            ! -> albo utrzymuj ten kierunek
-            ! -> potrzebne zachowanie myszy wydziel gdzieś pomiędzy kamerę a playera,
-            ! -> -> rozpisz tylko use case'y kiedy mieć to a kiedy to
-            // ? pytanie czy local patrz na wektor to nie będzie równy zachowaniem global-euler? hmm?
-            różnica powinna być taka że kamera wycentruje się na myszy, ale dla przypadku gdy celownik mamy uwiązany do środlka ekranu to faktycznie będzie to samo
-
-        https://stackoverflow.com/questions/28530702/quaternion-based-camera
-            ? co z gimbal lockiem?
-
-            Więc może inaczej:
-            - kursor lata swobodnie: to obracamy się do tego punktu, czyli to co wyżej
-            - kursor jest prypięty do środka ekranu
-                - euler gdzie orientację kamery wyliczamy z kątów
-                - wektor gdy utrzymujemy ten sam kierunek patrzenia, niezależnie od ruchu pojazdu, obroty obracajaten wektor, może być przez to zbliżony do global-euler, chyba że w przestreni lokalnej, możliwe że będzie sie lepiej sprawował
-                - punkt gdy utrzymujemy ten sam punkt na widoku, np. ads
-
-    cały czas znajduję różne rzeczy które mi przeszkadzają :/
-
-
-             */
 };
 
 

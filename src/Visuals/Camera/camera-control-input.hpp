@@ -75,7 +75,7 @@ https://stackoverflow.com/questions/28530702/quaternion-based-camera
 :: gimbal lock free? Dla statków kosmicznych, może być trochę inne.
     wersja z wektorem kierunku i wektorem w 'górę' powinna to zapewnić, tylko teraz jak efektywnie obracać takim wektorem? do rozpatrzenia
 */
-
+// hmm, a jakby to uwspólnić dla wszystkich kamer? dzięki temu switch byłby bezbolesny
 struct ControlInput
 {
     bool keepRightAxisHorizontal = false; // target right vector always in horizontal plane so roll will be zero

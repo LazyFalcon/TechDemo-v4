@@ -29,11 +29,17 @@ private:
         return inv[3] - glm::vec4(0,0,0,1);
     }
 
-    void handleInput();
+    void handleInput(const glm::mat4& parentTransform, float dt);
+    void zoom();
+
+    glm::quat computeTargetRotation(const glm::mat4& parentTransform, float dt);
+    glm::vec4 computeTargetPosition(const glm::mat4& parentTransform, float dt);
+    glm::quat getRotationBasis(const glm::mat4& parentTransform, float dt)
+    void alterTargetRotation();
 
 public:
-    Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, std::string_view type, glm::vec2 windowSize);
-    Controller(const glm::mat4& cameraRelativeMatrix, std::string_view type, glm::vec2 windowSize) : Controller(glm::mat4(1), cameraRelativeMatrix, type, windowSize){}
+    Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
+    Controller(const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : Controller(glm::mat4(1), cameraRelativeMatrix, type, windowSize){}
     virtual ~Controller();
 
     void focusOn();

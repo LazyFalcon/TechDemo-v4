@@ -43,8 +43,8 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
             camera::active().printDebug();
             console.log("m_mouseWorldPos", m_mouseWorldPos);
             });
-        m_input->action("+").on([this]{ camera::active(),zoomDirection -= 1.5; });
-        m_input->action("-").on([this]{ camera::active(),zoomDirection += 1.5; });
+        m_input->action("+").on([this]{ camera::active().zoomDirection -= 1.5; });
+        m_input->action("-").on([this]{ camera::active().zoomDirection += 1.5; });
         m_input->action("scrollUp").on([=]{
                 if(m_freeView) m_scene->freeCams.getController().worldPointToZoom = m_mouseSampler->position;
                 // if(m_freeView) m_scene->freeCams.getController().zoomToMouse(m_mouseSampler->position);
@@ -103,12 +103,12 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
             }
          });
         m_input->action("P").on([this]{
-            if(m_player and not m_player.hasFocus()){
+            if(m_player and not m_player->hasFocus()){
                 m_player->focusOn();
                 m_freeView = false;
             }
-            else if(m_player and m_player.hasFocus()){
-                m_player->focusOff()
+            else if(m_player and m_player->hasFocus()){
+                m_player->focusOff();
                 m_freeView = true;
                 m_scene->freeCams.focus();
             }
@@ -164,8 +164,8 @@ void Playground::updateWithHighPrecision(float dt){
 
     // todo: zapętlanie pozycji myszy
     if(m_freeView and camera::active().rotateAroundThisPoint or not m_freeView){
-        currentCamera.horizontal = m_mouseTranslationNormalized.x * dt/frameMs;
-        currentCamera.horizontal = m_mouseTranslationNormalized.y * dt/frameMs;
+        currentCamera.pointerMovement.horizontal = m_mouseTranslationNormalized.x * dt/frameMs;
+        currentCamera.pointerMovement.vertical = m_mouseTranslationNormalized.y * dt/frameMs;
     }
 
     // todo:? wtf?
@@ -191,7 +191,7 @@ void Playground::renderProcedure(GraphicEngine& renderer){
 
     renderer.details->executeAtEndOfFrame();
 
-    renderer.gBufferSamplers->sampleGBuffer(CameraController::active());
+    renderer.gBufferSamplers->sampleGBuffer(camera::active());
 
     m_pointerInfo.worldPosition = m_mouseSampler->position;
 

@@ -1,5 +1,5 @@
 #include "core.hpp"
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "camera-controller.hpp"
 
 namespace camera
@@ -10,10 +10,10 @@ Controller* activeCamera;
 // todo: stack of previously active cameras?
 
 Controller& active(){
-    return activeCamera;
+    return *activeCamera;
 }
 
-Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, std::string_view type, glm::vec2 windowSize):
+Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize):
     yaw(0),
     pitch(0, -pi/3, pi/3),
     roll(0, -pi/2, pi/2),
@@ -24,11 +24,15 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
     listOfControllers.push_back(this);
     if(not activeCamera) focusOn();
 
-    setBehavior(type);
-
     glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
+
+    Camera::orientation = glm::toMat4(computeRotation(parentMatrix, 0.f));
+    Camera::orientation[3] = origin.get() + Camera::orientation * offset;
+    Camera::recalculate();
+
     offset = calculateEyePositionOffset(cameraRelativeMatrix);
-    recalculateCamera();
+    offsetScale = glm::lenght(offset)*glm::sign(glm::dot(at, offset));
+    glm::normalize(offset);
 }
 
 Controller::~Controller(){
@@ -65,10 +69,6 @@ void Controller::update(const glm::mat4& parentTransform, float dt){
     Camera::recalculate();
 
     alterTargetRotation();
-
-    handleInput(parentTransform, dt);
-    updateMovement(parentTransform, dt);
-    recalculateCamera();
 }
 
 void Controller::zoom(){

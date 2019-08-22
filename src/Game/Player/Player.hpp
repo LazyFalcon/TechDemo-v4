@@ -25,7 +25,7 @@ private:
 
     float controlXValue {0};
     float controlYValue {0};
-    bool hasFocus {false};
+    bool m_hasFocus {false};
     // bool processHit(projectiles::Projectile &p);
     bool doFire = false;
     void fire();
@@ -43,6 +43,9 @@ public:
     void updateGraphic(float dt);
     void focusOn();
     void focusOff();
+    bool hasFocus(){
+        return m_hasFocus;
+    }
     Vehicle& eq(){
         return m_vehicle;
     }

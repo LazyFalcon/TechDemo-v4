@@ -15,5 +15,6 @@ public:
     virtual void updateGraphic(float dt) = 0;
     virtual void focusOn() = 0;
     virtual void focusOff() = 0;
+    virtual bool hasFocus() = 0;
     virtual Vehicle& eq() = 0;
 };

@@ -49,78 +49,98 @@ void Controller::printDebug(){
     console.log("yaw, pitch, roll:", yaw*toDeg, pitch*toDeg, roll*toDeg);
 }
 
+void Controller::update(const glm::mat4& parentTransform, float dt){
+    if(not hasFocus()) return;
 
+    zoom();
 
-std::map<std::string, positionControlState> Controller::positionControlStates =
-{
-    {"freecam", {"freecam", &Controller::initState, &Controller::freecamPosition}},
-    {"pinned", {"pinned", &Controller::initState, &Controller::pinnedPosition}},
-};
-std::map<std::string, rotationControlState> Controller::rotationControlStates =
-{
-    /* Obroty w global space, przy pomocy kątów eulera, więc niezależne od orientacji pojazdu,
-        Dwa tryby obracania się: dookoła punktu, tak jak w blenderze z zachowaniem offsetu i w miejscu na podstwaie ruchu myszy po ekranie*/
-    {"global-euler", {"global-euler", &Controller::initState, &Controller::global_euler}},
-    /* Powyższe z tym że wektor w górę się obraca, powinno skutkować to obracaniem się na boki(roll),
-        pochylenie w przód nie powinno występować albo powinno być szybko korygowane,
-        w drugiej wersji kopiujemy całe pochylenie(-> nie wiem jak się to sprawdzi, przetestuj) */
-    {"global-euler-copyUp", {"global-euler-copyUp", &Controller::initState, &Controller::global_euler_copyUp}},
-    /* zamiast kątów eulera to kamera patrzy siena punkt pokazywany przez mysz -> może będzie działać fajniej niż euler,
-        -> potrzebna jest cała implementacja pobierania takiego punktu z ekranu,, przemieszczania tego punktu i utrzymywania wskaźnika w miejscu,
-        Ponadto trzeba jakoś reagować na zewnętrzne interakcje */
-    {"global-focused", {"global-euler-copyUp", &Controller::initState, &Controller::global_euler_copyUp}},
-    /* Kamera obraca się w przestrzeni pojazdu który śledzi, do wyboru czy aplikujemy transformację pojazdu jako bazową czy tylko modyfikujemy target kwaternion */
-    {"local-euler", {"local-euler", &Controller::initState, &Controller::local_euler}},
-    /* Oś right kamery utrzymujemy w jednej płaszczyźnie */
-    {"local-euler-stablilized", {"local-euler-stablilized", &Controller::initState, &Controller::local_euler_stablized}},
-    /* Kamera obraca siędo puntu pokazywanego przez mysz
-        -> potrzebna jest cała implementacja pobierania takiego punktu z ekranu,, przemieszczania tego punktu i utrzymywania wskaźnika w miejscu,
-        Ponadto trzeba jakoś reagować na zewnętrzne interakcje
-        ! może być wesoło jeśli pojazd również obraca się w kierunku tego punktu, będzie więcej nierównomierności, drgań, moze też szybciej będzie się obracać */
-    {"local-focused", {"local-focused", &Controller::initState, &Controller::local_focused}},
-    /* Stabilizacja osi poziomej, tej w bok */
-    {"local-focused-stablized", {"local-focused-stablized", &Controller::initState, &Controller::local_focused_stabilized}},
-};
+    rotation = computeTargetRotation(parentTransform, dt);
+    origin = computeTargetPosition(parentTransform, dt);
 
+    rotation.update(dt);
+    origin.update(dt);
 
-glm::vec4 Controller::freecamPosition(const glm::mat4& parentTransform, ControlInput& input, float dt){
-    if(input.mode == ControlInput::FreeCamMode::Around){
-        // * z and x are in horizontal plane
-        input.velocity += (input.move.x*Camera::right + input.move.z*Camera::at)*glm::vec4(1,1,0,0) + glm::vec4(0,0,input.move.y*.5f,0);
+    Camera::orientation = glm::toMat4(computeRotation(parentTransform, dt));
+    Camera::orientation[3] = origin.get() + Camera::orientation * offset*offsetScale;
+    Camera::recalculate();
+
+    alterTargetRotation();
+
+    handleInput(parentTransform, dt);
+    updateMovement(parentTransform, dt);
+    recalculateCamera();
+}
+
+void Controller::zoom(){
+    if(zoomDirection == 0.f) return;
+
+    if(zoomByFov){
+        fov = fov + zoomDirection*15.f;
     }
     else {
-        m_target.impulse += input.move.x*Camera::right + input.move.y*Camera::up + input.move.z*Camera::at;
+        offsetScale += zoomDirection*2;
     }
-    origin = origin.getTarget() + input.velocity*dt;
 }
-glm::vec4 Controller::pinnedPosition(const glm::mat4& parentTransform, ControlInput&, float){
-    return parentTransform[3];
-}
-glm::quat Controller::global_euler(const glm::mat4& parentTransform, ControlInput& input){
-    glm::vec2 v(input.vertical*cos(-roll) - input.horizontal*sin(-roll),
-                input.vertical*sin(-roll) + input.horizontal*cos(-roll));
+
+glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, float dt){
+    if(worldPointToFocusOn or worldPointToFocusOnWhenSteady){
+        const auto dir = glm::normalize((*worldPointToFocusOn - eyePosition()).xyz());
+        return glm::angleAxis(acos(glm::dot(dir, Z3)), glm::normalize(glm::cross(dir, Z3)));
+         // albo oszczędzając acos:
+         // float s = sqrt( (1+glm::dot(dir, Z3))*2 );
+         // float invs = 1 / s;
+
+         // return glm::quat(
+         //     s * 0.5f,
+         //     rotationAxis.x * invs,
+         //     rotationAxis.y * invs,
+         //     rotationAxis.z * invs
+         // );
+    }
+
+    // niestety na razie kąty eulera
+    glm::vec2 v(pointerMovement.vertical*cos(-roll) - pointerMovement.horizontal*sin(-roll),
+                pointerMovement.vertical*sin(-roll) + pointerMovement.horizontal*cos(-roll));
 
     pitch -= (v.x * 12.f * fov)/pi;
     yaw -= (v.y * 12.f * fov)/pi;
 
-    roll += input.roll;
+    roll += pointerMovement.roll;
 
     return glm::angleAxis(yaw, Z3) * glm::angleAxis(pitch, X3);
 }
-glm::quat Controller::global_euler_copyUp(const glm::mat4& parentTransform, ControlInput& input){
-    return glm::angleAxis(pi/3.f, Z3);
+
+glm::vec4 Controller::computeTargetPosition(const glm::mat4& parentTransform, float dt){
+    if(not freecam) return parentTransform[3];
+
+    if(moveHorizontally){
+        return origin.get() +  (directionOfMovement.x*right + directionOfMovement.z*at)*glm::vec4(1,1,0,0) + glm::vec4(0,0,directionOfMovement.y*.5f,0);
+    }
+    else {
+        return origin.get() + directionOfMovement.x*right + directionOfMovement.y*up + directionOfMovement.z*at;
+    }
 }
-glm::quat Controller::local_euler(const glm::mat4& parentTransform, ControlInput& input){
-    return glm::angleAxis(pi/3.f, Z3);
+
+glm::quat Controller::getRotationBasis(const glm::mat4& parentTransform, float dt){
+    // modify current rotation
+    if(not parentRotationAffectCurrentRotation) return rotation.get();
+
+    auto parentQuat = glm::quat_cast(parentTransform);
+
+    if(not smoothParentRotation) parentQuat*rotation.get();
+    return glm::slerp(rotation.get(), parentQuat*rotation.get(), 0.5f)
+    // co powinno się tu stać?
+    // 1. Zmieniamy układ odniesienia kamery - obraca się ona razem z rodzicem - trzeba zmodyfikować obecne camera::orientation
 }
-glm::quat Controller::local_euler_stablized(const glm::mat4& parentTransform, ControlInput& input){
-    return glm::angleAxis(pi/3.f, Z3);
-}
-glm::quat Controller::local_focused(const glm::mat4& parentTransform, ControlInput& input){
-    return glm::angleAxis(pi/3.f, Z3);
-}
-glm::quat Controller::local_focused_stabilized(const glm::mat4& parentTransform, ControlInput& input){
-    return glm::angleAxis(pi/3.f, Z3);
+
+void Controller::alterTargetRotation(){
+    if(not keepRightAxisHorizontal) return;
+
+    // sprawdzić kierunki!
+    const auto axis = glm::normalize(glm::cross(Z3, right.xyz()));
+    const auto angle = pi/2 - acos(glm::dot(Z3, right.xyz()));
+    if(abs(angle) < 0.0001f) return; // too close
+    target = target * glm::angleAxis(angle, axis);
 }
 
 }

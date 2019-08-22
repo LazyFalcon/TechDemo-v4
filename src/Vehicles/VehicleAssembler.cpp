@@ -16,7 +16,12 @@ private:
     IModule& m_module;
 public:
     template<typename... Args>
-    ModuleFollower(IModule& module, const glm::mat4& cameraRelativeMatrix, Args&... args) : camera::Controller(module.getTransform(), cameraRelativeMatrix, args...), m_module(module){}
+    ModuleFollower(IModule& module, const glm::mat4& cameraRelativeMatrix, Args&... args) : camera::Controller(module.getTransform(), cameraRelativeMatrix, args...), m_module(module){
+
+        isParrentFollowingPointer = module.parent != nullptr;
+        isPointerMovingFree = false;
+
+    }
 
     void update(float dt) override {
         camera::Controller::update(m_module.getTransform(), dt);

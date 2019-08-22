@@ -69,6 +69,9 @@ public:
     const glm::vec4& position() const {
         return orientation[3];
     }
+    const glm::vec4& eyePosition() const {
+        return orientation[3];
+    }
 
     Frustum frustum {};
     const Frustum& getFrustum() const {

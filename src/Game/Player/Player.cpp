@@ -69,7 +69,7 @@ void Player::update(float dt){
     mouseSampler->samplePosition = m_input->getMouseState().pointerScreenPosition;
 
     // crosshair = m_vehicle.cameras[cameraId]->focusPoint;
-    if(not isLockedOnPoint) targetPointPosition = hasFocus ? crosshairSampler->position : mouseSampler->position;
+    if(not isLockedOnPoint) targetPointPosition = m_hasFocus ? crosshairSampler->position : mouseSampler->position;
 
     if(glm::distance(m_vehicle.getPosition(), targetPointPosition) >= 20.f){
         m_vehicle.fireControlUnit->updateTarget(targetPointPosition);
@@ -95,12 +95,12 @@ void Player::updateCameras(float dt){
 }
 
 void Player::focusOn(){
-    hasFocus = true;
+    m_hasFocus = true;
     m_vehicle.cameras.focus();
     m_input->activate();
 }
 void Player::focusOff(){
-    hasFocus = false;
+    m_hasFocus = false;
     m_input->deactivate();
 }
 

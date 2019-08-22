@@ -81,6 +81,7 @@ struct ControlInput
     bool keepRightAxisHorizontal = false; // target right vector always in horizontal plane so roll will be zero
     bool parentRotationAffectCurrentRotation = false; // parent rotation messes with current rotation
     bool smoothParentRotation = false; // slerp of current rotation with parent rotation
+    bool copyUpAxis = false;
 
     std::optional<glm::vec4> worldPointToFocusOn; // artifical input or updated when moving camera
     glm::vec4 directionToAlignCamera; // applies to target rotation
@@ -91,26 +92,38 @@ struct ControlInput
     std::optional<glm::vec4> worldPointToFocusOnWhenSteady; // updated when moving camera
 
     // ustawiane na starcie
-    bool isPointerMovingFree = false;
+    bool isPointerMovingFree = true; // powinien zablokować local direction
     bool isParrentFollowingPointer = false;
 
     float zoomDirection = 0;
     bool zoomByFov = false; // otherwise zoom by scalling offset
+    std::optional<glm::vec4> worldPointToZoom; // artifical input or updated when zooming
 
-    glm::vec3 directionOfMovement;
+    glm::vec4 directionOfMovement {};
     bool switchToMovementOnWorldAxes {false};
+    bool moveHorizontally {false};
     bool freecam = false;
 
-    std::optional<glm::vec4> rotateAroundThisPoint;
+    std::optional<glm::vec4> rotateAroundThisPoint; // for freecam rotations
     struct {
-        float vertical;
         float horizontal;
+        float vertical;
         float roll;
     } pointerMovement;
     bool reqiuresToHavePointerInTheSamePosition = false;
     void resetAfterUse(){
-
+        zoomDirection = 0;
+        pointerMovement.horizontal = 0;
+        pointerMovement.vertical = 0;
+        pointerMovement.roll = 0;
     }
 };
+/*
+Akcje jakie z tego wynikają:
+    worldPointToFocusOn - kamera obraca się w kierunku tego punktu,
+    worldPointToFocusOnWhenSteady - też, inSteadyFocusOnPoint - to jest dla usera
+    worldPointToZoom do tego punktu zoomujemy, jeśli nie ma to do środka
+    rotateAroundThisPoint - dla freecama, informacja o tym że się obraca
+*/
 
 }

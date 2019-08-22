@@ -43,59 +43,78 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
             camera::active().printDebug();
             console.log("m_mouseWorldPos", m_mouseWorldPos);
             });
-        m_input->action("+").on([this]{ camera::active().offset.z -= 1.5; });
-        m_input->action("-").on([this]{ camera::active().offset.z += 1.5; });
+        m_input->action("+").on([this]{ camera::active(),zoomDirection -= 1.5; });
+        m_input->action("-").on([this]{ camera::active(),zoomDirection += 1.5; });
         m_input->action("scrollUp").on([=]{
-                if(m_useFreecam) m_scene->freeCams.getController().pointerPosition = m_mouseSampler->position;
-                // if(m_useFreecam) m_scene->freeCams.getController().zoomToMouse(m_mouseSampler->position);
-                else camera::active().changeFov(+15*toRad);
+                if(m_freeView) m_scene->freeCams.getController().worldPointToZoom = m_mouseSampler->position;
+                // if(m_freeView) m_scene->freeCams.getController().zoomToMouse(m_mouseSampler->position);
+                else camera::active().zoomDirection = 1;
             });
         m_input->action("scrollDown").on([=]{
-                if(m_useFreecam) m_scene->freeCams.getController().pointerPosition = m_mouseSampler->position;
-                else camera::active().changeFov(-15*toRad);
+                if(m_freeView) m_scene->freeCams.getController().worldPointToZoom = m_mouseSampler->position;
+                else camera::active().zoomDirection = -1;
             });
         m_input->action("RMB").on([this]{
                 // TODO: move freecam, in a way that mouse world position is preserved
+                auto& cam = camera::active();
+                if(not cam.isPointerMovingFree) cam.worldPointToFocusOn = m_mouseSampler->position;
+                else cam.rotateAroundThisPoint = m_mouseSampler->position;
+                cam.reqiuresToHavePointerInTheSamePosition = true;
+            }).off([this]{
+                auto& cam = camera::active();
+                if(not cam.isPointerMovingFree) cam.worldPointToFocusOn.reset();
+                else cam.rotateAroundThisPoint.reset();
+                cam.reqiuresToHavePointerInTheSamePosition = true;
+
+            }).hold([this]{
+                // keep pointer in one position
             });
         m_input->action("LMB").on([this]{
                 m_cameraRotate = true;
-                m_mouseWorldPos = m_mouseSampler->position;
+                if(m_freeView) camera::active().rotateAroundThisPoint = m_mouseSampler->position;
             }).off([this]{
                 m_cameraRotate = false;
-                if(m_useFreecam) m_scene->freeCams.getController().releaseRotationCenter();
+                if(m_freeView) camera::active().rotateAroundThisPoint.reset();
             });
-        m_input->action("Q").on([this]{ camera::active().roll(-15*toRad); });
-        m_input->action("E").on([this]{ camera::active().roll(+15*toRad); });
+        m_input->action("Q").on([this]{ camera::active().pointerMovement.roll = -15*toRad; });
+        m_input->action("E").on([this]{ camera::active().pointerMovement.roll = +15*toRad; });
 
-        m_input->action("W").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(0,0,m_freecamSpeed); });
-        m_input->action("S").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(0,0,-m_freecamSpeed); });
-        m_input->action("A").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(-m_freecamSpeed,0,0); });
-        m_input->action("D").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(m_freecamSpeed,0,0); });
-        m_input->action("Z").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(0,m_freecamSpeed,0); });
-        m_input->action("X").hold([this, m_freecamSpeed]{ if(m_useFreecam) m_scene->freeCams.getController().applyImpulse(0,-m_freecamSpeed,0); });
+        m_input->action("W").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.z = m_freecamSpeed; });
+        m_input->action("S").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.z = -m_freecamSpeed; });
+        m_input->action("A").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.x = -m_freecamSpeed; });
+        m_input->action("D").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.x = m_freecamSpeed; });
+        m_input->action("Z").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.y = m_freecamSpeed; });
+        m_input->action("X").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.y = -m_freecamSpeed; });
+        m_input->action("f5").name("global direction").hold([this]{ camera::active().directionIsInLocalSpace = false; });
+        m_input->action("f6").name("local direction").hold([this]{ camera::active().directionIsInLocalSpace = true; });
+        m_input->action("f7").name("enable stabilization").hold([this]{ camera::active().keepRightAxisHorizontal = !camera::active().keepRightAxisHorizontal;
+                                            console.log("stabilization:", camera::active().keepRightAxisHorizontal); });
+        m_input->action("f8").name("copy parent rotation").hold([this]{ camera::active().parentRotationAffectCurrentRotation = !camera::active().parentRotationAffectCurrentRotation;
+                                            console.log("parentRotationAffectCurrentRotation:", camera::active().parentRotationAffectCurrentRotation); });
+        m_input->action("f9").name("zoom").hold([this]{ camera::active().zoomByFov = not camera::active().zoomByFov; });
         m_input->action("\\").hold([this]{
-            if(m_input->currentKey.onHoldTime > 700 and m_useFreecam){
+            if(m_input->currentKey.onHoldTime > 700 and m_freeView){
                 m_input->currentKey.release = true;
-                m_scene->freeCams.getController().changeMode();
+                // m_scene->freeCams.getController().changeMode();
                 console.log("state changed");
             }
-            else if(m_input->currentKey.onHoldTime > 700 and not m_useFreecam){
+            else if(m_input->currentKey.onHoldTime > 700 and not m_freeView){
                 // TODO: create freecam from current camera
             }
          });
         m_input->action("P").on([this]{
-            if(m_useFreecam){
-                if(m_player) m_player->focusOn();
-                m_useFreecam = false;
+            if(m_player and not m_player.hasFocus()){
+                m_player->focusOn();
+                m_freeView = false;
             }
-            else {
-                m_useFreecam = true;
-                if(m_player) m_player->focusOff();
+            else if(m_player and m_player.hasFocus()){
+                m_player->focusOff()
+                m_freeView = true;
                 m_scene->freeCams.focus();
             }
          });
-        m_input->action("[").on([this]{ if(m_useFreecam) m_scene->freeCams.prev(); });
-        m_input->action("]").on([this]{ if(m_useFreecam) m_scene->freeCams.next(); });
+        m_input->action("[").on([this]{ if(m_freeView) m_scene->freeCams.prev(); });
+        m_input->action("]").on([this]{ if(m_freeView) m_scene->freeCams.next(); });
 
         m_input->action("MousePosition").on([this](float x, float y){
             m_mousePos = glm::vec2(x,y);
@@ -105,7 +124,9 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         m_input->action("MouseMove").on([this](float x, float y){
             m_mouseTranslation = glm::vec2(x,y) * m_window.size * 2.f;
             m_mouseTranslationNormalized = glm::vec2(x,y);
-            camera::active().once.pointerTranslation = glm::vec2(x,y);
+            // risk of camera change?
+            // camera::active().pointerMovement.horizontal = x;
+            // camera::active().pointerMovement.vertical = y;
         });
         m_input->activate();
     }
@@ -128,10 +149,9 @@ void Playground::updateWithHighPrecision(float dt){
     m_physics->update(dt/1000.f);
 
     auto& currentCamera = camera::active();
-    if(m_useFreecam and not m_scene->freeCams.getController().hasFocus()){ // * I hope player doesn't have control over it's cameras
+    if(m_freeView and not m_scene->freeCams.getController().hasFocus()){ // * I hope player doesn't have control over it's cameras
         m_scene->freeCams.focus();
     }
-
 
     if(m_player) m_player->update(dt);
     for(auto & bot : m_scene->m_friendlyBots){
@@ -143,11 +163,13 @@ void Playground::updateWithHighPrecision(float dt){
     m_scene->update(dt, currentCamera);
 
     // todo: zapętlanie pozycji myszy
-    if(m_useFreecam and m_cameraRotate) currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f, m_mouseWorldPos);
-    else if(not m_useFreecam) currentCamera.rotateByMouse(m_mouseTranslationNormalized.x * dt/16.f, m_mouseTranslationNormalized.y * dt/16.f, m_mouseWorldPos);
+    if(m_freeView and camera::active().rotateAroundThisPoint or not m_freeView){
+        currentCamera.horizontal = m_mouseTranslationNormalized.x * dt/frameMs;
+        currentCamera.horizontal = m_mouseTranslationNormalized.y * dt/frameMs;
+    }
 
     // todo:? wtf?
-    camera::active().update(dt);
+    currentCamera.update(dt);
     // for(auto &cam : CameraController::listOf){
     //     cam->update(dt);
     // }
@@ -208,7 +230,7 @@ void Playground::spawnPlayer(const std::string& configName, const glm::mat4& spa
 
     m_player = std::make_shared<Player>(m_input->getDispatcher(), *vehicle);
     m_player->focusOn();
-    m_useFreecam = false;
+    m_freeView = false;
 }
 void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnPoint, Context& renderingContext){
 

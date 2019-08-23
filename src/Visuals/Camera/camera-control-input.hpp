@@ -82,11 +82,33 @@ https://stackoverflow.com/questions/28530702/quaternion-based-camera
 :: gimbal lock free? Dla statków kosmicznych, może być trochę inne.
     wersja z wektorem kierunku i wektorem w 'górę' powinna to zapewnić, tylko teraz jak efektywnie obracać takim wektorem? do rozpatrzenia
 
+23.08
 ? jaka jest różnica pomiędzy sterowaniem przy pomocy wektora a eulera?
     - euler jest czysto lokalny, nieuzależniony od niczego, sterowany przez zmiany położenia myszy po ekranie
     - wektory
         - w postaci wektora obracanego przez ruch myszy po ekranie - lekko bezużyteczne, eulery działają równie dobrze
-        - w postaci wektora od oka do punktu w świecie, trzeba dbać o zachowanie kierunku kursora
+        - w postaci wektora od oka do punktu w świecie, trzeba dbać o zachowanie kierunku kursora, żadnego zysku myślę, a szkoda roboty
+
+? Jak zrobić dobrze kamerę patrzącą z oczu, np. kamera zamontowana na wieży czołgu?
+    - wieża się porusza
+    - kamera musi być zaimpaktowana przez wieżę
+    - musi zostać zachowany kierunke patrzenia
+    -> globalny wektor(euler) + stabilizacja + kopiowanie rotacji rodzica
+
+? Kamera w statku kosmicznym?
+    - pełna swoboda
+    - brak góry
+    -> arbitralnie wyznaczamy płaszczyznę
+    -> albo górą jest góra pojazdu, wtedy kamera jest lokalna
+
+? jednak chciałbym mieć kamerę obracającą się w kierunku pokazywanym przez mysz
+    - w końcu musi się ten punkt znaleźć na środku
+    -> trzeba więc jakoś modyfikować położenie punkty
+    -> zostawić to do czasu aż zakodzę normalne kamery
+    ! mam ! kurwa wymyśliłem! trzba zmienić sposób pokazywania położenia wskaźnika! zamiast określać jego położenie jako punkt na ekranie
+    ! to można trzymać jego położenie jako odchylenie od osi głównej kamery, może to być kwaternion, albo eulery.
+    ! wtedy można w łatwy sposób minimalizować uchyb kamery, a wskaxnik w końcu znajdzie się na śrdoku ekrany i przestanie się ruszać.
+
 
 */
 // hmm, a jakby to uwspólnić dla wszystkich kamer? dzięki temu switch byłby bezbolesny

@@ -53,6 +53,7 @@ void Controller::printDebug(){
     console.log("yaw, pitch, roll:", yaw*toDeg, pitch*toDeg, roll*toDeg);
 }
 
+// ! Zakładam że poza bugami implementacyjnymi to większość implementacji jest zrobiona
 void Controller::update(const glm::mat4& parentTransform, float dt){
     if(not hasFocus()) return;
 

@@ -35,6 +35,7 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
 
         m_mouseSampler->samplePosition = glm::vec2(0,0);
         float m_freecamSpeed = 0.5f;
+        // todo: ustawić stan wskaźnika na odpowiedni
 
         m_input->action("esc").on([]{
             event<ExitPlayground>();
@@ -64,10 +65,8 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
                 auto& cam = camera::active();
                 if(not cam.isPointerMovingFree) cam.worldPointToFocusOn.reset();
                 else cam.rotateAroundThisPoint.reset();
-                cam.reqiuresToHavePointerInTheSamePosition = true;
+                cam.reqiuresToHavePointerInTheSamePosition = false;
 
-            }).hold([this]{
-                // keep pointer in one position
             });
         m_input->action("LMB").on([this]{
                 m_cameraRotate = true;
@@ -162,14 +161,29 @@ void Playground::updateWithHighPrecision(float dt){
     }
     m_scene->update(dt, currentCamera);
 
-    // todo: zapętlanie pozycji myszy
-    if(m_freeView and camera::active().rotateAroundThisPoint or not m_freeView){
-        currentCamera.pointerMovement.horizontal = m_mouseTranslationNormalized.x * dt/frameMs;
-        currentCamera.pointerMovement.vertical = m_mouseTranslationNormalized.y * dt/frameMs;
+    if(currentCamera.reqiuresToHavePointerInTheSamePosition){
+        pointer.setFromWorldPosition(worldPointToFocusOn or rotateAroundThisPoint or worldPointToFocusOnWhenSteady, currentCamera.orientation);
+        pointer.move(pointer.laseMoveInPx);
+        // oblicza pozycję w którą przesunać kursor, wykonuje przesuniecię, dzięki czemu zmieni się kierunek patrzenia kamery
+        // może będzie wystarczająco gładko chodzić
     }
 
-    // todo:? wtf?
+    if(camera::controlBasedOnVectors){
+        /*
+            nie iwem jeszcze
+        */
+        currentCamera.directionToAlignCamera(glm::normalize(mouseSampler->position - currentCamera.eyePosition()));
+    }
+    else if(camera::controlBasedOnEulers){
+        // todo: zapętlanie pozycji myszy
+        if(m_freeView and camera::active().rotateAroundThisPoint or not m_freeView){
+            currentCamera.pointerMovement.horizontal = m_mouseTranslationNormalized.x * dt/frameMs;
+            currentCamera.pointerMovement.vertical = m_mouseTranslationNormalized.y * dt/frameMs;
+        }
+    }
+
     currentCamera.update(dt);
+    // todo:? wtf? przecież kamery z playera zgłupieją
     // for(auto &cam : CameraController::listOf){
     //     cam->update(dt);
     // }

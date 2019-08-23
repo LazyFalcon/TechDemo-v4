@@ -12,21 +12,23 @@ Tryby pracy:
 https://stackoverflow.com/questions/28530702/quaternion-based-camera
 
 ::: nieruchomy celownik na środku, pojazd nie obraca się do celu
-    - globalny wektor
+    - globalny wektor [waiting for evaluation]
         -> default, kamera za pojazdem
         -> ruch myszy obraca ten wektor
         input: ruch pointera + roll
-    - lokalny wektor
+    - lokalny wektor [waiting for evaluation]
         -> jesli chcemy śledzić obroty, nie trzeba kręcić myszą przy skręcaniu
         -> ruch myszy obraca ten wektor
         input: ruch pointera + roll
-    - punkt
+    - punkt [tbd]
         -> celowanie, żeby pozostać skupionym na tym samym punkcie
         -> kursor musi pozostać w punkcie
         input: punkt ze świata,
                 -> wciskając RMB zapisujemy ten punkt, RMB off czyścimy flagę
                 -> przy ustawieniu inSteadyFocusOnPoint robimy to też kiedy nie ma inputu
                 -> trzba rozpoznać kiedy zanika input i wtedy zebrać punkt
+        !!! Przy obliczaniu kierunku trzeba pamiętac o tym że kamera obraca się dookoła środka, nie w miejscu, trzeba więc obliczyć
+        ! kierunek tak by się obróciła poprawnie, takie inverse zrobić
 
     + wpływ orientacji rodzica na rotację
         -> modyfikujemy obecną orientacje kamery, mozna dać szybkiego slerpa żeby nie bolało
@@ -36,28 +38,33 @@ https://stackoverflow.com/questions/28530702/quaternion-based-camera
     Powinien działać również w przypadku przypięcia, z zerowym offsetem
 
 ::: nieruchomy celownik na środku, pojazd obraca się do kamery
-    - globalny wektor
+    - globalny wektor [waiting for evaluation]
         -> kamera na wieżyczce, obie zjeżdżają się na ten sam punkt,
         -> ruch myszy obraca ten wektor
-    - punkt
+    - punkt [tbd]
         -> tak samo, tylko jak pojazd zacznie się poruszać to wieża pozostanie skupiona na tym samym punkcie
     + wpływ orientacji rodzica na rotację
     + stabilizacja w poziomie
     -> jakić rule na to by włączać local kiedy moduł ma opcję śledzenia kursora
 
-::: ruchomy celownik
-    - globalny wektor
+::: ruchomy celownik/wskaźnik
+    - globalny wektor [tbd]
         -> kursor wyznacza kierunek w przestrzeni globalnej, od oka do punktu na frustumie
            kamera wyrównuje się do tego wektora
            w widoku zza pleców ma to średni sens, ale powinno działać
            po poruszeniu kamerą trzeba tak obrócić kursor by kierunek był zachowany
-    - lokalny wektor
+        -> albo po prostu tak żeby kamera obracała się w kieunku punku znajdującego się pod myszą, i offsetować położenie punktu o przesunięcie pojazdu?
+    - lokalny wektor [not]
         - bez sensu, szkoda roboty
         -> wektor ten sam, tylko trzeba
-    - punkt
+    - punkt [tbd]
+        -> ads tak jak w poprzednich, mysz pokazuje punkt, kamera obraca się by punkt był w środku ekranu
 
-    - rotacja na rządanie
-        Na przykład rpm, kursor lata sobie swobodnie, moduł też, kamera stoi w miejscu
+    - rotacja na rządanie [tbd]
+        Na przykład MMB, kursor lata sobie swobodnie, moduł też, kamera stoi w miejscu
+        MMB i modyfikujemy eulery kamery, i kursor albo zachowuje pozycję w świecie albo ekranie
+        - może być globalnie, wtedy pojazd może obracać się w punkt
+        - moze być lokalnie, wtedy pojazd albo rusza się jak chce, albo w środek ekranu, nie może obracać się do celownika
     + wpływ orientacji rodzica na rotację
     + stabilizacja w poziomie
 
@@ -74,43 +81,52 @@ https://stackoverflow.com/questions/28530702/quaternion-based-camera
 
 :: gimbal lock free? Dla statków kosmicznych, może być trochę inne.
     wersja z wektorem kierunku i wektorem w 'górę' powinna to zapewnić, tylko teraz jak efektywnie obracać takim wektorem? do rozpatrzenia
+
+? jaka jest różnica pomiędzy sterowaniem przy pomocy wektora a eulera?
+    - euler jest czysto lokalny, nieuzależniony od niczego, sterowany przez zmiany położenia myszy po ekranie
+    - wektory
+        - w postaci wektora obracanego przez ruch myszy po ekranie - lekko bezużyteczne, eulery działają równie dobrze
+        - w postaci wektora od oka do punktu w świecie, trzeba dbać o zachowanie kierunku kursora
+
 */
 // hmm, a jakby to uwspólnić dla wszystkich kamer? dzięki temu switch byłby bezbolesny
 struct ControlInput
 {
-    bool keepRightAxisHorizontal = false; // target right vector always in horizontal plane so roll will be zero
-    bool parentRotationAffectCurrentRotation = false; // parent rotation messes with current rotation
-    bool smoothParentRotation = false; // slerp of current rotation with parent rotation
-    bool copyUpAxis = false;
-
+    // control input
     std::optional<glm::vec4> worldPointToFocusOn; // artifical input or updated when moving camera
-    glm::vec4 directionToAlignCamera; // applies to target rotation
-    bool directionIsInLocalSpace = false; // multiply target by parent rotation
-
-    // powinno być gdzieś indziej
-    bool inSteadyFocusOnPoint = false;
     std::optional<glm::vec4> worldPointToFocusOnWhenSteady; // updated when moving camera
-
-    // ustawiane na starcie
-    bool isPointerMovingFree = true; // powinien zablokować local direction
-    bool isParrentFollowingPointer = false;
-
-    float zoomDirection = 0;
-    bool zoomByFov = false; // otherwise zoom by scalling offset
     std::optional<glm::vec4> worldPointToZoom; // artifical input or updated when zooming
-
-    glm::vec4 directionOfMovement {};
-    bool switchToMovementOnWorldAxes {false};
-    bool moveHorizontally {false};
-    bool freecam = false;
-
     std::optional<glm::vec4> rotateAroundThisPoint; // for freecam rotations
+    std::optional<glm::vec4> directionToAlignCamera; // forces camera to look in that direction
+    float zoomDirection = 0;
+    glm::vec4 directionOfMovement {};
     struct {
         float horizontal;
         float vertical;
         float roll;
     } pointerMovement;
+
+    // controller behaviour configuration
+    bool zoomByFov = false; // otherwise zoom by scalling offset
+
+    bool keepRightAxisHorizontal = false; // target right vector always in horizontal plane so roll will be zero
+    bool parentRotationAffectCurrentRotation = false; // parent rotation messes with current rotation
+    bool smoothParentRotation = false; // slerp of current rotation with parent rotation
+    bool copyUpAxis = false;
+    bool inSteadyFocusOnPoint = false;
+    bool directionIsInLocalSpace = false; // multiply target by parent rotation
+
+    bool switchToMovementOnWorldAxes {false};
+    bool moveHorizontally {false};
+
+    // feedback to user
     bool reqiuresToHavePointerInTheSamePosition = false;
+
+    // other informations
+    bool isPointerMovingFree = true; // powinien zablokować local direction
+    bool isParrentFollowingPointer = false;
+    bool freecam = false;
+
     void resetAfterUse(){
         zoomDirection = 0;
         pointerMovement.horizontal = 0;

@@ -99,7 +99,7 @@ void Scene::extractCameras(const Yaml& yaml){
         auto w = it["Position"]["W"].vec31();
         glm::mat4 mat(x,y,z,w);
         // todo: fill the rest of params!
-        freeCams.add(camFactory.create<camera::Controller>(mat, "freecam global-euler"));
+        freeCams.add(camFactory.create<camera::Controller>(mat));
     }
     else console.error("There is no free camera defined in scene");
     freeCams.focus();

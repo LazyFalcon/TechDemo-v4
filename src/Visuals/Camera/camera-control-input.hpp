@@ -134,7 +134,6 @@ struct ControlInput
     bool keepRightAxisHorizontal = false; // target right vector always in horizontal plane so roll will be zero
     bool parentRotationAffectCurrentRotation = false; // parent rotation messes with current rotation
     bool smoothParentRotation = false; // slerp of current rotation with parent rotation
-    bool copyUpAxis = false;
     bool inSteadyFocusOnPoint = false;
     bool directionIsInLocalSpace = false; // multiply target by parent rotation
 

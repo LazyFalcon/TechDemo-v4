@@ -78,7 +78,7 @@ T defaultMixFunction(const T& value, const T&  target, float miliseconds, float 
     // różnicy, znaczy e = t-v0; i v += smootshstep(0, <warość od kiedy zaczynamy wygładzenie>, e);
 }
 
-glm::quat quaternionSlerpFunction(const glm::quat&  value, const glm::quat&  target, float miliseconds, float smoothness){
+inline glm::quat quaternionSlerpFunction(const glm::quat& value, const glm::quat& target, float miliseconds, float smoothness){
     return glm::slerp(value, target, smoothness * miliseconds/frameMs);
 }
 
@@ -114,6 +114,10 @@ public:
 
     T get(){
         return value;
+    }
+
+    void modifyValue(T newValue){
+        value = newValue;
     }
 
     T& reset(const T& val){

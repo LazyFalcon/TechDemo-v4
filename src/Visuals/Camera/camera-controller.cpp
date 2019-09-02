@@ -19,31 +19,32 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
     roll(0, -pi/2, pi/2),
     fovLimited(Camera::fov, 30*toRad, 120*toRad),
     origin(parentMatrix[3], 0.1f, 0.5f),
-    rotation(glm::angleAxis(0.f, Z3), 0.1f, 0.5f)
+    rotation(glm::quat_cast(parentMatrix*cameraRelativeMatrix), 0.1f, 0.5f),
+    parentRotationInLastFrame(glm::quat_cast(parentMatrix))
 {
     listOfControllers.push_back(this);
     if(not activeCamera) focusOn();
 
     glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
 
-    Camera::orientation = glm::toMat4(computeRotation(parentMatrix, 0.f));
+    Camera::orientation = glm::toMat4(glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3));
     Camera::orientation[3] = origin.get() + Camera::orientation * offset;
     Camera::recalculate();
 
     offset = calculateEyePositionOffset(cameraRelativeMatrix);
-    offsetScale = glm::lenght(offset)*glm::sign(glm::dot(at, offset));
+    offsetScale = glm::length(offset)*glm::sign(glm::dot(at, offset));
     glm::normalize(offset);
 }
 
 Controller::~Controller(){
     listOfControllers.remove(this);
-    if(activeCamera == this and not listOfControllers.empty()) listOfControllers.front()->focus();
-
+    if(activeCamera == this and not listOfControllers.empty()) listOfControllers.front()->focusOn();
 }
 
 void Controller::focusOn(){
     activeCamera = this;
 }
+
 bool Controller::hasFocus() const {
     return activeCamera == this;
 }
@@ -61,17 +62,20 @@ void Controller::update(const glm::mat4& parentTransform, float dt){
 
     rotation = computeTargetRotation(parentTransform, dt);
     origin = computeTargetPosition(parentTransform, dt);
-
     rotation.update(dt);
     origin.update(dt);
 
-    Camera::orientation = glm::toMat4(computeRotation(parentTransform, dt));
+    if(parentRotationAffectCurrentRotation) applyParentRotationToCurrent(parentTransform, dt);
+
+    Camera::orientation = glm::toMat4(rotation.get());
     Camera::orientation[3] = origin.get() + Camera::orientation * offset*offsetScale;
     Camera::recalculate();
 
-    alterTargetRotation();
+    ControlInput::resetAfterUse();
+    parentRotationInLastFrame = glm::quat_cast(parentTransform);
 }
 
+// todo: add some inertia
 void Controller::zoom(){
     if(zoomDirection == 0.f) return;
 
@@ -85,6 +89,7 @@ void Controller::zoom(){
 
 glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, float dt){
     if(worldPointToFocusOn or worldPointToFocusOnWhenSteady){
+        // todo: weź pod uwagę offset
         const auto dir = glm::normalize((*worldPointToFocusOn - eyePosition()).xyz());
         return glm::angleAxis(acos(glm::dot(dir, Z3)), glm::normalize(glm::cross(dir, Z3)));
          // albo oszczędzając acos:
@@ -103,12 +108,21 @@ glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, fl
     glm::vec2 v(pointerMovement.vertical*cos(-roll) - pointerMovement.horizontal*sin(-roll),
                 pointerMovement.vertical*sin(-roll) + pointerMovement.horizontal*cos(-roll));
 
-    pitch -= (v.x * 12.f * fov)/pi;
-    yaw -= (v.y * 12.f * fov)/pi;
+    pitch = pitch - (v.x * 12.f * fov)/pi;
+    yaw = yaw - (v.y * 12.f * fov)/pi;
 
-    roll += pointerMovement.roll;
+    roll = roll + pointerMovement.roll;
 
-    return glm::angleAxis(yaw, Z3) * glm::angleAxis(pitch, X3);
+    auto out = glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3);
+
+    if(directionIsInLocalSpace) out = glm::quat_cast(parentTransform) * out;
+    if(keepRightAxisHorizontal) out = stabilizeHorizontal(out);
+    return out;
+}
+
+// target camera orientation always keep right axis in hoizontal plane
+glm::quat Controller::stabilizeHorizontal(glm::quat toStabilize){
+    return toStabilize;
 }
 
 glm::vec4 Controller::computeTargetPosition(const glm::mat4& parentTransform, float dt){
@@ -122,26 +136,15 @@ glm::vec4 Controller::computeTargetPosition(const glm::mat4& parentTransform, fl
     }
 }
 
-glm::quat Controller::getRotationBasis(const glm::mat4& parentTransform, float dt){
-    // modify current rotation
-    if(not parentRotationAffectCurrentRotation) return rotation.get();
+// apply parent rotation from current frame to current rotation
+void Controller::applyParentRotationToCurrent(const glm::mat4& parentTransform, float dt){
 
-    auto parentQuat = glm::quat_cast(parentTransform);
+    auto rotationDiff = glm::quat_cast(parentTransform) * glm::inverse(parentRotationInLastFrame);
 
-    if(not smoothParentRotation) parentQuat*rotation.get();
-    return glm::slerp(rotation.get(), parentQuat*rotation.get(), 0.5f)
-    // co powinno się tu stać?
-    // 1. Zmieniamy układ odniesienia kamery - obraca się ona razem z rodzicem - trzeba zmodyfikować obecne camera::orientation
-}
-
-void Controller::alterTargetRotation(){
-    if(not keepRightAxisHorizontal) return;
-
-    // sprawdzić kierunki!
-    const auto axis = glm::normalize(glm::cross(Z3, right.xyz()));
-    const auto angle = pi/2 - acos(glm::dot(Z3, right.xyz()));
-    if(abs(angle) < 0.0001f) return; // too close
-    target = target * glm::angleAxis(angle, axis);
+    if(smoothParentRotation){
+        rotation.modifyValue(glm::slerp(rotation.get(), rotation.get()*rotationDiff, 0.5f));
+    }
+    else rotation.modifyValue(rotation.get()*rotationDiff); // ? order?
 }
 
 }

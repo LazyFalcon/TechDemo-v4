@@ -162,25 +162,25 @@ void Playground::updateWithHighPrecision(float dt){
     m_scene->update(dt, currentCamera);
 
     if(currentCamera.reqiuresToHavePointerInTheSamePosition){
-        pointer.setFromWorldPosition(worldPointToFocusOn or rotateAroundThisPoint or worldPointToFocusOnWhenSteady, currentCamera.orientation);
-        pointer.move(pointer.laseMoveInPx);
+        // pointer.setFromWorldPosition(worldPointToFocusOn or rotateAroundThisPoint or worldPointToFocusOnWhenSteady, currentCamera.orientation);
+        // pointer.move(pointer.laseMoveInPx);
         // oblicza pozycję w którą przesunać kursor, wykonuje przesuniecię, dzięki czemu zmieni się kierunek patrzenia kamery
         // może będzie wystarczająco gładko chodzić
     }
 
-    if(camera::controlBasedOnVectors){
+    // if(camera::controlBasedOnVectors){
         /*
             nie iwem jeszcze
         */
-        currentCamera.directionToAlignCamera(glm::normalize(mouseSampler->position - currentCamera.eyePosition()));
-    }
-    else if(camera::controlBasedOnEulers){
+        // currentCamera.directionToAlignCamera(glm::normalize(mouseSampler->position - currentCamera.eyePosition()));
+    // }
+    // else if(camera::controlBasedOnEulers){
         // todo: zapętlanie pozycji myszy
         if(m_freeView and camera::active().rotateAroundThisPoint or not m_freeView){
             currentCamera.pointerMovement.horizontal = m_mouseTranslationNormalized.x * dt/frameMs;
             currentCamera.pointerMovement.vertical = m_mouseTranslationNormalized.y * dt/frameMs;
         }
-    }
+    // }
 
     currentCamera.update(dt);
     // todo:? wtf? przecież kamery z playera zgłupieją

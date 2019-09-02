@@ -16,7 +16,7 @@ public:
 
     template<typename ControllerType, typename... Args>
     std::shared_ptr<ControllerType> create(Args&&... args){
-        auto out(std::make_shared<ControllerType>(args..., windowSize));
+        auto out(std::make_shared<ControllerType>(std::forward<Args>(args)..., windowSize));
         // dummyInitCamera(*out);
         return out;
     }

@@ -23,7 +23,7 @@ struct CameraConstraints
     constr<float> fov {{ 2.5f * toRad, 150.f * toRad }};
     constr<glm::vec4> offset {{{ {-5,-5, -5, 0}, {5,5,25, 0} }}};
 };
-// todo: wepchać tu więcej
+// todo: rename to data, move some logici away
 class Camera
 {
 protected:
@@ -49,7 +49,7 @@ public:
 
     float inertia;
     float smoothing;
-    glm::vec4 offset;
+    glm::vec4 offset; // todo: rename to offsetVector
     float offsetScale;
 
     // * calculated. each cam has it's own, not sure if useful

@@ -16,7 +16,7 @@ private:
     IModule& m_module;
 public:
     template<typename... Args>
-    ModuleFollower(IModule& module, const glm::mat4& cameraRelativeMatrix, Args&... args) : camera::Controller(module.getTransform(), cameraRelativeMatrix, args...), m_module(module){
+    ModuleFollower(IModule& module, Args&&... args) : camera::Controller(module.getTransform(), std::forward<Args>(args)...), m_module(module){
 
         isParrentFollowingPointer = module.parent != nullptr;
         isPointerMovingFree = false;
@@ -182,7 +182,7 @@ void VehicleAssembler::attachCameras(IModule& module, const Yaml& names){
     for(const auto& name : names){
         const auto& params = m_config["Cameras"][name.string()];
         // todo: load full camera transformation matrix
-        auto camera = m_camFactory.create<ModuleFollower>(module, matrixFromYaml(params["Relative Position"]), params["Mode"].string());
+        auto camera = m_camFactory.create<ModuleFollower>(module, matrixFromYaml(params["Relative Position"]));
         camera->fov = params["Angle"].number();
         camera->inertia = params["Inertia"].number();
         camera->recalucuateProjectionMatrix();

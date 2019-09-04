@@ -104,11 +104,7 @@ float Camera::convertDepthToWorld(float depth){
 void Camera::printDebug(){
     console.log("fov:", fov*toDeg, "\taspect:", aspectRatio);
     console.log("nearDistance:", nearDistance, "\tfarDistance:", farDistance);
-    // console.log("rotationCenter:", rotationCenter);
     console.log("position:", orientation[3]);
-    console.log("offset:", offset);
-    // console.log("euler:", euler);
-    // console.log("target.basis:", target.basis);
-    // console.log("target.parentBasis:", target.parentBasis);
+    console.log("offset:", offset, offsetScale);
 }
 }

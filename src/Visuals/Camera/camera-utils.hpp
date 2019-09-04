@@ -71,7 +71,7 @@ public:
 };
 
 template<typename T>
-T defaultMixFunction(const T& value, const T&  target, float miliseconds, float smoothness){
+T defaultMixFunction(T value, T target, float miliseconds, float smoothness){
     return glm::mix(value, target, smoothness * miliseconds/frameMs);
     // return glm::mix(rotationCenter, target.rotationCenter, glm::smoothstep(0.f, 1.f, inertia * dt/frameTime));
     // smoothstep ma sens wtedy gdy przy ustaleniu wartosci, zapiszemy startową wartość, i będziemy robiliinterpolację nie po czasie a po

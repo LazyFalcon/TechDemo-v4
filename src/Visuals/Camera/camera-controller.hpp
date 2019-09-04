@@ -20,7 +20,7 @@ private:
     Utils::Limits<float, Utils::periodicAngle<float>> yaw; // y, around Z axis
     Utils::Limits<float> pitch; // x, around X axis
     Utils::Limits<float> roll; // z, around Y axis
-    Utils::Limits<float&> fovLimited;
+    // Utils::Limits<float&> fovLimited;
 
     Utils::ValueFollower<glm::vec4> origin;
     Utils::ValueFollower<glm::quat, glm::quat, Utils::quaternionSlerpFunction> rotation; // in reference to world coordinates

@@ -15,6 +15,10 @@ namespace pmk {
     }
 
     template <>
+    inline void toStream(std::ostream& out, const bool& val){
+        out<< (val ? "true" : "false");
+    }
+    template <>
     inline void toStream(std::ostream& out, const glm::vec2& val){
         out<<"[ "<<val.x<<", "<<val.y<<" ] ";
     }
@@ -127,10 +131,10 @@ public:
 
     PmkLogger& regularPrefix(const std::string& filename, int line, const std::string& funcname){
         m_output = std::string();
-        m_output += prefix +" ";
+        if(not prefix.empty()) m_output += prefix +" ";
         if(m_printFile) pmk::adjustFilename(filename) + ":" + std::to_string(line) + ": ";
         // if(m_printFunction)
-        m_output += pmk::adjustFuncname(funcname) + ": ";
+        m_output += "["+pmk::adjustFuncname(funcname) + "] ";
 
         return *this;
     }

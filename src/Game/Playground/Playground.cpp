@@ -182,7 +182,7 @@ void Playground::updateWithHighPrecision(float dt){
         }
     // }
 
-    currentCamera.update(dt);
+    if(m_freeView) currentCamera.update(dt);
     // todo:? wtf? przecież kamery z playera zgłupieją
     // for(auto &cam : CameraController::listOf){
     //     cam->update(dt);

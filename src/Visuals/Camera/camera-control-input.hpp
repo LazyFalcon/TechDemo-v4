@@ -123,9 +123,9 @@ struct ControlInput
     float zoomDirection = 0;
     glm::vec4 directionOfMovement {};
     struct {
-        float horizontal;
-        float vertical;
-        float roll;
+        float horizontal {};
+        float vertical {};
+        float roll {};
     } pointerMovement;
 
     // controller behaviour configuration
@@ -153,6 +153,7 @@ struct ControlInput
         pointerMovement.horizontal = 0;
         pointerMovement.vertical = 0;
         pointerMovement.roll = 0;
+        directionOfMovement = {};
     }
 };
 /*

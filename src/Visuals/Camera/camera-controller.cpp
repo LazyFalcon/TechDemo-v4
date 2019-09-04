@@ -15,9 +15,11 @@ Controller& active(){
 
 Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize):
     yaw(0),
-    pitch(0, -pi/3, pi/3),
-    roll(0, -pi/2, pi/2),
-    fovLimited(Camera::fov, 30*toRad, 120*toRad),
+    pitch(0),
+    roll(0),
+    // pitch(0, -pi/3, pi/3),
+    // roll(0, -pi/2, pi/2),
+    // fovLimited(Camera::fov, 30*toRad, 120*toRad),
     origin(parentMatrix[3], 0.1f, 0.5f),
     rotation(glm::quat_cast(parentMatrix*cameraRelativeMatrix), 0.1f, 0.5f),
     parentRotationInLastFrame(glm::quat_cast(parentMatrix))
@@ -25,15 +27,24 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
     listOfControllers.push_back(this);
     if(not activeCamera) focusOn();
 
-    glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
+    Camera::aspectRatio = windowSize.x/windowSize.y;
+    Camera::nearDistance = 0.10f;
+    Camera::farDistance = 1500.f;
+    Camera::fov = 85*toRad;
+    Camera::inertia = 1;
+    Camera::smoothing = 1;
 
-    Camera::orientation = glm::toMat4(glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3));
-    Camera::orientation[3] = origin.get() + Camera::orientation * offset;
-    Camera::recalculate();
+    console.log("Parent position:", parentMatrix[3]);
+
+    glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
 
     offset = calculateEyePositionOffset(cameraRelativeMatrix);
     offsetScale = glm::length(offset)*glm::sign(glm::dot(at, offset));
-    glm::normalize(offset);
+    offset = glm::normalize(offset);
+
+    Camera::orientation = glm::toMat4(glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3));
+    Camera::orientation[3] = origin.get() + Camera::orientation * offset*offsetScale;
+    Camera::recalculate();
 }
 
 Controller::~Controller(){
@@ -52,11 +63,26 @@ bool Controller::hasFocus() const {
 void Controller::printDebug(){
     Camera::printDebug();
     console.log("yaw, pitch, roll:", yaw*toDeg, pitch*toDeg, roll*toDeg);
+    console.log("\t", "freecam:", freecam);
+    console.log("\t", "zoomByFov:", zoomByFov);
+    console.log("\t", "keepRightAxisHorizontal:", keepRightAxisHorizontal);
+    console.log("\t", "parentRotationAffectCurrentRotation:", parentRotationAffectCurrentRotation);
+    console.log("\t", "smoothParentRotation:", smoothParentRotation);
+    console.log("\t", "inSteadyFocusOnPoint:", inSteadyFocusOnPoint);
+    console.log("\t", "directionIsInLocalSpace:", directionIsInLocalSpace);
+    console.log("\t", "switchToMovementOnWorldAxes:", switchToMovementOnWorldAxes);
+    console.log("\t", "moveHorizontally:", moveHorizontally);
+    console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
+    console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
+    console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
+    console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
 }
 
 // ! Zakładam że poza bugami implementacyjnymi to większość implementacji jest zrobiona
 void Controller::update(const glm::mat4& parentTransform, float dt){
     if(not hasFocus()) return;
+
+    console_prefix("Camera");
 
     zoom();
 
@@ -70,6 +96,8 @@ void Controller::update(const glm::mat4& parentTransform, float dt){
     Camera::orientation = glm::toMat4(rotation.get());
     Camera::orientation[3] = origin.get() + Camera::orientation * offset*offsetScale;
     Camera::recalculate();
+
+    console.flog("position", origin.get());
 
     ControlInput::resetAfterUse();
     parentRotationInLastFrame = glm::quat_cast(parentTransform);

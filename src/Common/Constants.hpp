@@ -29,4 +29,4 @@ const glm::mat4 identityMatrix(1);
 const btTransform btIdentity = btTransform::getIdentity();
 const glm::quat qIdentity = glm::quat(0,0,0,1);
 
-const float frameMs = 1.f/60.f;
+const float frameMs = 1.f/60.f*1000.f;

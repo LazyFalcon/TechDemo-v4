@@ -136,11 +136,11 @@ void DroneLikeControl::positionPart(float dt, const btTransform& tr){
 
     // vehicle.rgBody->setLinearVelocity(impulse);
     // vehicle.rgBody->setLinearFactor({0,0,0});
-    console.flog("impulse:", impulse,
-                 "m_virtualDirection:", m_virtualDirection,
-                 "m_velocity:", m_velocity,
-                 "m_virtualPosition:", m_virtualPosition,
-                 "positionError:", positionError);
+    // console.flog("impulse:", impulse,
+    //              "m_virtualDirection:", m_virtualDirection,
+    //              "m_velocity:", m_velocity,
+    //              "m_virtualPosition:", m_virtualPosition,
+    //              "positionError:", positionError);
     vehicle.rgBody->applyImpulse(impulse, tr.getBasis().getColumn(2)*10.5);
 
 

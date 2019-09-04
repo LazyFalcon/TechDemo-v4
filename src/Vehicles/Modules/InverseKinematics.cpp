@@ -12,7 +12,7 @@ InverseKinematics::InverseKinematics(const Yaml& moduleParams){
             hasLimits = params["Limits"][idx].boolean();
             min = params["Min"][idx].number();
             max = params["Max"][idx].number();
-            console.log("Selected axis", idx);
+            // console.log("Selected axis", idx);
         }
     }
 }
@@ -29,7 +29,7 @@ std::array<float, 3> InverseKinematics::calculate(const glm::mat4& moduleWS, glm
     target = glm::normalize(target); // target becomes vector pointing on point
 
     const auto angle = glm::orientedAngle(target, targetingAxis, rotateAroundAxis);
-    console.flog(rotateAroundAxisIdx,targetWS, angle, target, targetingAxis, rotateAroundAxis);
+    // console.flog(rotateAroundAxisIdx,targetWS, angle, target, targetingAxis, rotateAroundAxis);
 
     std::array<float, 3> out {};
     out[rotateAroundAxisIdx] = isnormal(angle) ? angle : 0;

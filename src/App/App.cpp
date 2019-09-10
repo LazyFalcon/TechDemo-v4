@@ -11,6 +11,7 @@
 #include "GraphicEngine.hpp"
 #include "input-dispatcher.hpp"
 #include "input.hpp"
+#include "input-user-pointer.hpp"
 #include "Logger.hpp"
 #include "PerfTimers.hpp"
 #include "ResourceLoader.hpp"
@@ -25,7 +26,6 @@ bool CLOG_SPECIAL_VALUE_2 = false;
 bool CLOG_SPECIAL_VALUE_3 = false;
 bool ONCE_IN_FRAME = false;
 bool quit = false;
-bool CURSOR_DISABLED = false;
 bool TAKE_SCREENSHOT = false;
 bool HIDE_UI = false;
 bool ALT_MODE = false;
@@ -69,15 +69,9 @@ bool App::initialize(){
     // debugScreen = std::make_unique<DebugScreen>();
     // debugScreen->init();
 
-    if(CURSOR_DISABLED){
-        glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        // KeyState::mouseReset = true;
-        // lastCursorPos = glm::vec2(window->size.x/2, window->size.y/2);
-        // glfwSetCursorPos(window->window, window->size.x/2, window->size.y/2);
-    }
     eventProcessor = std::make_unique<EventProcessor>(*this);
     // particleProcessor = std::make_unique<ParticleProcessor>(*physics);
-
+    userPointer = std::make_unique<InputUserPointer>();
     return true;
 }
 void App::initializeInputDispatcher(){
@@ -118,26 +112,6 @@ void App::initializeInputDispatcher(){
                 console.log("reloading shader: ", it.string());
                 loader.reloadShader(it.string());
             }});
-    input->action("ctrl").on([this]{
-            if(CURSOR_DISABLED){
-                glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                // KeyState::mouseReset = false;
-            }})
-            .off([this]{
-            if(CURSOR_DISABLED){
-                glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                // KeyState::mouseReset = true;
-            }});
-    input->action("f2").on([this]{
-            if(CURSOR_DISABLED){
-                glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                // KeyState::mouseReset = true;
-            } else {
-                glfwSetInputMode(window->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                // KeyState::mouseReset = false;
-            }
-            CURSOR_DISABLED = !CURSOR_DISABLED;
-        });
     input->action("MousePosition").on([this](float x, float y){
         imgui->input.mousePos = glm::vec2(x,y);
         imgui->panelInput.mousePos = glm::vec2(x,y);
@@ -263,14 +237,6 @@ void App::setGameState(std::shared_ptr<GameState> p_gameState){
     gameState = p_gameState;
 }
 
-
-void App::hideMouse(){
-    CURSOR_DISABLED = false;
-}
-void App::showMouse(){
-    CURSOR_DISABLED = true;
-}
-
 void App::scrollCallback(GLFWwindow *w, double dx, double dy){
     self->inputDispatcher->scrollCallback(dx, dy);
 }
@@ -292,6 +258,9 @@ void App::cursorPosCallback(GLFWwindow *w, double xpos, double ypos){
 
     float x = xpos;
     float y = size.y - ypos;
+
+    userPointer->setSystemPosition({x,y});
+    userPointer->moveBy({dx, dy});
 
     self->inputDispatcher->mousePosition(x, y);
     self->inputDispatcher->mouseMovement(dx, dy);

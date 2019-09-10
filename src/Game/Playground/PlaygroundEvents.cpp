@@ -13,7 +13,7 @@
 bool StartPlayground::handle(App &app){
     console.info("[ Start Playground ]");
 
-    auto playground = std::make_shared<Playground>(*app.imgui, *app.inputDispatcher, *app.window);
+    auto playground = std::make_shared<Playground>(*app.imgui, *app.inputDispatcher, *app.window, *app.userPointer);
 
     auto& scene = playground->loadScene(sceneName);
     // pathifinderProcessAndSaveDepthMap(scene, context);
@@ -26,7 +26,7 @@ bool StartPlayground::handle(App &app){
     }
 
     app.window->show();
-    app.showMouse();
+    app.userPointer->hideSystemCursor();
     app.setGameState(playground);
 
     console.log("*Game has been started*");

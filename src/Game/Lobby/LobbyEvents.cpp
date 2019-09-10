@@ -8,10 +8,10 @@
 bool StartLobby::handle(App &app){
     console.info("[ Start Lobby ]");
 
-    auto lobby = std::make_shared<Lobby>(*app.imgui, *app.inputDispatcher, *app.settings);
+    auto lobby = std::make_shared<Lobby>(*app.imgui, *app.inputDispatcher, *app.settings, *app.userPointer);
 
     app.window->show();
-    app.showMouse();
+    app.userPointer->showSystemCursor();
     app.setGameState(lobby);
     return true;
 }

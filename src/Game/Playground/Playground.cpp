@@ -9,6 +9,7 @@
 #include "GraphicEngine.hpp"
 #include "input-dispatcher.hpp"
 #include "input.hpp"
+#include "input-user-pointer.hpp"
 #include "LightRendering.hpp"
 #include "PhysicalWorld.hpp"
 #include "Player.hpp"
@@ -23,10 +24,11 @@
 #include "VehicleAssembler.hpp"
 #include "Window.hpp"
 
-Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window):
+Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window, InputUserPointer& inputUserPointer):
     m_input(inputDispatcher.createNew("Playground")),
     m_physics(std::make_unique<PhysicalWorld>()),
     m_window(window),
+    m_inputUserPointer(inputUserPointer),
     m_scene(std::make_unique<Scene>(*m_physics, m_window.camFactory)),
     m_mouseSampler(std::make_unique<GBufferSampler>())
     {
@@ -77,6 +79,7 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
             });
         m_input->action("Q").on([this]{ camera::active().pointerMovement.roll = -15*toRad; });
         m_input->action("E").on([this]{ camera::active().pointerMovement.roll = +15*toRad; });
+        m_input->action("ctrl").on([this]{ /* show game pointer */  }); // ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         m_input->action("W").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.z = m_freecamSpeed; });
         m_input->action("S").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.z = -m_freecamSpeed; });

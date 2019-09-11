@@ -71,7 +71,7 @@ bool App::initialize(){
 
     eventProcessor = std::make_unique<EventProcessor>(*this);
     // particleProcessor = std::make_unique<ParticleProcessor>(*physics);
-    userPointer = std::make_unique<InputUserPointer>();
+    userPointer = std::make_unique<InputUserPointer>(*window, window->size);
     return true;
 }
 void App::initializeInputDispatcher(){
@@ -259,8 +259,8 @@ void App::cursorPosCallback(GLFWwindow *w, double xpos, double ypos){
     float x = xpos;
     float y = size.y - ypos;
 
-    userPointer->setSystemPosition({x,y});
-    userPointer->moveBy({dx, dy});
+    self->userPointer->setSystemPosition({x,y});
+    self->userPointer->moveBy({dx, dy});
 
     self->inputDispatcher->mousePosition(x, y);
     self->inputDispatcher->mouseMovement(dx, dy);

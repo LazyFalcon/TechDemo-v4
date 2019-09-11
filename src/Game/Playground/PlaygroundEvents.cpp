@@ -3,6 +3,7 @@
 #include "Context.hpp"
 #include "Context.hpp"
 #include "GraphicEngine.hpp"
+#include "input-user-pointer.hpp"
 #include "LobbyEvents.hpp"
 #include "Logger.hpp"
 #include "Playground.hpp"

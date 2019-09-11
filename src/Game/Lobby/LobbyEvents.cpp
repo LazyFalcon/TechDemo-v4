@@ -1,5 +1,6 @@
 #include "core.hpp"
 #include "App.hpp"
+#include "input-user-pointer.hpp"
 #include "Lobby.hpp"
 #include "LobbyEvents.hpp"
 #include "Logger.hpp"

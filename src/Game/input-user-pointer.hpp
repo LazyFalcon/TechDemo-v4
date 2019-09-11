@@ -8,7 +8,7 @@ class Window;
 class InputUserPointer
 {
 private:
-    Window* window;
+    Window& window;
     glm::vec2 gamePointerPosition {}; // floating, subpixel can be over screen
     glm::vec2 screenSize;
     glm::vec2 pointerOnScreenPosition; // pixelPerfect, clamped to screen position
@@ -29,24 +29,10 @@ private:
     }
 
 public:
-    InputUserPointer(glm::vec2 screenSize): screenSize(screenSize){
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
+    InputUserPointer(Window& window, glm::vec2 screenSize);
 
-        systemPointerPosition = glm::vec2(xpos, screenSize.y-ypos);
-
-
-        showSystemCursor();
-    }
-
-    void hideSystemCursor(){
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        useSystemPointer = false;
-    }
-    void showSystemCursor(){
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        useSystemPointer = true;
-    }
+    void hideSystemCursor();
+    void showSystemCursor();
     void hide(){
         hideGamePointer = true;
     }
@@ -59,11 +45,11 @@ public:
     bool visible() const {
         return not useSystemPointer and not hideGamePointer;
     }
-    glm::vec2 screenPxPosition() const {
+    glm::vec2 screenPxPosition(){
         if(useSystemPointer) return systemPointerPosition;
         return wrap(align(gamePointerPosition));
     }
-    glm::vec2 screenPosition() const {
+    glm::vec2 screenPosition(){
         if(useSystemPointer) return systemPointerPosition/screenSize;
         return wrap(align(gamePointerPosition))/screenSize;
     }
@@ -90,7 +76,7 @@ public:
         pointerOnScreenPosition = wrap(align(gamePointerPosition));
     }
     void setFromWorldPosition(const glm::vec4& worldPosition, const glm::mat4& viewMatrix){
-        gamePointerPosition = glm::project(worldPosition.xyz(), glm::mat4(1), viewMatrix, glm::vec4(0,0,screensize));
+        gamePointerPosition = glm::project(worldPosition.xyz(), glm::mat4(1), viewMatrix, glm::vec4(0,0,screenSize));
         pointerOnScreenPosition = wrap(align(gamePointerPosition));
     }
 

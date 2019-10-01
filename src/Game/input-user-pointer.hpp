@@ -27,7 +27,7 @@ private:
     glm::vec2 align(glm::vec2 in){
         return in;
     }
-
+    // todo: sensitivity, najlepiej stos updatów, żeby dało się przełączać pomiędzy róznymi czułościami
 public:
     InputUserPointer(Window& window, glm::vec2 screenSize);
 
@@ -78,6 +78,9 @@ public:
     void setFromWorldPosition(const glm::vec4& worldPosition, const glm::mat4& viewMatrix){
         gamePointerPosition = glm::project(worldPosition.xyz(), glm::mat4(1), viewMatrix, glm::vec4(0,0,screenSize));
         pointerOnScreenPosition = wrap(align(gamePointerPosition));
+    }
+    void set(glm::vec2 calculatedPosition){
+
     }
 
 };

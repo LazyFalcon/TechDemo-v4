@@ -176,6 +176,8 @@ void App::run() try {
         FrameTime::delta = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(deltaTime).count();
         FrameTime::deltaf = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(deltaTime).count();
 
+        // TODO: renderData.storeCameraForFrameRendering();
+
         pmkLogger.startFrame();
         updateTimers(FrameTime::miliseconds);
         imgui->restart();

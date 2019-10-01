@@ -79,7 +79,8 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
             });
         m_input->action("Q").on([this]{ camera::active().pointerMovement.roll = -15*toRad; });
         m_input->action("E").on([this]{ camera::active().pointerMovement.roll = +15*toRad; });
-        m_input->action("ctrl").on([this]{ /* show game pointer */  }); // ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        m_input->action("ctrl").on([this]{ m_inputUserPointer.showSystemCursor(); })
+                               .off([this]{ m_inputUserPointer.hideSystemCursor(); });
 
         m_input->action("W").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.z = m_freecamSpeed; });
         m_input->action("S").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.z = -m_freecamSpeed; });

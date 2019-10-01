@@ -141,7 +141,7 @@ public:
 
     template <typename... Args>
     PmkLogger& error(const Args &... args){
-        std::cerr << "[ERROR] " << m_output << toString(args...) << std::endl;
+        std::cerr << "[ERROR] " << m_output << toString(args...) << "\n";
         m_output = "";
 
         return *this;
@@ -149,7 +149,7 @@ public:
     template <typename... Args>
     PmkLogger& warn(const Args &... args){
         if(m_severity >= SEVERITY_WARNING){
-            std::cerr << "[WARNING] " << m_output << toString(args...) << std::endl;
+            std::cerr << "[WARNING] " << m_output << toString(args...) << "\n";
             m_output = "";
         }
 
@@ -158,7 +158,7 @@ public:
     template <typename... Args>
     PmkLogger& info(const Args &... args){
         if(m_severity >= SEVERITY_INFO){
-            std::cout << m_output << toString(args...) << std::endl;
+            std::cout << m_output << toString(args...) << "\n";
             m_output = "";
         }
 
@@ -167,7 +167,7 @@ public:
     template <typename... Args>
     PmkLogger& log(const Args &... args){
         if(m_severity >= SEVERITY_DEBUG){
-            std::cout << m_output << toString(args...) << std::endl;
+            std::cout << m_output << toString(args...) << "\n";
             m_output = "";
         }
         return *this;
@@ -175,7 +175,7 @@ public:
     template <typename... Args>
     PmkLogger& clog(const Args &... args){
         if(m_severity >= SEVERITY_ALL or m_printClogs){
-            std::cout << m_output << toString(args...) << std::endl;
+            std::cout << m_output << toString(args...) << "\n";
             m_output = "";
         }
         return *this;
@@ -183,7 +183,7 @@ public:
     template <typename... Args>
     PmkLogger& flog(const Args &... args){
         if(m_counter < 6 or m_printClogs){
-            std::cout << m_output << toString(args...) << std::endl;
+            std::cout << m_output << toString(args...) << "\n";
             m_output = "";
         }
         return *this;
@@ -191,7 +191,7 @@ public:
     template <typename... Args>
     PmkLogger& toFile(const Args &... args){
         if(m_severity >= SEVERITY_ALL or m_printClogs){
-            std::cout << m_output << toString(args...) << std::endl;
+            std::cout << m_output << toString(args...) << "\n";
             m_output = "";
         }
 

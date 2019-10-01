@@ -53,6 +53,7 @@ Controller::~Controller(){
 }
 
 void Controller::focusOn(){
+    if(activeCamera) activeCamera->freeControl();
     activeCamera = this;
 }
 
@@ -114,7 +115,9 @@ void Controller::zoom(){
         offsetScale += zoomDirection*2;
     }
 }
-
+/*
+TODO: dodać aktualny opis
+*/
 glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, float dt){
     if(worldPointToFocusOn or worldPointToFocusOnWhenSteady){
         // todo: weź pod uwagę offset

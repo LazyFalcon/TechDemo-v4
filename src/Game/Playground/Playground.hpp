@@ -33,7 +33,7 @@ private:
 
     // std::shared_ptr<FreeCamController> m_defaultCamera; // TODO: later convert into list of cameras
     int m_selectedCamera {0};
-    bool m_freeView {false};
+    bool m_freeView {true};
 
     std::unique_ptr<GBufferSampler> m_mouseSampler;
 

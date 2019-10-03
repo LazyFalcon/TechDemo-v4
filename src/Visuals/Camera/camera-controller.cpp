@@ -47,6 +47,40 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
     Camera::recalculate();
 }
 
+Controller::Controller(const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize):
+    yaw(0),
+    pitch(0),
+    roll(0),
+    // pitch(0, -pi/3, pi/3),
+    // roll(0, -pi/2, pi/2),
+    // fovLimited(Camera::fov, 30*toRad, 120*toRad),
+    origin(cameraRelativeMatrix[3], 0.1f, 0.5f),
+    rotation(glm::quat_cast(cameraRelativeMatrix), 0.1f, 0.5f),
+    parentRotationInLastFrame(glm::quat_cast(cameraRelativeMatrix))
+{
+    listOfControllers.push_back(this);
+    if(not activeCamera) focusOn();
+
+    Camera::aspectRatio = windowSize.x/windowSize.y;
+    Camera::nearDistance = 0.10f;
+    Camera::farDistance = 1500.f;
+    Camera::fov = 85*toRad;
+    Camera::inertia = 1;
+    Camera::smoothing = 1;
+
+    console.log("Position:", cameraRelativeMatrix[3]);
+
+    glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
+
+    offset = glm::vec4(0,0,-1,0);
+    offsetScale = 1;
+    offset = glm::normalize(offset);
+
+    Camera::orientation = glm::toMat4(glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3));
+    Camera::orientation[3] = origin.get() + Camera::orientation * offset*offsetScale;
+    Camera::recalculate();
+}
+
 Controller::~Controller(){
     listOfControllers.remove(this);
     if(activeCamera == this and not listOfControllers.empty()) listOfControllers.front()->focusOn();

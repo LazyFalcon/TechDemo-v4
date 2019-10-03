@@ -44,7 +44,8 @@ private:
 
 public:
     Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
-    Controller(const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : Controller(glm::mat4(1), cameraRelativeMatrix, windowSize){}
+    Controller(const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
+    // Controller(const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : Controller(cameraRelativeMatrix, cameraRelativeMatrix, windowSize){}
     virtual ~Controller();
 
     void focusOn();

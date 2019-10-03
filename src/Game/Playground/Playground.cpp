@@ -243,8 +243,8 @@ void Playground::spawnPlayer(const std::string& configName, const glm::mat4& spa
     auto& vehicle = m_vehicles.emplace_back(builder.build(spawnPoint));
 
     m_player = std::make_shared<Player>(m_input->getDispatcher(), *vehicle);
-    m_player->focusOn();
-    m_freeView = false;
+    // m_player->focusOn();
+    // m_freeView = false;
 }
 void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnPoint, Context& renderingContext){
 

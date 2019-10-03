@@ -9,6 +9,7 @@ class GBufferSampler;
 class Imgui;
 class Input;
 class InputDispatcher;
+class InputUserPointer;
 class PhysicalWorld;
 class Player;
 class Scene;
@@ -23,6 +24,7 @@ private:
     std::vector<std::shared_ptr<Vehicle>> m_vehicles;
     std::unique_ptr<PhysicalWorld> m_physics;
     Window& m_window;
+    InputUserPointer& m_inputUserPointer;
     std::unique_ptr<Scene> m_scene;
     glm::vec2 m_mousePos;
     glm::vec4 m_mouseWorldPos;
@@ -38,7 +40,7 @@ private:
     std::unique_ptr<GBufferSampler> m_mouseSampler;
 
 public:
-    Playground(Imgui&, InputDispatcher&, Window&);
+    Playground(Imgui&, InputDispatcher&, Window&, InputUserPointer&);
     ~Playground();
     void update(float dt);
     void updateWithHighPrecision(float dt);

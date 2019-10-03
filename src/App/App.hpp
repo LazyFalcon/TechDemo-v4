@@ -9,6 +9,7 @@ class GraphicEngine;
 class Imgui;
 class Input;
 class InputDispatcher;
+class InputUserPointer;
 class ParticleProcessor;
 class Settings;
 class Window;
@@ -31,6 +32,7 @@ public:
     std::unique_ptr<InputDispatcher> inputDispatcher;
     std::shared_ptr<Input> input;
     std::unique_ptr<Settings> settings;
+    std::unique_ptr<InputUserPointer> userPointer;
 
     bool quit {false};
     glm::vec2 lastCursorPos;
@@ -47,8 +49,6 @@ public:
     void render();
     void finish();
     void setGameState(std::shared_ptr<GameState> gameState);
-    void hideMouse();
-    void showMouse();
 
     static void scrollCallback(GLFWwindow *w, double dx, double dy);
     static void keyCallback(GLFWwindow *w, int key, int scancode, int action, int mods);

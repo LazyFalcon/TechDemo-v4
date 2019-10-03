@@ -3,120 +3,64 @@
 namespace camera
 {
 /*
+Z perspektywy czasu, jak to wygląda?
 
-Jak rozwiązać input? w playground/player jest to zrobione na eventach, więc co ramkę nie wszytko będzie wypełniane.
-
-Z drugiej strony różne stany kamery potrzebują różnego inputu, myslę że nie trzeba by user jakoś to różnicował i niech wypełnia wszysto
+Sterowanie orientacją:
+- ruchy myszy zamienianie na kąty eulera
+- punkt docelowy w który kamera ma się patrzeć
 
 Tryby pracy:
-https://stackoverflow.com/questions/28530702/quaternion-based-camera
+- zadana orientacja jest podana względem świata
+- orientacja jest zadana względem pojazdu
+- punkt jest zadany względem świata
 
-::: nieruchomy celownik na środku, pojazd nie obraca się do celu
-    - globalny wektor [waiting for evaluation]
-        -> default, kamera za pojazdem
-        -> ruch myszy obraca ten wektor
-        input: ruch pointera + roll
-    - lokalny wektor [waiting for evaluation]
-        -> jesli chcemy śledzić obroty, nie trzeba kręcić myszą przy skręcaniu
-        -> ruch myszy obraca ten wektor
-        input: ruch pointera + roll
-    - punkt [tbd]
-        -> celowanie, żeby pozostać skupionym na tym samym punkcie
-        -> kursor musi pozostać w punkcie
-        input: punkt ze świata,
-                -> wciskając RMB zapisujemy ten punkt, RMB off czyścimy flagę
-                -> przy ustawieniu inSteadyFocusOnPoint robimy to też kiedy nie ma inputu
-                -> trzba rozpoznać kiedy zanika input i wtedy zebrać punkt
-        !!! Przy obliczaniu kierunku trzeba pamiętac o tym że kamera obraca się dookoła środka, nie w miejscu, trzeba więc obliczyć
-        ! kierunek tak by się obróciła poprawnie, takie inverse zrobić
+Pozycji:
+- przypięty do obiektu: target wyciągamy z macieży ownera
+- swobodny, dostajemy input i modyfikujemy target
 
-    + wpływ orientacji rodzica na rotację
-        -> modyfikujemy obecną orientacje kamery, mozna dać szybkiego slerpa żeby nie bolało
-        -> dla globalnego kopiuje pochylenie na boki
-    + stabilizacja w poziomie
-        -> zachowujemy oś right w poziomie
-    Powinien działać również w przypadku przypięcia, z zerowym offsetem
+Stabilizacja:
+- wyrównujemy kamerę tak by utrzymywała poziom, obroty wokół osi patrzenia
 
-::: nieruchomy celownik na środku, pojazd obraca się do kamery
-    - globalny wektor [waiting for evaluation]
-        -> kamera na wieżyczce, obie zjeżdżają się na ten sam punkt,
-        -> ruch myszy obraca ten wektor
-    - punkt [tbd]
-        -> tak samo, tylko jak pojazd zacznie się poruszać to wieża pozostanie skupiona na tym samym punkcie
-    + wpływ orientacji rodzica na rotację
-    + stabilizacja w poziomie
-    -> jakić rule na to by włączać local kiedy moduł ma opcję śledzenia kursora
+Kopiowanie ruchu i transformacji rodzica:
+- całość transformacji wpływa na docelową orientację
+- jedynie obroty w poziomie, dookoła globalnej osi Z
+- nasladujemy płaszczyznę poziomą
+- kopiujemy obroty rodzica do aktualnej orientacji kamery
 
-::: ruchomy celownik/wskaźnik
-    - globalny wektor [tbd]
-        -> kursor wyznacza kierunek w przestrzeni globalnej, od oka do punktu na frustumie
-           kamera wyrównuje się do tego wektora
-           w widoku zza pleców ma to średni sens, ale powinno działać
-           po poruszeniu kamerą trzeba tak obrócić kursor by kierunek był zachowany
-        -> albo po prostu tak żeby kamera obracała się w kieunku punku znajdującego się pod myszą, i offsetować położenie punktu o przesunięcie pojazdu?
-    - lokalny wektor [not]
-        - bez sensu, szkoda roboty
-        -> wektor ten sam, tylko trzeba
-    - punkt [tbd]
-        -> ads tak jak w poprzednich, mysz pokazuje punkt, kamera obraca się by punkt był w środku ekranu
+Wizualizacja wskaźnika:
+- swobodny, niezależny od kamery, do trybu blenderowego,
+- odchylany, wizualizuje odchylenie kamery, tak że puszczony swobodnie wyrówna się z kamerą i trafi na środek
+- przypięty na stałe na środku
 
-    - rotacja na rządanie [tbd]
-        Na przykład MMB, kursor lata sobie swobodnie, moduł też, kamera stoi w miejscu
-        MMB i modyfikujemy eulery kamery, i kursor albo zachowuje pozycję w świecie albo ekranie
-        - może być globalnie, wtedy pojazd może obracać się w punkt
-        - moze być lokalnie, wtedy pojazd albo rusza się jak chce, albo w środek ekranu, nie może obracać się do celownika
-    + wpływ orientacji rodzica na rotację
-    + stabilizacja w poziomie
+Czynności robione poza kamerą, przez usera
+- blokowanie punktu przy ADSie
+- blokowanie się na punkcie gdy pojazd się nie porusza, lub gdy nie obracamy kamerą
+- dynamiczne przełączanie pomiędzy globalnym a lokalnym kierunkiem, po to żeby mieć jakąś ciekawszą stabilizację
 
-:: globalny wektor kierunku: euler albo dwa wektory, oba podatne na gimbal lock, wybrać który lepiej działa
-    przykłady:
+- przełączanie pomiędzy trybami wymagać będzie przeliczenia eulera, bo przełączenia muszą być gładkie
+- dobrze by też było żeby przełączenie robiło się automatycznie, nie?
+    -> punkt w global
+    -> punkt w lokal
+    -> lokal w global
+    -> global w lokal
+    Zmiana ta to tylko przeliczenie obecnej orientacji w eulery, więc zostają tylko:
+    -> orintacja w global
+    -> orintacja w lokal
 
-:: lokalny wektor kierunku: tak samo tylko target rotacja jest mnożone przez rotację rodzica
+Więc chyba wszytkie elementy o których myślałem mam pokryte.
+Teraz rozpiszmy jak Player, Gra i appka obsługują wskaźnik i kamerę
+-> app na starcie ramki zapisuje kamerę z którą będzie wyrenderowana scenka, dzięki temu to pozycja pod myszą będzie prawdziwa
+-> app odbiera ruchy myszy od usera
+-> gra przekazuje aktualnej kamerze input - przesunięcia lub punkt na który ma patrzeć, wokół którego ma się obracać, albo coś podobnego
+-> gracz może to modyfikować -> może narzucić punkt na który ma ptrzeć kamera
 
-:: punkt: kamera obraca się środkiem w stronę punktu, nie działa to dobrze w sytacji gdy pojazd się porusza,
-    dlatego też powinno być włączane na rządanie, np. ADS/Focus, albo gdy pojazd nie dostaje rozkazu poruszania sie(ustawienie na to)
-    Dodatkowo Trzeba zrobić tak żeby punkt nie zmieniał się gdy nie poruszamy myszą, przy nierucomym celowniku jest to proste, update wtedy gdy nastapi ruch myszy
-    Przy ruchomym celowniku trzeba modyfikować pozycję kursora by był cały czas w miejscu
-    A tak to niech user martwi się żeby utrzymać punkt na celowniku
-
-:: gimbal lock free? Dla statków kosmicznych, może być trochę inne.
-    wersja z wektorem kierunku i wektorem w 'górę' powinna to zapewnić, tylko teraz jak efektywnie obracać takim wektorem? do rozpatrzenia
-
-23.08
-? jaka jest różnica pomiędzy sterowaniem przy pomocy wektora a eulera?
-    - euler jest czysto lokalny, nieuzależniony od niczego, sterowany przez zmiany położenia myszy po ekranie
-    - wektory
-        - w postaci wektora obracanego przez ruch myszy po ekranie - lekko bezużyteczne, eulery działają równie dobrze
-        - w postaci wektora od oka do punktu w świecie, trzeba dbać o zachowanie kierunku kursora, żadnego zysku myślę, a szkoda roboty
-
-? Jak zrobić dobrze kamerę patrzącą z oczu, np. kamera zamontowana na wieży czołgu?
-    - wieża się porusza
-    - kamera musi być zaimpaktowana przez wieżę
-    - musi zostać zachowany kierunke patrzenia
-    -> globalny wektor(euler) + stabilizacja + kopiowanie rotacji rodzica
-
-? Kamera w statku kosmicznym?
-    - pełna swoboda
-    - brak góry
-    -> arbitralnie wyznaczamy płaszczyznę
-    -> albo górą jest góra pojazdu, wtedy kamera jest lokalna
-
-? jednak chciałbym mieć kamerę obracającą się w kierunku pokazywanym przez mysz
-    - w końcu musi się ten punkt znaleźć na środku
-    -> trzeba więc jakoś modyfikować położenie punkty
-    -> zostawić to do czasu aż zakodzę normalne kamery
-    ! mam ! kurwa wymyśliłem! trzba zmienić sposób pokazywania położenia wskaźnika! zamiast określać jego położenie jako punkt na ekranie
-    ! to można trzymać jego położenie jako odchylenie od osi głównej kamery, może to być kwaternion, albo eulery.
-    ! wtedy można w łatwy sposób minimalizować uchyb kamery, a wskaxnik w końcu znajdzie się na śrdoku ekrany i przestanie się ruszać.
-
-
+-> gra/gracz może modyfikować tryby kamery, kamera powinna zostać w tym samym moiejscu po zmianie trybu
 */
-// hmm, a jakby to uwspólnić dla wszystkich kamer? dzięki temu switch byłby bezbolesny
+
 struct ControlInput
 {
     // control input
     std::optional<glm::vec4> worldPointToFocusOn; // artifical input or updated when moving camera
-    std::optional<glm::vec4> worldPointToFocusOnWhenSteady; // updated when moving camera
     std::optional<glm::vec4> worldPointToZoom; // artifical input or updated when zooming
     std::optional<glm::vec4> rotateAroundThisPoint; // for freecam rotations
     std::optional<glm::vec4> directionToAlignCamera; // forces camera to look in that direction
@@ -154,14 +98,16 @@ struct ControlInput
         pointerMovement.vertical = 0;
         pointerMovement.roll = 0;
         directionOfMovement = {};
+        worldPointToZoom.reset();
+    }
+
+    void freeControl(){
+        resetAfterUse();
+        worldPointToFocusOn.reset();
+        worldPointToFocusOnWhenSteady.reset();
+        rotateAroundThisPoint.reset();
+        directionToAlignCamera.reset();
     }
 };
-/*
-Akcje jakie z tego wynikają:
-    worldPointToFocusOn - kamera obraca się w kierunku tego punktu,
-    worldPointToFocusOnWhenSteady - też, inSteadyFocusOnPoint - to jest dla usera
-    worldPointToZoom do tego punktu zoomujemy, jeśli nie ma to do środka
-    rotateAroundThisPoint - dla freecama, informacja o tym że się obraca
-*/
 
 }

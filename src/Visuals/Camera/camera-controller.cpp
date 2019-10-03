@@ -83,9 +83,14 @@ void Controller::printDebug(){
 void Controller::update(const glm::mat4& parentTransform, float dt){
     if(not hasFocus()) return;
 
+    auto mode = calcultaeMode();
+
+    recomputeEulersIfModeChanged(mode, parentTransform);
+    currentMode = mode;
+
     console_prefix("Camera");
 
-    zoom();
+    if(zoomDirection != 0.f) zoom();
 
     rotation = computeTargetRotation(parentTransform, dt);
     origin = computeTargetPosition(parentTransform, dt);
@@ -104,10 +109,22 @@ void Controller::update(const glm::mat4& parentTransform, float dt){
     parentRotationInLastFrame = glm::quat_cast(parentTransform);
 }
 
+Mode Controller::calcultaeMode(){
+    if(worldPointToFocusOn) return Mode::Point
+    if(directionIsInLocalSpace) return Mode::Local;
+    return Mode::World;
+}
+
+// todo: ffinish implementation
+void Controller::recomputeEulersIfModeChanged(Controller::Mode newMode, const glm::mat4& parentTransform){
+    if(newMode == currentMode) return;
+
+    if(newMode == Mode::Local) glm::extractEulerAngleXYZ(Camera::orientation*glm::affineInverse(parentTransform), *pitch, *yaw, *roll);
+    if(newMode == Mode::World) glm::extractEulerAngleXYZ(Camera::orientation, *pitch, *yaw, *roll);
+}
+
 // todo: add some inertia
 void Controller::zoom(){
-    if(zoomDirection == 0.f) return;
-
     if(zoomByFov){
         fov = fov + zoomDirection*15.f;
     }
@@ -115,11 +132,10 @@ void Controller::zoom(){
         offsetScale += zoomDirection*2;
     }
 }
-/*
-TODO: dodać aktualny opis
-*/
+// todo: description
+// todo: include camera position offset in calculations
 glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, float dt){
-    if(worldPointToFocusOn or worldPointToFocusOnWhenSteady){
+    if(worldPointToFocusOn){
         // todo: weź pod uwagę offset
         const auto dir = glm::normalize((*worldPointToFocusOn - eyePosition()).xyz());
         return glm::angleAxis(acos(glm::dot(dir, Z3)), glm::normalize(glm::cross(dir, Z3)));

@@ -22,10 +22,14 @@ private:
     Utils::Limits<float> roll; // z, around Y axis
     // Utils::Limits<float&> fovLimited;
 
+    // but camera rotation and position are always in world space
     Utils::ValueFollower<glm::vec4> origin;
-    Utils::ValueFollower<glm::quat, glm::quat, Utils::quaternionSlerpFunction> rotation; // in reference to world coordinates
+    Utils::ValueFollower<glm::quat, glm::quat, Utils::quaternionSlerpFunction> rotation;
 
     glm::quat parentRotationInLastFrame;
+
+    enum class Mode {World, Local, Point};
+    Mode currentMode {Mode::World};
 
     glm::vec4 calculateEyePositionOffset(const glm::mat4& cameraRelativeMatrix) const {
         // matrix describes camera relative position in space of module, so now we need to inverse camera matrix to get distance of module origin on each camera axis
@@ -49,6 +53,9 @@ public:
 
     void focusOn();
     bool hasFocus() const;
+
+
+
 
     virtual void update(float dt) {
         update(glm::mat4(1), dt);

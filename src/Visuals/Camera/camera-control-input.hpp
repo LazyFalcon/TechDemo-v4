@@ -3,20 +3,6 @@
 namespace camera
 {
 /*
-30.09
--> rozpisać jaki jest input kamery, co jest zbierane i co ma wpływ na kamerę w pojedynczej ramce
-    -> zmiana pozycji i obrotu obiektu do którego jest przypięta
-
-Przy zablokowanym wskaźniku input myszy przekłada się na odchylenie kamery
-Przy swobodnym wskaźniku input myszy przekłada się na odchylenie kamery, a pozycja wskaźnika na ekranie jest interpretacja odchylenia
-
-Orientajcja kamery jest, o ile pamiętam, wyliczna jako orientajcja globalna
-
-Przy kamerze lokalnej, obrót pojazdu wpływa na obrót kamery(dodawana jest różnica od poprzedniej ramki), oraz na docelową pozycję(pozycja docelowa jest stała w przestrzeni pojazdu)
-
-Blokowanie kamery na punkcie jest intencjonalne, i niezależne od trybu kamery(tak?) wtedy docelowa orientacja kamery w świecie jest wyliczana z pozycji kamery i punktu w który patrzy. Trzeba jakoś uwzględnić to że kamera obraca się na uwięzi. TODO: rozrysować to.
-
-1.10
 Z perspektywy czasu, jak to wygląda?
 
 Sterowanie orientacją:
@@ -52,14 +38,29 @@ Czynności robione poza kamerą, przez usera
 - dynamiczne przełączanie pomiędzy globalnym a lokalnym kierunkiem, po to żeby mieć jakąś ciekawszą stabilizację
 
 - przełączanie pomiędzy trybami wymagać będzie przeliczenia eulera, bo przełączenia muszą być gładkie
+- dobrze by też było żeby przełączenie robiło się automatycznie, nie?
+    -> punkt w global
+    -> punkt w lokal
+    -> lokal w global
+    -> global w lokal
+    Zmiana ta to tylko przeliczenie obecnej orientacji w eulery, więc zostają tylko:
+    -> orintacja w global
+    -> orintacja w lokal
 
+Więc chyba wszytkie elementy o których myślałem mam pokryte.
+Teraz rozpiszmy jak Player, Gra i appka obsługują wskaźnik i kamerę
+-> app na starcie ramki zapisuje kamerę z którą będzie wyrenderowana scenka, dzięki temu to pozycja pod myszą będzie prawdziwa
+-> app odbiera ruchy myszy od usera
+-> gra przekazuje aktualnej kamerze input - przesunięcia lub punkt na który ma patrzeć, wokół którego ma się obracać, albo coś podobnego
+-> gracz może to modyfikować -> może narzucić punkt na który ma ptrzeć kamera
+
+-> gra/gracz może modyfikować tryby kamery, kamera powinna zostać w tym samym moiejscu po zmianie trybu
 */
 
 struct ControlInput
 {
     // control input
     std::optional<glm::vec4> worldPointToFocusOn; // artifical input or updated when moving camera
-    std::optional<glm::vec4> worldPointToFocusOnWhenSteady; // updated when moving camera
     std::optional<glm::vec4> worldPointToZoom; // artifical input or updated when zooming
     std::optional<glm::vec4> rotateAroundThisPoint; // for freecam rotations
     std::optional<glm::vec4> directionToAlignCamera; // forces camera to look in that direction
@@ -97,23 +98,16 @@ struct ControlInput
         pointerMovement.vertical = 0;
         pointerMovement.roll = 0;
         directionOfMovement = {};
+        worldPointToZoom.reset();
     }
 
     void freeControl(){
         resetAfterUse();
         worldPointToFocusOn.reset();
         worldPointToFocusOnWhenSteady.reset();
-        worldPointToZoom.reset();
         rotateAroundThisPoint.reset();
         directionToAlignCamera.reset();
     }
 };
-/*
-Akcje jakie z tego wynikają:
-    worldPointToFocusOn - kamera obraca się w kierunku tego punktu,
-    worldPointToFocusOnWhenSteady - też, inSteadyFocusOnPoint - to jest dla usera
-    worldPointToZoom do tego punktu zoomujemy, jeśli nie ma to do środka
-    rotateAroundThisPoint - dla freecama, informacja o tym że się obraca
-*/
 
 }

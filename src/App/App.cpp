@@ -178,6 +178,8 @@ void App::run() try {
 
         // TODO: renderData.storeCameraForFrameRendering();
 
+        userPointer->didPointerMoved = userPointer->lastFrameShift.x != 0.f and userPointer->lastFrameShift.y != 0.f; // todo: is it enough?
+
         pmkLogger.startFrame();
         updateTimers(FrameTime::miliseconds);
         imgui->restart();

@@ -88,8 +88,8 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         m_input->action("D").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.x = m_freecamSpeed; });
         m_input->action("Z").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.y = m_freecamSpeed; });
         m_input->action("X").hold([this, m_freecamSpeed]{ camera::active().directionOfMovement.y = -m_freecamSpeed; });
-        m_input->action("f5").name("global direction").hold([this]{ camera::active().directionIsInLocalSpace = false; });
-        m_input->action("f6").name("local direction").hold([this]{ camera::active().directionIsInLocalSpace = true; });
+        m_input->action("f5").name("global direction").hold([this]{ camera::active().targetRelativeToParent = false; });
+        m_input->action("f6").name("local direction").hold([this]{ camera::active().targetRelativeToParent = true; });
         m_input->action("f7").name("enable stabilization").hold([this]{ camera::active().keepRightAxisHorizontal = !camera::active().keepRightAxisHorizontal;
                                             console.log("stabilization:", camera::active().keepRightAxisHorizontal); });
         m_input->action("f8").name("copy parent rotation").hold([this]{ camera::active().parentRotationAffectCurrentRotation = !camera::active().parentRotationAffectCurrentRotation;
@@ -165,7 +165,7 @@ void Playground::updateWithHighPrecision(float dt){
     }
     m_scene->update(dt, currentCamera);
 
-    if(currentCamera.reqiuresToHavePointerInTheSamePosition){
+    if(currentCamera.reqiuresToFocusOnPoint){
         // pointer.setFromWorldPosition(worldPointToFocusOn or rotateAroundThisPoint or worldPointToFocusOnWhenSteady, currentCamera.orientation);
         // pointer.move(pointer.laseMoveInPx);
         // oblicza pozycję w którą przesunać kursor, wykonuje przesuniecię, dzięki czemu zmieni się kierunek patrzenia kamery
@@ -180,10 +180,10 @@ void Playground::updateWithHighPrecision(float dt){
     // }
     // else if(camera::controlBasedOnEulers){
         // todo: zapętlanie pozycji myszy
-        if(m_freeView and camera::active().rotateAroundThisPoint or not m_freeView){
-            currentCamera.pointerMovement.horizontal = m_mouseTranslationNormalized.x * dt/frameMs;
-            currentCamera.pointerMovement.vertical = m_mouseTranslationNormalized.y * dt/frameMs;
-        }
+    if(m_freeView and camera::active().rotateAroundThisPoint or not m_freeView){
+        currentCamera.pointerMovement.horizontal = m_mouseTranslationNormalized.x * dt/frameMs;
+        currentCamera.pointerMovement.vertical = m_mouseTranslationNormalized.y * dt/frameMs;
+    }
     // }
 
     if(m_freeView) currentCamera.update(dt);

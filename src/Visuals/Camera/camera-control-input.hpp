@@ -55,6 +55,19 @@ Teraz rozpiszmy jak Player, Gra i appka obsługują wskaźnik i kamerę
 -> gracz może to modyfikować -> może narzucić punkt na który ma ptrzeć kamera
 
 -> gra/gracz może modyfikować tryby kamery, kamera powinna zostać w tym samym moiejscu po zmianie trybu
+
+7.10
+Do zrobienia w przyszłości: niech kamera będzie opisana dwoma wektorami(kierunek i góra, gdzie góra jest składową dominującą), dzięki temu będzie można łatwiej przechodzić pomiędzy stanami czy też wyliczać kierunki.
+Będzie można też zaimplementować ciekawsze wersje sterowania. Np. kamera naśladująca oczy:
+- może obracać się razem z głową
+- albo patrzeć na konkretny punkt
+
+A najlepiej to będzie zrobić odpowiednie implementacje kamer do obsługi specyficznych zachować: dla głowy, dla wierzyczki, dla staku
+Najważniejsze żeby kamera była elastyczna i gładko przełączala się pomiędzy trybami
+Bo to i tak zawsze będzie po stronie usera
+
+I chyba też powinienem przerobić sposób w jaki rodzic wpływa na obecne położenie kamery
+
 */
 
 struct ControlInput
@@ -79,18 +92,31 @@ struct ControlInput
     bool parentRotationAffectCurrentRotation = false; // parent rotation messes with current rotation
     bool smoothParentRotation = false; // slerp of current rotation with parent rotation
     bool inSteadyFocusOnPoint = false;
-    bool directionIsInLocalSpace = false; // multiply target by parent rotation
+    bool targetRelativeToParent = false; // multiply target by parent rotation
 
     bool switchToMovementOnWorldAxes {false};
     bool moveHorizontally {false};
 
     // feedback to user
-    bool reqiuresToHavePointerInTheSamePosition = false;
+    bool reqiuresToFocusOnPoint = false;
 
     // other informations
     bool isPointerMovingFree = true; // powinien zablokować local direction
     bool isParrentFollowingPointer = false;
     bool freecam = false;
+
+    ControlInput& focusOnCurrentPoint(bool enable=true);
+    // dwie wersje: patrzymy na konkretny punkt
+    // punkt co klatkę updatujemy zgodnie z przesunięciem pojazdu->patrzymy na horyzont/ punkt nieskończenie daleko
+
+
+    ControlInput& followHorizontalRotation(bool enable=true);
+    ControlInput& followPlane(bool enable=true);
+    ControlInput& followRotation(bool enable=true);
+    ControlInput& rotateWithParent(bool enable=true);
+    ControlInput& smoothMovement(bool enable=true);
+
+    void parseConfig(const Yaml& yaml);
 
     void resetAfterUse(){
         zoomDirection = 0;

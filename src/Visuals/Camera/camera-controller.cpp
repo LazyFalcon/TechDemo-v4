@@ -104,7 +104,7 @@ void Controller::printDebug(){
     console.log("\t", "parentRotationAffectCurrentRotation:", parentRotationAffectCurrentRotation);
     console.log("\t", "smoothParentRotation:", smoothParentRotation);
     console.log("\t", "inSteadyFocusOnPoint:", inSteadyFocusOnPoint);
-    console.log("\t", "directionIsInLocalSpace:", directionIsInLocalSpace);
+    console.log("\t", "targetRelativeToParent:", targetRelativeToParent);
     console.log("\t", "switchToMovementOnWorldAxes:", switchToMovementOnWorldAxes);
     console.log("\t", "moveHorizontally:", moveHorizontally);
     console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
@@ -117,7 +117,7 @@ void Controller::printDebug(){
 void Controller::update(const glm::mat4& parentTransform, float dt){
     if(not hasFocus()) return;
 
-    auto mode = calcultaeMode();
+    auto mode = calculateMode();
 
     recomputeEulersIfModeChanged(mode, parentTransform);
     currentMode = mode;
@@ -131,9 +131,10 @@ void Controller::update(const glm::mat4& parentTransform, float dt){
     rotation.update(dt);
     origin.update(dt);
 
-    if(parentRotationAffectCurrentRotation) applyParentRotationToCurrent(parentTransform, dt);
-
-    Camera::orientation = glm::toMat4(rotation.get());
+    // if(parentRotationAffectCurrentRotation) applyParentRotationToCurrent(parentTransform, dt);
+    if(targetRelativeToParent) Camera::orientation = glm::toMat4(glm::quat_cast(parentTransform) * rotation.get());
+    else Camera::orientation = glm::toMat4(rotation.get());
+    // apply stabilization
     Camera::orientation[3] = origin.get() + Camera::orientation * offset*offsetScale;
     Camera::recalculate();
 
@@ -143,9 +144,9 @@ void Controller::update(const glm::mat4& parentTransform, float dt){
     parentRotationInLastFrame = glm::quat_cast(parentTransform);
 }
 
-Mode Controller::calcultaeMode(){
+Mode Controller::calculateMode(){
     if(worldPointToFocusOn) return Mode::Point
-    if(directionIsInLocalSpace) return Mode::Local;
+    if(targetRelativeToParent) return Mode::Local;
     return Mode::World;
 }
 
@@ -196,8 +197,8 @@ glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, fl
 
     auto out = glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3);
 
-    if(directionIsInLocalSpace) out = glm::quat_cast(parentTransform) * out;
-    if(keepRightAxisHorizontal) out = stabilizeHorizontal(out);
+    // if(targetRelativeToParent) out = glm::quat_cast(parentTransform) * out;
+    // if(keepRightAxisHorizontal) out = stabilizeHorizontal(out);
     return out;
 }
 

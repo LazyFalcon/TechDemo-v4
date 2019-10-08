@@ -1,5 +1,7 @@
 #pragma once
 
+class Yaml;
+
 namespace camera
 {
 /*
@@ -70,7 +72,7 @@ I chyba też powinienem przerobić sposób w jaki rodzic wpływa na obecne poło
 
 */
 
-enum ZoomMode { FOV, OFFSET };
+enum ZoomMode : bool { FOV=false, OFFSET=true };
 
 struct ControlInput
 {
@@ -78,8 +80,8 @@ struct ControlInput
         std::optional<glm::vec4> worldPointToFocusOn; // artifical input or updated when moving camera
         std::optional<glm::vec4> worldPointToZoom; // artifical input or updated when zooming
         std::optional<glm::vec4> worldPointToPivot; // for freecam rotations
-        float zoomScale = 0;
-        glm::vec4 position {};
+        float zoom = 0;
+        glm::vec4 velocity {};
         struct {
             float horizontal {};
             float vertical {};
@@ -88,52 +90,38 @@ struct ControlInput
     } input;
 
     struct {
-        ZoomMode fovZoomMode = FOV;
+        bool isFreecam = false;
+        bool zoomMode = FOV;
         bool alignHorizontally = false; // target right vector always in horizontal plane so roll will be zero
         bool inLocalSpace = false;
         bool inLocalSpaceRotationOnly = false; // add parent rotation around global Z axis
         bool inLocalSpacePlane = false; // add parent inclination, copy XY plane
-        bool
-
-        bool switchToMovementOnWorldAxes {false};
-        bool moveHorizontally {false};
+        bool restrictMovementToHorizontalPlane = false;
+        bool useWorldInsteadLoclaAxes = false;
     } setup;
     // feedback to user
-    bool reqiuresToFocusOnPoint = false;
+    struct {
+        bool reqiuresToFocusOnPoint = false;
+        bool pointerVisible = true;
+        bool pointerCentered = true;
+        bool pointerMovingFree = false;
+    } userSetup;
 
-    // other informations
-    bool isPointerMovingFree = true; // powinien zablokować local direction
-    bool isParrentFollowingPointer = false;
-    bool freecam = false;
-
-    ControlInput& focusOnCurrentPoint(bool enable=true);
-    // dwie wersje: patrzymy na konkretny punkt
-    // punkt co klatkę updatujemy zgodnie z przesunięciem pojazdu->patrzymy na horyzont/ punkt nieskończenie daleko
-
-
-    ControlInput& followHorizontalRotation(bool enable=true);
-    ControlInput& followPlane(bool enable=true);
-    ControlInput& followRotation(bool enable=true);
-    ControlInput& rotateWithParent(bool enable=true);
-    ControlInput& smoothMovement(bool enable=true);
-
-    void parseConfig(const Yaml& yaml);
+    void parseConfig(const Yaml& yaml){}
 
     void resetAfterUse(){
-        zoomDirection = 0;
-        pointerMovement.horizontal = 0;
-        pointerMovement.vertical = 0;
-        pointerMovement.roll = 0;
-        directionOfMovement = {};
-        worldPointToZoom.reset();
+        input.zoom = 0;
+        input.pointer.horizontal = 0;
+        input.pointer.vertical = 0;
+        input.pointer.roll = 0;
+        input.velocity = {};
+        input.worldPointToZoom.reset();
     }
 
     void freeControl(){
         resetAfterUse();
-        worldPointToFocusOn.reset();
-        worldPointToFocusOnWhenSteady.reset();
-        rotateAroundThisPoint.reset();
-        directionToAlignCamera.reset();
+        input.worldPointToFocusOn.reset();
+        input.worldPointToPivot.reset();
     }
 };
 

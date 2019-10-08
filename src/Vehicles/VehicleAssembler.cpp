@@ -18,8 +18,7 @@ public:
     template<typename... Args>
     ModuleFollower(IModule& module, Args&&... args) : camera::Controller(module.getTransform(), std::forward<Args>(args)...), m_module(module){
 
-        isParrentFollowingPointer = module.parent != nullptr;
-        isPointerMovingFree = false;
+        setup.isFreecam = false;
 
     }
 

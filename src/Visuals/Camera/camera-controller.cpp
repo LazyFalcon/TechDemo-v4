@@ -97,20 +97,20 @@ bool Controller::hasFocus() const {
 
 void Controller::printDebug(){
     Camera::printDebug();
-    console.log("yaw, pitch, roll:", yaw*toDeg, pitch*toDeg, roll*toDeg);
-    console.log("\t", "freecam:", freecam);
-    console.log("\t", "zoomByFov:", zoomByFov);
-    console.log("\t", "keepRightAxisHorizontal:", keepRightAxisHorizontal);
-    console.log("\t", "parentRotationAffectCurrentRotation:", parentRotationAffectCurrentRotation);
-    console.log("\t", "smoothParentRotation:", smoothParentRotation);
-    console.log("\t", "inSteadyFocusOnPoint:", inSteadyFocusOnPoint);
-    console.log("\t", "targetRelativeToParent:", targetRelativeToParent);
-    console.log("\t", "switchToMovementOnWorldAxes:", switchToMovementOnWorldAxes);
-    console.log("\t", "moveHorizontally:", moveHorizontally);
-    console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
-    console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
-    console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
-    console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
+    // console.log("yaw, pitch, roll:", yaw*toDeg, pitch*toDeg, roll*toDeg);
+    // console.log("\t", "freecam:", freecam);
+    // console.log("\t", "zoomByFov:", zoomByFov);
+    // console.log("\t", "keepRightAxisHorizontal:", keepRightAxisHorizontal);
+    // console.log("\t", "parentRotationAffectCurrentRotation:", parentRotationAffectCurrentRotation);
+    // console.log("\t", "smoothParentRotation:", smoothParentRotation);
+    // console.log("\t", "inSteadyFocusOnPoint:", inSteadyFocusOnPoint);
+    // console.log("\t", "targetRelativeToParent:", targetRelativeToParent);
+    // console.log("\t", "switchToMovementOnWorldAxes:", switchToMovementOnWorldAxes);
+    // console.log("\t", "moveHorizontally:", moveHorizontally);
+    // console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
+    // console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
+    // console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
+    // console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
 }
 
 // ! Zakładam że poza bugami implementacyjnymi to większość implementacji jest zrobiona

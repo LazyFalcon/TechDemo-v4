@@ -102,7 +102,7 @@ void Scene::extractCameras(const Yaml& yaml){
         auto cam = camFactory.create<camera::Controller>(mat);
         freeCams.add(cam);
 
-        cam->freecam = true;
+        cam->setup.isFreecam = true;
     }
     else console.error("There is no free camera defined in scene");
     freeCams.focus();

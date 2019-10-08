@@ -70,33 +70,34 @@ I chyba też powinienem przerobić sposób w jaki rodzic wpływa na obecne poło
 
 */
 
+enum ZoomMode { FOV, OFFSET };
+
 struct ControlInput
 {
-    // control input
-    std::optional<glm::vec4> worldPointToFocusOn; // artifical input or updated when moving camera
-    std::optional<glm::vec4> worldPointToZoom; // artifical input or updated when zooming
-    std::optional<glm::vec4> rotateAroundThisPoint; // for freecam rotations
-    std::optional<glm::vec4> directionToAlignCamera; // forces camera to look in that direction
-    float zoomDirection = 0;
-    glm::vec4 directionOfMovement {};
     struct {
-        float horizontal {};
-        float vertical {};
-        float roll {};
-    } pointerMovement;
+        std::optional<glm::vec4> worldPointToFocusOn; // artifical input or updated when moving camera
+        std::optional<glm::vec4> worldPointToZoom; // artifical input or updated when zooming
+        std::optional<glm::vec4> worldPointToPivot; // for freecam rotations
+        float zoomScale = 0;
+        glm::vec4 position {};
+        struct {
+            float horizontal {};
+            float vertical {};
+            float roll {};
+        } pointer;
+    } input;
 
-    // controller behaviour configuration
-    bool zoomByFov = false; // otherwise zoom by scalling offset
+    struct {
+        ZoomMode fovZoomMode = FOV;
+        bool alignHorizontally = false; // target right vector always in horizontal plane so roll will be zero
+        bool inLocalSpace = false;
+        bool inLocalSpaceRotationOnly = false; // add parent rotation around global Z axis
+        bool inLocalSpacePlane = false; // add parent inclination, copy XY plane
+        bool
 
-    bool keepRightAxisHorizontal = false; // target right vector always in horizontal plane so roll will be zero
-    bool parentRotationAffectCurrentRotation = false; // parent rotation messes with current rotation
-    bool smoothParentRotation = false; // slerp of current rotation with parent rotation
-    bool inSteadyFocusOnPoint = false;
-    bool targetRelativeToParent = false; // multiply target by parent rotation
-
-    bool switchToMovementOnWorldAxes {false};
-    bool moveHorizontally {false};
-
+        bool switchToMovementOnWorldAxes {false};
+        bool moveHorizontally {false};
+    } setup;
     // feedback to user
     bool reqiuresToFocusOnPoint = false;
 

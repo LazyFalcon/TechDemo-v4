@@ -263,6 +263,7 @@ void App::cursorPosCallback(GLFWwindow *w, double xpos, double ypos){
     float x = xpos;
     float y = size.y - ypos;
 
+    // todo: raw input wouldn't be more precise?
     self->userPointer->setSystemPosition({x,y});
     self->userPointer->moveBy({dx, dy});
 

@@ -1,8 +1,11 @@
 #pragma once
-#include "Yaml.hpp"
 #include "ModuleFactory.hpp"
+#include "Yaml.hpp"
 
-namespace camera { class Factory; }
+namespace camera
+{
+class Factory;
+}
 class GraphicComponent;
 class IModule;
 class Joint;
@@ -12,7 +15,6 @@ class PhysicalWorld;
 class Player;
 class SkinnedMesh;
 struct VertexWithMaterialDataAndBones;
-
 
 class VehicleAssembler
 {
@@ -52,5 +54,4 @@ public:
     VehicleAssembler(const std::string& configName, PhysicalWorld& physics, camera::Factory& camFactory);
 
     std::shared_ptr<Vehicle> build(const glm::mat4& onPosition);
-
 };

@@ -20,7 +20,6 @@ private:
     Utils::Limits<float> roll;                             // z, around Y axis
     // Utils::Limits<float&> fovLimited;
 
-    // but camera rotation and position are always in world space
     Utils::ValueFollower<glm::vec4> origin;
     Utils::ValueFollower<glm::quat, glm::quat, Utils::quaternionSlerpFunction> rotation;
 

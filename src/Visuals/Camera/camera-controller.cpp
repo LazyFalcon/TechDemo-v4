@@ -2,7 +2,6 @@
 #include "camera-controller.hpp"
 #include "Logger.hpp"
 
-
 namespace camera
 {
 std::list<Controller*> listOfControllers;
@@ -113,7 +112,6 @@ void Controller::printDebug() {
     // console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
 }
 
-// ! Zakładam że poza bugami implementacyjnymi to większość implementacji jest zrobiona
 void Controller::update(const glm::mat4& parentTransform, float dt) {
     if(not hasFocus())
         return;
@@ -135,6 +133,10 @@ void Controller::update(const glm::mat4& parentTransform, float dt) {
 
     // if(parentRotationAffectCurrentRotation) applyParentRotationToCurrent(parentTransform, dt);
     if(setup.inLocalSpace)
+        Camera::orientation = glm::toMat4(glm::quat_cast(parentTransform) * rotation.get());
+    if(setup.inLocalSpaceRotationOnly)
+        Camera::orientation = glm::toMat4(glm::quat_cast(parentTransform) * rotation.get());
+    if(setup.inLocalSpacePlane)
         Camera::orientation = glm::toMat4(glm::quat_cast(parentTransform) * rotation.get());
     else
         Camera::orientation = glm::toMat4(rotation.get());
@@ -205,9 +207,6 @@ glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, fl
     roll = roll + input.pointer.roll;
 
     auto out = glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3);
-
-    // if(targetRelativeToParent) out = glm::quat_cast(parentTransform) * out;
-    // if(keepRightAxisHorizontal) out = stabilizeHorizontal(out);
     return out;
 }
 

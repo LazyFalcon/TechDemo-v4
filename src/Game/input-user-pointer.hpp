@@ -66,12 +66,12 @@ public:
         m_positionDelta = p_delta;
         if(m_useSystemPointer)
             return;
-        gamePointerPosition += relativeShift;
+        m_onScreenPosition += p_delta;
     }
 
     // to be called each frame to update in-game pointer position
     void setCentered(glm::vec2 position = glm::vec2(0.5f)) {
-        m_onScreenPosition = wrap(gamePointerPosition);
+        m_onScreenPosition = wrap(m_onScreenPosition);
     }
     void setFromWorldPosition(const glm::vec4& worldPosition, const glm::mat4& viewMatrix) {
         m_onScreenPosition = glm::project(worldPosition.xyz(), glm::mat4(1), viewMatrix, glm::vec4(0, 0, m_screenSize));

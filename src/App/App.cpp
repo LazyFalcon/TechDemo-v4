@@ -266,7 +266,7 @@ void App::cursorPosCallback(GLFWwindow *w, double xpos, double ypos){
 
     // todo: raw input wouldn't be more precise?
     self->userPointer->setSystemPosition({x,y});
-    self->userPointer->moveBy({dx, dy});
+    self->userPointer->setDelta({dx, dy});
 
     self->inputDispatcher->mousePosition(x, y);
     self->inputDispatcher->mouseMovement(dx, dy);

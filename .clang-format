@@ -22,7 +22,7 @@ AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: Inline
+AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterDefinitionReturnType: false

@@ -1,86 +1,80 @@
 #pragma once
 
 /*
-* Ponieważ pointer jest jeden, jego stan musi być sharowany pomiędzy użytkownikami
+Jesli blenderlike-freecam to używamy myszy systemowej i obracamy dookoła punktu, mysz late se swobodnie(przydałoby się ja zapętlić)
+Jesli freecam to mysz jest przypięta na środku albo pokazuje wychelenie
 
+Przypięta może być tylko na środku albo pokazywać wychylenie.
+
+Input jest w postaci pozycji systemowej(zarezerwowanej wyłącznie dla kursora)
+                     Przesunięcia: raw input myszy, używany do obrotów kamery
+                     Odchylenie jest podawane przez usera, wyliczone z kamery
 */
 class Window;
 class InputUserPointer
 {
 private:
-    Window& window;
-    glm::vec2 gamePointerPosition {}; // floating, subpixel can be over screen
-    glm::vec2 screenSize;
-    glm::vec2 pointerOnScreenPosition; // pixelPerfect, clamped to screen position
+    const glm::vec2 fullHD {1920.f, 1080.f};
 
-    glm::vec2 systemPointerPosition{};
-    glm::vec2 lastFrameShift{};
+    enum Mode {SYSTEM, GAME} mode;
 
-    bool wrapPosition {true};
-    bool useSystemPointer {false};
-    bool hideGamePointer {false};
+    Window& m_window;
+    glm::vec2 m_screenSize;
+    glm::vec2 m_onScreenPosition; // pixelPerfect, clamped to screen position, mostly set by user
 
-    glm::vec2 wrap(glm::vec2 in){
-        return in;
-    }
-    // when, in future, pointer will have subpixel precision
-    glm::vec2 align(glm::vec2 in){
+    glm::vec2 m_systemPointerPosition {};
+    glm::vec2 m_positionDelta {};
+
+    bool m_wrapPosition {true};
+    bool m_useSystemPointer {false};
+    bool m_doNotRenderGamePointer {false};
+
+    glm::vec2 wrap(glm::vec2 in) const {
         return in;
     }
     // todo: sensitivity, najlepiej stos updatów, żeby dało się przełączać pomiędzy róznymi czułościami
 public:
-    InputUserPointer(Window& window, glm::vec2 screenSize);
+    InputUserPointer(Window& m_window, glm::vec2 screenSize);
 
     void hideSystemCursor();
     void showSystemCursor();
-    void hide(){
-        hideGamePointer = true;
+    void hide() {
+        m_doNotRenderGamePointer = true;
     }
-    void show(){
-        hideGamePointer = false;
-        centered();
+    void show() {
+        m_doNotRenderGamePointer = false;
+        setCentered();
     }
-
 
     bool visible() const {
-        return not useSystemPointer and not hideGamePointer;
+        return not m_useSystemPointer and not m_doNotRenderGamePointer;
     }
-    glm::vec2 screenPxPosition(){
-        if(useSystemPointer) return systemPointerPosition;
-        return wrap(align(gamePointerPosition));
+    const glm::vec2& screenPosition() const {
+        if(m_useSystemPointer)
+            return m_systemPointerPosition;
+        return m_onScreenPosition;
     }
-    glm::vec2 screenPosition(){
-        if(useSystemPointer) return systemPointerPosition/screenSize;
-        return wrap(align(gamePointerPosition))/screenSize;
-    }
-    glm::vec2 pxMovement() const {
-        return lastFrameShift * screenSize;
-    }
-    glm::vec2 movement() const {
-        return lastFrameShift;
+    glm::vec2 delta() const {
+        return m_positionDelta;
     }
 
-    void setSystemPosition(glm::vec2 position){
-        systemPointerPosition = position;
+    void setSystemPosition(glm::vec2 position) {
+        m_systemPointerPosition = position;
     }
 
-    void moveBy(glm::vec2 relativeShift){
-        lastFrameShift = relativeShift;
-        if(useSystemPointer) return;
-        gamePointerPosition += relativeShift*screenSize;
+    void setDelta(glm::vec2 p_delta) {
+        m_positionDelta = p_delta;
+        if(m_useSystemPointer)
+            return;
+        gamePointerPosition += relativeShift;
     }
 
     // to be called each frame to update in-game pointer position
-    void centered(glm::vec2 position = glm::vec2(0.5f)){
-        gamePointerPosition = screenSize*position;
-        pointerOnScreenPosition = wrap(align(gamePointerPosition));
+    void setCentered(glm::vec2 position = glm::vec2(0.5f)) {
+        m_onScreenPosition = wrap(gamePointerPosition);
     }
-    void setFromWorldPosition(const glm::vec4& worldPosition, const glm::mat4& viewMatrix){
-        gamePointerPosition = glm::project(worldPosition.xyz(), glm::mat4(1), viewMatrix, glm::vec4(0,0,screenSize));
-        pointerOnScreenPosition = wrap(align(gamePointerPosition));
+    void setFromWorldPosition(const glm::vec4& worldPosition, const glm::mat4& viewMatrix) {
+        m_onScreenPosition = glm::project(worldPosition.xyz(), glm::mat4(1), viewMatrix, glm::vec4(0, 0, m_screenSize));
     }
-    void set(glm::vec2 calculatedPosition){
-
-    }
-
+    void setFromGame(glm::vec2 calculatedPosition) {}
 };

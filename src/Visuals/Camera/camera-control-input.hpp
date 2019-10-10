@@ -98,6 +98,8 @@ struct ControlInput
         bool inLocalSpacePlane = false; // add parent inclination, copy XY plane
         bool restrictMovementToHorizontalPlane = false;
         bool useWorldInsteadLoclaAxes = false;
+        float inertia = 0.f;
+        float smooth = 1.f;
     } setup;
     // feedback to user
     struct {

@@ -1,6 +1,7 @@
 #include "core.hpp"
 #include "Playground.hpp"
 #include "AI.hpp"
+#include "AiControl.hpp"
 #include "Context.hpp"
 #include "Details.hpp"
 #include "Effects.hpp"
@@ -8,6 +9,8 @@
 #include "GBufferSampler.hpp"
 #include "GraphicEngine.hpp"
 #include "LightRendering.hpp"
+#include "NoPathfinder.hpp"
+#include "Pathfinder.hpp"
 #include "PhysicalWorld.hpp"
 #include "Player.hpp"
 #include "PlaygroundEvents.hpp"
@@ -24,7 +27,6 @@
 #include "input-user-pointer.hpp"
 #include "input.hpp"
 
-
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window, InputUserPointer& inputUserPointer)
     : m_input(inputDispatcher.createNew("Playground")),
       m_physics(std::make_unique<PhysicalWorld>()),
@@ -40,9 +42,7 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
     // todo: ustawić stan wskaźnika na odpowiedni
 
     m_input->action("esc").on([] { event<ExitPlayground>(); });
-    m_input->action("f12").on([this] {
-        camera::active().printDebug();
-    });
+    m_input->action("f12").on([this] { camera::active().printDebug(); });
     m_input->action("+").on([this] { camera::active().input.zoom -= 1.5; });
     m_input->action("-").on([this] { camera::active().input.zoom += 1.5; });
     m_input->action("scrollUp").on([=] {
@@ -62,19 +62,22 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         .on([this] {
             // TODO: move freecam, in a way that mouse world position is preserved
             auto& cam = camera::active();
-            if(not cam.userSetup.pointerMovingFree)
+            // todo: cam.lock(); -> cannot be changed
+
+            if(not cam.userPointerMode != Free)
                 cam.input.worldPointToFocusOn = m_mouseSampler->position;
             else
                 cam.input.worldPointToPivot = m_mouseSampler->position;
-            cam.userSetup.reqiuresToFocusOnPoint = true;
+
+            cam.previousUserPointerMode = cam.userPointerMode;
+            cam.userPointerMode = PointerMode::OnPoint;
         })
         .off([this] {
             auto& cam = camera::active();
-            if(not cam.userSetup.pointerMovingFree)
-                cam.input.worldPointToFocusOn.reset();
-            else
-                cam.input.worldPointToPivot.reset();
-            cam.userSetup.reqiuresToFocusOnPoint = false;
+            cam.input.worldPointToFocusOn.reset();
+            cam.input.worldPointToPivot.reset();
+            cam.userPointerMode = cam.previousUserPointerMode;
+            // todo: cam.unlock(); -> cann be changed
         });
     m_input->action("LMB")
         .on([this] {
@@ -106,6 +109,7 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         camera::active().setup.inLocalSpacePlane = false;
     });
     m_input->action("f6").name("local direction").hold([this] {
+        camera::active().setup.isFreecam = false;
         camera::active().setup.inLocalSpace = true;
         camera::active().setup.inLocalSpaceRotationOnly = false;
         camera::active().setup.inLocalSpacePlane = false;
@@ -178,36 +182,44 @@ void Playground::updateWithHighPrecision(float dt) {
 
     m_pointerInfo.screenPosition = m_inputUserPointer.screenPosition();
     m_mouseSampler->samplePosition = m_inputUserPointer.screenPosition();
-    if(m_inputUserPointer.gameMode()) {
-        auto pointerDelta = m_inputUserPointer.delta() * m_inputUserPointer.screenScale();
+}
 
-        if(currentCamera.userSetup.reqiuresToFocusOnPoint) {
-            // pointer.setFromWorldPosition(worldPointToFocusOn or input.worldPointToPivot or worldPointToFocusOnWhenSteady, currentCamera.orientation);
-            // pointer.move(pointer.laseMoveInPx);
-            // oblicza pozycję w którą przesunać kursor, wykonuje przesuniecię, dzięki czemu zmieni się kierunek patrzenia kamery
-            // może będzie wystarczająco gładko chodzić
-        }
+void Playground::updateCamera(float dt) {
+    if(not m_inputUserPointer.gameMode())
+        return;
 
-        // if(camera::controlBasedOnVectors){
-        /*
-                nie iwem jeszcze
-            */
-        // currentCamera.directionToAlignCamera(glm::normalize(mouseSampler->position - currentCamera.eyePosition()));
-        // }
-        // else if(camera::controlBasedOnEulers){
-        // todo: zapętlanie pozycji myszy
-        if(m_freeView and camera::active().input.worldPointToPivot or not m_freeView) {
-            currentCamera.input.pointer.horizontal = pointerDelta.x * dt / frameMs;
-            currentCamera.input.pointer.vertical = pointerDelta.y * dt / frameMs;
-        }
-        // }
+    auto& currentCamera = camera::active();
+
+    auto pointerDelta = m_inputUserPointer.delta() * m_inputUserPointer.screenScale();
+
+    if(currentCamera.userPointerMode == camera::PointerMode::OnPoint) {
+        //  set pointer on point on which camera is focused
+        // pointer.setFromWorldPosition(worldPointToFocusOn or input.worldPointToPivot or worldPointToFocusOnWhenSteady, currentCamera.orientation);
+        // pointer.move(pointer.laseMoveInPx);
+        // oblicza pozycję w którą przesunać kursor, wykonuje przesuniecię, dzięki czemu zmieni się kierunek patrzenia kamery
+        // może będzie wystarczająco gładko chodzić
+
+        // todo: m_inputUserPointer.setFromWorldPosition();
     }
+    else if(currentCamera.userPointerMode == camera::PointerMode::Deviation) {
+        // todo: m_inputUserPointer.setFromGame();
+    }
+    else if(currentCamera.userPointerMode == camera::PointerMode::Centered) {
+        m_inputUserPointer.setCentered();
+    }
+    else if(currentCamera.userPointerMode == camera::PointerMode::Free) {
+        m_inputUserPointer.setFromGame(m_inputUserPointer.screenPosition());
+    }
+
+    // todo: zapętlanie pozycji myszy
+    // to rotate camera and rotate freecam around point, allows to move pointer freely
+    if(m_freeView and camera::active().input.worldPointToPivot or not m_freeView) {
+        currentCamera.input.pointer.horizontal = pointerDelta.x * dt / frameMs;
+        currentCamera.input.pointer.vertical = pointerDelta.y * dt / frameMs;
+    }
+
     if(m_freeView)
         currentCamera.update(dt);
-    // todo:? wtf? przecież kamery z playera zgłupieją
-    // for(auto &cam : CameraController::listOf){
-    //     cam->update(dt);
-    // }
 }
 
 void Playground::renderProcedure(GraphicEngine& renderer) {
@@ -251,9 +263,6 @@ void Playground::renderProcedure(GraphicEngine& renderer) {
     // renderer.uiRender->render(m_ui.getToRender());
     renderer.context->endFrame();
 }
-#include "AiControl.hpp"
-#include "NoPathfinder.hpp"
-#include "Pathfinder.hpp"
 
 Scene& Playground::loadScene(const std::string& configName) {
     m_scene->load(configName);

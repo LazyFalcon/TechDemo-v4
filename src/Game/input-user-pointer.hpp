@@ -48,6 +48,9 @@ public:
         m_doNotRenderGamePointer = false;
         setCentered();
     }
+    void setVisibility(bool isVisible){
+        m_doNotRenderGamePointer = !isVisible;
+    }
     bool systemMode() const {
         return m_useSystemPointer;
     }

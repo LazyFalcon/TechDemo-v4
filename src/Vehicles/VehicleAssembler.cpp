@@ -9,7 +9,6 @@
 #include "Player.hpp"
 #include "camera-factory.hpp"
 
-
 class CameraInObjectSpace : public camera::Controller
 {
 private:
@@ -20,9 +19,14 @@ public:
     CameraInObjectSpace(IModule& module, Args&&... args)
         : camera::Controller(module.getTransform(), std::forward<Args>(args)...), m_module(module) {
         setup.isFreecam = false;
+        setup.inLocalSpace = true;
+        setup.inLocalSpaceRotationOnly = false;
+        setup.inLocalSpacePlane = false;
     }
 
-    void update(float dt) override { camera::Controller::update(m_module.getTransform(), dt); }
+    void update(float dt) override {
+        camera::Controller::update(m_module.getTransform(), dt);
+    }
 };
 
 class CameraInObjectsTurretSpace : public camera::Controller
@@ -35,9 +39,14 @@ public:
     CameraInObjectsTurretSpace(IModule& module, Args&&... args)
         : camera::Controller(module.getTransform(), std::forward<Args>(args)...), m_module(module) {
         setup.isFreecam = false;
+        setup.inLocalSpace = true;
+        setup.inLocalSpaceRotationOnly = false;
+        setup.inLocalSpacePlane = false;
     }
 
-    void update(float dt) override { camera::Controller::update(m_module.getTransform(), dt); }
+    void update(float dt) override {
+        camera::Controller::update(m_module.getTransform(), dt);
+    }
 };
 
 glm::mat4 matrixFromYaml(const Yaml& params) {

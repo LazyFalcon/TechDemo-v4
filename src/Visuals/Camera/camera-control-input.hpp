@@ -73,6 +73,7 @@ I chyba też powinienem przerobić sposób w jaki rodzic wpływa na obecne poło
 */
 
 enum ZoomMode : bool { FOV=false, OFFSET=true };
+enum class PointerMode {OnPoint, Centered, Deviation, Free};
 
 struct ControlInput
 {
@@ -102,12 +103,10 @@ struct ControlInput
         float smooth = 1.f;
     } setup;
     // feedback to user
-    struct {
-        bool reqiuresToFocusOnPoint = false;
-        bool pointerVisible = true;
-        bool pointerCentered = true;
-        bool pointerMovingFree = false;
-    } userSetup;
+
+    PointerMode userPointerMode {PointerMode::Centered};
+    PointerMode previousUserPointerMode {PointerMode::Centered};
+    bool pointerVisible = true;
 
     void parseConfig(const Yaml& yaml){}
 

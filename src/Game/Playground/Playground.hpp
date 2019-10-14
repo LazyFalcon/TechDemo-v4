@@ -34,6 +34,7 @@ private:
     bool m_freeView {true};
 
     std::unique_ptr<GBufferSampler> m_mouseSampler;
+    void updateCamera(float dt);
 
 public:
     Playground(Imgui&, InputDispatcher&, Window&, InputUserPointer&);

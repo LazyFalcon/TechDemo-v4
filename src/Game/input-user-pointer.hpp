@@ -14,8 +14,6 @@ class Window;
 class InputUserPointer
 {
 private:
-    const glm::vec2 fullHD {1920.f, 1080.f};
-
     enum Mode {SYSTEM, GAME} mode;
 
     Window& m_window;
@@ -24,6 +22,8 @@ private:
 
     glm::vec2 m_systemPointerPosition {};
     glm::vec2 m_positionDelta {};
+
+    glm::dvec2 m_lastPosition {};
 
     bool m_wrapPosition {true};
     bool m_useSystemPointer {false};
@@ -36,25 +36,34 @@ private:
 public:
     InputUserPointer(Window& m_window, glm::vec2 screenSize);
 
+    void update();
+    glm::vec2 screenScale() const;
+
     void hideSystemCursor();
     void showSystemCursor();
-    void hide() {
+    void hidePointer() {
         m_doNotRenderGamePointer = true;
     }
-    void show() {
+    void showPointer() {
         m_doNotRenderGamePointer = false;
         setCentered();
+    }
+    bool systemMode() const {
+        return m_useSystemPointer;
+    }
+    bool gameMode() const {
+        return !m_useSystemPointer;
     }
 
     bool visible() const {
         return not m_useSystemPointer and not m_doNotRenderGamePointer;
     }
     const glm::vec2& screenPosition() const {
-        if(m_useSystemPointer)
+        if(systemMode())
             return m_systemPointerPosition;
         return m_onScreenPosition;
     }
-    glm::vec2 delta() const {
+    const glm::vec2& delta() const {
         return m_positionDelta;
     }
 
@@ -64,7 +73,7 @@ public:
 
     void setDelta(glm::vec2 p_delta) {
         m_positionDelta = p_delta;
-        if(m_useSystemPointer)
+        if(systemMode())
             return;
         m_onScreenPosition += p_delta;
     }
@@ -76,5 +85,7 @@ public:
     void setFromWorldPosition(const glm::vec4& worldPosition, const glm::mat4& viewMatrix) {
         m_onScreenPosition = glm::project(worldPosition.xyz(), glm::mat4(1), viewMatrix, glm::vec4(0, 0, m_screenSize));
     }
-    void setFromGame(glm::vec2 calculatedPosition) {}
+    void setFromGame(glm::vec2 calculatedPosition) {
+        m_onScreenPosition = calculatedPosition;
+    }
 };

@@ -26,10 +26,6 @@ private:
     Window& m_window;
     InputUserPointer& m_inputUserPointer;
     std::unique_ptr<Scene> m_scene;
-    glm::vec2 m_mousePos;
-    glm::vec4 m_mouseWorldPos;
-    glm::vec2 m_mouseTranslation;
-    glm::vec2 m_mouseTranslationNormalized;
     bool m_cameraRotate {};
     PointerInfo m_pointerInfo;
 

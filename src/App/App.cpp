@@ -117,8 +117,8 @@ void App::initializeInputDispatcher(){
         imgui->panelInput.mousePos = glm::vec2(x,y);
     });
     input->action("MouseMove").on([this](float x, float y){
-        imgui->input.mouseTranslation = glm::vec2(x,y) * window->size*2.f;
-        imgui->panelInput.mouseTranslation = glm::vec2(x,y) * window->size*2.f;
+        imgui->input.mouseTranslation = glm::vec2(x,y);
+        imgui->panelInput.mouseTranslation = glm::vec2(x,y);
     });
 
     input->forward([this](const std::string& action){
@@ -133,7 +133,7 @@ void App::setCommonCallbacks(){
     glfwSetScrollCallback(window->window, &App::scrollCallback);
     glfwSetKeyCallback(window->window, &App::keyCallback);
     glfwSetMouseButtonCallback(window->window, &App::mouseButtonCallback);
-    glfwSetCursorPosCallback(window->window, &App::cursorPosCallback);
+    // glfwSetCursorPosCallback(window->window, &App::cursorPosCallback);
     glfwSetWindowCloseCallback(window->window, &App::exitCallback);
     glfwSetErrorCallback(&App::errorCallback);
 }
@@ -177,7 +177,7 @@ void App::run() try {
         FrameTime::deltaf = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(deltaTime).count();
 
         // TODO: renderData.storeCameraForFrameRendering();
-
+        userPointer->update();
         // userPointer->didPointerMoved = userPointer->lastFrameShift.x != 0.f and userPointer->lastFrameShift.y != 0.f; // todo: is it enough?
 
         pmkLogger.startFrame();
@@ -248,28 +248,11 @@ void App::keyCallback(GLFWwindow *w, int key, int scancode, int action, int mods
     self->inputDispatcher->keyCallback(key, action, mods);
 }
 void App::mouseButtonCallback(GLFWwindow *w, int button, int action, int mods){
-    // if(not KeyState::mouseReset) self->uiUpdater->setMouseAction(button, action);
     self->inputDispatcher->mouseButtonCallback(button, action, mods);
 }
 void App::cursorPosCallback(GLFWwindow *w, double xpos, double ypos){
-    // if(not KeyState::mouseReset) self->uiUpdater->setMousePosition(xpos, ypos);
-    auto size = self->window->size;
-
-    auto last = self->lastCursorPos;
-    self->lastCursorPos = glm::vec2(xpos, size.y -  ypos);
-    float dx = (self->lastCursorPos.x - last.x) / size.x * 0.5f;
-    float dy = -(self->lastCursorPos.y - last.y) / size.y * 0.5f;
-
-    float x = xpos;
-    float y = size.y - ypos;
-    console.log("xy:", xpos, ypos);
-
-    // todo: raw input wouldn't be more precise?
-    self->userPointer->setSystemPosition({x,y});
-    self->userPointer->setDelta({dx, dy});
-
-    self->inputDispatcher->mousePosition(x, y);
-    self->inputDispatcher->mouseMovement(dx, dy);
+    self->inputDispatcher->mousePosition(self->userPointer->screenPosition().x, self->userPointer->screenPosition().y);
+    self->inputDispatcher->mouseMovement(self->userPointer->delta().x, self->userPointer->delta().y);
 }
 void App::exitCallback(GLFWwindow *w){
     self->quit = true;

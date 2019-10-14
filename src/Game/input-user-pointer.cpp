@@ -3,6 +3,11 @@
 #include <GLFW/glfw3.h>
 #include "Window.hpp"
 
+namespace
+{
+const glm::vec2 fullHD {1920.f, 1080.f};
+}
+
 InputUserPointer::InputUserPointer(Window& window, glm::vec2 screenSize) : m_window(window), m_screenSize(screenSize) {
     double xpos, ypos;
     glfwGetCursorPos(window.window, &xpos, &ypos);
@@ -10,6 +15,23 @@ InputUserPointer::InputUserPointer(Window& window, glm::vec2 screenSize) : m_win
     m_systemPointerPosition = glm::vec2(xpos, screenSize.y - ypos);
 
     showSystemCursor();
+}
+
+void InputUserPointer::update() {
+    double x, y;
+    glfwGetCursorPos(m_window.window, &x, &y);
+
+    if(systemMode())
+        setSystemPosition({x, m_screenSize.y - y});
+    else
+        setSystemPosition(m_screenSize / 2.f);
+    setDelta({x - m_lastPosition.x, m_lastPosition.y - y});
+
+    m_lastPosition = {x, y};
+}
+
+glm::vec2 InputUserPointer::screenScale() const {
+    return (1.f/m_screenSize) * (m_screenSize/fullHD);
 }
 
 void InputUserPointer::hideSystemCursor() {

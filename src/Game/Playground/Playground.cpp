@@ -107,12 +107,14 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
         camera::active().setup.inLocalSpace = false;
         camera::active().setup.inLocalSpaceRotationOnly = false;
         camera::active().setup.inLocalSpacePlane = false;
+        camera::active().userPointerMode == camera::PointerMode::Centered;
     });
     m_input->action("f6").name("local direction").hold([this] {
         camera::active().setup.isFreecam = false;
         camera::active().setup.inLocalSpace = true;
         camera::active().setup.inLocalSpaceRotationOnly = false;
         camera::active().setup.inLocalSpacePlane = false;
+        camera::active().userPointerMode == camera::PointerMode::Deviation;
     });
     m_input->action("f7").name("enable stabilization").hold([this] {
         camera::active().setup.alignHorizontally = !camera::active().setup.alignHorizontally;
@@ -134,6 +136,9 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
     });
     m_input->action("P").on([this] {
         if(m_player and not m_player->hasFocus()) {
+            if(camera::active().userPointerMode == camera::PointerMode::Free){
+                m_inputUserPointer.hideSystemCursor();
+            }
             m_player->focusOn();
             m_freeView = false;
         }
@@ -141,15 +146,38 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
             m_player->focusOff();
             m_freeView = true;
             m_scene->freeCams.focus();
+            if(camera::active().userPointerMode == camera::PointerMode::Free){
+                m_inputUserPointer.showSystemCursor();
+            }
         }
     });
     m_input->action("[").on([this] {
-        if(m_freeView)
+        if(m_freeView){
+            auto& prevCam = camera::active();
+
             m_scene->freeCams.prev();
+
+            if(camera::active().userPointerMode == camera::PointerMode::Free and prevCam.userPointerMode != camera::PointerMode::Free){
+                m_inputUserPointer.showSystemCursor();
+            }
+            else if(camera::active().userPointerMode != camera::PointerMode::Free and prevCam.userPointerMode == camera::PointerMode::Free){
+                m_inputUserPointer.hideSystemCursor();
+            }
+        }
     });
     m_input->action("]").on([this] {
-        if(m_freeView)
+        if(m_freeView){
+            auto& prevCam = camera::active();
+
             m_scene->freeCams.next();
+
+            if(camera::active().userPointerMode == camera::PointerMode::Free and prevCam.userPointerMode != camera::PointerMode::Free){
+                m_inputUserPointer.showSystemCursor();
+            }
+            else if(camera::active().userPointerMode != camera::PointerMode::Free and prevCam.userPointerMode == camera::PointerMode::Free){
+                m_inputUserPointer.hideSystemCursor();
+            }
+        }
     });
     m_input->activate();
 }
@@ -185,9 +213,6 @@ void Playground::updateWithHighPrecision(float dt) {
 }
 
 void Playground::updateCamera(float dt) {
-    if(not m_inputUserPointer.gameMode())
-        return;
-
     auto& currentCamera = camera::active();
 
     auto pointerDelta = m_inputUserPointer.delta() * m_inputUserPointer.screenScale();
@@ -207,13 +232,14 @@ void Playground::updateCamera(float dt) {
     else if(currentCamera.userPointerMode == camera::PointerMode::Centered) {
         m_inputUserPointer.setCentered();
     }
+    // ten tu chyba nie działa, free mode uzywa pointera wystemowego
     else if(currentCamera.userPointerMode == camera::PointerMode::Free) {
         m_inputUserPointer.setFromGame(m_inputUserPointer.screenPosition());
     }
 
     // todo: zapętlanie pozycji myszy
     // to rotate camera and rotate freecam around point, allows to move pointer freely
-    if(m_freeView and camera::active().input.worldPointToPivot or not m_freeView) {
+    if(m_freeView and currentCamera.input.worldPointToPivot or not m_freeView) {
         currentCamera.input.pointer.horizontal = pointerDelta.x * dt / frameMs;
         currentCamera.input.pointer.vertical = pointerDelta.y * dt / frameMs;
     }

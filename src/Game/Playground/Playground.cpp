@@ -38,7 +38,6 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
     float preciseCameraVelocity = 0.1;
 
     m_mouseSampler->samplePosition = glm::vec2(0, 0);
-    float m_freecamSpeed = 0.5f;
     // todo: ustawić stan wskaźnika na odpowiedni
 
     m_input->action("esc").on([] { event<ExitPlayground>(); });
@@ -95,13 +94,16 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
     m_input->action("ctrl").on([this] { m_inputUserPointer.showSystemCursor(); }).off([this] {
         m_inputUserPointer.hideSystemCursor();
     });
+    m_input->action("shift").on([this] { shiftMode = true; }).off([this] {
+        shiftMode = false;
+    });
 
-    m_input->action("W").hold([this, m_freecamSpeed] { camera::active().input.velocity.z = m_freecamSpeed; });
-    m_input->action("S").hold([this, m_freecamSpeed] { camera::active().input.velocity.z = -m_freecamSpeed; });
-    m_input->action("A").hold([this, m_freecamSpeed] { camera::active().input.velocity.x = -m_freecamSpeed; });
-    m_input->action("D").hold([this, m_freecamSpeed] { camera::active().input.velocity.x = m_freecamSpeed; });
-    m_input->action("Z").hold([this, m_freecamSpeed] { camera::active().input.velocity.y = m_freecamSpeed; });
-    m_input->action("X").hold([this, m_freecamSpeed] { camera::active().input.velocity.y = -m_freecamSpeed; });
+    m_input->action("W").hold([this] { camera::active().input.velocity.z = cameraSpeed(); });
+    m_input->action("S").hold([this] { camera::active().input.velocity.z = -cameraSpeed(); });
+    m_input->action("A").hold([this] { camera::active().input.velocity.x = -cameraSpeed(); });
+    m_input->action("D").hold([this] { camera::active().input.velocity.x = cameraSpeed(); });
+    m_input->action("Z").hold([this] { camera::active().input.velocity.y = cameraSpeed(); });
+    m_input->action("X").hold([this] { camera::active().input.velocity.y = -cameraSpeed(); });
     m_input->action("f5").name("global direction").hold([this] {
         camera::active().setup.isFreecam = false;
         camera::active().setup.inLocalSpace = false;

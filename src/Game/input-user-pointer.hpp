@@ -14,7 +14,11 @@ class Window;
 class InputUserPointer
 {
 private:
-    enum Mode {SYSTEM, GAME} mode;
+    enum Mode
+    {
+        SYSTEM,
+        GAME
+    } mode;
 
     Window& m_window;
     glm::vec2 m_screenSize;
@@ -29,17 +33,18 @@ private:
     bool m_useSystemPointer {false};
     bool m_doNotRenderGamePointer {false};
 
-    struct {
-        glm::vec4 position;
-        glm::vec4 normal;
-    } world;
-
     glm::vec2 wrap(glm::vec2 in) const {
         return in;
     }
     // todo: sensitivity, najlepiej stos updatów, żeby dało się przełączać pomiędzy róznymi czułościami
 public:
     InputUserPointer(Window& m_window, glm::vec2 screenSize);
+
+    struct
+    {
+        glm::vec4 position;
+        glm::vec4 normal;
+    } world;
 
     void update();
     glm::vec2 screenScale() const;
@@ -53,7 +58,7 @@ public:
         m_doNotRenderGamePointer = false;
         setCentered();
     }
-    void setVisibility(bool isVisible){
+    void setVisibility(bool isVisible) {
         m_doNotRenderGamePointer = !isVisible;
     }
     bool systemMode() const {

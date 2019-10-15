@@ -63,13 +63,13 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
             auto& cam = camera::active();
             // todo: cam.lock(); -> cannot be changed
 
-            if(not cam.userPointerMode != Free)
+            if(cam.userPointerMode != camera::PointerMode::Free)
                 cam.input.worldPointToFocusOn = m_mouseSampler->position;
             else
                 cam.input.worldPointToPivot = m_mouseSampler->position;
 
             cam.previousUserPointerMode = cam.userPointerMode;
-            cam.userPointerMode = PointerMode::OnPoint;
+            cam.userPointerMode = camera::PointerMode::OnPoint;
         })
         .off([this] {
             auto& cam = camera::active();
@@ -210,7 +210,6 @@ void Playground::updateWithHighPrecision(float dt) {
     for(auto& bot : m_scene->m_hostileBots) { bot->update(dt); }
     m_scene->update(dt, currentCamera);
 
-    m_pointerInfo.screenPosition = m_inputUserPointer.screenPosition();
     m_mouseSampler->samplePosition = m_inputUserPointer.screenPosition();
 }
 
@@ -219,6 +218,7 @@ void Playground::updateCamera(float dt) {
 
     auto pointerDelta = m_inputUserPointer.delta() * m_inputUserPointer.screenScale();
 
+    // for pointer rendering
     if(currentCamera.userPointerMode == camera::PointerMode::OnPoint) {
         //  set pointer on point on which camera is focused
         // pointer.setFromWorldPosition(worldPointToFocusOn or input.worldPointToPivot or worldPointToFocusOnWhenSteady, currentCamera.orientation);
@@ -301,7 +301,7 @@ void Playground::spawnPlayer(const std::string& configName, const glm::mat4& spa
     VehicleAssembler builder(configName, *m_physics, m_window.camFactory);
     auto& vehicle = m_vehicles.emplace_back(builder.build(spawnPoint));
 
-    m_player = std::make_shared<Player>(m_input->getDispatcher(), *vehicle);
+    m_player = std::make_shared<Player>(m_input->getDispatcher(), *vehicle, m_inputUserPointer);
     // m_player->focusOn();
     // m_freeView = false;
 }
@@ -310,7 +310,7 @@ void Playground::spawnBot(const std::string& configName, const glm::mat4& spawnP
     auto& vehicle = m_vehicles.emplace_back(builder.build(spawnPoint));
 
     auto& bot = *m_scene->m_friendlyBots.emplace_back(
-        std::make_shared<AI>(std::make_unique<AiControlViaInput>(m_input->getDispatcher(), m_pointerInfo),
+        std::make_shared<AI>(std::make_unique<AiControlViaInput>(m_input->getDispatcher()),
                              std::make_unique<NoPathfinder>(),
                              *vehicle));
 }

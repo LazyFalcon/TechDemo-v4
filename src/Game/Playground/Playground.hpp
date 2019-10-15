@@ -1,6 +1,5 @@
 #pragma once
 #include "GameState.hpp"
-#include "PointerInfo.hpp"
 
 class AI;
 class Context;
@@ -27,7 +26,6 @@ private:
     InputUserPointer& m_inputUserPointer;
     std::unique_ptr<Scene> m_scene;
     bool m_cameraRotate {};
-    PointerInfo m_pointerInfo;
 
     // std::shared_ptr<FreeCamController> m_defaultCamera; // TODO: later convert into list of cameras
     int m_selectedCamera {0};

@@ -29,6 +29,11 @@ private:
     bool m_useSystemPointer {false};
     bool m_doNotRenderGamePointer {false};
 
+    struct {
+        glm::vec4 position;
+        glm::vec4 normal;
+    } world;
+
     glm::vec2 wrap(glm::vec2 in) const {
         return in;
     }

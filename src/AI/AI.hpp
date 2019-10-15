@@ -6,7 +6,6 @@ class AiControl;
 class Context;
 class InputDispatcher;
 class IPathfinder;
-class PointerInfo;
 class Scene;
 class Vehicle;
 

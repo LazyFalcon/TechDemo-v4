@@ -267,7 +267,8 @@ void Playground::renderProcedure(GraphicEngine& renderer) {
 
     renderer.gBufferSamplers->sampleGBuffer(camera::active());
 
-    m_pointerInfo.worldPosition = m_mouseSampler->position;
+    m_inputUserPointer.world.position = m_mouseSampler->position;
+    m_inputUserPointer.world.normal = m_mouseSampler->normal;
 
     renderer.effects->SSAO(camera::active());
 

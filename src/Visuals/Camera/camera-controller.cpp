@@ -115,13 +115,11 @@ void Controller::printDebug() {
 void Controller::update(const glm::mat4& parentTransform, float dt) {
     if(not hasFocus())
         return;
+    console_prefix("Camera");
 
     auto mode = calculateMode();
-
     recomputeEulersIfModeChanged(mode, parentTransform);
     currentMode = mode;
-
-    console_prefix("Camera");
 
     if(input.zoom != 0.f)
         zoom();
@@ -131,7 +129,6 @@ void Controller::update(const glm::mat4& parentTransform, float dt) {
     rotation.update(dt);
     origin.update(dt);
 
-    // if(parentRotationAffectCurrentRotation) applyParentRotationToCurrent(parentTransform, dt);
     if(setup.inLocalSpace)
         Camera::orientation = glm::toMat4(glm::quat_cast(parentTransform) * rotation.get());
     if(setup.inLocalSpaceRotationOnly)
@@ -205,7 +202,7 @@ glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, fl
     yaw = yaw - (v.y * 12.f * fov) / pi;
 
     roll = roll + input.pointer.roll;
-
+    auto out = glm::quat(glm::vec3(*pitch, *yaw, *roll));
     auto out = glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3);
     return out;
 }

@@ -19,7 +19,7 @@ public:
     CameraInObjectSpace(IModule& module, Args&&... args)
         : camera::Controller(module.getTransform(), std::forward<Args>(args)...), m_module(module) {
         setup.isFreecam = false;
-        setup.inLocalSpace = true;
+        setup.inLocalSpace = false;
         setup.inLocalSpaceRotationOnly = false;
         setup.inLocalSpacePlane = false;
     }

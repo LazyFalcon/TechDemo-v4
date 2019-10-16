@@ -8,7 +8,7 @@
 #include "PerfTimers.hpp"
 #include "Scene.hpp"
 #include "Sun.hpp"
-#include "Frustum.hpp"
+#include "camera-frustum.hpp"
 #include "SceneGraph.hpp"
 #include "PMK.hpp"
 #include "Environment.hpp"

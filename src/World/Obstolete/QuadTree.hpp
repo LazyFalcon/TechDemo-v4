@@ -1,5 +1,5 @@
 #pragma once
-#include "Frustum.hpp"
+#include "camera-frustum.hpp"
 #include "QTPayload.hpp"
 #include "BaseStructs.hpp"
 
@@ -38,8 +38,8 @@ struct QTNode
     std::vector<u32> objects; // assuming that object are static and never removed
     std::vector<std::shared_ptr<LightSource>> lightSources; // assuming that object are static and never removed
 
-    u32 testSphereAgainsFrustum(const Frustum &frustum) const;
-    u32 testAABBAgainsFrustum(const Frustum &frustum) const;
+    u32 testSphereAgainsFrustum(const camera::Frustum &frustum) const;
+    u32 testAABBAgainsFrustum(const camera::Frustum &frustum) const;
     bool insideFlat(const glm::vec4&) const;
     glm::vec4 distanceTo(const glm::vec4&) const;
     glm::vec4 distanceToBorders(const glm::vec4&) const;
@@ -67,11 +67,11 @@ public:
     void buildQTNodes(Terrain &terrain);
     void buildQTNodes(QTNode &qtNode, u32 lodLevel, Terrain &terrain);
     void buildQTLeaf(QTNode &qtNode, Terrain &terrain);
-    void update(const Frustum &frustum);
+    void update(const camera::Frustum &frustum);
     void registerInBullet(QTNode &qtNode);
 
-    LodLevel findLodLevel(QTNode &node, const Frustum &frustum);
-    void frustumCull(QTNode &node, const Frustum &frustum);
+    LodLevel findLodLevel(QTNode &node, const camera::Frustum &frustum);
+    void frustumCull(QTNode &node, const camera::Frustum &frustum);
     void addToVisible(QTNode &node, LodLevel level);
     void removevisible(QTNode &qtNode);
     void recalculateNodeZPosition();

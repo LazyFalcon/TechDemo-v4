@@ -1,17 +1,21 @@
 #pragma once
-#include "GPUResources.hpp"
-#include "Foliage.hpp"
 #include "BaseGameObject.hpp"
+#include "Foliage.hpp"
+#include "GPUResources.hpp"
+
 
 static const i32 NoOfLevels = 5;
+namespace camera
+{
+class Frustum;
+}
 class btBvhTriangleMeshShape;
 class btRigidBody;
 class btTriangleMesh;
-class Frustum;
 struct VertexWithMaterialData;
+class PhysicalWorld;
 template<typename VertexFormat>
 class ModelLoader;
-class PhysicalWorld;
 class Yaml;
 
 class Cell : public BaseGameObject
@@ -25,10 +29,10 @@ public:
 
     bool hasTerrain {false};
     Mesh terrainMesh {};
-    btRigidBody *cellBoxCollider {nullptr};
+    btRigidBody* cellBoxCollider {nullptr};
     std::vector<GameObjectPtr> objects;
 
-    SampleResult sample(glm::vec2 position){
+    SampleResult sample(glm::vec2 position) {
         // allhitRaycast i porownanie pointerow
         return {};
     }
@@ -39,12 +43,11 @@ public:
     }
 };
 
-constexpr i32 getCellCount(i32 levels){
+constexpr i32 getCellCount(i32 levels) {
     i32 out(0);
-    if(levels < 0) return 0;
-    for(auto i=0; i<=levels; i++){
-        out += pow(4, i);
-    }
+    if(levels < 0)
+        return 0;
+    for(auto i = 0; i <= levels; i++) { out += pow(4, i); }
     return out;
 }
 /*
@@ -59,8 +62,8 @@ constexpr i32 getCellCount(i32 levels){
 class SceneGraph
 {
 public:
-    glm::vec4 size {1500, 1500,0,0}, min, max;
-    glm::vec4 center {0,0,0,0};
+    glm::vec4 size {1500, 1500, 0, 0}, min, max;
+    glm::vec4 center {0, 0, 0, 0};
     glm::vec2 nodes {32, 32};
     glm::vec2 cellSize;
     glm::vec2 cellsInTheScene;
@@ -68,20 +71,20 @@ public:
     Cell root;
     std::vector<Cell> cells;
 
-    SceneGraph(PhysicalWorld &physics);
+    SceneGraph(PhysicalWorld& physics);
     std::vector<i32> getVisibleCells();
 
     i32 idFromPosition(glm::vec2 position, i32 level = NoOfLevels);
-    SampleResult sample(glm::vec2 position){
+    SampleResult sample(glm::vec2 position) {
         return sample(glm::vec4(position, 1000, 0));
     }
     SampleResult sample(glm::vec4 position);
 
     void initAndLoadMap(const Yaml& yaml);
-    void cullCells(const Frustum &frstum);
+    void cullCells(const camera::Frustum& frstum);
 
     void insertObject(GameObjectPtr obj, const glm::vec4& position);
-    glm::vec4 getDimensions(){
+    glm::vec4 getDimensions() {
         return size;
     }
 
@@ -90,16 +93,17 @@ public:
     std::vector<i32> addedCells;
     std::vector<i32> removedCells;
     VAO vao;
-    btRigidBody *collider {nullptr};
-    btBvhTriangleMeshShape *colliderShape {nullptr};
-    btTriangleMesh *colliderMesh {nullptr};
-    btSphereShape *defaultSphereCollider {nullptr};
+    btRigidBody* collider {nullptr};
+    btBvhTriangleMeshShape* colliderShape {nullptr};
+    btTriangleMesh* colliderMesh {nullptr};
+    btSphereShape* defaultSphereCollider {nullptr};
+
 private:
-    PhysicalWorld &physics;
+    PhysicalWorld& physics;
     Cell* findCellUnderPosition(const glm::vec4& pos);
     void initCellsToDefaults();
-    void loadMap(const std::string &mapConfigDir);
-    void cullWithPhysicsEngine(const Frustum &frustum);
-    void loadCollider(ModelLoader<VertexWithMaterialData> &loader, const std::string &name);
+    void loadMap(const std::string& mapConfigDir);
+    void cullWithPhysicsEngine(const camera::Frustum& frustum);
+    void loadCollider(ModelLoader<VertexWithMaterialData>& loader, const std::string& name);
     btRigidBody* createSimpleCollider(glm::vec4 pos, glm::vec3 dim);
 };

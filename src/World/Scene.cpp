@@ -72,7 +72,7 @@ bool Scene::load(const std::string &sceneName){
 
 void Scene::update(float dt, camera::Camera &camera){
     CPU_SCOPE_TIMER("Scene::update");
-    const Frustum &frustum = camera.getFrustum();
+    const camera::Frustum &frustum = camera.getFrustum();
     // todo: const Frustum frustum(camera);
     // if(geoTimePosition) geoTimePosition->update(dt*10);
     if(graph) graph->cullCells(frustum);

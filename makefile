@@ -19,13 +19,15 @@ CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pip
 ADDITIONAL_FLAGS = \
 -Werror=return-type \
 -Werror=reorder \
--Wmaybe-uninitialized \
+-Wuninitialized \
 -Winvalid-pch
+# -Wmaybe-uninitialized \
 # -Wall
 # -Wunused-function \
 # -Wswitch-enum \
 
 CXX = C:\MinGw\bin\g++.exe
+# CXX = C:\Program Files\LLVM\bin\clang++.exe -v -target x86_64-pc-windows-gnu
 FFMPEG = C:\ffmpeg\bin\ffmpeg.exe
 SRC = ./src
 BIN = ./bin

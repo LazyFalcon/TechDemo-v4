@@ -161,7 +161,7 @@ void diff(nodeVec &old, nodeVec &cur, nodeVec &added, nodeVec &removed){
     }
 }
 
-void QuadTree::update(const Frustum &frustum){
+void QuadTree::update(const camera::Frustum &frustum){
     CPU_SCOPE_TIMER("QuadTree::update");
     std::array<std::vector<QTNode*>, 5> prevoiusFrame {};
 
@@ -186,7 +186,7 @@ void QuadTree::update(const Frustum &frustum){
     }
 }
 
-LodLevel QuadTree::findLodLevel(QTNode &node, const Frustum &frustum){
+LodLevel QuadTree::findLodLevel(QTNode &node, const camera::Frustum &frustum){
     float manhattanLodDistances[4] = {15,60,100,900};
 
     auto vec = glm::abs(node.center - glm::ceil(frustum.eye/chunkSize.x*10.f)*chunkSize.x/10.f);

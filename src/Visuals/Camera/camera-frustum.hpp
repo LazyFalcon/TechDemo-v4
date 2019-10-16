@@ -1,9 +1,12 @@
 ﻿#pragma once
 #include <array>
 
+namespace camera
+{
 union FrustmCorners
 {
-    struct u {
+    struct u
+    {
         glm::vec4 farTopRight;
         glm::vec4 farTopLeft;
         glm::vec4 farBottomRight;
@@ -20,7 +23,8 @@ union FrustmCorners
 
 union FrustumPlanes
 {
-    struct u {
+    struct u
+    {
         glm::vec4 topPlane;
         glm::vec4 bottomPlane;
         glm::vec4 rightPlane;
@@ -33,7 +37,8 @@ union FrustumPlanes
 
 union FrustumVectors
 {
-    struct u {
+    struct u
+    {
         glm::vec4 right;
         glm::vec4 up;
         glm::vec4 forward;
@@ -54,7 +59,7 @@ public:
     bool testSphere(glm::vec4 position, float radius) const;
     bool testAABB(glm::vec4 box) const;
     bool intersects(glm::vec4 position, glm::vec2 size) const;
-    std::vector<FrustmCorners> splitForCSM(u32 parts=4);
+    std::vector<FrustmCorners> splitForCSM(u32 parts = 4);
     std::vector<float> splitDistances;
 
     FrustmCorners corners {};
@@ -66,3 +71,4 @@ public:
     float aspect;
     float zNear, zFar;
 };
+}

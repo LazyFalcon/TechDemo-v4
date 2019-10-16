@@ -1,6 +1,5 @@
 #pragma once
-#include "Frustum.hpp"
-#include "Filters.hpp"
+#include "camera-frustum.hpp"
 
 namespace camera
 {

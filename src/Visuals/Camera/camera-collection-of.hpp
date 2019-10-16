@@ -1,43 +1,51 @@
 #pragma once
 #include "camera-controller.hpp"
 
-class CollectionOfCameras
+namespace camera
+{
+class Collection
 {
 private:
     int m_idx {0};
     std::vector<std::shared_ptr<camera::Controller>> m_cameras;
+
 public:
-    void add(std::shared_ptr<camera::Controller> toAdd){
+    void add(std::shared_ptr<camera::Controller> toAdd) {
         m_cameras.push_back(toAdd);
     }
 
-    auto begin(){
+    auto begin() {
         return m_cameras.begin();
     }
-    auto end(){
+    auto end() {
         return m_cameras.end();
     }
 
-    void focus(){
-        if(not m_cameras.empty()) m_cameras[m_idx]->focusOn();
+    void focus() {
+        if(not m_cameras.empty())
+            m_cameras[m_idx]->focusOn();
     }
-    void next(){
+    void next() {
         ++m_idx;
-        if(m_idx >= m_cameras.size()) m_idx = 0;
+        if(m_idx >= m_cameras.size())
+            m_idx = 0;
         focus();
     }
-    void prev(){
+    void prev() {
         --m_idx;
-        if(m_idx < 0) m_idx = m_cameras.size() - 1;
+        if(m_idx < 0)
+            m_idx = m_cameras.size() - 1;
         focus();
     }
     bool hasAny() const {
         return not m_cameras.empty();
     }
-    camera::Camera& get(){
+    camera::Camera& get() {
         return *m_cameras[m_idx];
     }
-    camera::Controller& getController(){
+    camera::Controller& getController() {
         return *m_cameras[m_idx];
     }
 };
+
+}

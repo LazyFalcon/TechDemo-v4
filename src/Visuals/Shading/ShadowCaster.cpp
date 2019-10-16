@@ -127,7 +127,7 @@ std::vector<Mesh> ShadowCaster::getTerrainToRender(SceneGraph &sg){
     return out;
 }
 
-glm::mat4 ShadowCaster::fitShadowProjectionAroundBoundingBox(FrustmCorners &corners, Sun &sun, camera::Camera &camera, float minZ, float maxZ){
+glm::mat4 ShadowCaster::fitShadowProjectionAroundBoundingBox(camera::FrustmCorners &corners, Sun &sun, camera::Camera &camera, float minZ, float maxZ){
     glm::vec4 shadowCenter(0);
     for(auto i=0; i<8; i++){
         shadowCenter += corners.array[i];
@@ -144,7 +144,7 @@ glm::mat4 ShadowCaster::fitShadowProjectionAroundBoundingBox(FrustmCorners &corn
 
     return mat;
 }
-void ShadowCaster::calculateShadowProjectionMatrices(std::vector<FrustmCorners> &frustumSlices, glm::vec4 light, Sun &sun, camera::Camera &camera){
+void ShadowCaster::calculateShadowProjectionMatrices(std::vector<camera::FrustmCorners> &frustumSlices, glm::vec4 light, Sun &sun, camera::Camera &camera){
     context.tex.shadows.matrices.clear();
     for(auto i=0; i<numberOfFrustumSplits; i++){
         context.tex.shadows.matrices.push_back(fitShadowProjectionAroundBoundingBox(

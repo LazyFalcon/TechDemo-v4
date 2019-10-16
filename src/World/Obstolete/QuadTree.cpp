@@ -219,7 +219,7 @@ bool nearestChunk(QTNode &node, glm::vec4 eye){
  * > zrobione poprzez porównywanie levelu z wysokocia w hierarchi
  *
  */
-void QuadTree::frustumCull(QTNode &node, const Frustum &frustum){
+void QuadTree::frustumCull(QTNode &node, const camera::Frustum &frustum){
     if(enableOC && node.occluded){
         // TODO save this info
         return;

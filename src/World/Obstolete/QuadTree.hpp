@@ -5,7 +5,7 @@
 
 struct LightSource;
 class Terrain;
- class PhysicalWorld;
+class PhysicalWorld;
 struct Yaml;
 
 enum LodLevel {

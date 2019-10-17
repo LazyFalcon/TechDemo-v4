@@ -4,7 +4,6 @@
 #include "camera-hud-interface.hpp"
 #include "camera-utils.hpp"
 
-
 namespace camera
 {
 class Controller;
@@ -30,37 +29,37 @@ private:
         Point
     };
     Mode currentMode {Mode::World};
+    Mode superMode {Mode::World};
 
-    Mode calculateMode();
-    void recomputeEulersIfModeChanged(Controller::Mode newMode, const glm::mat4& parentTransform);
-
-    glm::vec4 calculateEyePositionOffset(const glm::mat4& cameraRelativeMatrix) const {
-        // matrix describes camera relative position in space of module, so now we need to inverse camera matrix to get distance of module origin on each camera axis
-        auto inv = glm::affineInverse(cameraRelativeMatrix);
-        return inv[3] - glm::vec4(0, 0, 0, 1);
-    }
-
-    void handleInput(const glm::mat4& parentTransform, float dt);
+    glm::vec4 calculateEyePositionOffset(const glm::mat4& cameraRelativeMatrix) const;
     void zoom();
     glm::quat computeTargetRotation(const glm::mat4& parentTransform, float dt);
     glm::vec4 computeTargetPosition(const glm::mat4& parentTransform, float dt);
     glm::quat getRotationBasis(const glm::mat4& parentTransform, float dt);
-    void stabilizeIfNeeded();
-    glm::quat stabilizeHorizontal(glm::quat toStabilize);
+
+    glm::quat extractHorizontalRotation(const glm::mat4& parentTransform) const;
+    glm::quat extractInclination(const glm::mat4& parentTransform) const;
+
+    void recalculateEulersForWorldReference();
+    void recalculateEulersForLocalReference();
 
 public:
     Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
     Controller(const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
     // Controller(const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : Controller(cameraRelativeMatrix, cameraRelativeMatrix, windowSize){}
     virtual ~Controller();
+    void printDebug();
 
     void focusOn();
     bool hasFocus() const;
 
-    virtual void update(float dt) { update(glm::mat4(1), dt); }
+    virtual void update(float dt) {
+        update(glm::mat4(1), dt);
+    }
     void update(const glm::mat4& parentTransform, float dt);
 
-    void printDebug();
+    void toGlobalReference();
+    void toLocalReference();
 };
 
 }

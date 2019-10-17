@@ -20,8 +20,8 @@ public:
         : camera::Controller(module.getTransform(), std::forward<Args>(args)...), m_module(module) {
         setup.isFreecam = false;
         setup.inLocalSpace = false;
-        setup.inLocalSpaceRotationOnly = false;
-        setup.inLocalSpacePlane = false;
+        setup.addRotationToTarget = false;
+        setup.addInclinationToTarget = false;
     }
 
     void update(float dt) override {
@@ -40,8 +40,8 @@ public:
         : camera::Controller(module.getTransform(), std::forward<Args>(args)...), m_module(module) {
         setup.isFreecam = false;
         setup.inLocalSpace = true;
-        setup.inLocalSpaceRotationOnly = false;
-        setup.inLocalSpacePlane = false;
+        setup.addRotationToTarget = false;
+        setup.addInclinationToTarget = false;
     }
 
     void update(float dt) override {

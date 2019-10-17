@@ -112,14 +112,29 @@ void Controller::printDebug() {
     // console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
 }
 
+glm::vec4 Controller::calculateEyePositionOffset(const glm::mat4& cameraRelativeMatrix) const {
+    // matrix describes camera relative position in space of module, so now we need to inverse camera matrix to get distance of module origin on each camera axis
+    auto inv = glm::affineInverse(cameraRelativeMatrix);
+    return inv[3] - glm::vec4(0, 0, 0, 1);
+}
+
+void Controller::toGlobalReference() {
+    if(superMode == Mode::World)
+        return;
+    superMode = Mode::World;
+    // calculate eulers for world from current
+}
+void Controller::toLocalReference() {
+    if(superMode == Mode::Point)
+        return;
+    superMode = Mode::Point;
+    // calculate eulers for local from current
+}
+
 void Controller::update(const glm::mat4& parentTransform, float dt) {
     if(not hasFocus())
         return;
     console_prefix("Camera");
-
-    auto mode = calculateMode();
-    recomputeEulersIfModeChanged(mode, parentTransform);
-    currentMode = mode;
 
     if(input.zoom != 0.f)
         zoom();
@@ -131,10 +146,6 @@ void Controller::update(const glm::mat4& parentTransform, float dt) {
 
     if(setup.inLocalSpace)
         Camera::orientation = glm::toMat4(glm::quat_cast(parentTransform) * rotation.get());
-    if(setup.inLocalSpaceRotationOnly)
-        Camera::orientation = glm::toMat4(glm::quat_cast(parentTransform) * rotation.get());
-    if(setup.inLocalSpacePlane)
-        Camera::orientation = glm::toMat4(glm::quat_cast(parentTransform) * rotation.get());
     else
         Camera::orientation = glm::toMat4(rotation.get());
     // apply stabilization
@@ -144,26 +155,6 @@ void Controller::update(const glm::mat4& parentTransform, float dt) {
     console.flog("position", origin.get());
 
     ControlInput::resetAfterUse();
-}
-
-Controller::Mode Controller::calculateMode() {
-    if(input.worldPointToFocusOn)
-        return Mode::Point;
-    // todo: maybeslightly different implementation?
-    if(setup.inLocalSpace or setup.inLocalSpaceRotationOnly or setup.inLocalSpacePlane)
-        return Mode::Local;
-    return Mode::World;
-}
-
-// todo: ffinish implementation
-void Controller::recomputeEulersIfModeChanged(Controller::Mode newMode, const glm::mat4& parentTransform) {
-    if(newMode == currentMode)
-        return;
-
-    if(newMode == Mode::Local)
-        glm::extractEulerAngleXYZ(Camera::orientation * glm::affineInverse(parentTransform), *pitch, *yaw, *roll);
-    if(newMode == Mode::World)
-        glm::extractEulerAngleXYZ(Camera::orientation, *pitch, *yaw, *roll);
 }
 
 // todo: add some inertia
@@ -179,6 +170,11 @@ void Controller::zoom() {
 // todo: include camera position offset in calculations
 glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, float dt) {
     if(input.worldPointToFocusOn) {
+        if(currentMode != Mode::Point) {
+            superMode = currentMode;
+            currentMode = Mode::Point;
+        }
+
         // todo: weź pod uwagę offset
         const auto dir = glm::normalize((*input.worldPointToFocusOn - eyePosition()).xyz());
         return glm::angleAxis(acos(glm::dot(dir, Z3)), glm::normalize(glm::cross(dir, Z3)));
@@ -193,6 +189,12 @@ glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, fl
         //     rotationAxis.z * invs
         // );
     }
+    else if(currentMode == Mode::Point) {
+        if(superMode == Mode::Local)
+            ;
+        if(superMode == Mode::World)
+            ;
+    }
 
     // niestety na razie kąty eulera
     glm::vec2 v(input.pointer.vertical * cos(-roll) - input.pointer.horizontal * sin(-roll),
@@ -203,13 +205,22 @@ glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, fl
 
     roll = roll + input.pointer.roll;
     auto out = glm::quat(glm::vec3(*pitch, *yaw, *roll));
-    auto out = glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3);
+    // todo: different order of application?
+    if(setup.addRotationToTarget)
+        out = extractHorizontalRotation(parentTransform) * out;
+    else if(setup.addInclinationToTarget)
+        out = extractInclination(parentTransform) * out;
+    // auto out = glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3);
     return out;
 }
 
-// target camera orientation always keep right axis in hoizontal plane
-glm::quat Controller::stabilizeHorizontal(glm::quat toStabilize) {
-    return toStabilize;
+glm::quat Controller::extractHorizontalRotation(const glm::mat4& parentTransform) const {
+    // calculate what? rotation between Y and Y''(Y' projected on horizontal surface(if exists))
+    return {};
+}
+glm::quat Controller::extractInclination(const glm::mat4& parentTransform) const {
+    // calculate rotation between Z and Z'
+    return {};
 }
 
 glm::vec4 Controller::computeTargetPosition(const glm::mat4& parentTransform, float dt) {

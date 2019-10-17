@@ -95,8 +95,8 @@ struct ControlInput
         bool zoomMode = FOV;
         bool alignHorizontally = false; // target right vector always in horizontal plane so roll will be zero
         bool inLocalSpace = false;
-        bool inLocalSpaceRotationOnly = false; // add parent rotation around global Z axis
-        bool inLocalSpacePlane = false; // add parent inclination, copy XY plane
+        bool addRotationToTarget = false; // to target add parent rotation around global Z axis
+        bool addInclinationToTarget = false; // to target add parent inclination, copy XY plane; both counts as global orientation
         bool restrictMovementToHorizontalPlane = false;
         bool useWorldInsteadLoclaAxes = false;
         float inertia = 0.f;

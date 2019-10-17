@@ -107,15 +107,15 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
     m_input->action("f5").name("global direction").hold([this] {
         camera::active().setup.isFreecam = false;
         camera::active().setup.inLocalSpace = false;
-        camera::active().setup.inLocalSpaceRotationOnly = false;
-        camera::active().setup.inLocalSpacePlane = false;
+        camera::active().setup.addRotationToTarget = false;
+        camera::active().setup.addInclinationToTarget = false;
         camera::active().userPointerMode == camera::PointerMode::Centered;
     });
     m_input->action("f6").name("local direction").hold([this] {
         camera::active().setup.isFreecam = false;
         camera::active().setup.inLocalSpace = true;
-        camera::active().setup.inLocalSpaceRotationOnly = false;
-        camera::active().setup.inLocalSpacePlane = false;
+        camera::active().setup.addRotationToTarget = false;
+        camera::active().setup.addInclinationToTarget = false;
         camera::active().userPointerMode == camera::PointerMode::Deviation;
     });
     m_input->action("f7").name("enable stabilization").hold([this] {

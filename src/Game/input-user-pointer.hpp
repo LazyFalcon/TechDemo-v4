@@ -21,11 +21,12 @@ private:
     } mode;
 
     Window& m_window;
-    glm::vec2 m_screenSize;
-    glm::vec2 m_onScreenPosition; // pixelPerfect, clamped to screen position, mostly set by user
+    glm::vec2 m_screenSize {};
+    glm::vec2 m_onScreenPosition {}; // pixelPerfect, clamped to screen position, mostly set by user
 
     glm::vec2 m_systemPointerPosition {};
     glm::vec2 m_positionDelta {};
+    glm::vec2 m_velocity {};
 
     glm::dvec2 m_lastPosition {};
 
@@ -38,7 +39,7 @@ private:
     }
     // todo: sensitivity, najlepiej stos updatów, żeby dało się przełączać pomiędzy róznymi czułościami
 public:
-    InputUserPointer(Window& m_window, glm::vec2 screenSize);
+    InputUserPointer(Window& window, glm::vec2 screenSize);
 
     struct
     {
@@ -46,7 +47,7 @@ public:
         glm::vec4 normal;
     } world;
 
-    void update();
+    void update(float dt);
     glm::vec2 screenScale() const;
 
     void hideSystemCursor();

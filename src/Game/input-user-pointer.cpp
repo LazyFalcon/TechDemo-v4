@@ -10,14 +10,15 @@ const glm::vec2 fullHD {1920.f, 1080.f};
 
 InputUserPointer::InputUserPointer(Window& window, glm::vec2 screenSize) : m_window(window), m_screenSize(screenSize) {
     double xpos, ypos;
-    glfwGetCursorPos(window.window, &xpos, &ypos);
+    glfwGetCursorPos(m_window.window, &xpos, &ypos);
+
+    if(glfwRawMouseMotionSupported()) glfwSetInputMode(m_window.window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
     m_systemPointerPosition = glm::vec2(xpos, screenSize.y - ypos);
-
-    showSystemCursor();
+    m_lastPosition = m_systemPointerPosition;
 }
 
-void InputUserPointer::update() {
+void InputUserPointer::update(float dt) {
     double x, y;
     glfwGetCursorPos(m_window.window, &x, &y);
 
@@ -28,6 +29,7 @@ void InputUserPointer::update() {
     setDelta({x - m_lastPosition.x, m_lastPosition.y - y});
 
     m_lastPosition = {x, y};
+    m_velocity = m_positionDelta/dt;
 }
 
 glm::vec2 InputUserPointer::screenScale() const {

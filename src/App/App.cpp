@@ -74,10 +74,12 @@ bool App::initialize() {
     // debugScreen->init();
 
     eventProcessor = std::make_unique<EventProcessor>(*this);
-    // particleProcessor = std::make_unique<ParticleProcessor>(*physics);
     userPointer = std::make_unique<InputUserPointer>(*window, window->size);
+
+    userPointer->showSystemCursor();
     return true;
 }
+// todo: move imgui input to proper game states
 void App::initializeInputDispatcher() {
     input->action("LMB")
         .on([this] {
@@ -197,12 +199,13 @@ void App::run() try {
         FrameTime::delta = std::chrono::duration_cast<std::chrono::duration<uint, std::milli>>(deltaTime).count();
         FrameTime::deltaf = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(deltaTime).count();
 
-        // TODO: renderData.storeCameraForFrameRendering();
-        userPointer->update();
-        // userPointer->didPointerMoved = userPointer->lastFrameShift.x != 0.f and userPointer->lastFrameShift.y != 0.f; // todo: is it enough?
-
         pmkLogger.startFrame();
         updateTimers(FrameTime::miliseconds);
+
+        // TODO: renderData.storeCameraForFrameRendering();
+        userPointer->update(FrameTime::deltaf);
+        // userPointer->didPointerMoved = userPointer->lastFrameShift.x != 0.f and userPointer->lastFrameShift.y != 0.f; // todo: is it enough?
+
         imgui->restart();
         inputDispatcher->setTime(FrameTime::miliseconds);
         inputDispatcher->heldUpKeys();
@@ -277,6 +280,7 @@ void App::mouseButtonCallback(GLFWwindow* w, int button, int action, int mods) {
     self->inputDispatcher->mouseButtonCallback(button, action, mods);
 }
 void App::cursorPosCallback(GLFWwindow* w, double xpos, double ypos) {
+    // todo: distinguish on system and inGame pointer
     self->inputDispatcher->mousePosition(self->userPointer->screenPosition().x, self->userPointer->screenPosition().y);
     self->inputDispatcher->mouseMovement(self->userPointer->delta().x, self->userPointer->delta().y);
 }

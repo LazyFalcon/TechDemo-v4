@@ -10,11 +10,13 @@
 #include "GraphicEngine.hpp"
 #include "Logger.hpp"
 #include "PerfTimers.hpp"
+#include "RenderDataCollector.hpp"
 #include "ResourceLoader.hpp"
 #include "Settings.hpp"
 #include "Timer.hpp"
 #include "Window.hpp"
 #include "Yaml.hpp"
+#include "camera-controller.hpp"
 #include "input-dispatcher.hpp"
 #include "input-user-pointer.hpp"
 #include "input.hpp"
@@ -204,6 +206,7 @@ void App::run() try {
 
         // TODO: renderData.storeCameraForFrameRendering();
         userPointer->update(FrameTime::deltaf);
+        RenderDataCollector::collectCamera(camera::active());
         // userPointer->didPointerMoved = userPointer->lastFrameShift.x != 0.f and userPointer->lastFrameShift.y != 0.f; // todo: is it enough?
 
         imgui->restart();
@@ -278,6 +281,7 @@ void App::keyCallback(GLFWwindow* w, int key, int scancode, int action, int mods
 }
 void App::mouseButtonCallback(GLFWwindow* w, int button, int action, int mods) {
     self->inputDispatcher->mouseButtonCallback(button, action, mods);
+    console.log("self->userPointer->screenPosition()", self->userPointer->screenPosition());
 }
 void App::cursorPosCallback(GLFWwindow* w, double xpos, double ypos) {
     // todo: distinguish on system and inGame pointer

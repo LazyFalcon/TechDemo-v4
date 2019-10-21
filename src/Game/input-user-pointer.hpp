@@ -37,7 +37,7 @@ private:
     glm::vec2 wrap(glm::vec2 in) const {
         return in;
     }
-    // todo: sensitivity, najlepiej stos updatów, żeby dało się przełączać pomiędzy róznymi czułościami
+    // todo: sensitivity
 public:
     InputUserPointer(Window& window, glm::vec2 screenSize);
 

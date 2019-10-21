@@ -17,6 +17,7 @@ private:
     Utils::Limits<float, Utils::periodicAngle<float>> yaw; // y, around Z axis
     Utils::Limits<float> pitch;                            // x, around X axis
     Utils::Limits<float> roll;                             // z, around Y axis
+    // todo: fajniejsze byłoby cos takiego: Limits<AngleLimit(0, pi), Periodic()>
     // Utils::Limits<float&> fovLimited;
 
     Utils::ValueFollower<glm::vec4> origin;
@@ -45,7 +46,7 @@ private:
 
 public:
     Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
-    Controller(const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
+    Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize);
     // Controller(const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : Controller(cameraRelativeMatrix, cameraRelativeMatrix, windowSize){}
     virtual ~Controller();
     void printDebug();

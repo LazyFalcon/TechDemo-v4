@@ -220,13 +220,8 @@ void Playground::updateCamera(float dt) {
 
     // for pointer rendering
     if(currentCamera.userPointerMode == camera::PointerMode::OnPoint) {
-        //  set pointer on point on which camera is focused
-        // pointer.setFromWorldPosition(worldPointToFocusOn or input.worldPointToPivot or worldPointToFocusOnWhenSteady, currentCamera.orientation);
-        // pointer.move(pointer.laseMoveInPx);
-        // oblicza pozycję w którą przesunać kursor, wykonuje przesuniecię, dzięki czemu zmieni się kierunek patrzenia kamery
-        // może będzie wystarczająco gładko chodzić
-
-        // todo: m_inputUserPointer.setFromWorldPosition();
+        //  set pointer on point on which camera is focused, point cannot be moved by mouse
+        m_inputUserPointer.setFromWorldPosition(*worldPointToFocusOn, currentCamera.orientation);
     }
     else if(currentCamera.userPointerMode == camera::PointerMode::Deviation) {
         // todo: m_inputUserPointer.setFromGame();
@@ -252,7 +247,7 @@ void Playground::updateCamera(float dt) {
 
 void Playground::renderProcedure(GraphicEngine& renderer) {
     console_prefix("Rendering");
-    RenderDataCollector::collectCamera(camera::active());
+    // RenderDataCollector::collectCamera(camera::active());
     RenderDataCollector::collectWindow(m_window);
     RenderDataCollector::collectTime(FrameTime::deltaf, FrameTime::miliseconds);
 

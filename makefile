@@ -14,7 +14,8 @@ DEFINES = \
 CORE_PCH_FILENAME=./src/core_pch.hpp
 CORE_PCH=$(CORE_PCH_FILENAME).gch
 
-CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
+# CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
+CXX_FLAGS = -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 ADDITIONAL_FLAGS = \
 -Werror=return-type \
@@ -26,8 +27,22 @@ ADDITIONAL_FLAGS = \
 # -Wunused-function \
 # -Wswitch-enum \
 
-CXX = C:\MinGw\bin\g++.exe
+# CXX = C:\MinGw\bin\g++.exe
 # CXX = C:\Program Files\LLVM\bin\clang++.exe -v -target x86_64-pc-windows-gnu
+CXX = C:\Program Files\LLVM\bin\clang++.exe -v -target x86_64-w64-mingw32  \
+-stdlib=libstdc++ \
+-fno-ms-compatibility \
+-cxx-isystem C:\MinGW\include\c++\8.2.0 \
+-cxx-isystem C:\MinGW\include\c++\8.2.0\x86_64-w64-mingw32 \
+-cxx-isystem C:\MinGW\include\c++\8.2.0\backward \
+-cxx-isystem C:\MinGW\include\c++\8.2.0\bits \
+-cxx-isystem C:\MinGW\include\c++\8.2.0\debug \
+-cxx-isystem C:\MinGW\include\c++\8.2.0\decimal \
+-cxx-isystem C:\MinGW\include\c++\8.2.0\tr1 \
+-cxx-isystem C:\MinGW\include\c++\8.2.0\tr2 \
+
+
+
 FFMPEG = C:\ffmpeg\bin\ffmpeg.exe
 SRC = ./src
 BIN = ./bin

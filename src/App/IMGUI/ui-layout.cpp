@@ -64,6 +64,7 @@ void Layout::setBounds(glm::vec4 b){
     m_bounds = m_free = b;
 }
 
+// todo: nie byłoby lepiej gdyby alignment i inne takie wrzucić jako membery  Layout'u a feedback zrobić pointerm na fcję?
 Layout& Layout::toUp(Alignment alignment){
     feedback = [this, alignment](const glm::vec4& item){
         float x(item[0]), y(item[1]), w(item[2]), h(item[3]);

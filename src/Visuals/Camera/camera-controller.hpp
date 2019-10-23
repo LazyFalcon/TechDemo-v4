@@ -8,6 +8,7 @@ namespace camera
 {
 class Controller;
 Controller& active();
+bool hasActive();
 
 class Controller : public Camera, public ControlInput, public CameraHUDInterface
 {

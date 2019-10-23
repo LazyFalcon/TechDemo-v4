@@ -25,8 +25,6 @@ struct CameraConstraints
 // todo: rename to data, move some logici away
 class Camera
 {
-protected:
-    ~Camera() = default;
 public:
     // * from camera transform calculate view matrix. call once per frame, before rendering phase
     void recalculate();

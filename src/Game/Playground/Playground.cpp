@@ -221,7 +221,7 @@ void Playground::updateCamera(float dt) {
     // for pointer rendering
     if(currentCamera.userPointerMode == camera::PointerMode::OnPoint) {
         //  set pointer on point on which camera is focused, point cannot be moved by mouse
-        m_inputUserPointer.setFromWorldPosition(*worldPointToFocusOn, currentCamera.orientation);
+        m_inputUserPointer.setFromWorldPosition(*currentCamera.input.worldPointToFocusOn, currentCamera.orientation);
     }
     else if(currentCamera.userPointerMode == camera::PointerMode::Deviation) {
         // todo: m_inputUserPointer.setFromGame();

@@ -12,6 +12,10 @@ Controller& active() {
     return *activeCamera;
 }
 
+bool hasActive(){
+    return activeCamera != nullptr;
+}
+
 Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize)
     : yaw(0),
       pitch(0),

@@ -85,13 +85,13 @@ bool App::initialize() {
 void App::initializeInputDispatcher() {
     input->action("LMB")
         .on([this] {
-            if(userPointer->systemMode()) {
+            if(userPointer->systemMode() or true) {
                 imgui->input.lmbOn();
                 imgui->panelInput.lmbOn();
             }
         })
         .off([this] {
-            if(userPointer->systemMode()) {
+            if(userPointer->systemMode() or true) {
                 imgui->input.lmbOff();
                 imgui->panelInput.lmbOff();
             }
@@ -154,7 +154,7 @@ void App::setCommonCallbacks() {
     glfwSetScrollCallback(window->window, &App::scrollCallback);
     glfwSetKeyCallback(window->window, &App::keyCallback);
     glfwSetMouseButtonCallback(window->window, &App::mouseButtonCallback);
-    // glfwSetCursorPosCallback(window->window, &App::cursorPosCallback);
+    glfwSetCursorPosCallback(window->window, &App::cursorPosCallback);
     glfwSetWindowCloseCallback(window->window, &App::exitCallback);
     glfwSetErrorCallback(&App::errorCallback);
 }
@@ -281,7 +281,6 @@ void App::keyCallback(GLFWwindow* w, int key, int scancode, int action, int mods
 }
 void App::mouseButtonCallback(GLFWwindow* w, int button, int action, int mods) {
     self->inputDispatcher->mouseButtonCallback(button, action, mods);
-    console.log("self->userPointer->screenPosition()", self->userPointer->screenPosition());
 }
 void App::cursorPosCallback(GLFWwindow* w, double xpos, double ypos) {
     // todo: distinguish on system and inGame pointer

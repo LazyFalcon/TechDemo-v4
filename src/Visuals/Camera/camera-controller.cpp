@@ -12,7 +12,7 @@ Controller& active() {
     return *activeCamera;
 }
 
-bool hasActive(){
+bool hasActive() {
     return activeCamera != nullptr;
 }
 
@@ -100,20 +100,15 @@ bool Controller::hasFocus() const {
 
 void Controller::printDebug() {
     Camera::printDebug();
-    // console.log("yaw, pitch, roll:", yaw*toDeg, pitch*toDeg, roll*toDeg);
-    // console.log("\t", "freecam:", freecam);
-    // console.log("\t", "zoomByFov:", zoomByFov);
-    // console.log("\t", "keepRightAxisHorizontal:", keepRightAxisHorizontal);
-    // console.log("\t", "parentRotationAffectCurrentRotation:", parentRotationAffectCurrentRotation);
-    // console.log("\t", "smoothParentRotation:", smoothParentRotation);
-    // console.log("\t", "inSteadyFocusOnPoint:", inSteadyFocusOnPoint);
-    // console.log("\t", "targetRelativeToParent:", targetRelativeToParent);
-    // console.log("\t", "switchToMovementOnWorldAxes:", switchToMovementOnWorldAxes);
-    // console.log("\t", "moveHorizontally:", moveHorizontally);
-    // console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
-    // console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
-    // console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
-    // console.log("\t", "reqiuresToHavePointerInTheSamePosition:", reqiuresToHavePointerInTheSamePosition);
+    console.log("yaw, pitch, roll:", *yaw * toDeg, *pitch * toDeg, *roll * toDeg);
+    console.log("setup.isFreecam:", setup.isFreecam);
+    console.log("setup.zoomMode:", setup.zoomMode);
+    console.log("setup.inLocalSpace:", setup.inLocalSpace);
+    console.log("setup.addRotationToTarget:", setup.addRotationToTarget);
+    console.log("setup.addInclinationToTarget:", setup.addInclinationToTarget);
+    console.log("pointerVisible:", pointerVisible);
+    console.log("input.velocity:", input.velocity);
+    console.log("input.worldPointToFocusOn:", input.worldPointToFocusOn.value_or(glm::vec4(0)));
 }
 
 glm::vec4 Controller::calculateEyePositionOffset(const glm::mat4& cameraRelativeMatrix) const {
@@ -149,7 +144,7 @@ void Controller::update(const glm::mat4& parentTransform, float dt) {
     origin.update(dt);
 
     if(setup.inLocalSpace)
-        Camera::orientation = glm::toMat4(glm::quat_cast(parentTransform) * rotation.get());
+        Camera::orientation = parentTransform * glm::toMat4(rotation.get());
     else
         Camera::orientation = glm::toMat4(rotation.get());
     // apply stabilization
@@ -208,13 +203,13 @@ glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, fl
     yaw = yaw - (v.y * 12.f * fov) / pi;
 
     roll = roll + input.pointer.roll;
-    auto out = glm::quat(glm::vec3(*pitch, *yaw, *roll));
+    // auto out = glm::quat(glm::vec3(*yaw, *pitch, *roll));
+    auto out = glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3);
     // todo: different order of application?
     if(setup.addRotationToTarget)
         out = extractHorizontalRotation(parentTransform) * out;
     else if(setup.addInclinationToTarget)
         out = extractInclination(parentTransform) * out;
-    // auto out = glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3);
     return out;
 }
 

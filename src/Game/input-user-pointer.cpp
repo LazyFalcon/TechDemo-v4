@@ -12,7 +12,8 @@ InputUserPointer::InputUserPointer(Window& window, glm::vec2 screenSize) : m_win
     double xpos, ypos;
     glfwGetCursorPos(m_window.window, &xpos, &ypos);
 
-    if(glfwRawMouseMotionSupported()) glfwSetInputMode(m_window.window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    if(glfwRawMouseMotionSupported())
+        glfwSetInputMode(m_window.window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
     m_systemPointerPosition = glm::vec2(xpos, screenSize.y - ypos);
     m_lastPosition = m_systemPointerPosition;
@@ -29,11 +30,11 @@ void InputUserPointer::update(float dt) {
     setDelta({x - m_lastPosition.x, m_lastPosition.y - y});
 
     m_lastPosition = {x, y};
-    m_velocity = m_positionDelta/dt;
+    m_velocity = m_positionDelta / dt;
 }
 
 glm::vec2 InputUserPointer::screenScale() const {
-    return (1.f/m_screenSize) * (m_screenSize/fullHD);
+    return (1.f / m_screenSize) * (m_screenSize / fullHD);
 }
 
 void InputUserPointer::hideSystemCursor() {

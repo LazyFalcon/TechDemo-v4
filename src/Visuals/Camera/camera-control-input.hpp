@@ -72,31 +72,45 @@ I chyba też powinienem przerobić sposób w jaki rodzic wpływa na obecne poło
 
 */
 
-enum ZoomMode : bool { FOV=false, OFFSET=true };
-enum class PointerMode {OnPoint, Centered, Deviation, Free};
+enum ZoomMode : bool
+{
+    FOV = false,
+    OFFSET = true
+};
+enum class PointerMode
+{
+    OnPoint,
+    Centered,
+    Deviation,
+    Free
+};
 
 struct ControlInput
 {
-    struct {
+    struct
+    {
         std::optional<glm::vec4> worldPointToFocusOn; // artifical input or updated when moving camera
-        std::optional<glm::vec4> worldPointToZoom; // artifical input or updated when zooming
-        std::optional<glm::vec4> worldPointToPivot; // for freecam rotations
+        std::optional<glm::vec4> worldPointToZoom;    // artifical input or updated when zooming
+        std::optional<glm::vec4> worldPointToPivot;   // for freecam rotations
         float zoom = 0;
         glm::vec4 velocity {};
-        struct {
+        struct
+        {
             float horizontal {};
             float vertical {};
             float roll {};
         } pointer;
     } input;
 
-    struct {
+    struct
+    {
         bool isFreecam = false;
         bool zoomMode = FOV;
         bool alignHorizontally = false; // target right vector always in horizontal plane so roll will be zero
         bool inLocalSpace = false;
         bool addRotationToTarget = false; // to target add parent rotation around global Z axis
-        bool addInclinationToTarget = false; // to target add parent inclination, copy XY plane; both counts as global orientation
+        bool addInclinationToTarget =
+            false; // to target add parent inclination, copy XY plane; both counts as global orientation
         bool restrictMovementToHorizontalPlane = false;
         bool useWorldInsteadLoclaAxes = false;
         float inertia = 0.f;
@@ -106,11 +120,11 @@ struct ControlInput
 
     PointerMode userPointerMode {PointerMode::Centered};
     PointerMode previousUserPointerMode {PointerMode::Centered};
-    bool pointerVisible = true;
+    bool pointerVisible = false;
 
-    void parseConfig(const Yaml& yaml){}
+    void parseConfig(const Yaml& yaml) {}
 
-    void resetAfterUse(){
+    void resetAfterUse() {
         input.zoom = 0;
         input.pointer.horizontal = 0;
         input.pointer.vertical = 0;
@@ -119,7 +133,7 @@ struct ControlInput
         input.worldPointToZoom.reset();
     }
 
-    void freeControl(){
+    void freeControl() {
         resetAfterUse();
         input.worldPointToFocusOn.reset();
         input.worldPointToPivot.reset();

@@ -29,14 +29,14 @@ private:
 
     // std::shared_ptr<FreeCamController> m_defaultCamera; // TODO: later convert into list of cameras
     int m_selectedCamera {0};
-    bool m_freeView {true};
     bool shiftMode {false};
 
     std::unique_ptr<GBufferSampler> m_mouseSampler;
     void updateCamera(float dt);
-    float cameraSpeed(){
+    float cameraSpeed() {
         return shiftMode ? 0.2f : 0.5f;
     }
+
 public:
     Playground(Imgui&, InputDispatcher&, Window&, InputUserPointer&);
     ~Playground();
@@ -44,7 +44,7 @@ public:
     void updateWithHighPrecision(float dt);
     void renderProcedure(GraphicEngine&);
 
-    PhysicalWorld& getPhysics(){
+    PhysicalWorld& getPhysics() {
         return *m_physics;
     }
 

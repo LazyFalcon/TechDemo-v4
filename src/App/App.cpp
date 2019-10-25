@@ -22,7 +22,6 @@
 #include "input.hpp"
 #include "ui.hpp"
 
-
 bool CLOG_SPECIAL_VALUE = false;
 bool CLOG_SPECIAL_VALUE_2 = false;
 bool CLOG_SPECIAL_VALUE_3 = false;
@@ -185,6 +184,7 @@ void App::run() try {
     eventProcessor->process();
 
     while(not quit) {
+        std::cout << std::flush;
         GameState* currentGamestate = gameState.get();
         incrFrame();
         CPU_SCOPE_TIMER("Main loop update");
@@ -206,7 +206,8 @@ void App::run() try {
 
         // TODO: renderData.storeCameraForFrameRendering();
         userPointer->update(FrameTime::deltaf);
-        if(camera::hasActive()) RenderDataCollector::collectCamera(camera::active());
+        if(camera::hasActive())
+            RenderDataCollector::collectCamera(camera::active());
         // userPointer->didPointerMoved = userPointer->lastFrameShift.x != 0.f and userPointer->lastFrameShift.y != 0.f; // todo: is it enough?
 
         imgui->restart();

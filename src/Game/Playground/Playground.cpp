@@ -210,7 +210,7 @@ void Playground::updateWithHighPrecision(float dt) {
 void Playground::updateCamera(float dt) {
     auto& currentCamera = camera::active();
 
-    auto pointerDelta = m_inputUserPointer.delta() * m_inputUserPointer.screenScale();
+    auto pointerDelta = m_inputUserPointer.delta() * m_inputUserPointer.screenScale() * m_inputUserPointer.sensitivity;
 
     // for pointer rendering
     if(currentCamera.userPointerMode == camera::PointerMode::OnPoint) {
@@ -230,8 +230,9 @@ void Playground::updateCamera(float dt) {
 
     // todo: zapętlanie pozycji myszy
     // to rotate camera and rotate freecam around point, allows to move pointer freely
-    if(currentCamera.setup.isFreecam and currentCamera.input.worldPointToPivot or not currentCamera.setup.isFreecam) {
-        console.clog("pointerDelta", pointerDelta);
+    if((currentCamera.setup.isFreecam
+        and (currentCamera.input.worldPointToPivot or currentCamera.userPointerMode != camera::PointerMode::Free))
+       or not currentCamera.setup.isFreecam) {
         currentCamera.input.pointer.horizontal = pointerDelta.x * dt / frameMs;
         currentCamera.input.pointer.vertical = pointerDelta.y * dt / frameMs;
     }

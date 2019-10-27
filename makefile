@@ -40,7 +40,6 @@ OBJ_DIR = ./obj
 
 LIBS = -lPMK-audio -lboost_system-mt -lboost_filesystem-mt -lboost_thread-mt -lboost_date_time-mt -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath \
 -lglfw3 -lgdi32 -lglu32 -lopengl32 -lassimp.dll -lFreeImage -lFreeImagePlus -lpng -ljpeg -lz -lOpenAL32 -lvorbisfile  -lvorbis -logg -lvorbisenc -lFLAC
-# -lglew32
 
 TARGETS = $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(wildcard src/*/*/*.cpp)  $(wildcard src/*/*/*/*.cpp)
 
@@ -49,8 +48,7 @@ OBJS = $(TARGETS:%.cpp=$(OBJ_DIR)/%.o)
 DEP = $(OBJS:%.o=%.d)
 # include($(shell find . -type f -name \*.d))
 
-# $(BIN)/$(TARGET_NAME): $(OBJS) ./obj/res.o
-$(BIN)/$(TARGET_NAME): $(OBJS)
+$(BIN)/$(TARGET_NAME): $(OBJS) ./obj/res.o
 	@mkdir -p ./bin
 	@echo "Linking: $@"
 	@$(LDX) $^ -o $@ $(LIBS)

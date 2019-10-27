@@ -41,6 +41,8 @@ private:
 public:
     InputUserPointer(Window& window, glm::vec2 screenSize);
 
+    glm::vec2 sensitivity {0.6f, 0.6f};
+
     struct
     {
         glm::vec4 position;

@@ -47,6 +47,8 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
     Camera::orientation = glm::toMat4(glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3));
     Camera::orientation[3] = origin.get() + Camera::orientation * offset * offsetScale;
     Camera::recalculate();
+
+    printDebug();
 }
 
 Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
@@ -80,6 +82,8 @@ Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
     Camera::orientation = glm::toMat4(glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3));
     Camera::orientation[3] = origin.get() + Camera::orientation * offset * offsetScale;
     Camera::recalculate();
+
+    printDebug();
 }
 
 Controller::~Controller() {
@@ -196,8 +200,8 @@ glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, fl
     }
 
     // niestety na razie kąty eulera
-    glm::vec2 v(input.pointer.vertical * cos(-roll) - input.pointer.horizontal * sin(-roll),
-                input.pointer.vertical * sin(-roll) + input.pointer.horizontal * cos(-roll));
+    glm::vec2 v(-input.pointer.vertical * cos(-roll) - input.pointer.horizontal * sin(-roll),
+                -input.pointer.vertical * sin(-roll) + input.pointer.horizontal * cos(-roll));
 
     pitch = pitch - (v.x * 12.f * fov) / pi;
     yaw = yaw - (v.y * 12.f * fov) / pi;

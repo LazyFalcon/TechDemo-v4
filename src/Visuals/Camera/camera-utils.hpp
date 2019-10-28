@@ -51,7 +51,7 @@ public:
     }
 
     T& operator*() {
-        return applyLimits();
+        return m_value;
     }
 
     const T& get() const {

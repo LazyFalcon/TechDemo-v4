@@ -2,7 +2,6 @@
 #include "camera-controller.hpp"
 #include "Logger.hpp"
 
-
 namespace camera
 {
 std::list<Controller*> listOfControllers;
@@ -25,7 +24,8 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
       // roll(0, -pi/2, pi/2),
       // fovLimited(Camera::fov, 30*toRad, 120*toRad),
       origin(parentMatrix[3], 0.1f, 0.5f),
-      rotation(glm::quat_cast(parentMatrix * cameraRelativeMatrix), 0.1f, 0.5f) {
+      rotation(glm::quat_cast(parentMatrix * cameraRelativeMatrix), 0.1f, 0.5f),
+      fovChange(Utils::Limits<float>(85.f, 20.f, 90.f), 0.1f, 0.6f) {
     listOfControllers.push_back(this);
     if(not activeCamera)
         focusOn();
@@ -60,7 +60,8 @@ Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
       // roll(0, -pi/2, pi/2),
       // fovLimited(Camera::fov, 30*toRad, 120*toRad),
       origin(cameraWorldMatrix[3], 0.1f, 0.5f),
-      rotation(glm::quat_cast(cameraWorldMatrix), 0.1f, 0.5f) {
+      rotation(glm::quat_cast(cameraWorldMatrix), 0.1f, 0.5f),
+      fovChange(Utils::Limits<float>(85.f, 20.f, 90.f), 0.1f, 0.6f) {
     listOfControllers.push_back(this);
     if(not activeCamera)
         focusOn();
@@ -142,6 +143,7 @@ void Controller::update(const glm::mat4& parentTransform, float dt) {
 
     if(input.zoom != 0.f)
         zoom();
+    fov = fovChange.update(dt);
 
     rotation = computeTargetRotation(parentTransform, dt);
     origin = computeTargetPosition(parentTransform, dt);

@@ -4,6 +4,7 @@
 #include "camera-hud-interface.hpp"
 #include "camera-utils.hpp"
 
+
 namespace camera
 {
 class Controller;
@@ -19,10 +20,10 @@ private:
     Utils::Limits<float> pitch;                            // x, around X axis
     Utils::Limits<float> roll;                             // z, around Y axis
     // todo: fajniejsze byłoby cos takiego: Limits<AngleLimit(0, pi), Periodic()>
-    // Utils::Limits<float> fovChange;
 
     Utils::ValueFollower<glm::vec4> origin;
     Utils::ValueFollower<glm::quat, Utils::quaternionSlerpFunction> rotation;
+    Utils::ValueFollower<Utils::Limits<float>> fovChange;
 
     enum class Mode
     {

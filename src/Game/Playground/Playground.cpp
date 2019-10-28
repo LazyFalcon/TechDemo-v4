@@ -27,6 +27,7 @@
 #include "input-user-pointer.hpp"
 #include "input.hpp"
 
+
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window, InputUserPointer& inputUserPointer)
     : m_input(inputDispatcher.createNew("Playground")),
       m_physics(std::make_unique<PhysicalWorld>()),
@@ -182,9 +183,9 @@ Playground::~Playground() {
 }
 void Playground::update(float dt) {
     console_prefix("Update");
-    updateCamera(dt);
     if(m_player)
         m_player->updateGraphic(dt);
+    updateCamera(dt);
     for(auto& bot : m_scene->m_friendlyBots) { bot->updateGraphic(dt); }
     for(auto& bot : m_scene->m_hostileBots) { bot->updateGraphic(dt); }
 }
@@ -237,8 +238,7 @@ void Playground::updateCamera(float dt) {
         currentCamera.input.pointer.vertical = pointerDelta.y * dt / frameMs;
     }
 
-    if(currentCamera.setup.isFreecam)
-        currentCamera.update(dt);
+    currentCamera.update(dt);
 }
 
 void Playground::renderProcedure(GraphicEngine& renderer) {

@@ -3,130 +3,139 @@
 namespace Utils
 {
 template<typename TT>
-TT& defaultClampFunction(TT& value, const TT& min, const TT& max){
-    if(min < max) value = glm::clamp(value, min, max);
+TT& defaultClampFunction(TT& value, const std::optional<TT>& min, const std::optional<TT>& max) {
+    value = glm::clamp(value, min.value_or(value), max.value_or(value));
     return value;
 }
 
 template<typename TT>
-TT& no_op(TT& value, const TT& min, const TT& max){
+TT& no_op(TT& value, const std::optional<TT>& min, const std::optional<TT>& max) {
     return value;
 }
 
 template<typename TT>
-TT& periodicAngle(TT& value, const TT&, const TT&){
-    if(value > pi) value -= 2*pi;
-    if(value < -pi) value += 2*pi;
+TT& periodicAngle(TT& value, const std::optional<TT>& min, const std::optional<TT>& max) {
+    if(value > pi)
+        value -= 2 * pi;
+    if(value < -pi)
+        value += 2 * pi;
 
     // auto diff = fmod(value + pi, pi2) - pi; // wrap difference to range -pi;pi
     // return diff < -pi ? diff + pi2 : diff;
 
     return value;
 }
+
+// todo: klaska do obsługi kątów(Angle), taka bliższa matematyce, z operatorami ile się da, okresowa z ograniczeniem
+
 // todo: nie wiem czy to jest do końca takie najszczęśliwsze rozwiązanie
 template<typename T, auto WrapFunction = defaultClampFunction<T>>
 class Limits
 {
 private:
-    std::remove_reference_t<T> m_min {};
-    std::remove_reference_t<T> m_max {};
-    T value;
-public:
-    Limits(T value) : value(value){}
-    template<typename T2, typename T3>
-    Limits(T value, T2 min, T3 max) : m_min(min), m_max(max), value(value){}
+    T m_value;
+    std::optional<T> m_min {};
+    std::optional<T> m_max {};
 
-    template<typename T3>
-    void operator=(T3 v){
-        value = v;
-        update();
+public:
+    Limits(T value) : m_value(value) {}
+    Limits(T value, T min, T max) : m_value(value), m_min(min), m_max(max) {}
+
+    void operator=(T v) {
+        m_value = v;
+        applyLimits();
     }
 
     operator T() const {
-        return value;
+        return m_value;
     }
 
-    T get() const {
-        return value;
+    T& operator*() {
+        return applyLimits();
     }
 
-    template<typename T2, typename T3>
-    void setBounds(T2 min, T3 max){
+    const T& get() const {
+        return m_value;
+    }
+
+    void setBounds(T min, T max) {
         m_min = min;
         m_max = max;
     }
 
-    T& operator * (){
-        return WrapFunction(value, m_min, m_max);
+    T& set(const T& val) {
+        m_value = val;
+        return applyLimits();
     }
 
-    T& set(const T& val){
-        value = val;
-        return update();
-    }
-
-    auto update(){
-        return WrapFunction(value, m_min, m_max);
+    auto& applyLimits() {
+        return WrapFunction(m_value, m_min, m_max);
     }
 };
 
 template<typename T>
-T defaultMixFunction(T value, T target, float miliseconds, float smoothness){
-    return glm::mix(value, target, smoothness * miliseconds /frameMs);
+T defaultMixFunction(T value, T target, float miliseconds, float smoothness) {
+    return glm::mix(value, target, smoothness * miliseconds / frameMs);
     // return glm::mix(rotationCenter, target.rotationCenter, glm::smoothstep(0.f, 1.f, inertia * dt/frameTime));
     // smoothstep ma sens wtedy gdy przy ustaleniu wartosci, zapiszemy startową wartość, i będziemy robiliinterpolację nie po czasie a po
     // różnicy, znaczy e = t-v0; i v += smootshstep(0, <warość od kiedy zaczynamy wygładzenie>, e);
 }
 
-inline glm::quat quaternionSlerpFunction(const glm::quat& value, const glm::quat& target, float miliseconds, float smoothness){
-    return glm::slerp(value, target, smoothness * miliseconds/frameMs);
+inline glm::quat quaternionSlerpFunction(const glm::quat& value, const glm::quat& target, float miliseconds,
+                                         float smoothness) {
+    return glm::slerp(value, target, smoothness * miliseconds / frameMs);
 }
 
-template<typename T, typename HightType = T, auto InterpolateFunction = defaultMixFunction<T>>
+template<typename T, auto InterpolateFunction = defaultMixFunction<T>>
 class ValueFollower
 {
 private:
+    T m_value;
+    T m_target;
     float m_smoothness {1};
     float m_inertia {0};
-    std::remove_reference_t<T> m_target {};
-    HightType value;
-public:
-    ValueFollower(HightType value, float smoothness, float inertia) : m_smoothness(smoothness), m_inertia(inertia), m_target(value), value(value){}
 
-    template<typename T3>
-    void operator=(T3 v){
+public:
+    ValueFollower(T value, float smoothness = 1.f, float inertia = 0.f)
+        : m_value(value), m_target(value), m_smoothness(smoothness), m_inertia(inertia) {}
+
+    void operator=(T v) {
         m_target = v;
     }
 
     operator T() const {
-        return value;
+        return m_value;
     }
 
-    template<typename T2, typename T3>
-    void setBounds(T2 smoothness, T3 inertia){
+    T& operator*() {
+        return m_value;
+    }
+
+    const T& get() const {
+        return m_value;
+    }
+
+    void set(const T& val) {
+        m_target = val;
+    }
+
+    void reset(const T& val) {
+        m_value = val;
+        m_target = val;
+    }
+
+    void setParameters(float smoothness, float inertia) {
         m_smoothness = smoothness;
         m_inertia = inertia;
     }
 
-    T& set(const T& val){
-        m_target = val;
+    void modifyValue(T newValue) {
+        m_value = newValue;
     }
 
-    T get(){
-        return value;
-    }
-
-    void modifyValue(T newValue){
-        value = newValue;
-    }
-
-    T& reset(const T& val){
-        value = val;
-        m_target = val;
-    }
-
-    void update(float dt){
-        value =  InterpolateFunction(value, m_target, dt, m_smoothness);
+    const T& update(float dt) {
+        m_value = InterpolateFunction(m_value, m_target, dt, m_smoothness);
+        return m_value;
     }
 };
 

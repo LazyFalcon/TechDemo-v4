@@ -19,10 +19,10 @@ private:
     Utils::Limits<float> pitch;                            // x, around X axis
     Utils::Limits<float> roll;                             // z, around Y axis
     // todo: fajniejsze byłoby cos takiego: Limits<AngleLimit(0, pi), Periodic()>
-    // Utils::Limits<float&> fovLimited;
+    // Utils::Limits<float> fovChange;
 
     Utils::ValueFollower<glm::vec4> origin;
-    Utils::ValueFollower<glm::quat, glm::quat, Utils::quaternionSlerpFunction> rotation;
+    Utils::ValueFollower<glm::quat, Utils::quaternionSlerpFunction> rotation;
 
     enum class Mode
     {

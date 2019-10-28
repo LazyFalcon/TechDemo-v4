@@ -2,6 +2,7 @@
 #include "camera-controller.hpp"
 #include "Logger.hpp"
 
+
 namespace camera
 {
 std::list<Controller*> listOfControllers;
@@ -232,10 +233,10 @@ glm::vec4 Controller::computeTargetPosition(const glm::mat4& parentTransform, fl
 
     if(setup.restrictMovementToHorizontalPlane) {
         return origin.get() + (input.velocity.x * right + input.velocity.z * at) * glm::vec4(1, 1, 0, 0)
-               + glm::vec4(0, 0, input.velocity.y * .5f, 0);
+               + glm::vec4(0, 0, input.velocity.y * .5f, 0) * dt / frameMs;
     }
     else {
-        return origin.get() + input.velocity.x * right + input.velocity.y * up + input.velocity.z * at;
+        return origin.get() + input.velocity.x * right + input.velocity.y * up + input.velocity.z * at * dt / frameMs;
     }
 }
 

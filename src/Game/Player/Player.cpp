@@ -5,7 +5,6 @@
 #include "input.hpp"
 #include "ui.hpp"
 
-
 Player::Player(InputDispatcher& inputDispatcher, Vehicle& vehicle, InputUserPointer& userPointer)
     : m_input(inputDispatcher.createNew("Player")), m_vehicle(vehicle), m_userPointer(userPointer) {
     initInputContext();
@@ -47,11 +46,10 @@ void Player::initInputContext() {
 void Player::updateGraphic(float dt) {
     m_vehicle.updateMarkers();
     m_vehicle.drawBBOXesOfChildren();
-    updateCameras(dt);
     m_vehicle.graphics.toBeRendered();
 }
 void Player::update(float dt) {
-    if(m_isFocusOnPlayer){
+    if(m_isFocusOnPlayer) {
         targetPointPosition = m_lockedOnPosition ? *m_lockedOnPosition : m_userPointer.world.position;
     }
     if(glm::distance(m_vehicle.getPosition(), targetPointPosition) >= 20.f) {
@@ -62,8 +60,9 @@ void Player::update(float dt) {
 
     // for(auto &it : m_vehicle.weapons) it.update(dt);
     m_vehicle.updateModules(dt);
-
-    if(doFire) fire();
+    updateCameras(dt);
+    if(doFire)
+        fire();
 }
 
 void Player::lockInDefaultPosition() {
@@ -71,7 +70,7 @@ void Player::lockInDefaultPosition() {
     // target += m_vehicle.rgBody->getCenterOfMassTransform().getBasis().getColumn(1);
 }
 void Player::updateCameras(float dt) {
-    for(auto& camera : m_vehicle.cameras) camera->update(dt);
+    // for(auto& camera : m_vehicle.cameras) camera->updatePositionAndRotation(dt);
 }
 
 void Player::focusOn() {

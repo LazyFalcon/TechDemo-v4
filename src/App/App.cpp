@@ -208,7 +208,6 @@ void App::run() try {
         userPointer->update(FrameTime::deltaf);
         if(camera::hasActive())
             RenderDataCollector::collectCamera(camera::active());
-        // userPointer->didPointerMoved = userPointer->lastFrameShift.x != 0.f and userPointer->lastFrameShift.y != 0.f; // todo: is it enough?
 
         imgui->restart();
         inputDispatcher->setTime(FrameTime::miliseconds);

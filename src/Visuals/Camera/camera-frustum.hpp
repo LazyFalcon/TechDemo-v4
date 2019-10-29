@@ -3,6 +3,7 @@
 
 namespace camera
 {
+// todo: why not define only far corners? and get near corners from previous?
 union FrustmCorners
 {
     struct u

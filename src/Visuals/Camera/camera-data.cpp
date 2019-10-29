@@ -1,46 +1,48 @@
 #include "core.hpp"
-#include "Utils.hpp"
 #include "camera-data.hpp"
 #include "Logger.hpp"
+#include "Utils.hpp"
+
+
 namespace camera
 {
-void Camera::recalculate(){
+void Camera::recalculate() {
     view = glm::affineInverse(orientation);
 
     right = orientation[0];
     up = orientation[1];
     at = -orientation[2];
 
-    PV = projection*view;
+    PV = projection * view;
     invPV = glm::inverse(PV);
 
     recalucuateFrustum();
 }
 
-void Camera::changeFov(float dy){
+void Camera::changeFov(float dy) {
     fov -= 10.5 * dy * toRad;
     fov = glm::clamp(fov, 1.5f * toRad, 150.f * toRad);
     recalucuateProjectionMatrix();
 }
 
-void Camera::recalucuateProjectionMatrix(){
-    float near = (abs(offset.z) < 1.f) ?  0.1 : nearDistance;
+void Camera::recalucuateProjectionMatrix() {
+    float near = (abs(offset.z) < 1.f) ? 0.1 : nearDistance;
 
-    projection = glm::perspective(fov/aspectRatio, aspectRatio, near, farDistance);
+    projection = glm::perspective(fov / aspectRatio, aspectRatio, near, farDistance);
     projectionInverse = glm::inverse(projection);
 }
 
-void Camera::changeOffset(float x, float y, float z){
+void Camera::changeOffset(float x, float y, float z) {
     offset += glm::vec4(x, y, z, 0);
 }
-
-void Camera::recalucuateFrustum(){
+// todo: move to frustum
+void Camera::recalucuateFrustum() {
     frustum.eye = orientation[3];
-     // nie powinny byc *0.5?
-    float farWidth = tan(fov*0.5f)*farDistance*1.3;
-    float farHeight = farWidth/aspectRatio;
-    glm::vec4 farCenter = at*farDistance + orientation[3];
-    glm::vec4 nearCenter = at*nearDistance + orientation[3];
+    // nie powinny byc *0.5?
+    float farWidth = tan(fov * 0.5f) * farDistance * 1.3;
+    float farHeight = farWidth / aspectRatio;
+    glm::vec4 farCenter = at * farDistance + orientation[3];
+    glm::vec4 nearCenter = at * nearDistance + orientation[3];
 
     glm::vec4 farPlane = plane(at, farCenter);
     glm::vec4 nearPlane = plane(-at, nearCenter);
@@ -52,23 +54,24 @@ void Camera::recalucuateFrustum(){
 
     frustum.corners.m.nearCenter = nearCenter;
     frustum.corners.m.farCenter = farCenter;
-    frustum.corners.m.farTopRight = farCenter + up*farHeight + right*farWidth;
-    frustum.corners.m.farTopLeft = farCenter + up*farHeight - right*farHeight;
-    frustum.corners.m.farBottomRight = farCenter - up*farHeight + right*farWidth;
-     frustum.corners.m.farBottomLeft = farCenter - up*farHeight - right*farWidth;
+    frustum.corners.m.farTopRight = farCenter + up * farHeight + right * farWidth;
+    frustum.corners.m.farTopLeft = farCenter + up * farHeight - right * farHeight;
+    frustum.corners.m.farBottomRight = farCenter - up * farHeight + right * farWidth;
+    frustum.corners.m.farBottomLeft = farCenter - up * farHeight - right * farWidth;
 
-
-    farWidth = tan(fov*0.5f)*nearDistance;
-    farHeight = farWidth/aspectRatio;
-    frustum.corners.m.nearTopRight = nearCenter + up*farHeight + right*farWidth;
-    frustum.corners.m.nearTopLeft = nearCenter + up*farHeight - right*farWidth;
-    frustum.corners.m.nearBottomRight = nearCenter - up*farHeight + right*farWidth;
-    frustum.corners.m.nearBottomLeft = nearCenter - up*farHeight - right*farWidth;
+    farWidth = tan(fov * 0.5f) * nearDistance;
+    farHeight = farWidth / aspectRatio;
+    frustum.corners.m.nearTopRight = nearCenter + up * farHeight + right * farWidth;
+    frustum.corners.m.nearTopLeft = nearCenter + up * farHeight - right * farWidth;
+    frustum.corners.m.nearBottomRight = nearCenter - up * farHeight + right * farWidth;
+    frustum.corners.m.nearBottomLeft = nearCenter - up * farHeight - right * farWidth;
 
     frustum.planes.m.topPlane = plane(frustum.corners.m.farTopRight, frustum.corners.m.farTopLeft, orientation[3]);
-    frustum.planes.m.bottomPlane = plane(frustum.corners.m.farBottomLeft, frustum.corners.m.farBottomRight, orientation[3]);
+    frustum.planes.m.bottomPlane =
+        plane(frustum.corners.m.farBottomLeft, frustum.corners.m.farBottomRight, orientation[3]);
     frustum.planes.m.leftPlane = plane(frustum.corners.m.farTopLeft, frustum.corners.m.farBottomLeft, orientation[3]);
-    frustum.planes.m.rightPlane = plane(frustum.corners.m.farBottomRight, frustum.corners.m.farTopRight, orientation[3]);
+    frustum.planes.m.rightPlane =
+        plane(frustum.corners.m.farBottomRight, frustum.corners.m.farTopRight, orientation[3]);
     frustum.planes.m.nearPlane = nearPlane;
     frustum.planes.m.farPlane = farPlane;
 
@@ -86,23 +89,20 @@ void Camera::recalucuateFrustum(){
     frustum.vectors.m.right = right;
     frustum.vectors.m.up = up;
 
-    frustum.cornerVectors = {
-        glm::normalize(frustum.corners.m.farBottomLeft - orientation[3]),
-        glm::normalize(frustum.corners.m.farTopLeft - orientation[3]),
-        glm::normalize(frustum.corners.m.farBottomRight - orientation[3]),
-        glm::normalize(frustum.corners.m.farTopRight - orientation[3]),
-        at
-    };
+    frustum.cornerVectors = {glm::normalize(frustum.corners.m.farBottomLeft - orientation[3]),
+                             glm::normalize(frustum.corners.m.farTopLeft - orientation[3]),
+                             glm::normalize(frustum.corners.m.farBottomRight - orientation[3]),
+                             glm::normalize(frustum.corners.m.farTopRight - orientation[3]), at};
 }
 
-float Camera::convertDepthToWorld(float depth){
-    depth = 2*depth - 1;
+float Camera::convertDepthToWorld(float depth) {
+    depth = 2 * depth - 1;
     depth = (2 * nearDistance * farDistance) / (nearDistance + farDistance - depth * (farDistance - nearDistance));
     return depth;
 }
 
-void Camera::printDebug(){
-    console.log("fov:", fov*toDeg, "\taspect:", aspectRatio);
+void Camera::printDebug() {
+    console.log("fov:", fov * toDeg, "\taspect:", aspectRatio);
     console.log("nearDistance:", nearDistance, "\tfarDistance:", farDistance);
     console.log("position:", orientation[3]);
     console.log("offset:", offset, offsetScale);

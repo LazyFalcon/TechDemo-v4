@@ -3,24 +3,24 @@
 
 namespace camera
 {
-
 template<typename T>
 struct constr
 {
     std::array<T, 2> minMax;
     bool disabled;
-    void operator() (T& t){
-        if(not disabled) t = glm::clamp(t, minMax[0], minMax[1]);
+    void operator()(T& t) {
+        if(not disabled)
+            t = glm::clamp(t, minMax[0], minMax[1]);
     }
 };
 
 struct CameraConstraints
 {
-    constr<float> yaw {{ -pi, pi }};
-    constr<float> pitch {{ -pi * 0.95f , 0  }};
-    constr<float> roll {{ -pi * 0.95f , 0  }};
-    constr<float> fov {{ 2.5f * toRad, 150.f * toRad }};
-    constr<glm::vec4> offset {{{ {-5,-5, -5, 0}, {5,5,25, 0} }}};
+    constr<float> yaw {{-pi, pi}};
+    constr<float> pitch {{-pi * 0.95f, 0}};
+    constr<float> roll {{-pi * 0.95f, 0}};
+    constr<float> fov {{2.5f * toRad, 150.f * toRad}};
+    constr<glm::vec4> offset {{{{-5, -5, -5, 0}, {5, 5, 25, 0}}}};
 };
 // todo: rename to data, move some logici away
 class Camera
@@ -56,9 +56,9 @@ public:
     glm::mat4 PV;
     glm::mat4 invPV;
 
-    glm::vec4 at; // -Z
+    glm::vec4 at;    // -Z
     glm::vec4 right; // X
-    glm::vec4 up; // Y
+    glm::vec4 up;    // Y
 
     glm::mat4 getPV() const {
         return PV;
@@ -70,6 +70,7 @@ public:
         return orientation[3];
     }
 
+    // todo: remove from here!
     Frustum frustum {};
     const Frustum& getFrustum() const {
         return frustum;

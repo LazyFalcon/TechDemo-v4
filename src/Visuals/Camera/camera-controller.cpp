@@ -2,6 +2,7 @@
 #include "camera-controller.hpp"
 #include "Logger.hpp"
 
+
 namespace camera
 {
 std::list<Controller*> listOfControllers;
@@ -23,10 +24,10 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
       // pitch(0, -pi/3, pi/3),
       // roll(0, -pi/2, pi/2),
       // fovLimited(Camera::fov, 30*toRad, 120*toRad),
-      origin(parentMatrix[3], 0.1f, 0.5f),
-      rotation(glm::quat_cast(parentMatrix * cameraRelativeMatrix), 0.1f, 0.5f),
+      origin(parentMatrix[3], 0.6f, 0.5f),
+      rotation(glm::quat_cast(parentMatrix * cameraRelativeMatrix), 0.5f, 0.5f),
       fovChange(Utils::Limits<float>(85.f, 20.f, 90.f), 0.1f, 0.6f),
-      offsetChange(Utils::Limits<float>(85.f, 0.f, 20.f), 0.1f, 0.6f) {
+      offsetChange(Utils::Limits<float>(15.f, 0.f, 20.f), 0.1f, 0.6f) {
     listOfControllers.push_back(this);
     if(not activeCamera)
         focusOn();
@@ -60,10 +61,10 @@ Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
       // pitch(0, -pi/3, pi/3),
       // roll(0, -pi/2, pi/2),
       // fovLimited(Camera::fov, 30*toRad, 120*toRad),
-      origin(cameraWorldMatrix[3], 0.1f, 0.5f),
-      rotation(glm::quat_cast(cameraWorldMatrix), 0.1f, 0.5f),
+      origin(cameraWorldMatrix[3], 0.6f, 0.5f),
+      rotation(glm::quat_cast(cameraWorldMatrix), 0.5f, 0.5f),
       fovChange(Utils::Limits<float>(85.f, 20.f, 90.f), 0.1f, 0.6f),
-      offsetChange(Utils::Limits<float>(85.f, 0.f, 20.f), 0.1f, 0.6f) {
+      offsetChange(Utils::Limits<float>(0.f, 0.f, 20.f), 0.1f, 0.6f) {
     listOfControllers.push_back(this);
     if(not activeCamera)
         focusOn();
@@ -79,12 +80,12 @@ Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
 
     glm::extractEulerAngleXYZ(cameraWorldMatrix, *pitch, *yaw, *roll);
 
-    offset = glm::vec4(0, 0, -1, 0);
-    offsetScale = 0;
-    offset = glm::normalize(offset);
-
     Camera::orientation = glm::toMat4(glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3));
-    Camera::orientation[3] = origin.get() + Camera::orientation * offset * offsetScale;
+    Camera::orientation[3] = origin.get();
+
+    offset = -Camera::orientation[2];
+    offsetScale = *offsetChange;
+
     Camera::recalculate();
 
     printDebug();
@@ -171,7 +172,12 @@ void Controller::zoom() {
         fov = input.zoom * 15.f;
     }
     else {
-        offsetScale += input.zoom * 2;
+        if(worldPointToZoom and setup.isFreecam) {
+            auto vec = glm::normalize(*worldPointToZoom - Camera::eyePosition);
+            origin = *origin + vec * input.zoom * 2;
+        }
+        else
+            offsetScale += input.zoom * 2;
     }
 }
 // todo: description

@@ -2,7 +2,6 @@
 #include "camera-controller.hpp"
 #include "Logger.hpp"
 
-
 namespace camera
 {
 std::list<Controller*> listOfControllers;
@@ -62,7 +61,8 @@ Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
       // roll(0, -pi/2, pi/2),
       // fovLimited(Camera::fov, 30*toRad, 120*toRad),
       origin(cameraWorldMatrix[3], 0.6f, 0.5f),
-      rotation(glm::quat_cast(cameraWorldMatrix), 0.5f, 0.5f),
+      rotation(glm::quat_cast(glm::mat4(1)), 0.5f, 0.5f),
+      //   rotation(glm::quat_cast(cameraWorldMatrix), 0.5f, 0.5f),
       fovChange(Utils::Limits<float>(85.f, 20.f, 90.f), 0.1f, 0.6f),
       offsetChange(Utils::Limits<float>(0.f, 0.f, 20.f), 0.1f, 0.6f) {
     listOfControllers.push_back(this);
@@ -77,8 +77,9 @@ Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
     Camera::smoothing = 1;
 
     console.log("New camera position:", cameraWorldMatrix[3]);
+    console.log("New camera position:", cameraWorldMatrix);
 
-    glm::extractEulerAngleXYZ(cameraWorldMatrix, *pitch, *yaw, *roll);
+    // glm::extractEulerAngleXYZ(cameraWorldMatrix, *pitch, *yaw, *roll);
 
     Camera::orientation = glm::toMat4(glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3));
     Camera::orientation[3] = origin.get();
@@ -87,6 +88,8 @@ Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
     offsetScale = *offsetChange;
 
     Camera::recalculate();
+
+    console.log("New camera position:", Camera::orientation);
 
     printDebug();
 }
@@ -172,9 +175,9 @@ void Controller::zoom() {
         fov = input.zoom * 15.f;
     }
     else {
-        if(worldPointToZoom and setup.isFreecam) {
-            auto vec = glm::normalize(*worldPointToZoom - Camera::eyePosition);
-            origin = *origin + vec * input.zoom * 2;
+        if(input.worldPointToZoom and setup.isFreecam) {
+            auto vec = glm::normalize(*input.worldPointToZoom - Camera::position());
+            origin = *origin + vec * input.zoom * 2.f;
         }
         else
             offsetScale += input.zoom * 2;
@@ -210,8 +213,8 @@ glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, fl
         currentMode = superMode;
     }
 
-    if(worldPointToPivot) {}
-    if(worldPointToZoom) {}
+    if(input.worldPointToPivot) {}
+    if(input.worldPointToZoom) {}
 
     // niestety na razie kąty eulera
     glm::vec2 v(-input.pointer.vertical * cos(-roll) - input.pointer.horizontal * sin(-roll),

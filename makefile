@@ -22,7 +22,8 @@ ADDITIONAL_FLAGS = \
 -Werror=return-type \
 -Werror=reorder \
 -Wuninitialized \
--Winvalid-pch
+-Winvalid-pch \
+-Wshadow
 # -Wmaybe-uninitialized \
 # -Wall
 # -Wunused-function \

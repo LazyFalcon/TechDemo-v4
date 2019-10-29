@@ -25,7 +25,8 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
       // fovLimited(Camera::fov, 30*toRad, 120*toRad),
       origin(parentMatrix[3], 0.1f, 0.5f),
       rotation(glm::quat_cast(parentMatrix * cameraRelativeMatrix), 0.1f, 0.5f),
-      fovChange(Utils::Limits<float>(85.f, 20.f, 90.f), 0.1f, 0.6f) {
+      fovChange(Utils::Limits<float>(85.f, 20.f, 90.f), 0.1f, 0.6f),
+      offsetChange(Utils::Limits<float>(85.f, 0.f, 20.f), 0.1f, 0.6f) {
     listOfControllers.push_back(this);
     if(not activeCamera)
         focusOn();
@@ -61,7 +62,8 @@ Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
       // fovLimited(Camera::fov, 30*toRad, 120*toRad),
       origin(cameraWorldMatrix[3], 0.1f, 0.5f),
       rotation(glm::quat_cast(cameraWorldMatrix), 0.1f, 0.5f),
-      fovChange(Utils::Limits<float>(85.f, 20.f, 90.f), 0.1f, 0.6f) {
+      fovChange(Utils::Limits<float>(85.f, 20.f, 90.f), 0.1f, 0.6f),
+      offsetChange(Utils::Limits<float>(85.f, 0.f, 20.f), 0.1f, 0.6f) {
     listOfControllers.push_back(this);
     if(not activeCamera)
         focusOn();
@@ -169,7 +171,7 @@ void Controller::zoom() {
         fov = input.zoom * 15.f;
     }
     else {
-        input.zoom * 2;
+        offsetScale += input.zoom * 2;
     }
 }
 // todo: description
@@ -201,6 +203,9 @@ glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, fl
             ;
         currentMode = superMode;
     }
+
+    if(worldPointToPivot) {}
+    if(worldPointToZoom) {}
 
     // niestety na razie kąty eulera
     glm::vec2 v(-input.pointer.vertical * cos(-roll) - input.pointer.horizontal * sin(-roll),

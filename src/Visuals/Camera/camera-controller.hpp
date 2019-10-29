@@ -4,7 +4,6 @@
 #include "camera-hud-interface.hpp"
 #include "camera-utils.hpp"
 
-
 namespace camera
 {
 class Controller;
@@ -24,6 +23,7 @@ private:
     Utils::ValueFollower<glm::vec4> origin;
     Utils::ValueFollower<glm::quat, Utils::quaternionSlerpFunction> rotation;
     Utils::ValueFollower<Utils::Limits<float>> fovChange;
+    Utils::ValueFollower<Utils::Limits<float>> offsetChange;
 
     enum class Mode
     {

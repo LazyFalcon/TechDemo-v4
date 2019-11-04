@@ -2,7 +2,6 @@
 #include "Texture.hpp"
 
 class Context;
-class Texture;
 class Window;
 enum class BlurOptions
 {

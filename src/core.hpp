@@ -1,3 +1,4 @@
+#include "core_pch.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
@@ -20,7 +21,6 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/wrap.hpp>
-#include "core_pch.hpp"
 
 #ifdef USE_BULLET
 #    include <btBulletDynamicsCommon.h>

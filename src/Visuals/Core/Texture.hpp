@@ -1,4 +1,5 @@
 #pragma once
+#include "gl_core_4_5.hpp"
 #include "Logger.hpp"
 
 struct Texture

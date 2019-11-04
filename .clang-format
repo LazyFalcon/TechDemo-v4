@@ -101,7 +101,7 @@ SpaceAfterTemplateKeyword: false
 SortUsingDeclarations: true
 SortIncludes: true
 IncludeCategories:
-  - Regex:           '^"core\.hpp'
+  - Regex:           '^"core.*\.hpp'
     Priority:        -2
   - Regex:           '^"gl_core_4_5\.hpp'
     Priority:        -1

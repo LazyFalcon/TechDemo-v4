@@ -1,5 +1,5 @@
 #include "core.hpp"
-#include "Camera.hpp"
+#include "camera-data.hpp"
 #include "Constants.hpp"
 #include "GraphicEngine.hpp"
 #include "LightSource.hpp"
@@ -11,6 +11,7 @@ RenderDataCollector::tupleOfContainers RenderDataCollector::collection;
 CommandArray RenderDataCollector::enviro;
 CommandArray RenderDataCollector::foliage;
 Uniforms RenderDataCollector::uniforms;
+camera::Camera RenderDataCollector::cameraOfThisFrame;
 std::vector<LightSource*> RenderDataCollector::lights[10];
 
 GraphicEngine* RenderDataCollector::enginePtr;
@@ -18,7 +19,8 @@ Details& RenderDataCollector::details(){
     return *(enginePtr->details);
 }
 
-void RenderDataCollector::collectCamera(Camera& camera){
+void RenderDataCollector::collectCamera(camera::Camera& camera){
+    cameraOfThisFrame = camera;
     uniforms.uFovTan = (float)tan(camera.fov*0.5f);
     uniforms.uNear = camera.nearDistance;
     uniforms.uFar = camera.farDistance;

@@ -1,8 +1,11 @@
 #pragma once
-#include "Yaml.hpp"
 #include "ModuleFactory.hpp"
+#include "Yaml.hpp"
 
-class CameraControllerFactory;
+namespace camera
+{
+class Factory;
+}
 class GraphicComponent;
 class IModule;
 class Joint;
@@ -13,7 +16,6 @@ class Player;
 class SkinnedMesh;
 struct VertexWithMaterialDataAndBones;
 
-
 class VehicleAssembler
 {
 private:
@@ -22,12 +24,13 @@ private:
     PhysicalWorld& m_physics;
     std::shared_ptr<Vehicle> m_vehicle;
     ModuleFactory m_moduleFactory;
-    CameraControllerFactory& m_camFactory;
+    camera::Factory& m_camFactory;
 
     std::shared_ptr<SkinnedMesh> m_skinnedMesh;
     uint m_boneMatrixIndex {};
     uint m_compoundIndex {};
     Yaml m_config;
+    bool m_hasAnyPhysicalPart {false};
 
     void openModelFile();
     void initializeVehicle(const glm::mat4& onPosition);
@@ -46,11 +49,9 @@ private:
     void buildRigidBody(const glm::mat4& onPosition);
 
     void addToCompound(btCollisionShape* collShape, const glm::mat4& transform, void* owner);
-    std::shared_ptr<CameraController> createModuleFollower(IModule *module, const std::string& type, glm::vec3 position, const glm::mat4& mat);
 
 public:
-    VehicleAssembler(const std::string& configName, PhysicalWorld& physics, CameraControllerFactory& camFactory);
+    VehicleAssembler(const std::string& configName, PhysicalWorld& physics, camera::Factory& camFactory);
 
     std::shared_ptr<Vehicle> build(const glm::mat4& onPosition);
-
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-class Camera;
+namespace camera{ class Camera; }
 class Context;
 class Scene;
 class Sun;
@@ -14,15 +14,15 @@ private:
 public:
     LightRendering(Window &window, Context &context) : window(window), context(context){}
 
-    void renderSun(Sun& sun, Camera &camera);
-    void renderPointLights(Camera &camera);
-    void renderConeLights(Camera &camera);
-    void hemisphericalAmbient(Scene &scene, Camera &camera);
-    void renderShinyObjects(Scene &scene, Camera &camera);
+    void renderSun(Sun& sun, camera::Camera &camera);
+    void renderPointLights(camera::Camera &camera);
+    void renderConeLights(camera::Camera &camera);
+    void hemisphericalAmbient(Scene &scene, camera::Camera &camera);
+    void renderShinyObjects(Scene &scene, camera::Camera &camera);
     float calculateLuminance();
-    void compose(Camera &camera);
+    void compose(camera::Camera &camera);
 
-    void lightPass(Scene &scene, Camera &camera);
+    void lightPass(Scene &scene, camera::Camera &camera);
 
     float lightIntensity {1};
 };

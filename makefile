@@ -14,26 +14,33 @@ DEFINES = \
 CORE_PCH_FILENAME=./src/core_pch.hpp
 CORE_PCH=$(CORE_PCH_FILENAME).gch
 
-CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
+# CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
+CXX_FLAGS = -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
+# https://packages.msys2.org/base
 ADDITIONAL_FLAGS = \
 -Werror=return-type \
 -Werror=reorder \
--Wmaybe-uninitialized \
--Winvalid-pch
+-Wuninitialized \
+-Winvalid-pch \
+-Wshadow
+# -Wmaybe-uninitialized \
 # -Wall
 # -Wunused-function \
 # -Wswitch-enum \
 
-CXX = C:\MinGw\bin\g++.exe
+CXX = C:\msys64\mingw64\bin\g++.exe
+# CXX = C:\msys64\mingw64\bin\clang++.exe -stdlib=libstdc++
+LDX = C:\msys64\mingw64\bin\g++.exe
+# LDX = C:\msys64\mingw64\bin\ld.exe
+
 FFMPEG = C:\ffmpeg\bin\ffmpeg.exe
 SRC = ./src
 BIN = ./bin
 OBJ_DIR = ./obj
 
-LIBS = -lPMK-audio -lboost_system -lboost_filesystem -lboost_thread -lboost_date_time -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath \
+LIBS = -lPMK-audio -lboost_system-mt -lboost_filesystem-mt -lboost_thread-mt -lboost_date_time-mt -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath \
 -lglfw3 -lgdi32 -lglu32 -lopengl32 -lassimp.dll -lFreeImage -lFreeImagePlus -lpng -ljpeg -lz -lOpenAL32 -lvorbisfile  -lvorbis -logg -lvorbisenc -lFLAC
-# -lglew32
 
 TARGETS = $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(wildcard src/*/*/*.cpp)  $(wildcard src/*/*/*/*.cpp)
 
@@ -45,19 +52,14 @@ DEP = $(OBJS:%.o=%.d)
 $(BIN)/$(TARGET_NAME): $(OBJS) ./obj/res.o
 	@mkdir -p ./bin
 	@echo "Linking: $@"
-	@$(CXX) $^ -o $@ $(LIBS)
+	@$(LDX) $^ -o $@ $(LIBS)
 	@echo "Done"
 
 $(CORE_PCH):
 	@echo "Compiling PCH"
 	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) $(CORE_PCH_FILENAME)
 
-# -ftime-report
-#	@powershell -c "Write-Host Compiling $< took: (Measure-Command { $(CXX) $(CXX_FLAGS) $(ADDITIONAL_F LAGS) -MMD -c $< -o $@ | Out-Default }).TotalSeconds"
-
 -include $(DEP)
-
-# -MP
 
 $(OBJ_DIR)/%.o : %.cpp
 	@echo "Compiling: $< "

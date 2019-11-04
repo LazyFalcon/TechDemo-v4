@@ -3,7 +3,7 @@
 #include "ui.hpp"
 #include "GameSettings.hpp"
 
-class Camera;
+namespace camera{ class Camera; }
 class Scene;
 class GraphicEngine;
 

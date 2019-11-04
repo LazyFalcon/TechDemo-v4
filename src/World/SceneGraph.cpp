@@ -93,7 +93,7 @@ Cell* SceneGraph::findCellUnderPosition(const glm::vec4& pos){
     return &(cells[int(p.x) + int(p.y)*cellsInTheScene.x]);
 }
 
-void SceneGraph::cullWithPhysicsEngine(const Frustum &frustum){
+void SceneGraph::cullWithPhysicsEngine(const camera::Frustum &frustum){
     CPU_SCOPE_TIMER("cullWithPhysicsEngine");
     btDbvtBroadphase *dbvtBroadphase = physics.m_broadphase;
     DbvtBroadphaseFrustumCulling culling;
@@ -117,7 +117,7 @@ void SceneGraph::cullWithPhysicsEngine(const Frustum &frustum){
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[0].m_root, normals, offsets, cullFarPlane ? 5 : 4, culling); // with dynamic
 }
 
-void SceneGraph::cullCells(const Frustum &frustum){
+void SceneGraph::cullCells(const camera::Frustum &frustum){
     cullWithPhysicsEngine(frustum);
     // diffBetweenFrames();
     // setLodForVisible(frustum.eye);

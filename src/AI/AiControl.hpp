@@ -3,7 +3,6 @@
 class AiCommand;
 class InputDispatcher;
 class Input;
-class PointerInfo;
 
 using commandCallback = std::function<void(AiCommand&)>;
 
@@ -18,7 +17,7 @@ public:
 class AiControlViaInput : public AiControl
 {
 public:
-    AiControlViaInput(InputDispatcher& inputdispatcher, PointerInfo& pointerInfo);
+    AiControlViaInput(InputDispatcher& inputdispatcher);
 
     void update() override;
     void newCommandCallback(commandCallback&& callback) override {
@@ -28,7 +27,6 @@ public:
 
 private:
     std::shared_ptr<Input> m_input;
-    PointerInfo& m_pointerInfo;
     commandCallback m_putCommandHere;
 };
 

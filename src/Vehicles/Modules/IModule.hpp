@@ -112,6 +112,10 @@ public:
         if(not parent) return identityMatrix;
         return parent->getTransform();
     }
+    const glm::mat4& getParentLocalTransform() const { // full world transform of parent module
+        if(not parent) return identityMatrix;
+        return parent->getLocalTransform();
+    }
     const glm::mat4& getBaseTransform() const { // full world transform of
         return vehicle.glTrans;
     }
@@ -125,21 +129,4 @@ public:
     glm::mat4 localTransform; // from parent module to origin, apply before local transormations!
     std::unique_ptr<ModuleVisualUpdater> moduleVisualUpdater;
     std::unique_ptr<ModuleCompoundUpdater> moduleCompoundUpdater;
-};
-
-template<typename CC, typename = std::enable_if_t<std::is_base_of<CameraController, CC>::value>>
-class ModuleFollower : public CC
-{
-private:
-    IModule* m_module {nullptr};
-    glm::vec3 m_position;
-public:
-    ModuleFollower(IModule *module, glm::vec3 pos) : m_module(module), m_position(pos){}
-    template<typename... Args>
-    ModuleFollower(IModule *module, glm::vec3 pos, Args&... args) : CC(args...), m_module(module), m_position(pos){}
-
-    void update(float dt) override {
-        // CC::updateBaseTransform(m_module->getGlmTransform());
-        CC::update(m_module->getTransform()*glm::translate(m_position), dt);
-    }
 };

@@ -1,12 +1,14 @@
 #pragma once
 #include "SceneGraph.hpp"
-#include "CollectionOfCameras.hpp"
+#include "camera-collection-of.hpp"
 
 class AI;
 class Atmosphere;
-class Camera;
-class CameraController;
-class CameraControllerFactory;
+namespace camera{
+    class Camera;
+    class Controller;
+    class Factory;
+}
 class Environment;
 class Foliage;
 class FreeCamController;
@@ -26,7 +28,7 @@ struct SpawnPoint
 
 struct Scene : private boost::noncopyable
 {
-    Scene(PhysicalWorld &physics, CameraControllerFactory& camFactory);
+    Scene(PhysicalWorld &physics, camera::Factory& camFactory);
     ~Scene();
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
@@ -42,14 +44,14 @@ struct Scene : private boost::noncopyable
     std::unique_ptr<Sun> sun;
     std::unique_ptr<Terrain> terrain;
     std::vector<SpawnPoint> spawnPoints;
-    CameraControllerFactory& camFactory;
-    CollectionOfCameras freeCams;
+    camera::Factory& camFactory;
+    camera::Collection freeCams;
 
     std::vector<std::shared_ptr<AI>> m_friendlyBots;
     std::vector<std::shared_ptr<AI>> m_hostileBots;
 
     bool load(const std::string &name);
-    void update(float dt, Camera &camera);
+    void update(float dt, camera::Camera &camera);
     void extractSpawnPoints(const Yaml& yaml);
     void extractCameras(const Yaml& yaml);
 

@@ -63,6 +63,8 @@ bool Window::init(){
     // glfwSetWindowTitle(window, "Tech demo v4");
     glfwMakeContextCurrent(window);
 
+    glfwSwapInterval(1);
+
     pixelSize = 1.f/size;
     center = size * 0.5f;
     topCenter = center;

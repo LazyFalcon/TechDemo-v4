@@ -71,7 +71,7 @@ void LightSource::cameraInside(const glm::vec4 &eye, float scale){
     if(d > m_falloff.distance + 0.0) m_cameraInside = CameraOutside;
     if(d < m_falloff.distance - 0.0) m_cameraInside = CameraInside;
 }
-bool LightSource::cull(const Frustum &frustum){
+bool LightSource::cull(const camera::Frustum &frustum){
     return true;
 }
 

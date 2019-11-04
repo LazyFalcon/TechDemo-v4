@@ -1,19 +1,19 @@
 #include "core.hpp"
 #include "ShadowCaster.hpp"
 #include "Logger.hpp"
-#include "Camera.hpp"
+#include "camera-data.hpp"
 #include "Context.hpp"
 #include "Assets.hpp"
 #include "BaseStructs.hpp"
 #include "PerfTimers.hpp"
 #include "Scene.hpp"
 #include "Sun.hpp"
-#include "Frustum.hpp"
+#include "camera-frustum.hpp"
 #include "SceneGraph.hpp"
 #include "PMK.hpp"
 #include "Environment.hpp"
 
-void ShadowCaster::prepareForDirectionalShadows(Scene &scene, Camera &camera){
+void ShadowCaster::prepareForDirectionalShadows(Scene &scene, camera::Camera &camera){
     if(context.tex.shadows.cascade.ID == 0) initShadowMapCascade();
 
     gl::BindVertexArray(0);
@@ -51,7 +51,7 @@ void ShadowCaster::finishForDirectionalShadows(){
     gl::BindTexture(gl::TEXTURE_2D_ARRAY, 0);
     gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
 }
-void ShadowCaster::renderScene(Scene &scene, Camera &camera){
+void ShadowCaster::renderScene(Scene &scene, camera::Camera &camera){
     GPU_SCOPE_TIMER();
     if(not scene.environment) return;
 
@@ -77,7 +77,7 @@ void ShadowCaster::renderScene(Scene &scene, Camera &camera){
 
     context.errors();
 }
-void ShadowCaster::renderTerrain(Scene &scene, Camera &camera){
+void ShadowCaster::renderTerrain(Scene &scene, camera::Camera &camera){
     GPU_SCOPE_TIMER();
     auto chunksToRender = getTerrainToRender(*scene.graph);
 
@@ -127,7 +127,7 @@ std::vector<Mesh> ShadowCaster::getTerrainToRender(SceneGraph &sg){
     return out;
 }
 
-glm::mat4 ShadowCaster::fitShadowProjectionAroundBoundingBox(FrustmCorners &corners, Sun &sun, Camera &camera, float minZ, float maxZ){
+glm::mat4 ShadowCaster::fitShadowProjectionAroundBoundingBox(camera::FrustmCorners &corners, Sun &sun, camera::Camera &camera, float minZ, float maxZ){
     glm::vec4 shadowCenter(0);
     for(auto i=0; i<8; i++){
         shadowCenter += corners.array[i];
@@ -144,7 +144,7 @@ glm::mat4 ShadowCaster::fitShadowProjectionAroundBoundingBox(FrustmCorners &corn
 
     return mat;
 }
-void ShadowCaster::calculateShadowProjectionMatrices(std::vector<FrustmCorners> &frustumSlices, glm::vec4 light, Sun &sun, Camera &camera){
+void ShadowCaster::calculateShadowProjectionMatrices(std::vector<camera::FrustmCorners> &frustumSlices, glm::vec4 light, Sun &sun, camera::Camera &camera){
     context.tex.shadows.matrices.clear();
     for(auto i=0; i<numberOfFrustumSplits; i++){
         context.tex.shadows.matrices.push_back(fitShadowProjectionAroundBoundingBox(

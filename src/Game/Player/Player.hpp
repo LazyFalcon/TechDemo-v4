@@ -1,7 +1,5 @@
 #pragma once
 #include "Actor.hpp"
-#include "CameraController.hpp"
-#include "GBufferSampler.hpp"
 #include "Utils.hpp"
 #include "Vehicle.hpp"
 
@@ -9,25 +7,22 @@ class Cannon;
 class Imgui;
 class Input;
 class InputDispatcher;
+class InputUserPointer;
 
 class Player : public Actor
 {
 private:
     std::shared_ptr<Input> m_input;
     Vehicle& m_vehicle;
-    std::unique_ptr<GBufferSampler> mouseSampler;
-    std::unique_ptr<GBufferSampler> crosshairSampler;
+    InputUserPointer& m_userPointer;
+
+    std::optional<glm::vec4> m_lockedOnPosition;
+    glm::vec4 targetPointPosition {0, 1000, 0, 1};
 
     int cameraId {0};
     glm::vec2 crosshair;
 
-    glm::vec4 targetPointPosition {0, 1000, 0, 1};
-    bool isLockedOnPoint { false };
-
-    float controlXValue {0};
-    float controlYValue {0};
-
-    // bool processHit(projectiles::Projectile &p);
+    bool m_isFocusOnPlayer {false};
     bool doFire = false;
     void fire();
     void updateCameras(float dt);
@@ -37,16 +32,18 @@ private:
 
     void initInputContext();
     void looseFocus();
+
 public:
-    Player(InputDispatcher&, Vehicle&);
+    Player(InputDispatcher&, Vehicle&, InputUserPointer&);
     ~Player();
     void update(float dt);
     void updateGraphic(float dt);
     void focusOn();
     void focusOff();
-    Vehicle& eq(){
+    bool hasFocus() {
+        return m_isFocusOnPlayer;
+    }
+    Vehicle& eq() {
         return m_vehicle;
     }
-
-
 };

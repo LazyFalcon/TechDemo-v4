@@ -1,7 +1,7 @@
 #include "core.hpp"
+#include "SceneRenderer.hpp"
 #include "Assets.hpp"
 #include "BaseStructs.hpp"
-#include "Camera.hpp"
 #include "Context.hpp"
 #include "Environment.hpp"
 #include "GraphicComponent.hpp" // TODO: rename
@@ -10,11 +10,10 @@
 #include "PerfTimers.hpp"
 #include "RenderDataCollector.hpp"
 #include "Scene.hpp"
-#include "SceneRenderer.hpp"
 #include "Sun.hpp"
+#include "camera-data.hpp"
 
-
-void SceneRenderer::renderSceneStuff(Scene &scene, Camera &camera){
+void SceneRenderer::renderSceneStuff(Scene& scene, camera::Camera& camera) {
     // GPU_SCOPE_TIMER();
     // ! not used anymore, scene is rendered via indirect draw call formed from renderData gloabal
     // if(not scene.environment) return;
@@ -49,7 +48,7 @@ void SceneRenderer::renderSceneStuff(Scene &scene, Camera &camera){
 
     // context.errors();
 }
-void SceneRenderer::renderTerrain(Scene &scene, Camera &camera){
+void SceneRenderer::renderTerrain(Scene& scene, camera::Camera& camera) {
     // ! no longer used
     // GPU_SCOPE_TIMER();
     // if(not scene.graph) return;
@@ -73,16 +72,18 @@ void SceneRenderer::renderTerrain(Scene &scene, Camera &camera){
 
     // context.errors();
 }
-void SceneRenderer::renderFoliage(Scene &scene, Camera &camera){
+void SceneRenderer::renderFoliage(Scene& scene, camera::Camera& camera) {
     GPU_SCOPE_TIMER();
-    if(not scene.foliage) return;
-    glm::vec4 lightDir(1,1,-1, 0);
-    if(scene.sun) lightDir = scene.sun->direction;
+    if(not scene.foliage)
+        return;
+    glm::vec4 lightDir(1, 1, -1, 0);
+    if(scene.sun)
+        lightDir = scene.sun->direction;
 
     gl::Disable(gl::BLEND);
     gl::Disable(gl::CULL_FACE);
 
-    auto &foliage = *scene.foliage;
+    auto& foliage = *scene.foliage;
 
     foliage.meshVAO.bind();
     {
@@ -90,17 +91,18 @@ void SceneRenderer::renderFoliage(Scene &scene, Camera &camera){
         shader.bind();
         shader.atlas("uTextures", foliage.textureAtlasID);
         shader.uniform("uPV", camera.getPV());
-        shader.uniform("uTime",  /*time*/0);
+        shader.uniform("uTime", /*time*/ 0);
         shader.uniform("uLightDirection", lightDir);
         shader.uniform("uEyeVec", camera.at);
         shader.uniform("uEye", camera.position().xyz());
 
-        auto &data = foliage.treeBatchData;
-        for(u32 i=0; i<data.count; i++){
+        auto& data = foliage.treeBatchData;
+        for(u32 i = 0; i < data.count; i++) {
             shader.uniform("uTransform", data.uniforms[i].transform);
             shader.uniform("uMotion", data.uniforms[i].motion);
 
-            gl::DrawElements(gl::TRIANGLES, data.crown.counts[i], gl::UNSIGNED_INT, (void*)(sizeof(u32)*data.crown.start[i]));
+            gl::DrawElements(gl::TRIANGLES, data.crown.counts[i], gl::UNSIGNED_INT,
+                             (void*)(sizeof(u32) * data.crown.start[i]));
         }
     }
     {
@@ -108,17 +110,18 @@ void SceneRenderer::renderFoliage(Scene &scene, Camera &camera){
         shader.bind();
         shader.atlas("uTextures", foliage.textureAtlasID);
         shader.uniform("uPV", camera.getPV());
-        shader.uniform("uTime", /*time*/0);
+        shader.uniform("uTime", /*time*/ 0);
         shader.uniform("uLightDirection", lightDir);
         shader.uniform("uEyeVec", camera.at);
         shader.uniform("uEye", camera.position().xyz());
 
-        auto &data = foliage.treeBatchData;
-        for(u32 i=0; i<data.count; i++){
+        auto& data = foliage.treeBatchData;
+        for(u32 i = 0; i < data.count; i++) {
             shader.uniform("uTransform", data.uniforms[i].transform);
             shader.uniform("uMotion", data.uniforms[i].motion);
 
-            gl::DrawElements(gl::TRIANGLES, data.trunk.counts[i], gl::UNSIGNED_INT, (void*)(sizeof(u32)*data.trunk.start[i]));
+            gl::DrawElements(gl::TRIANGLES, data.trunk.counts[i], gl::UNSIGNED_INT,
+                             (void*)(sizeof(u32) * data.trunk.start[i]));
         }
     }
     gl::BindTexture(gl::TEXTURE_2D, 0);
@@ -126,22 +129,23 @@ void SceneRenderer::renderFoliage(Scene &scene, Camera &camera){
 
     context.errors();
 }
-void SceneRenderer::renderGrass(Scene &scene, Camera &camera){
+void SceneRenderer::renderGrass(Scene& scene, camera::Camera& camera) {
     GPU_SCOPE_TIMER();
-    if(not scene.grass) return;
+    if(not scene.grass)
+        return;
 
     gl::Disable(gl::BLEND);
     gl::Disable(gl::CULL_FACE);
 
-    auto &grass = *scene.grass;
-    auto &mesh = assets::getMesh("Grass");
+    auto& grass = *scene.grass;
+    auto& mesh = assets::getMesh("Grass");
     auto shader = assets::getShader("Grass");
 
     shader.bind();
     shader.uniform("uPV", camera.getPV());
     shader.uniform("uEye", camera.position().xyz());
     shader.uniform("uSunDir", scene.sun->direction.xyz());
-    shader.uniform("uTime", /*time*/0);
+    shader.uniform("uTime", /*time*/ 0);
     shader.uniform("uTerrainSize", scene.graph->size);
     shader.texture("uTexture", grass.texture.ID, 0);
     shader.texture("uTopdownTerrain", context.tex.terrainTopdownView, 1);
@@ -157,30 +161,27 @@ void SceneRenderer::renderGrass(Scene &scene, Camera &camera){
     context.errors();
 }
 
-
-void SceneRenderer::renderScene(Scene &scene, Camera &camera){
+void SceneRenderer::renderScene(Scene& scene, camera::Camera& camera) {
     renderSkinned(camera);
     render_SimpleModelPbr(camera);
     // renderTracks(camera);
 }
-void SceneRenderer::renderShadows(Scene &scene, Camera &camera){
+void SceneRenderer::renderShadows(Scene& scene, camera::Camera& camera) {
     renderSkinnedShadows(scene, camera);
 }
-void SceneRenderer::renderGlossyObjects(Camera &camera){
-}
+void SceneRenderer::renderGlossyObjects(camera::Camera& camera) {}
 
-
-void SceneRenderer::renderSkinned(Camera &camera){
+void SceneRenderer::renderSkinned(camera::Camera& camera) {
     GPU_SCOPE_TIMER();
 
     auto shader = assets::bindShader("skinned-model-pbr");
-    auto &skinnedMeshes = RenderDataCollector::get<SkinnedMesh*>();
+    auto& skinnedMeshes = RenderDataCollector::get<SkinnedMesh*>();
     int nr(0);
-    for(auto toRender : skinnedMeshes)
-    {
-        console.clog("mesh nr:",  nr);
+    console.clog("Number of skinned meshes:", skinnedMeshes.size());
+    for(auto toRender : skinnedMeshes) {
+        console.clog("mesh nr:", nr);
         nr++;
-        auto &mesh = toRender->mesh;
+        auto& mesh = toRender->mesh;
         toRender->vao.bind();
 
         { // passing bones
@@ -192,9 +193,7 @@ void SceneRenderer::renderSkinned(Camera &camera){
             // gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
             context.ubo.update(toRender->bones);
             console.clog(__PRETTY_FUNCTION__, toRender->bones.size());
-            for(auto& it : toRender->bones){
-                console.clog(">>", it[3]);
-            }
+            for(auto& it : toRender->bones) { console.clog(">>", it[3]); }
 
             // use buffer
             shader.ubo("uBones", context.ubo.matrices, UBOBindingIndex, sizeof(glm::mat4) * 150);
@@ -227,16 +226,16 @@ void SceneRenderer::renderSkinned(Camera &camera){
     gl::BindTexture(gl::TEXTURE_2D, 0);
 };
 
-void SceneRenderer::renderSkinnedShadows(Scene &scene, Camera &camera){
+void SceneRenderer::renderSkinnedShadows(Scene& scene, camera::Camera& camera) {
     GPU_SCOPE_TIMER();
-    glm::vec4 lightDir(1,1,-1, 0);
-    if(scene.sun) lightDir = scene.sun->direction;
+    glm::vec4 lightDir(1, 1, -1, 0);
+    if(scene.sun)
+        lightDir = scene.sun->direction;
     auto shader = assets::getShader("ObjectShadow").bind();
 
-    auto &skinnedMeshes = RenderDataCollector::get<SkinnedMesh*>();
-    for(auto toRender : skinnedMeshes)
-    {
-        auto &mesh = toRender->mesh;
+    auto& skinnedMeshes = RenderDataCollector::get<SkinnedMesh*>();
+    for(auto toRender : skinnedMeshes) {
+        auto& mesh = toRender->mesh;
         toRender->vao.bind();
 
         { // passing bones
@@ -245,7 +244,7 @@ void SceneRenderer::renderSkinnedShadows(Scene &scene, Camera &camera){
             shader.ubo("uBones", context.ubo.matrices, UBOBindingIndex, sizeof(glm::mat4) * context.ubo.size);
         }
 
-        shader.uniform("uMatrices",  context.tex.shadows.matrices);
+        shader.uniform("uMatrices", context.tex.shadows.matrices);
 
         gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, (void*)0);
     }
@@ -254,7 +253,7 @@ void SceneRenderer::renderSkinnedShadows(Scene &scene, Camera &camera){
     context.errors();
 };
 
-void SceneRenderer::render_SimpleModelPbr(Camera &camera){
+void SceneRenderer::render_SimpleModelPbr(camera::Camera& camera) {
     // GPU_SCOPE_TIMER();
     gl::Enable(gl::CULL_FACE);
 
@@ -275,7 +274,8 @@ void SceneRenderer::render_SimpleModelPbr(Camera &camera){
     console.clog("-> Visible objects:", RenderDataCollector::enviro.size);
 
     // gl::MultiDrawElementsIndirect(gl::TRIANGLES, gl::UNSIGNED_INT, RenderDataCollector::enviro.array.data(), RenderDataCollector::enviro.size, sizeof(DrawElementsIndirectCommand));
-    gl::MultiDrawElements(gl::TRIANGLES, RenderDataCollector::enviro.count.data(), gl::UNSIGNED_INT, RenderDataCollector::enviro.indices.data(), RenderDataCollector::enviro.size);
+    gl::MultiDrawElements(gl::TRIANGLES, RenderDataCollector::enviro.count.data(), gl::UNSIGNED_INT,
+                          RenderDataCollector::enviro.indices.data(), RenderDataCollector::enviro.size);
 
     RenderDataCollector::enviro.clear();
 

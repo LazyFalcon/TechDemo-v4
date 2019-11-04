@@ -3,6 +3,7 @@
 #include "GraphicEngine.hpp"
 #include "input-dispatcher.hpp"
 #include "input.hpp"
+#include "input-user-pointer.hpp"
 #include "Lobby.hpp"
 #include "LobbyEvents.hpp"
 #include "PlaygroundEvents.hpp"
@@ -244,7 +245,11 @@ public:
 
 };
 
-Lobby::Lobby(Imgui& ui, InputDispatcher& inputDispatcher, Settings& settings): m_ui(ui), m_input(inputDispatcher.createNew("Lobby")){
+Lobby::Lobby(Imgui& ui, InputDispatcher& inputDispatcher, Settings& settings, InputUserPointer& inputUserPointer):
+    m_ui(ui),
+    m_inputUserPointer(inputUserPointer),
+    m_input(inputDispatcher.createNew("Lobby"))
+{
     m_view = std::make_unique<LobbyUI>(settings);
     m_input->activate();
 }

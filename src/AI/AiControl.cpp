@@ -4,19 +4,16 @@
 #include "AiControl.hpp"
 #include "AiCommand.hpp"
 #include "Logger.hpp"
-#include "PointerInfo.hpp"
 
-AiControlViaInput::AiControlViaInput(InputDispatcher& inputDispatcher, PointerInfo& pointerInfo):
-    m_input(inputDispatcher.createNew("Ai")),
-    m_pointerInfo(pointerInfo)
+AiControlViaInput::AiControlViaInput(InputDispatcher& inputDispatcher):
+    m_input(inputDispatcher.createNew("Ai"))
 {
 
     m_input->action("RMB").off([this](){
-        console.log("Move order", m_pointerInfo.worldPosition);
-        MoveCommand payload {m_pointerInfo.worldPosition+glm::vec4(0,0,2,0)};
-        AiCommand command {MoveTo};
-        command.payload = &payload;
-        m_putCommandHere(command);
+        // MoveCommand payload {m_pointerInfo.worldPosition+glm::vec4(0,0,2,0)};
+        // AiCommand command {MoveTo};
+        // command.payload = &payload;
+        // m_putCommandHere(command);
     });
 
 

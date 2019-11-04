@@ -3,7 +3,7 @@
 
 #include "Window.hpp"
 #include "Texture.hpp"
-#include "Camera.hpp"
+#include "camera-data.hpp"
 #include "GBufferSampler.hpp"
 #include "PerfTimers.hpp"
 
@@ -15,7 +15,7 @@ void GBufferSamplers::deregisterMe(GBufferSampler *data){
     samplers.remove(data);
 }
 
-void GBufferSamplers::sampleGBuffer(Camera &camera){
+void GBufferSamplers::sampleGBuffer(camera::Camera &camera){
     GPU_SCOPE_TIMER();
     gl::Disable(gl::DEPTH_TEST);
     gl::DepthMask(gl::FALSE_);

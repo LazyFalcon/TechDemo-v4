@@ -3,7 +3,6 @@
 #include "Logger.hpp"
 #include "Utils.hpp"
 
-
 namespace camera
 {
 void Camera::recalculate() {
@@ -103,8 +102,8 @@ float Camera::convertDepthToWorld(float depth) {
 
 void Camera::printDebug() {
     console.log("fov:", fov * toDeg, "\taspect:", aspectRatio);
-    console.log("nearDistance:", nearDistance, "\tfarDistance:", farDistance);
-    console.log("position:", orientation[3]);
+    console.log("distances:", nearDistance, "\tfarDistance:", farDistance);
+    console.log("matrix:", orientation);
     console.log("offset:", offset, offsetScale);
 }
 }

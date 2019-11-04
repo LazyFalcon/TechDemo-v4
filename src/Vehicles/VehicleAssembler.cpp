@@ -205,7 +205,6 @@ void VehicleAssembler::attachCameras(IModule& module, const Yaml& names) {
         auto camera = m_camFactory.create<CameraInObjectSpace>(module, matrixFromYaml(params["Relative Position"]));
         camera->fov = params["Angle"].number();
         camera->inertia = params["Inertia"].number();
-        camera->recalucuateProjectionMatrix();
         camera->update(0.f);
 
         m_vehicle->cameras.add(camera);

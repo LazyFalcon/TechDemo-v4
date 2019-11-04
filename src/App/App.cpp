@@ -244,7 +244,8 @@ catch(const std::runtime_error& err) {
 }
 
 void App::render() {
-    console.clog("--render");
+    console.clog("----------------------------------------------------------");
+    console.clog("Frame number:", frame());
 
     if(gameState)
         gameState->renderProcedure(*graphicEngine);

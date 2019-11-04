@@ -110,12 +110,11 @@ void Scene::extractCameras(const Yaml& yaml) {
             auto cam = camFactory.create<camera::Controller>(mat);
             freeCams.add(cam);
 
-            cam->setup.isFreecam = true;
             cam->setup.inLocalSpace = false;
             cam->setup.addRotationToTarget = false;
             cam->setup.addInclinationToTarget = false;
             cam->setup.zoomMode = camera::OFFSET;
-            cam->userPointerMode == camera::PointerMode::Centered;
+            cam->userPointerMode = camera::PointerMode::Centered;
         }
     else
         console.error("There is no free camera defined in scene");

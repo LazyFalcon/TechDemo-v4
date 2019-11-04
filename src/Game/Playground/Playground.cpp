@@ -27,7 +27,6 @@
 #include "input-user-pointer.hpp"
 #include "input.hpp"
 
-
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window, InputUserPointer& inputUserPointer)
     : m_input(inputDispatcher.createNew("Playground")),
       m_physics(std::make_unique<PhysicalWorld>()),

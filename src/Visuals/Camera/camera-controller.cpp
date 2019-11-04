@@ -48,6 +48,7 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
 
     Camera::orientation = glm::toMat4(glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3));
     Camera::orientation[3] = origin.get() + Camera::orientation * offset * offsetScale;
+    Camera::recalucuateProjectionMatrix();
     Camera::recalculate();
 
     printDebug();
@@ -76,20 +77,19 @@ Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
     Camera::inertia = 1;
     Camera::smoothing = 1;
 
-    console.log("New camera position:", cameraWorldMatrix[3]);
-    console.log("New camera position:", cameraWorldMatrix);
+    setup.isFreecam = true;
 
-    // glm::extractEulerAngleXYZ(cameraWorldMatrix, *pitch, *yaw, *roll);
+    glm::extractEulerAngleXYZ(cameraWorldMatrix, *pitch, *yaw, *roll);
 
     Camera::orientation = glm::toMat4(glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3));
     Camera::orientation[3] = origin.get();
 
     offset = -Camera::orientation[2];
     offsetScale = *offsetChange;
-
+    Camera::recalucuateProjectionMatrix();
     Camera::recalculate();
 
-    console.log("New camera position:", Camera::orientation);
+    console.log("Camera::orientation:", Camera::orientation);
 
     printDebug();
 }
@@ -149,7 +149,7 @@ void Controller::update(const glm::mat4& parentTransform, float dt) {
 
     if(input.zoom != 0.f)
         zoom();
-    fov = fovChange.update(dt);
+    // fov = fovChange.update(dt);
 
     rotation = computeTargetRotation(parentTransform, dt);
     origin = computeTargetPosition(parentTransform, dt);

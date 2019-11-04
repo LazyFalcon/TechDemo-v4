@@ -1,6 +1,6 @@
 #pragma once
-#include "ui-text.hpp"
 #include "ui-core.hpp"
+#include "ui-text.hpp"
 
 class Imgui;
 class Panel;
@@ -9,11 +9,17 @@ class Styler;
 class Item
 {
 public:
-    enum ItemType {
-        Button, Slider, TextOnly, Radio, Checkbox
+    enum ItemType
+    {
+        Button,
+        Slider,
+        TextOnly,
+        Radio,
+        Checkbox
     };
 
-    Item(ItemType i, Imgui& ui, Panel& p, float depth, int id) : m_type(i), m_ui(ui), m_panel(p), m_depth(depth), m_id(id){}
+    Item(ItemType i, Imgui& ui, Panel& p, float depth, int id)
+        : m_type(i), m_ui(ui), m_panel(p), m_depth(depth), m_id(id) {}
     // positioning
     Item& x(int i);
     Item& x(float i);
@@ -30,24 +36,25 @@ public:
     // for slider item
     Item& operator()(float& value, float min, float max);
 
-    Item& font(const std::string& f){
-        if(not f.empty()) m_font = f;
+    Item& font(const std::string& f) {
+        if(not f.empty())
+            m_font = f;
         return *this;
     }
-    Item& textColor(u32 c){
+    Item& textColor(u32 c) {
         m_textColor = c;
         return *this;
     }
-    Item& color(u32 c){
+    Item& color(u32 c) {
         m_color = c;
         return *this;
     }
-    Item& formatting(Text::Formatting f){
+    Item& formatting(Text::Formatting f) {
         m_formatting = f;
         return *this;
     }
     Item& text(const std::string& text);
-    Item& symbol(const std::u16string& text, const std::string& font="sym_20");
+    Item& symbol(const std::u16string& text, const std::string& font = "sym_20");
 
     int id() const {
         return m_id;
@@ -58,35 +65,40 @@ public:
     bool isHover(); // au
     // default for LLM actions, unfortunately default is restricted keyword
     template<typename Callback>
-    Item& action(Callback&& c){
-        if(m_action == PointerActions::LmbOff) c();
+    Item& action(Callback&& c) {
+        if(m_action == PointerActions::LmbOff)
+            c();
         return *this;
     }
     template<typename Callback>
-    Item& actionOutside(Callback&& c){
-        if(m_action == PointerActions::ActionOutside) c();
+    Item& actionOutside(Callback&& c) {
+        if(m_action == PointerActions::ActionOutside)
+            c();
         return *this;
     }
     template<typename Callback>
-    Item& alternate(Callback&& c){
-        if(m_action == PointerActions::RmbOff) c();
+    Item& alternate(Callback&& c) {
+        if(m_action == PointerActions::RmbOff)
+            c();
         return *this;
     }
     template<typename Callback>
-    Item& hover(Callback&& c){
-        if(m_hovered) c();
+    Item& hover(Callback&& c) {
+        if(m_hovered)
+            c();
         return *this;
     }
 
-    Item& switchBool(bool& b){
-        if(m_action == PointerActions::LmbOff) b = !b;
+    Item& switchBool(bool& b) {
+        if(m_action == PointerActions::LmbOff)
+            b = !b;
         return *this;
     }
 
 private:
     friend Styler;
     ItemType m_type;
-    glm::vec4 m_size{};
+    glm::vec4 m_size {};
     Imgui& m_ui;
     Panel& m_panel;
 

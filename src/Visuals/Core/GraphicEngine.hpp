@@ -15,9 +15,10 @@ class Window;
 class GraphicEngine
 {
 private:
-    Window &window;
+    Window& window;
+
 public:
-    GraphicEngine(Window &window);
+    GraphicEngine(Window& window);
     ~GraphicEngine();
     void reset();
     void beginFrame();

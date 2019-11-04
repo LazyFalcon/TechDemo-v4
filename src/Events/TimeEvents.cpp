@@ -1,55 +1,54 @@
 #include "core.hpp"
 #include "TimeEvents.hpp"
 
-namespace {
-    std::list<int> initList(){
-        std::list<int> out;
+namespace
+{
+std::list<int> initList() {
+    std::list<int> out;
 
-        for(int i=0; i<5000; i++){
-            out.push_back(i);
-        }
+    for(int i = 0; i < 5000; i++) { out.push_back(i); }
 
-        return out;
-    }
-    std::list<int> freeIdList = initList();
-    int nextFreeId(){
-        auto out = freeIdList.front();
-        freeIdList.pop_front();
-        return out;
-    }
+    return out;
+}
+std::list<int> freeIdList = initList();
+int nextFreeId() {
+    auto out = freeIdList.front();
+    freeIdList.pop_front();
+    return out;
+}
 
-    struct TimeEventHandler
-    {
-        u64 expiryTime;
-        u64 timeStep;
-        int id;
-        timeFuctionSignature callback;
-    };
+struct TimeEventHandler
+{
+    u64 expiryTime;
+    u64 timeStep;
+    int id;
+    timeFuctionSignature callback;
+};
 
-    std::list<TimeEventHandler> intervalList;
-    std::list<TimeEventHandler> timeoutList;
+std::list<TimeEventHandler> intervalList;
+std::list<TimeEventHandler> timeoutList;
 
 }
-void updateTimers(u64 msTime){
-    intervalList.remove_if([msTime](TimeEventHandler& it){
-        if(it.expiryTime <= msTime){
+void updateTimers(u64 msTime) {
+    intervalList.remove_if([msTime](TimeEventHandler& it) {
+        if(it.expiryTime <= msTime) {
             it.expiryTime += it.timeStep;
             it.callback();
         }
         return false;
-        });
+    });
 
-    timeoutList.remove_if([msTime](TimeEventHandler& it){
-        if(it.expiryTime <= msTime){
+    timeoutList.remove_if([msTime](TimeEventHandler& it) {
+        if(it.expiryTime <= msTime) {
             it.callback();
             freeIdList.push_back(it.id);
             return true;
         }
         return false;
-        });
+    });
 }
 
-int setInterval(u64 ms, timeFuctionSignature callback){
+int setInterval(u64 ms, timeFuctionSignature callback) {
     int id = nextFreeId();
 
     // intervalList.push_back({
@@ -60,7 +59,7 @@ int setInterval(u64 ms, timeFuctionSignature callback){
     //     });
     return id;
 }
-int setTimeout(u64 ms, timeFuctionSignature callback){
+int setTimeout(u64 ms, timeFuctionSignature callback) {
     int id = nextFreeId();
 
     // timeoutList.push_back({
@@ -73,11 +72,7 @@ int setTimeout(u64 ms, timeFuctionSignature callback){
     return id;
 }
 
-void cancelTimer(int id){
-    intervalList.remove_if([id](TimeEventHandler& t){
-        return id == t.id;
-    });
-    timeoutList.remove_if([id](TimeEventHandler& t){
-        return id == t.id;
-    });
+void cancelTimer(int id) {
+    intervalList.remove_if([id](TimeEventHandler& t) { return id == t.id; });
+    timeoutList.remove_if([id](TimeEventHandler& t) { return id == t.id; });
 }

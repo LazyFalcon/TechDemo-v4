@@ -4,14 +4,14 @@
 
 namespace graphic
 {
-
 // rename
 struct CustomDrawMesh
 {
     glm::mat4 tr;
     Mesh mesh;
     float layer;
-    union {
+    union
+    {
         u32 color;
         u32 textureId;
     };
@@ -20,15 +20,16 @@ struct CustomDrawMesh
 class CustomDraw
 {
 public:
-    enum {
+    enum
+    {
         DepthTest = 0x1,
         DepthMask = 0x2,
         Texture = 0x4,
         TextureArrayLayer = 0x8,
     };
-    CustomDraw(){}
-    CustomDraw(const std::string &params);
-    void loadFromFile(const std::string &filename);
+    CustomDraw() {}
+    CustomDraw(const std::string& params);
+    void loadFromFile(const std::string& filename);
     void finalize();
 
     CustomDraw& model(const std::string&);
@@ -39,20 +40,21 @@ public:
     CustomDraw& scale(float s);
     CustomDraw& scale(glm::vec3 s);
     CustomDraw& size(glm::vec2 p); // in pixels
-    CustomDraw& transform(const glm::mat4 &tr);
+    CustomDraw& transform(const glm::mat4& tr);
     CustomDraw& detptMask();
     CustomDraw& detptTest();
     CustomDraw& texture(const std::string&);
     CustomDraw& texture(u32 id);
     CustomDraw& textureArray(u32 id, float layer);
     CustomDraw& color(u32 c);
-    CustomDraw& operator ()();
+    CustomDraw& operator()();
 
-    void setProjection(const glm::mat4 &tr){
+    void setProjection(const glm::mat4& tr) {
         defaultProjection = tr;
     }
 
     static void render();
+
 private:
     // ModelLoader loader;
     VAO vao {};
@@ -64,7 +66,5 @@ private:
     static std::map<u32, std::map<u32, std::vector<CustomDrawMesh>>> renderQueues;
     std::map<std::string, Mesh> models;
 };
-
-
 
 }

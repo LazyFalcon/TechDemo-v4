@@ -1,17 +1,16 @@
 #include "core.hpp"
+#include "PlaygroundEvents.hpp"
 #include "App.hpp"
 #include "Context.hpp"
-#include "Context.hpp"
 #include "GraphicEngine.hpp"
-#include "input-user-pointer.hpp"
 #include "LobbyEvents.hpp"
 #include "Logger.hpp"
 #include "Playground.hpp"
-#include "PlaygroundEvents.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
+#include "input-user-pointer.hpp"
 
-bool StartPlayground::handle(App &app){
+bool StartPlayground::handle(App& app) {
     console.info("[ Start Playground ]");
 
     auto playground = std::make_shared<Playground>(*app.imgui, *app.inputDispatcher, *app.window, *app.userPointer);
@@ -19,7 +18,8 @@ bool StartPlayground::handle(App &app){
     auto& scene = playground->loadScene(sceneName);
     // pathifinderProcessAndSaveDepthMap(scene, context);
     // TODO: extract starting point
-    if(scene.spawnPoints.size() == 0) console.error("Noob! Scene have to has SpawnPoints defined!");
+    if(scene.spawnPoints.size() == 0)
+        console.error("Noob! Scene have to has SpawnPoints defined!");
     else {
         playground->spawnPlayer(vehicleName, scene.spawnPoints[0].transform);
         // if(scene.spawnPoints.size() > 1) for(auto i=1; i<scene.spawnPoints.size(); i++)
@@ -34,7 +34,7 @@ bool StartPlayground::handle(App &app){
     return true;
 }
 
-bool ExitPlayground::handle(App &app){
+bool ExitPlayground::handle(App& app) {
     event<StartLobby>();
     return true;
 }

@@ -7,11 +7,11 @@
 #include "Logger.hpp"
 #include "PerfTimers.hpp"
 
-void initialEvent(){
+void initialEvent() {
     auto startGame = event<StartLobby>();
 }
 
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
     // std::atexit(pmk::dumpLogBufferTofile);
     // std::atexit(GpuTimerScoped::writeToFile);
     // std::atexit(CpuTimerScoped::writeToFile);
@@ -22,11 +22,11 @@ int main(int argc, char** argv){
     resolvePaths(argv[0]);
 
     Audio::Device device;
-    if(not device.init()) return -1;
-
+    if(not device.init())
+        return -1;
 
     App app;
-    if(not app.initialize()){
+    if(not app.initialize()) {
         console.error("Failed to initialize app");
         return -1;
     }
@@ -39,7 +39,7 @@ int main(int argc, char** argv){
     try {
         app.run();
     }
-    catch (...){
+    catch(...) {
         console.error("exception occured");
     }
 

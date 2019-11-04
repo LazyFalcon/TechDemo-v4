@@ -1,24 +1,24 @@
 #include "core.hpp"
 #include "gl_core_4_5.hpp"
+#include "Window.hpp"
 #include <GLFW/glfw3.h>
 #include "App.hpp"
 #include "Logger.hpp"
 #include "Settings.hpp"
-#include "Window.hpp"
 
-Window::~Window(){
+Window::~Window() {
     console.log("~Window");
     glfwDestroyWindow(window);
 }
-bool Window::init(){
+bool Window::init() {
     size = app.settings->video.size;
 
-    if (glfwInit() != 1){
+    if(glfwInit() != 1) {
         console.error("GLFW init fail");
         return false;
     }
 
-    const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
@@ -28,7 +28,7 @@ bool Window::init(){
     screenSize.x = mode->width;
     screenSize.y = mode->height;
 
-    if(app.settings->video.fullscreen){
+    if(app.settings->video.fullscreen) {
         glfwWindowHint(GLFW_RED_BITS, mode->redBits);
         glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
         glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
@@ -37,12 +37,12 @@ bool Window::init(){
         size.y = mode->height;
         // window = glfwCreateWindow(size.x, size.y, "Tech demo v4", glfwGetPrimaryMonitor(), nullptr);
         window = glfwCreateWindow(size.x, size.y, "Tech demo v4", nullptr, nullptr);
-        if(!window){
+        if(!window) {
             console.error("Window creation failed");
             glfwTerminate();
             return false;
         }
-        glfwSetWindowPos(window, 0,0);
+        glfwSetWindowPos(window, 0, 0);
     }
     else {
         size.x = std::min((int)size.x, mode->width);
@@ -50,12 +50,12 @@ bool Window::init(){
         app.settings->video.size = size;
 
         window = glfwCreateWindow(size.x, size.y, "Tech demo v4", nullptr, nullptr);
-        if(!window){
+        if(!window) {
             console.error("Window creation failed");
             glfwTerminate();
             return false;
         }
-        glfwSetWindowPos(window, screenSize.x/2 - size.x/2, screenSize.y/2 - size.y/2);
+        glfwSetWindowPos(window, screenSize.x / 2 - size.x / 2, screenSize.y / 2 - size.y / 2);
     }
     hide();
 
@@ -65,18 +65,18 @@ bool Window::init(){
 
     glfwSwapInterval(1);
 
-    pixelSize = 1.f/size;
+    pixelSize = 1.f / size;
     center = size * 0.5f;
     topCenter = center;
     bottomCenter = center;
     topCenter.y = size.y;
     bottomCenter.y = 0.f;
-    aspect = size.x/size.y;
+    aspect = size.x / size.y;
 
     viewport = glm::vec4(0, 0, size.x, size.y);
 
     gl::exts::LoadTest didLoad = gl::sys::LoadFunctions();
-    if(!didLoad){
+    if(!didLoad) {
         console.error("GL init fail");
         return false;
     }
@@ -84,9 +84,9 @@ bool Window::init(){
     return true;
 }
 
-void Window::hide(){
+void Window::hide() {
     glfwHideWindow(window);
 }
-void Window::show(){
+void Window::show() {
     glfwShowWindow(window);
 }

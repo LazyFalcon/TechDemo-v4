@@ -22,7 +22,6 @@
 //     aiString path;
 //     u32 texIndex = 0;
 
-
 //     if(AI_SUCCESS != material.GetTexture(aiTextureType_DIFFUSE, texIndex, &path))
 //         return "";
 

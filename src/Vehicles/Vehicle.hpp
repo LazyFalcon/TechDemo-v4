@@ -1,11 +1,11 @@
 #pragma once
-#include "camera-controller.hpp"
 #include "BulletDynamics\Dynamics\btActionInterface.h"
+#include "FireControlSystem.hpp"
 #include "GraphicComponent.hpp"
 #include "MountedWeapon.hpp"
 #include "VehicleControlSystem.hpp"
-#include "FireControlSystem.hpp"
 #include "camera-collection-of.hpp"
+#include "camera-controller.hpp"
 /**
     Stores informations about vehicle(universal for each type, vehicle is build from modules), can be used in HUD
     Where goes hitpoints, or vehicle vitality
@@ -30,7 +30,6 @@ struct VehicleSharedData
     std::optional<glm::vec4> targetPoint;
     std::optional<int> targetEnemy;
     std::vector<int> knownEnemies;
-
 };
 
 class Vehicle : public btActionInterface
@@ -41,8 +40,8 @@ public:
     void init();
     void updateModules(float dt);
     void updateMarkers();
-    void debugDraw(btIDebugDraw *debugDrawer) override {}
-    void updateAction(btCollisionWorld *collisionWorld, btScalar dt) override ;
+    void debugDraw(btIDebugDraw* debugDrawer) override {}
+    void updateAction(btCollisionWorld* collisionWorld, btScalar dt) override;
 
     PhysicalWorld& physics;
     VehicleControl control {};
@@ -50,19 +49,19 @@ public:
     // * Trzeba gdzieś tu wrzucić dane które będą służyć do komunikacji z modułami, w obie strony
     VehicleSharedData shared;
 
-    btRigidBody *rgBody {nullptr};
-    btCompoundShape *compound {nullptr};
-    Actor *actor {nullptr};
+    btRigidBody* rgBody {nullptr};
+    btCompoundShape* compound {nullptr};
+    Actor* actor {nullptr};
 
     float vitality; /// kind of hitpoints, derived from vitality of modules
     btTransform rotation;
     btVector3 forward;
     btVector3 right;
-    glm::vec4 getPosition(){
+    glm::vec4 getPosition() {
         return glTrans[3];
     }
 
-    void lockCannonsInDefaultPosition(){
+    void lockCannonsInDefaultPosition() {
         lockCannons = !lockCannons;
     }
     bool lockCannons {false};

@@ -1,30 +1,32 @@
 #include "core.hpp"
+#include "LightRendering.hpp"
 #include "Assets.hpp"
-#include "camera-data.hpp"
 #include "Context.hpp"
 #include "Environment.hpp"
-#include "LightRendering.hpp"
 #include "LightSource.hpp"
 #include "PerfTimers.hpp"
 #include "Scene.hpp"
 #include "Sun.hpp"
 #include "Window.hpp"
+#include "camera-data.hpp"
 // #include "GameSettings.hpp"
-#include "RenderDataCollector.hpp"
 #include "Color.hpp"
+#include "RenderDataCollector.hpp"
 
-namespace {
-int isCameraInside(const glm::vec4& position, LightSource& light){
-    return glm::distance2(position, light.m_position) < light.m_falloff.distance*light.m_falloff.distance;
+namespace
+{
+int isCameraInside(const glm::vec4& position, LightSource& light) {
+    return glm::distance2(position, light.m_position) < light.m_falloff.distance * light.m_falloff.distance;
 }
 }
 
-void LightRendering::lightPass(Scene &scene, camera::Camera &camera){
-    if(scene.sun) renderSun(*scene.sun, camera);
+void LightRendering::lightPass(Scene& scene, camera::Camera& camera) {
+    if(scene.sun)
+        renderSun(*scene.sun, camera);
     renderPointLights(camera);
 }
 
-void LightRendering::renderSun(Sun& sun, camera::Camera &camera){
+void LightRendering::renderSun(Sun& sun, camera::Camera& camera) {
     GPU_SCOPE_TIMER();
     gl::Enable(gl::BLEND);
     gl::BlendFunc(gl::ONE, gl::ONE);
@@ -65,13 +67,12 @@ void LightRendering::renderSun(Sun& sun, camera::Camera &camera){
 
     context.errors();
 }
-void LightRendering::renderPointLights(camera::Camera &camera){
+void LightRendering::renderPointLights(camera::Camera& camera) {
     GPU_SCOPE_TIMER();
     float lightScale = 1;
     // fillStencil(camera, scene, Textures::LightIntensity);
-    auto &pointLights = RenderDataCollector::lights[0];
-    if(not pointLights.empty()){
-
+    auto& pointLights = RenderDataCollector::lights[0];
+    if(not pointLights.empty()) {
         // setupFBO_11(Textures::LightIntensity);
         gl::Enable(gl::BLEND);
         gl::BlendFunc(gl::ONE, gl::ONE);
@@ -94,7 +95,7 @@ void LightRendering::renderPointLights(camera::Camera &camera){
         shader.texture("uNormal", context.tex.gbuffer.normals, 0);
         shader.texture("uDepth", context.tex.gbuffer.depth, 1);
         auto mesh = assets::getMesh("LightSphere");
-        for(auto &light : pointLights){
+        for(auto& light : pointLights) {
             int cameraInside = isCameraInside(camera.position(), *light);
             shader.uniform("uSize", light->m_falloff.distance);
             shader.uniform("uPosition", light->m_position);
@@ -104,21 +105,21 @@ void LightRendering::renderPointLights(camera::Camera &camera){
             shader.uniform("light.fallof", light->m_falloff.distance);
             shader.uniform("light.energy", light->m_energy);
 
-            if(cameraInside){
+            if(cameraInside) {
                 context.cullFrontFaces();
                 gl::DepthFunc(gl::GEQUAL);
             }
-            else if(not cameraInside){
+            else if(not cameraInside) {
                 context.cullFrontFaces();
                 gl::DepthFunc(gl::ALWAYS);
                 // gl::Disable(gl::CULL_FACE);
             }
             mesh.render();
-            if(cameraInside != 1){
+            if(cameraInside != 1) {
                 context.cullBackFaces();
                 gl::DepthFunc(gl::LEQUAL);
             }
-            else if(cameraInside != 0){
+            else if(cameraInside != 0) {
                 context.cullBackFaces();
                 gl::DepthFunc(gl::LEQUAL);
                 // gl::Enable(gl::CULL_FACE);
@@ -130,7 +131,7 @@ void LightRendering::renderPointLights(camera::Camera &camera){
     gl::Disable(gl::CULL_FACE);
     gl::DepthFunc(gl::LEQUAL);
 }
-void LightRendering::hemisphericalAmbient(Scene &scene, camera::Camera &camera){
+void LightRendering::hemisphericalAmbient(Scene& scene, camera::Camera& camera) {
     GPU_SCOPE_TIMER();
     // setupFBO_11_withDepth(Textures::LightIntensity);
     gl::Enable(gl::BLEND);
@@ -155,10 +156,8 @@ void LightRendering::hemisphericalAmbient(Scene &scene, camera::Camera &camera){
 
     context.errors();
 }
-void LightRendering::renderShinyObjects(Scene &scene, camera::Camera &camera){
-
-}
-float LightRendering::calculateLuminance(){
+void LightRendering::renderShinyObjects(Scene& scene, camera::Camera& camera) {}
+float LightRendering::calculateLuminance() {
     // GPU_SCOPE_TIMER();
     // gl::Disable(gl::BLEND);
     // gl::Disable(gl::DEPTH_TEST);
@@ -187,14 +186,14 @@ float LightRendering::calculateLuminance(){
     // return luminance;
     return 1;
 }
-void LightRendering::compose(camera::Camera &camera){
+void LightRendering::compose(camera::Camera& camera) {
     GPU_SCOPE_TIMER();
     context.fbo[1].tex(context.tex.full.a).tex(context.tex.gbuffer.depth)();
     gl::Disable(gl::BLEND);
     gl::Enable(gl::DEPTH_TEST);
     gl::DepthMask(gl::FALSE_);
     gl::DepthFunc(gl::NOTEQUAL);
-    gl::ClearColor(0.0,0.0,0.0,0.0);
+    gl::ClearColor(0.0, 0.0, 0.0, 0.0);
     gl::Clear(gl::COLOR_BUFFER_BIT);
 
     auto shader = assets::getShader("ComposeLightAndGBuffer");

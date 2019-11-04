@@ -16,6 +16,7 @@ private:
     int m_currentModifierKey;
     uint m_msFromStart;
     InputMouseState m_mouseState;
+
 public:
     std::shared_ptr<Input> createNew(const std::string&);
     void remove(Input*);
@@ -36,7 +37,7 @@ public:
         return m_mouseState;
     }
 
-    void setTime(uint t){
+    void setTime(uint t) {
         m_msFromStart = t;
     }
 };

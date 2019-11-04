@@ -1,11 +1,10 @@
 #include "core.hpp"
-#include "Context.hpp"
+#include "Effects.hpp"
 #include "Assets.hpp"
 #include "Atmosphere.hpp"
 #include "BaseStructs.hpp"
-#include "camera-data.hpp"
+#include "Context.hpp"
 #include "DecalsAndMarkers.hpp"
-#include "Effects.hpp"
 #include "PerfTimers.hpp"
 #include "RenderDataCollector.hpp"
 #include "RendererUtils.hpp"
@@ -13,17 +12,19 @@
 #include "Starfield.hpp"
 #include "Sun.hpp"
 #include "Window.hpp"
+#include "camera-data.hpp"
 
 std::vector<Decal> Decal::decalList;
 
-void Effects::scattering(Scene &scene, camera::Camera &camera){
+void Effects::scattering(Scene& scene, camera::Camera& camera) {
     GPU_SCOPE_TIMER();
-    if(not scene.atmosphere || not scene.sun) return;
+    if(not scene.atmosphere || not scene.sun)
+        return;
 
     gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.full.a.ID, 0);
 
-    auto &atmosphere = *scene.atmosphere;
-    auto &sun = *scene.sun;
+    auto& atmosphere = *scene.atmosphere;
+    auto& sun = *scene.sun;
 
     gl::Disable(gl::CULL_FACE);
     gl::Enable(gl::DEPTH_TEST);
@@ -35,11 +36,11 @@ void Effects::scattering(Scene &scene, camera::Camera &camera){
     shader.bind();
 
     shader.uniform("uLightDirection", sun.direction.xyz());
-    shader.uniform("uWaveLength", 1.f/glm::pow4(atmosphere.invWavelength));
-    shader.uniform("uRayleigh", atmosphere.rayleigh*4*pi);
-    shader.uniform("uMie", atmosphere.mie*4*pi);
-    shader.uniform("uRayleighSun", atmosphere.rayleigh*sun.power);
-    shader.uniform("uMieSun", atmosphere.mie*sun.power);
+    shader.uniform("uWaveLength", 1.f / glm::pow4(atmosphere.invWavelength));
+    shader.uniform("uRayleigh", atmosphere.rayleigh * 4 * pi);
+    shader.uniform("uMie", atmosphere.mie * 4 * pi);
+    shader.uniform("uRayleighSun", atmosphere.rayleigh * sun.power);
+    shader.uniform("uMieSun", atmosphere.mie * sun.power);
     shader.uniform("uSkyRadius", atmosphere.skyRadius);
     shader.uniform("uGroundRadius", atmosphere.groundRadius);
     shader.uniform("uScaleDepth", atmosphere.scaleDepth);
@@ -53,7 +54,8 @@ void Effects::scattering(Scene &scene, camera::Camera &camera){
     shader.uniform("uEyePosition", camera.position());
     shader.uniform("uInvPV", camera.invPV);
 
-    gl::Uniform4fv(gl::GetUniformLocation(shader.ID, "uCameraVectors"), 5, (GLfloat *)camera.frustum.cornerVectors.data());
+    gl::Uniform4fv(gl::GetUniformLocation(shader.ID, "uCameraVectors"), 5,
+                   (GLfloat*)camera.frustum.cornerVectors.data());
 
     context.drawScreen();
 
@@ -63,14 +65,15 @@ void Effects::scattering(Scene &scene, camera::Camera &camera){
 
     context.errors();
 }
-void Effects::scatteringShadowed(Scene &scene, camera::Camera &camera){
+void Effects::scatteringShadowed(Scene& scene, camera::Camera& camera) {
     GPU_SCOPE_TIMER();
-    if(not scene.atmosphere || not scene.sun) return;
+    if(not scene.atmosphere || not scene.sun)
+        return;
 
     gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.full.a.ID, 0);
 
-    auto &atmosphere = *scene.atmosphere;
-    auto &sun = *scene.sun;
+    auto& atmosphere = *scene.atmosphere;
+    auto& sun = *scene.sun;
 
     gl::Disable(gl::CULL_FACE);
     gl::Enable(gl::DEPTH_TEST);
@@ -82,11 +85,11 @@ void Effects::scatteringShadowed(Scene &scene, camera::Camera &camera){
     shader.bind();
 
     shader.uniform("uLightDirection", sun.direction.xyz());
-    shader.uniform("uWaveLength", 1.f/glm::pow4(atmosphere.invWavelength));
-    shader.uniform("uRayleigh", atmosphere.rayleigh*4*pi);
-    shader.uniform("uMie", atmosphere.mie*4*pi);
-    shader.uniform("uRayleighSun", atmosphere.rayleigh*sun.power);
-    shader.uniform("uMieSun", atmosphere.mie*sun.power);
+    shader.uniform("uWaveLength", 1.f / glm::pow4(atmosphere.invWavelength));
+    shader.uniform("uRayleigh", atmosphere.rayleigh * 4 * pi);
+    shader.uniform("uMie", atmosphere.mie * 4 * pi);
+    shader.uniform("uRayleighSun", atmosphere.rayleigh * sun.power);
+    shader.uniform("uMieSun", atmosphere.mie * sun.power);
     shader.uniform("uSkyRadius", atmosphere.skyRadius);
     shader.uniform("uGroundRadius", atmosphere.groundRadius);
     shader.uniform("uScaleDepth", atmosphere.scaleDepth);
@@ -106,7 +109,8 @@ void Effects::scatteringShadowed(Scene &scene, camera::Camera &camera){
     shader.uniform("uShadowMapSize", context.tex.shadows.size);
     shader.uniform("uCSMProjection", context.tex.shadows.matrices);
 
-    gl::Uniform4fv(gl::GetUniformLocation(shader.ID, "uCameraVectors"), 5, (GLfloat *)camera.frustum.cornerVectors.data());
+    gl::Uniform4fv(gl::GetUniformLocation(shader.ID, "uCameraVectors"), 5,
+                   (GLfloat*)camera.frustum.cornerVectors.data());
 
     context.drawScreen();
 
@@ -116,13 +120,14 @@ void Effects::scatteringShadowed(Scene &scene, camera::Camera &camera){
 
     context.errors();
 }
-void Effects::sky(Scene &scene, camera::Camera &camera){
+void Effects::sky(Scene& scene, camera::Camera& camera) {
     GPU_SCOPE_TIMER();
 
-    if(not scene.atmosphere || not scene.sun) return;
+    if(not scene.atmosphere || not scene.sun)
+        return;
 
-    auto &atmosphere = *scene.atmosphere;
-    auto &sun = *scene.sun;
+    auto& atmosphere = *scene.atmosphere;
+    auto& sun = *scene.sun;
 
     gl::DepthFunc(gl::LEQUAL);
     gl::Disable(gl::CULL_FACE);
@@ -135,25 +140,24 @@ void Effects::sky(Scene &scene, camera::Camera &camera){
     shader.uniform("uModel", skyMatrix);
     shader.uniform("uPlanetMatrix", atmosphere.planetMatrix);
 
-    auto adjustCameraHeightToWorldScale = [](float h){return h;};
+    auto adjustCameraHeightToWorldScale = [](float h) { return h; };
 
     // TODO:  shader.uniform("uExposure", camera.exposure);
     shader.uniform("uEye", camera.position());
 
     shader.uniform("uLightDirection", -sun.direction.xyz());
-    shader.uniform("uInvWaveLength", 1.f/glm::pow4(atmosphere.invWavelength.xyz()));
-    shader.uniform("uKr4Pi", atmosphere.rayleigh*4*pi);
-    shader.uniform("uKm4Pi", atmosphere.mie*4*pi);
-    shader.uniform("uKrESun", atmosphere.rayleigh*sun.power);
-    shader.uniform("uKmESun", atmosphere.mie*sun.power);
+    shader.uniform("uInvWaveLength", 1.f / glm::pow4(atmosphere.invWavelength.xyz()));
+    shader.uniform("uKr4Pi", atmosphere.rayleigh * 4 * pi);
+    shader.uniform("uKm4Pi", atmosphere.mie * 4 * pi);
+    shader.uniform("uKrESun", atmosphere.rayleigh * sun.power);
+    shader.uniform("uKmESun", atmosphere.mie * sun.power);
     shader.uniform("uSkyRadius", atmosphere.skyRadius);
     shader.uniform("uGroundRadius", atmosphere.groundRadius);
-    shader.uniform("uScale", 1/(atmosphere.skyRadius - atmosphere.groundRadius));
+    shader.uniform("uScale", 1 / (atmosphere.skyRadius - atmosphere.groundRadius));
     shader.uniform("uScaleDepth", atmosphere.scaleDepth);
     shader.uniform("uCameraHeight", adjustCameraHeightToWorldScale(camera.position().z));
 
-
-    Mesh &mesh = assets::getMesh("FullSkySphere");
+    Mesh& mesh = assets::getMesh("FullSkySphere");
     assets::getVao("Common").bind();
 
     // if(Global::main.graphicOptions & graphic::WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
@@ -164,9 +168,10 @@ void Effects::sky(Scene &scene, camera::Camera &camera){
 
     context.errors();
 }
-void Effects::starfield(Scene &scene, camera::Camera &camera){
+void Effects::starfield(Scene& scene, camera::Camera& camera) {
     GPU_SCOPE_TIMER();
-    if(not scene.starfield and not scene.sun) return;
+    if(not scene.starfield and not scene.sun)
+        return;
     gl::DepthMask(0);
     gl::Enable(gl::DEPTH_TEST);
     gl::DepthFunc(gl::LEQUAL);
@@ -176,7 +181,7 @@ void Effects::starfield(Scene &scene, camera::Camera &camera){
     gl::BlendFunc(gl::ONE, gl::ONE);
     auto shader = assets::getShader("Starfield").bind();
     auto view = camera.view;
-    view[3] = glm::vec4(0,0,0,1);
+    view[3] = glm::vec4(0, 0, 0, 1);
 
     shader.uniform("uPV", camera.PV);
     shader.uniform("uSunColor", scene.sun->color);
@@ -188,10 +193,11 @@ void Effects::starfield(Scene &scene, camera::Camera &camera){
     gl::Disable(gl::BLEND);
     context.errors();
 }
-void Effects::drawDecals(camera::Camera &camera){
+void Effects::drawDecals(camera::Camera& camera) {
     // TODO: enable culling
-    auto &decals = Decal::decalList;
-    if(decals.empty()) return;
+    auto& decals = Decal::decalList;
+    if(decals.empty())
+        return;
     GPU_SCOPE_TIMER();
 
     gl::Enable(gl::CULL_FACE);
@@ -210,9 +216,9 @@ void Effects::drawDecals(camera::Camera &camera){
     shader.texture("uDepth", context.tex.gbuffer.depth, 0);
     shader.texture("uNormals", context.tex.gbuffer.normals, 1);
     shader.atlas("uDecals", assets::getAlbedoArray("Decals").id, 2);
-    Mesh &mesh = assets::getMesh("Box");
+    Mesh& mesh = assets::getMesh("Box");
     assets::getVao("Common").bind();
-    for(auto &decal : decals){
+    for(auto& decal : decals) {
         shader.uniform("uCubeTransform", decal.transform);
         // shader.uniform("uCubeProjection", glm::inverse(decal.transform));
         shader.uniform("uCubeProjection", glm::affineInverse(decal.transform));
@@ -229,16 +235,16 @@ void Effects::drawDecals(camera::Camera &camera){
     gl::Disable(gl::BLEND);
     gl::DepthMask(gl::TRUE_);
 }
-void Effects::SSAO(camera::Camera &camera){
+void Effects::SSAO(camera::Camera& camera) {
     GPU_SCOPE_TIMER();
     /// maybe disable if for sky? Enable depth test for not eqial 1?
-
 
     context.fbo[1].tex(context.tex.full.rg16a)();
     auto shader = assets::bindShader("SSAO");
 
     uint bindingPoint = 1;
-    u32 blockIndex = gl::GetUniformBlockIndex(shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
+    u32 blockIndex = gl::GetUniformBlockIndex(
+        shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
     console.clog("ubo index:", blockIndex, sizeof(Uniforms));
     gl::UniformBlockBinding(shader.ID, blockIndex, bindingPoint); // * bind block to binding point
 
@@ -246,7 +252,6 @@ void Effects::SSAO(camera::Camera &camera){
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::BLEND);
     gl::Disable(gl::CULL_FACE);
-
 
     shader.texture("uDepth", context.tex.gbuffer.depth, 0);
     shader.texture("uNormal", context.tex.gbuffer.normals, 1);
@@ -267,10 +272,10 @@ void Effects::SSAO(camera::Camera &camera){
 
     context.errors();
 }
-void Effects::toneMapping(){
+void Effects::toneMapping() {
     GPU_SCOPE_TIMER();
     context.fbo.tex(context.tex.full.a)();
-    gl::ClearColor(0.0,0.0,0.0,0.0);
+    gl::ClearColor(0.0, 0.0, 0.0, 0.0);
     gl::Clear(gl::COLOR_BUFFER_BIT);
     gl::Disable(gl::BLEND);
     // gl::BlendFunc(gl::ZERO, gl::SRC_COLOR);
@@ -281,7 +286,8 @@ void Effects::toneMapping(){
     shader.texture("uCombined", context.tex.gbuffer.color, 0);
 
     uint bindingPoint = 1;
-    u32 blockIndex = gl::GetUniformBlockIndex(shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
+    u32 blockIndex = gl::GetUniformBlockIndex(
+        shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
     console.clog("ubo index:", blockIndex, sizeof(Uniforms));
     gl::UniformBlockBinding(shader.ID, blockIndex, bindingPoint); // * bind block to binding point
 
@@ -291,7 +297,7 @@ void Effects::toneMapping(){
 
     context.errors();
 }
-void Effects::FXAA(){
+void Effects::FXAA() {
     GPU_SCOPE_TIMER();
     // if(not (window.graphicOptions & FXAA_)) return;
     gl::Disable(gl::DEPTH_TEST);
@@ -312,7 +318,7 @@ void Effects::FXAA(){
 
     context.errors();
 }
-void Effects::chromaticDistortion(glm::vec3 strenght){
+void Effects::chromaticDistortion(glm::vec3 strenght) {
     GPU_SCOPE_TIMER();
     context.fbo.tex(context.tex.full.a)();
 
@@ -331,7 +337,7 @@ void Effects::chromaticDistortion(glm::vec3 strenght){
 
     context.errors();
 }
-void Effects::vignette(float r1, float r2){
+void Effects::vignette(float r1, float r2) {
     GPU_SCOPE_TIMER();
     gl::Enable(gl::BLEND);
     gl::Disable(gl::DEPTH_TEST);
@@ -347,7 +353,7 @@ void Effects::vignette(float r1, float r2){
     context.errors();
 }
 
-void Effects::bloom(){
+void Effects::bloom() {
     GPU_SCOPE_TIMER();
     gl::Disable(gl::DEPTH_TEST);
     gl::DepthMask(gl::FALSE_);
@@ -372,7 +378,7 @@ void Effects::bloom(){
 
     context.errors();
 }
-void Effects::bloomSpecular(){
+void Effects::bloomSpecular() {
     GPU_SCOPE_TIMER();
     gl::Disable(gl::DEPTH_TEST);
     gl::DepthMask(gl::FALSE_);
@@ -397,7 +403,7 @@ void Effects::bloomSpecular(){
 
     context.errors();
 }
-void Effects::matcap(camera::Camera &camera){
+void Effects::matcap(camera::Camera& camera) {
     gl::Disable(gl::BLEND);
     gl::Disable(gl::DEPTH_TEST);
     gl::Disable(gl::CULL_FACE);
@@ -406,14 +412,15 @@ void Effects::matcap(camera::Camera &camera){
     auto shader = assets::getShader("Matcap");
     shader.bind();
 
-    gl::Uniform4fv(gl::GetUniformLocation(shader.ID, "uCameraVectors"), 5, (GLfloat *)camera.frustum.cornerVectors.data());
+    gl::Uniform4fv(gl::GetUniformLocation(shader.ID, "uCameraVectors"), 5,
+                   (GLfloat*)camera.frustum.cornerVectors.data());
     shader.uniform("uView", camera.view);
     shader.uniform("uInvPV", camera.invPV);
 
     // shader.texture("uMatcapTexture", assets::getImage(Global::m_settings["Matcap"].string()).ID, 0); // TODO: add matcap to settings?
     shader.texture("uNormals", context.tex.gbuffer.normals.ID, 1);
 
-    context.getRandomBuffer().update(camera.frustum.cornerVectors.data(), 5*4).attrib(1).pointer_float(4).divisor(0);
+    context.getRandomBuffer().update(camera.frustum.cornerVectors.data(), 5 * 4).attrib(1).pointer_float(4).divisor(0);
     context.drawScreen();
 
     gl::DisableVertexAttribArray(0);
@@ -423,7 +430,7 @@ void Effects::matcap(camera::Camera &camera){
     context.errors();
 }
 
-void Effects::filmGrain(){
+void Effects::filmGrain() {
     /*
     * state.state("
     *   stage: LDR
@@ -438,7 +445,8 @@ void Effects::filmGrain(){
     shader.texture("uTexture", context.tex.gbuffer.color);
 
     uint bindingPoint = 1;
-    u32 blockIndex = gl::GetUniformBlockIndex(shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
+    u32 blockIndex = gl::GetUniformBlockIndex(
+        shader.ID, "UniformBufferObject"); // * get ubo index from shader, should be set to constant
     console.clog("ubo index:", blockIndex, sizeof(Uniforms));
     gl::UniformBlockBinding(shader.ID, blockIndex, bindingPoint); // * bind block to binding point
 

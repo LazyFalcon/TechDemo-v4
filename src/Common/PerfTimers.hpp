@@ -1,6 +1,6 @@
 #pragma once
-#include "Timer.hpp"
 #include <queue>
+#include "Timer.hpp"
 
 typedef u64 timeType;
 
@@ -17,8 +17,8 @@ struct TimeRecord // in 1e-6s
 class CpuTimerScoped
 {
 public:
-    CpuTimerScoped(const std::string &name);
-    CpuTimerScoped(const std::string &name, i32 line);
+    CpuTimerScoped(const std::string& name);
+    CpuTimerScoped(const std::string& name, i32 line);
     ~CpuTimerScoped();
     void between(i32 line);
 
@@ -26,6 +26,7 @@ public:
     static void writeToFile();
     static bool printRecords;
     static bool saveRecords;
+
 private:
     const std::string name;
     Timer<timeType, 1'000'000, 1> timer;
@@ -36,12 +37,13 @@ private:
 class GpuTimerScoped
 {
 public:
-    GpuTimerScoped(const std::string &name);
+    GpuTimerScoped(const std::string& name);
     ~GpuTimerScoped();
     static void init();
     static void print();
     static void writeToFile();
     static std::map<std::string, std::pair<u32, TimeRecord>> gpuRecords;
+
 private:
     static std::queue<u32> freeTimerIds;
 };

@@ -1,7 +1,7 @@
 #pragma once
+#include "Color.hpp"
 #include "Events.hpp"
 #include "RenderDataCollector.hpp"
-#include "Color.hpp"
 
 class PlasmaFlashEvent : public Event
 {
@@ -12,17 +12,16 @@ public:
     float lifetime {100};
 
     struct Sparkle
-    {
-
-    };
+    {};
     std::vector<Sparkle> sparkles;
 
-    bool handle(App &app){ /// dodać dt?
+    bool handle(App& app) { /// dodać dt?
         lifetime -= 16.f;
-        if(lifetime < 0) return true;
+        if(lifetime < 0)
+            return true;
 
         // if(lifetime > 170){
-            sizeA *= 2;
+        sizeA *= 2;
         // }
         // else {
         //     sizeA *= 0.1;

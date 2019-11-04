@@ -1,19 +1,19 @@
 #pragma once
-#include "input-utils.hpp"
 #include "input-mouse-state.hpp"
+#include "input-utils.hpp"
 
 using Lambda = std::function<void(void)>;
-using Lambda2Inputs = std::function<void(float,float)>;
+using Lambda2Inputs = std::function<void(float, float)>;
 
 template<typename ActionSignature>
 struct Action
 {
-    Action(ActionSignature f) : func(f){}
+    Action(ActionSignature f) : func(f) {}
     ActionSignature func;
     u32 lastTimeUsed;
     u32 noOfRepeats;
     template<typename... Args>
-    void operator () (Args&... args){
+    void operator()(Args&... args) {
         if(func)
             func(args...);
     }
@@ -31,8 +31,9 @@ private:
     std::function<void(const std::string&)> m_forwardAction;
     std::string m_name;
     KeyActionModifier m_currentBinding {};
+
 public:
-    Input(InputDispatcher& inputDispatcher, std::string name="") : inputDispatcher(inputDispatcher), m_name(name){}
+    Input(InputDispatcher& inputDispatcher, std::string name = "") : inputDispatcher(inputDispatcher), m_name(name) {}
     ~Input();
     bool execute(int k, int a, int m, u32 currentTime);
     bool executeTwoArgs(int arg, float x, float y);
@@ -52,17 +53,18 @@ public:
     Input& off(Lambda&&);
     Input& on(Lambda2Inputs&&);
 
-    InputDispatcher& getDispatcher(){
+    InputDispatcher& getDispatcher() {
         return inputDispatcher;
     }
 
     bool active {false};
 
     u32 repeatTresholdTime {555};
-    struct {
+    struct
+    {
         u32 noOfRepeats; // * each key, .on or .off #repeats increases if fitrs in repeatTresholdTime since last
-        u32 onHoldTime; // * valid for hold keys, time since key was pressed
-        bool release; // * release key from processing
+        u32 onHoldTime;  // * valid for hold keys, time since key was pressed
+        bool release;    // * release key from processing
     } currentKey {};
 };
 

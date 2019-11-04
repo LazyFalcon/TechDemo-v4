@@ -23,10 +23,13 @@ public:
     void updateGraphic(float dt) override;
     void focusOn() override {}
     void focusOff() override {}
-    bool hasFocus() override {return false;}
+    bool hasFocus() override {
+        return false;
+    }
     Vehicle& eq() override {
         return m_vehicle;
     }
+
 private:
     AiSharedState m_state;
     std::unique_ptr<AiControl> m_control;

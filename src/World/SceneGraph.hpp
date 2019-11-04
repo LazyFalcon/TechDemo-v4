@@ -3,7 +3,6 @@
 #include "Foliage.hpp"
 #include "GPUResources.hpp"
 
-
 static const i32 NoOfLevels = 5;
 namespace camera
 {

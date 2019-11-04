@@ -11,15 +11,16 @@ enum class BlurOptions
 };
 class RendererUtils
 {
-    Window &window;
-    Context &context;
+    Window& window;
+    Context& context;
+
 public:
-    RendererUtils(Window &window, Context &context) : window(window), context(context){}
-    void drawBackground(const std::string &image);
+    RendererUtils(Window& window, Context& context) : window(window), context(context) {}
+    void drawBackground(const std::string& image);
     void blurBuffer();
     void renderBlurred();
     void takeScreenShot();
-    const Texture& bilateralAOBlur(const Texture &source, float kernel = 5.f);
+    const Texture& bilateralAOBlur(const Texture& source, float kernel = 5.f);
 
     Texture extractBrightParts(Texture& source);
 

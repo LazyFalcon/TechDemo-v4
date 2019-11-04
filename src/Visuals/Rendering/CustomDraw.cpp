@@ -2,11 +2,11 @@
 #include "CustomDraw.hpp"
 #include "Constants.hpp"
 
-namespace graphic {
-
+namespace graphic
+{
 std::map<u32, std::map<u32, std::vector<CustomDrawMesh>>> CustomDraw::renderQueues;
 
-CustomDraw::CustomDraw(const std::string &params){
+CustomDraw::CustomDraw(const std::string& params) {
     // if(params.find("shapes") != std::string::npos){
     //     vao = Shape::shapes;
     //     models.emplace("point", Mesh{0,1,1, gl::TRIANGLE_STRIP});
@@ -20,7 +20,7 @@ CustomDraw::CustomDraw(const std::string &params){
     // }
 }
 
-void CustomDraw::loadFromFile(const std::string &filename){
+void CustomDraw::loadFromFile(const std::string& filename) {
     // std::string ymlPath;
     // std::string daePath;
     // if(not findFile("../res", filename+".yml", "-r -ext", ymlPath) or
@@ -39,16 +39,16 @@ void CustomDraw::loadFromFile(const std::string &filename){
     // }
 }
 
-void CustomDraw::finalize(){
+void CustomDraw::finalize() {
     // vao = loader.build();
 }
 
-CustomDraw& CustomDraw::model(const std::string &name){
+CustomDraw& CustomDraw::model(const std::string& name) {
     // collectedDrawMesh.mesh = models[name];
     // collectedDrawMesh.tr = defaultProjection;
     return *this;
 }
-CustomDraw& CustomDraw::shape(const std::string &name){
+CustomDraw& CustomDraw::shape(const std::string& name) {
     // collectedDrawMesh.mesh = models[name];
     // collectedDrawMesh.tr = defaultProjection;
     return *this;

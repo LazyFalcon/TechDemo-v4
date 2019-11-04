@@ -10,6 +10,7 @@ private:
     bool hasLimits;
     float min, max;
     const int targetingAxisIdx = 1;
+
 public:
     InverseKinematics(const Yaml& params);
     std::array<float, 3> calculate(const glm::mat4& moduleWS, glm::vec4 targetWS) const;

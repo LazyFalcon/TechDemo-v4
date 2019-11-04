@@ -1,18 +1,18 @@
 #include "core.hpp"
-#include <cstddef>
 #include "Grass.hpp"
-#include "PerfCounter.hpp"
-
-#include "ResourceLoader.hpp"
+#include <cstddef>
 #include "Assets.hpp"
-#include "Yaml.hpp"
-#include "Sampler2D.hpp"
+#include "PerfCounter.hpp"
 #include "PerfTimers.hpp"
+#include "ResourceLoader.hpp"
+#include "Sampler2D.hpp"
+#include "Yaml.hpp"
 // INFO: lod 0 is the lovest level of detail
 // level 3 is the most detailed, so 3 is better and more detailed than 2
 const float lodDistances[] = {130, 65, 40, 20};
 
-namespace doc {
+namespace doc
+{
 /*
     http://twvideo01.ubm-us.net/o1/vault/GDC2014/Presentations/Gollent_Marcin_Landscape_Creation_and.pdf
     -> color of grass is sampled from top-down view of terrain
@@ -42,8 +42,8 @@ glm::vec4 GrassField::size;
 // create new VAO which shares vbos(verts, uvs, normals) with commonVao
 // TODO: create vao for scene foliage, grass meshes will vary with scenes
 const u32 VERTICES = 0, UVS = 1, NORMALS = 2, POSITIONS = 3, SCALE = 4, FALLOF = 5;
-void Grass::initVBO(){
-    auto &commonVao = assets::getVao("Common");
+void Grass::initVBO() {
+    auto& commonVao = assets::getVao("Common");
     vao.setup();
     vao.vbo[VERTICES] = commonVao.vbo[VERTICES];
     vao.vbo[VERTICES].bind().attrib(VERTICES).pointer_float(4).divisor(0);
@@ -54,45 +54,54 @@ void Grass::initVBO(){
     vao.ibo = commonVao.ibo;
     vao.ibo.bind();
 
-    vao.vbo[POSITIONS].setup(sizeof(GrassField)*MAX_FIELD_COUNT/sizeof(float), true)
-        .attrib(POSITIONS).pointer_float(4, (sizeof(SingleGrassPatch)), (void*)offsetof(SingleGrassPatch, position)).divisor(1)
-        .attrib(SCALE).pointer_float(1, sizeof(SingleGrassPatch), (void*)offsetof(SingleGrassPatch, size)).divisor(1)
-        .attrib(FALLOF).pointer_float(1, sizeof(SingleGrassPatch), (void*)offsetof(SingleGrassPatch, fallof)).divisor(1);
+    vao.vbo[POSITIONS]
+        .setup(sizeof(GrassField) * MAX_FIELD_COUNT / sizeof(float), true)
+        .attrib(POSITIONS)
+        .pointer_float(4, (sizeof(SingleGrassPatch)), (void*)offsetof(SingleGrassPatch, position))
+        .divisor(1)
+        .attrib(SCALE)
+        .pointer_float(1, sizeof(SingleGrassPatch), (void*)offsetof(SingleGrassPatch, size))
+        .divisor(1)
+        .attrib(FALLOF)
+        .pointer_float(1, sizeof(SingleGrassPatch), (void*)offsetof(SingleGrassPatch, fallof))
+        .divisor(1);
     vao();
 
     GrassField::init();
 }
-void Grass::loadData(ResourceLoader &loader, const Yaml &cfg){
+void Grass::loadData(ResourceLoader& loader, const Yaml& cfg) {
     texture = loader.loadImage("Grass.png");
 
     densitySampler = std::make_shared<Sampler2D>(resPath + "textures/GrassDensity.png");
 }
-void Grass::updateBuffer(){
+void Grass::updateBuffer() {
     PerfCounter::records["fieldCount: "] = GrassField::noOfpatchData;
-    vao.vbo[POSITIONS].update(GrassField::patchData.data(), sizeof(SingleGrassPatch)/sizeof(float)*getPatchCount())();
+    vao.vbo[POSITIONS].update(GrassField::patchData.data(),
+                              sizeof(SingleGrassPatch) / sizeof(float) * getPatchCount())();
 }
-void GrassField::init(){
+void GrassField::init() {
     patchData.reserve(2048);
     patchDataOwner.reserve(2048);
 }
 u32 planted(0), removed(0);
-void GrassField::remove(){
-    if(lod == OUT_OF_VIEW) return;
-    for(i32 i=0; i<=lod; i++){
-    // for(i32 i=0; i<=3; i++){
-        if(fieldIds[i] >= 0){
+void GrassField::remove() {
+    if(lod == OUT_OF_VIEW)
+        return;
+    for(i32 i = 0; i <= lod; i++) {
+        // for(i32 i=0; i<=3; i++){
+        if(fieldIds[i] >= 0) {
             patchDataOwner[fieldIds[i]] = nullptr;
             removed++;
         }
     }
-    fieldIds = {{-1,-1,-1,-1}};
+    fieldIds = {{-1, -1, -1, -1}};
     lod = OUT_OF_VIEW;
 }
-bool GrassField::updateLod(const glm::vec4 &eye, QuadTree &QT){
-    auto getLod = [](const glm::vec4 &p2, const glm::vec4 &p1) -> i32 {
+bool GrassField::updateLod(const glm::vec4& eye, QuadTree& QT) {
+    auto getLod = [](const glm::vec4& p2, const glm::vec4& p1) -> i32 {
         float distance = glm::distance(p1.xyz(), p2.xyz());
-        for(i32 lod=3; lod>=0; lod--){
-            if(distance < lodDistances[lod]){
+        for(i32 lod = 3; lod >= 0; lod--) {
+            if(distance < lodDistances[lod]) {
                 return lod;
             }
         }
@@ -100,16 +109,17 @@ bool GrassField::updateLod(const glm::vec4 &eye, QuadTree &QT){
     };
 
     i32 newLod = getLod(eye, center);
-    if(newLod == lod) return false;
+    if(newLod == lod)
+        return false;
 
-    if(newLod > lod){ // plant grass in new levels
-        for(i32 i=lod+1; i<= newLod; i++){
+    if(newLod > lod) { // plant grass in new levels
+        for(i32 i = lod + 1; i <= newLod; i++) {
             plantGrass(i, QT);
             planted++;
         }
     }
-    else if(newLod < lod){ // remove grass from levels
-        for(i32 i=lod; i> newLod; i--){
+    else if(newLod < lod) { // remove grass from levels
+        for(i32 i = lod; i > newLod; i--) {
             patchDataOwner[fieldIds[i]] = nullptr;
             planted--;
         }
@@ -117,9 +127,9 @@ bool GrassField::updateLod(const glm::vec4 &eye, QuadTree &QT){
     lod = newLod;
     return true;
 }
-void GrassField::plantGrass(i32 lodLevel, QuadTree &QT){
+void GrassField::plantGrass(i32 lodLevel, QuadTree& QT) {
     patchData.emplace_back();
-    fieldIds[lodLevel] = patchData.size()-1;
+    fieldIds[lodLevel] = patchData.size() - 1;
     patchDataOwner.push_back(this);
     noOfpatchData++;
 
@@ -128,87 +138,90 @@ void GrassField::plantGrass(i32 lodLevel, QuadTree &QT){
     std::uniform_real_distribution<float> y(center.y + size.y, center.y - size.y);
     std::uniform_real_distribution<float> fallofFix(2.f, 10.f);
 
-    auto sample = [&, this](glm::vec4 &position) -> bool {
+    auto sample = [&, this](glm::vec4& position) -> bool {
         auto result = QT.sampleHeight(position, owner);
-        position.z = result.position.z - (1 - result.normal.z)*2;
+        position.z = result.position.z - (1 - result.normal.z) * 2;
         position.w = 0.f;
-        if(result.normal.z < 0.93) position.z = -100000;
+        if(result.normal.z < 0.93)
+            position.z = -100000;
         return result.normal.z > 0.9;
     };
     u32 failureCount(0), maxFailures(2);
 
-    for(u32 i=0; i<NO_OF_GRASS_PATCHES_IN_FIELD; i++){
-        auto &patch = patchData.back()[i];
+    for(u32 i = 0; i < NO_OF_GRASS_PATCHES_IN_FIELD; i++) {
+        auto& patch = patchData.back()[i];
         patch.position = glm::vec4(x(generator), y(generator), 0, 0);
 
-        if(not sample(patch.position)){
-        // if(not sample(patch.position) && failureCount++ < maxFailures){
+        if(not sample(patch.position)) {
+            // if(not sample(patch.position) && failureCount++ < maxFailures){
             // i--;
             patch.size = 0;
         }
-        else if(failureCount >= maxFailures){ // skip patch
+        else if(failureCount >= maxFailures) { // skip patch
             failureCount = 0;
             continue;
         }
         else {
             patch.size = 1;
             // patch.size = 2;
-            patch.fallof = lodDistances[lodLevel]-fallofFix(generator);
+            patch.fallof = lodDistances[lodLevel] - fallofFix(generator);
         }
     }
-
 }
-void GrassField::cleanup(){
+void GrassField::cleanup() {
     u32 trimmed(0), nullptrs(0);
-    auto trim = [&trimmed, &nullptrs](){
-        for(i32 i=noOfpatchData-1; i>=0; i--){
-            if(patchDataOwner[i] == nullptr){
+    auto trim = [&trimmed, &nullptrs]() {
+        for(i32 i = noOfpatchData - 1; i >= 0; i--) {
+            if(patchDataOwner[i] == nullptr) {
                 noOfpatchData--;
                 trimmed++;
                 nullptrs++;
                 // console.log("trimmed:", i);
             }
-            else return;
+            else
+                return;
         }
     };
-    auto overwritePatchData = [](i32 from, i32 to){
+    auto overwritePatchData = [](i32 from, i32 to) {
         patchData[to] = patchData[from];
         std::swap(patchDataOwner[to], patchDataOwner[from]);
-        for(auto &p : patchDataOwner[to]->fieldIds)
-            if(p == from){
+        for(auto& p : patchDataOwner[to]->fieldIds)
+            if(p == from) {
                 p = to;
                 return;
             }
     };
 
     trim();
-    for(i32 i=0; i<noOfpatchData; i++){
-        if(patchDataOwner[i] == nullptr){
-            overwritePatchData(noOfpatchData-1, i);
+    for(i32 i = 0; i < noOfpatchData; i++) {
+        if(patchDataOwner[i] == nullptr) {
+            overwritePatchData(noOfpatchData - 1, i);
             trim();
         }
     }
     patchData.resize(noOfpatchData);
     patchDataOwner.resize(noOfpatchData);
 }
-void Grass::update(glm::vec4 eyePos){
-    if(QT.lodLevels[0].removedNodes.size() == 0 and QT.lodLevels[0].addedNodes.size() == 0) return;
+void Grass::update(glm::vec4 eyePos) {
+    if(QT.lodLevels[0].removedNodes.size() == 0 and QT.lodLevels[0].addedNodes.size() == 0)
+        return;
     CPU_SCOPE_TIMER("Grass::update");
-    GrassField::size = glm::vec4(QT.chunkSize.x/4.f);
+    GrassField::size = glm::vec4(QT.chunkSize.x / 4.f);
     bool updateGpu = false;
     removed = 0;
-    for(auto &it : QT.lodLevels[0].removedNodes){
+    for(auto& it : QT.lodLevels[0].removedNodes) {
         if(it->payload.grassData)
-             for(auto &fieldId : it->payload.grassData->fields){
+            for(auto& fieldId : it->payload.grassData->fields) {
                 fieldId->remove();
                 grassFields.remove(*fieldId);
                 updateGpu = true;
             }
     }
 
-    for(auto &it : QT.lodLevels[0].addedNodes){
-        if(not it->payload.grassData) it->payload.grassData = std::make_unique<GrassData>();
-        for(i32 fieldId=0; fieldId<4; fieldId++){
+    for(auto& it : QT.lodLevels[0].addedNodes) {
+        if(not it->payload.grassData)
+            it->payload.grassData = std::make_unique<GrassData>();
+        for(i32 fieldId = 0; fieldId < 4; fieldId++) {
             i32 newId = grassFields.size();
             grassFields.emplace_back(fieldId, it);
             updateGpu = true;
@@ -217,11 +230,9 @@ void Grass::update(glm::vec4 eyePos){
 
     GrassField::cleanup();
     planted = 0;
-    for(auto &field : grassFields){
-        updateGpu |= field.updateLod(eyePos, QT);
-    }
+    for(auto& field : grassFields) { updateGpu |= field.updateLod(eyePos, QT); }
 
-    if(updateGpu){
+    if(updateGpu) {
         GrassField::cleanup();
         updateBuffer();
     }

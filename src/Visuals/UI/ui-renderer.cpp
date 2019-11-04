@@ -1,14 +1,13 @@
 #include "core.hpp"
 #include "ui-renderer.hpp"
+#include "Assets.hpp"
+#include "Context.hpp"
+#include "PerfTimers.hpp"
 #include "ui-rendered.hpp"
 #include "ui-text.hpp"
-#include "Context.hpp"
-#include "Assets.hpp"
-#include "PerfTimers.hpp"
 
-
-void UIRender::blurBackgroundCumulative(RenderedUIItems&){}
-void UIRender::blurBackgroundEven(RenderedUIItems& ui){
+void UIRender::blurBackgroundCumulative(RenderedUIItems&) {}
+void UIRender::blurBackgroundEven(RenderedUIItems& ui) {
     auto& polygons = ui.get<RenderedUIItems::ToBlur>();
     m_context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
 
@@ -17,32 +16,31 @@ void UIRender::blurBackgroundEven(RenderedUIItems& ui){
     m_context.fbo[2].tex(m_context.tex.half.a)();
 
     auto shader = assets::bindShader("blur-horizontal");
-    shader.uniform("pxViewSize", m_window.size*0.5f);
-    shader.uniform("uTexelSize", m_window.pixelSize*2.f);
+    shader.uniform("pxViewSize", m_window.size * 0.5f);
+    shader.uniform("uTexelSize", m_window.pixelSize * 2.f);
     shader.texture("uTexture", m_context.tex.gbuffer.color, 0);
-    for(auto& poly : polygons){
-        shader.uniform("pxBlurPolygon", poly.poly*0.5f);
+    for(auto& poly : polygons) {
+        shader.uniform("pxBlurPolygon", poly.poly * 0.5f);
         gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
     }
 
     m_context.fbo[2].tex(m_context.tex.half.b)();
 
     shader = assets::bindShader("blur-vertical");
-    shader.uniform("pxViewSize", m_window.size*0.5f);
-    shader.uniform("uTexelSize", m_window.pixelSize*2.f);
+    shader.uniform("pxViewSize", m_window.size * 0.5f);
+    shader.uniform("uTexelSize", m_window.pixelSize * 2.f);
     shader.texture("uTexture", m_context.tex.half.a, 0);
-    for(auto& poly : polygons){
-        shader.uniform("pxBlurPolygon", poly.poly*0.5f);
+    for(auto& poly : polygons) {
+        shader.uniform("pxBlurPolygon", poly.poly * 0.5f);
         gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
     }
-
 
     shader = assets::bindShader("copy-rect");
     m_context.fbo[1].tex(m_context.tex.full.a)();
 
     shader.uniform("pxViewSize", m_window.size);
     shader.texture("uTexture", m_context.tex.half.b, 0);
-    for(auto& poly : polygons){
+    for(auto& poly : polygons) {
         shader.uniform("pxCopyPolygon", poly.poly);
         gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
     }
@@ -51,8 +49,7 @@ void UIRender::blurBackgroundEven(RenderedUIItems& ui){
     m_context.errors();
 }
 
-void UIRender::depthPrepass(RenderedUIItems& ui){
-
+void UIRender::depthPrepass(RenderedUIItems& ui) {
     m_context.fbo[1].tex(m_context.tex.gbuffer.depth)();
     gl::ClearDepth(1);
     gl::Clear(gl::DEPTH_BUFFER_BIT);
@@ -64,7 +61,7 @@ void UIRender::depthPrepass(RenderedUIItems& ui){
     gl::Disable(gl::BLEND);
 
     auto& backgrounds = ui.get<RenderedUIItems::Background>();
-    std::sort(backgrounds.begin(), backgrounds.end(), [](const auto& a, const auto& b){return a.depth < b.depth;});
+    std::sort(backgrounds.begin(), backgrounds.end(), [](const auto& a, const auto& b) { return a.depth < b.depth; });
 
     auto shader = assets::getShader("ui-panel-background-depth");
     shader.bind();
@@ -72,18 +69,27 @@ void UIRender::depthPrepass(RenderedUIItems& ui){
     shader.uniform("uHeight", m_window.size.y);
 
     m_context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
-    m_context.getRandomBuffer().update(backgrounds)
-        .attrib(1).pointer_float(4, sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, box)).divisor(1)
-        .attrib(2).pointer_float(1, sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, texture)).divisor(1)
-        .attrib(3).pointer_float(1, sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, depth)).divisor(1)
-        .attrib(4).pointer_color(sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, color)).divisor(1);
+    m_context.getRandomBuffer()
+        .update(backgrounds)
+        .attrib(1)
+        .pointer_float(4, sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, box))
+        .divisor(1)
+        .attrib(2)
+        .pointer_float(1, sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, texture))
+        .divisor(1)
+        .attrib(3)
+        .pointer_float(1, sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, depth))
+        .divisor(1)
+        .attrib(4)
+        .pointer_color(sizeof(RenderedUIItems::Background), (void*)offsetof(RenderedUIItems::Background, color))
+        .divisor(1);
 
     gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, backgrounds.size());
     m_context.errors();
 }
 
 template<>
-void UIRender::render(std::vector<RenderedUIItems::Background>& backgrounds){
+void UIRender::render(std::vector<RenderedUIItems::Background>& backgrounds) {
     auto shader = assets::getShader("ui-panel-background");
     shader.bind();
     shader.uniform("uWidth", m_window.size.x);
@@ -103,17 +109,24 @@ void UIRender::render(std::vector<RenderedUIItems::Background>& backgrounds){
 }
 
 template<>
-void UIRender::render(std::vector<RenderedUIItems::ColoredBox>& coloredBoxes){
+void UIRender::render(std::vector<RenderedUIItems::ColoredBox>& coloredBoxes) {
     auto shader = assets::getShader("ui-panel-coloredPolygon");
     shader.bind();
     shader.uniform("uWidth", m_window.size.x);
     shader.uniform("uHeight", m_window.size.y);
 
     m_context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
-    m_context.getRandomBuffer().update(coloredBoxes)
-        .attrib(1).pointer_float(4, sizeof(RenderedUIItems::ColoredBox), (void*)offsetof(RenderedUIItems::ColoredBox, box)).divisor(1)
-        .attrib(2).pointer_float(1, sizeof(RenderedUIItems::ColoredBox), (void*)offsetof(RenderedUIItems::ColoredBox, depth)).divisor(1)
-        .attrib(3).pointer_color(sizeof(RenderedUIItems::ColoredBox), (void*)offsetof(RenderedUIItems::ColoredBox, color)).divisor(1);
+    m_context.getRandomBuffer()
+        .update(coloredBoxes)
+        .attrib(1)
+        .pointer_float(4, sizeof(RenderedUIItems::ColoredBox), (void*)offsetof(RenderedUIItems::ColoredBox, box))
+        .divisor(1)
+        .attrib(2)
+        .pointer_float(1, sizeof(RenderedUIItems::ColoredBox), (void*)offsetof(RenderedUIItems::ColoredBox, depth))
+        .divisor(1)
+        .attrib(3)
+        .pointer_color(sizeof(RenderedUIItems::ColoredBox), (void*)offsetof(RenderedUIItems::ColoredBox, color))
+        .divisor(1);
 
     gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, coloredBoxes.size());
     m_context.errors();
@@ -129,7 +142,7 @@ void UIRender::render(std::vector<RenderedUIItems::ColoredBox>& coloredBoxes){
 }
 
 template<>
-void UIRender::render(std::vector<Text::Rendered>& text){
+void UIRender::render(std::vector<Text::Rendered>& text) {
     auto shader = assets::getShader("ui-text");
     shader.bind();
     shader.uniform("uFrameSize", m_window.size);
@@ -137,14 +150,26 @@ void UIRender::render(std::vector<Text::Rendered>& text){
     shader.atlas("uTexture", assets::getAtlas("Fonts").id);
 
     m_context.shape.quadCorner.bind().attrib(0).pointer_float(4).divisor(0);
-    m_context.getRandomBuffer().update(text)
-        .attrib(1).pointer_float(4, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, polygon)).divisor(1)
-        .attrib(2).pointer_float(3, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, uv)).divisor(1)
-        .attrib(3).pointer_float(2, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, uvSize)).divisor(1)
-        .attrib(4).pointer_float(1, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, depth)).divisor(1)
-        .attrib(5).pointer_color(sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, color)).divisor(1);
+    m_context.getRandomBuffer()
+        .update(text)
+        .attrib(1)
+        .pointer_float(4, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, polygon))
+        .divisor(1)
+        .attrib(2)
+        .pointer_float(3, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, uv))
+        .divisor(1)
+        .attrib(3)
+        .pointer_float(2, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, uvSize))
+        .divisor(1)
+        .attrib(4)
+        .pointer_float(1, sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, depth))
+        .divisor(1)
+        .attrib(5)
+        .pointer_color(sizeof(Text::Rendered), (void*)offsetof(Text::Rendered, color))
+        .divisor(1);
 
-    gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4, text.size()); // TODO: check if simple draw arrays wouldn't be faster
+    gl::DrawArraysInstanced(gl::TRIANGLE_STRIP, 0, 4,
+                            text.size()); // TODO: check if simple draw arrays wouldn't be faster
     m_context.errors();
 
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
@@ -158,7 +183,7 @@ void UIRender::render(std::vector<Text::Rendered>& text){
     text.clear();
 }
 
-void UIRender::render(RenderedUIItems& ui){
+void UIRender::render(RenderedUIItems& ui) {
     // auto fullA = m_context.tex.full.a.acquire();
     // auto depth = m_context.tex.gbuffer.depth.acquire();
     m_context.defaultVAO.bind();
@@ -189,7 +214,6 @@ void UIRender::render(RenderedUIItems& ui){
     // render the rest with depth test
     render(ui.get<Text::Rendered>());
 
-
     m_context.fbo[1].tex(m_context.tex.gbuffer.color)();
 
     gl::Disable(gl::DEPTH_TEST);
@@ -200,5 +224,4 @@ void UIRender::render(RenderedUIItems& ui){
     shader.bind();
     shader.texture("uTexture", m_context.tex.full.a);
     m_context.drawScreen();
-
 }

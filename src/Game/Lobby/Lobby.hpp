@@ -15,6 +15,7 @@ private:
     InputUserPointer& m_inputUserPointer;
     std::shared_ptr<Input> m_input;
     std::unique_ptr<LobbyUI> m_view;
+
 public:
     Lobby(Imgui&, InputDispatcher&, Settings&, InputUserPointer&);
     ~Lobby();

@@ -1,7 +1,10 @@
 #pragma once
-#include "Timer.hpp"
 #include "Logger.hpp"
-namespace UI { class IMGUI; }
+#include "Timer.hpp"
+namespace UI
+{
+class IMGUI;
+}
 
 class PerfCounter
 {
@@ -18,4 +21,4 @@ public:
     static u32 drawCalls;
 };
 
-void showPerfCounter(UI::IMGUI &ui);
+void showPerfCounter(UI::IMGUI& ui);

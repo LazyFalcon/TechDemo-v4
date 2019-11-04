@@ -3,8 +3,8 @@
 class RandomNumberGenerator
 {
 public:
-    RandomNumberGenerator(u32 seed) : generator(seed){}
-    void reset(u32 seed){
+    RandomNumberGenerator(u32 seed) : generator(seed) {}
+    void reset(u32 seed) {
         generator.seed(seed);
     }
     // [0,1]
@@ -20,17 +20,17 @@ public:
     float normal(float);
     // [-1, 1]
     float uniform();
-    glm::vec4 randomOrtho(const glm::vec4& dir){
+    glm::vec4 randomOrtho(const glm::vec4& dir) {
         std::uniform_real_distribution<float> urd(-1, 1);
         glm::vec4 out(urd(generator), urd(generator), urd(generator), 0);
         return glm::normalize(out - dir * glm::dot(out, dir));
     }
     // [min, max]
-    float uniform(float a, float b){
+    float uniform(float a, float b) {
         std::uniform_real_distribution<float> urd(a, b);
         return urd(generator);
     }
-    int uniInt(int a, int b){
+    int uniInt(int a, int b) {
         std::uniform_int_distribution<int> urd(a, b);
         return urd(generator);
     }

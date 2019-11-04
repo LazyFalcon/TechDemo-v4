@@ -1,28 +1,26 @@
 #include "core.hpp"
 #include "ui-text.hpp"
 #include "Assets.hpp"
+#include "Logger.hpp"
 #include "Utils.hpp"
 #include "font.hpp"
-#include "font.hpp"
-#include "Logger.hpp"
 
 float LastTextLength;
 float LastTextHeight;
 
-
-float Text::getLen(const std::string &text){
+float Text::getLen(const std::string& text) {
     float len = 0.f;
     u8 letter;
-    for (u32 i = 0; i < text.size(); i++){
+    for(u32 i = 0; i < text.size(); i++) {
         letter = text[i];
         // len += fontInfo->m_letters[letter].size.x; // TODO:
     }
     return len;
 }
-float Text::getLen(const std::u16string &text){
+float Text::getLen(const std::u16string& text) {
     float len = 0.f;
     u8 letter;
-    for (u32 i = 0; i < text.size(); i++){
+    for(u32 i = 0; i < text.size(); i++) {
         letter = text[i];
         // len += fontInfo->m_letters[letter].size.x; // TODO:
     }
@@ -30,40 +28,38 @@ float Text::getLen(const std::u16string &text){
 }
 
 // this function is not doing text breaking,
-void Text::renderTo(RenderedText& container, const std::string& text){
+void Text::renderTo(RenderedText& container, const std::string& text) {
     auto& fontData = assets::getFont(font);
 
     glm::vec2 start = bounds.xy();
 
     // align horizontally
-    if(formatting == Left){}
-    else if(formatting == Centered){
+    if(formatting == Left) {}
+    else if(formatting == Centered) {
         float textLength = fontData.calculateTextLength(text);
-        start.x += std::max(0.f, bounds.z/2.f - std::min(textLength/2.f, bounds.z));
+        start.x += std::max(0.f, bounds.z / 2.f - std::min(textLength / 2.f, bounds.z));
     }
-    else if(formatting == Right){
+    else if(formatting == Right) {
         float textLength = fontData.calculateTextLength(text);
         start.x += std::max(0.f, bounds.z - textLength);
     }
-    else if(formatting == Justify){
+    else if(formatting == Justify) {
         float textLength = fontData.calculateTextLength(text);
-        start.x += std::max(0.f, bounds.z/2.f - std::min(textLength/2.f, bounds.z));
+        start.x += std::max(0.f, bounds.z / 2.f - std::min(textLength / 2.f, bounds.z));
     }
 
     // center vertically
-    {
-        start.y += (bounds[3] - fontData.base)*0.5f;
-    }
+    { start.y += (bounds[3] - fontData.base) * 0.5f; }
 
     start.x = floor(start.x);
     start.y = ceil(start.y);
 
-    for(u32 i = 0; i < text.size(); i++){
+    for(u32 i = 0; i < text.size(); i++) {
         int character = text[i];
-        const auto &symbol = fontData.symbols[character];
+        const auto& symbol = fontData.symbols[character];
 
-        if (i > 0){ // kerning
-            start.x -= fontData.kerning[int(text[i - 1])<<16 & character];
+        if(i > 0) { // kerning
+            start.x -= fontData.kerning[int(text[i - 1]) << 16 & character];
         }
 
         // check if text fits in bounds, cut otherwise
@@ -86,65 +82,53 @@ void Text::renderTo(RenderedText& container, const std::string& text){
         //     break;
         // }
         // console.log("", glm::vec4(start + symbol.pxOffset, symbol.pxSize));
-        container.push_back(Rendered{
-            {start + symbol.pxOffset, symbol.pxSize},
-            symbol.uv,
-            symbol.uvSize,
-            depth,
-            color
-        });
+        container.push_back(
+            Rendered {{start + symbol.pxOffset, symbol.pxSize}, symbol.uv, symbol.uvSize, depth, color});
         start.x += symbol.pxAdvance;
     }
 
     m_alreadyRendered = true;
 }
 
-void Text::renderTo(RenderedText& container, const std::u16string& text){
+void Text::renderTo(RenderedText& container, const std::u16string& text) {
     auto& fontData = assets::getFont(font);
 
     glm::vec2 start = bounds.xy();
 
     // align horizontally
-    if(formatting == Left){}
-    else if(formatting == Centered){
+    if(formatting == Left) {}
+    else if(formatting == Centered) {
         float textLength = fontData.calculateTextLength(text);
-        start.x += std::max(0.f, bounds.z/2.f - std::min(textLength/2.f, bounds.z));
+        start.x += std::max(0.f, bounds.z / 2.f - std::min(textLength / 2.f, bounds.z));
     }
-    else if(formatting == Right){
+    else if(formatting == Right) {
         float textLength = fontData.calculateTextLength(text);
         start.x += std::max(0.f, bounds.z - textLength);
     }
-    else if(formatting == Justify){
+    else if(formatting == Justify) {
         float textLength = fontData.calculateTextLength(text);
-        start.x += std::max(0.f, bounds.z/2.f - std::min(textLength/2.f, bounds.z));
+        start.x += std::max(0.f, bounds.z / 2.f - std::min(textLength / 2.f, bounds.z));
     }
 
     // center vertically
-    {
-        start.y += (bounds[3] - fontData.base)*0.5f;
-    }
+    { start.y += (bounds[3] - fontData.base) * 0.5f; }
 
     start.x = floor(start.x);
     start.y = ceil(start.y);
 
     console.clog("size", text.size());
 
-    for(u32 i = 0; i < text.size(); i++){
+    for(u32 i = 0; i < text.size(); i++) {
         char16_t character = text[i];
         console.clog("c", int(character));
-        const auto &symbol = fontData.symbols[character];
+        const auto& symbol = fontData.symbols[character];
 
         // if (i > 0){ // kerning
         //     start.x -= fontData.kerning[int(text[i - 1])<<16 & character];
         // }
 
-        container.push_back(Rendered{
-            {start + symbol.pxOffset, symbol.pxSize},
-            symbol.uv,
-            symbol.uvSize,
-            depth,
-            color
-        });
+        container.push_back(
+            Rendered {{start + symbol.pxOffset, symbol.pxSize}, symbol.uv, symbol.uvSize, depth, color});
         start.x += symbol.pxAdvance;
     }
 

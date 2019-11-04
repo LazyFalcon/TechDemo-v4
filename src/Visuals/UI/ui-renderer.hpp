@@ -15,9 +15,9 @@ private:
     void blurBackgroundEven(RenderedUIItems&);
 
     template<typename T>
-    void render(std::vector<T>&){}
+    void render(std::vector<T>&) {}
 
 public:
-    UIRender(Window& window, Context& context) : m_window(window), m_context(context){}
+    UIRender(Window& window, Context& context) : m_window(window), m_context(context) {}
     void render(RenderedUIItems&);
 };

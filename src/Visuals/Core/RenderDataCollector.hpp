@@ -38,10 +38,8 @@ struct Uniforms
 class RenderDataCollector
 {
 public:
-    using tupleOfContainers = std::tuple<std::vector<SkinnedMesh*>,
-                                         std::vector<ArmoredVehicleTracks*>,
-                                         std::vector<SimpleModelPbr>,
-                                         std::vector<PointLightSource>>;
+    using tupleOfContainers = std::tuple<std::vector<SkinnedMesh*>, std::vector<ArmoredVehicleTracks*>,
+                                         std::vector<SimpleModelPbr>, std::vector<PointLightSource>>;
 
     static tupleOfContainers collection;
     static CommandArray enviro;

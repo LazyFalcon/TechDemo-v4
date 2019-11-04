@@ -83,4 +83,7 @@ run: $(BIN)/$(TARGET_NAME)
 debug: $(BIN)/$(TARGET_NAME)
 	gdb $(BIN)/$(TARGET_NAME).exe -ex=run
 
+format:
+	find src/ -iname *.hpp -o -iname *.cpp | xargs clang-format -i
+
 .PHONY: clean

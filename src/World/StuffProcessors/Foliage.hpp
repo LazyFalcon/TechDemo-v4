@@ -1,8 +1,7 @@
 #pragma once
 #include "BaseStructs.hpp"
-#include "QuadTree.hpp"
-
 #include "GPUResources.hpp"
+#include "QuadTree.hpp"
 #include "Sampler2D.hpp"
 
 // https://www.opengl.org/sdk/docs/man/html/glMultiDrawElements.xhtml
@@ -20,7 +19,7 @@
 
 class Sampler2D;
 class btRigidBody;
- class PhysicalWorld;
+class PhysicalWorld;
 
 /**
   *  To plant trees we need
@@ -47,21 +46,23 @@ struct FoliageUniform
 };
 struct FoliagePhysics
 {
-    QTNode *owner { nullptr };
-    btRigidBody *rgBody { nullptr };
-    btGeneric6DofSpring2Constraint *rgJoint { nullptr };
-    FoliageModel *model { nullptr };
+    QTNode* owner {nullptr};
+    btRigidBody* rgBody {nullptr};
+    btGeneric6DofSpring2Constraint* rgJoint {nullptr};
+    FoliageModel* model {nullptr};
 
-    bool cracked { false };
+    bool cracked {false};
 };
 
 struct RenderData
 {
-    struct {
+    struct
+    {
         std::vector<u32> counts;
         std::vector<u32> start;
     } crown;
-    struct {
+    struct
+    {
         std::vector<u32> counts;
         std::vector<u32> start;
     } trunk;
@@ -70,20 +71,20 @@ struct RenderData
     std::vector<u32> shadowCasters;
     glm::vec4 bbMin, bbMax;
     u32 count {0};
-    u32 next(){
-        if(count == crown.counts.size()){
-            crown.counts.resize(crown.counts.size()+10);
-            crown.start.resize(crown.start.size()+10);
-            trunk.counts.resize(trunk.counts.size()+10);
-            trunk.start.resize(trunk.start.size()+10);
-            info.resize(info.size()+10);
-            uniforms.resize(uniforms.size()+10);
+    u32 next() {
+        if(count == crown.counts.size()) {
+            crown.counts.resize(crown.counts.size() + 10);
+            crown.start.resize(crown.start.size() + 10);
+            trunk.counts.resize(trunk.counts.size() + 10);
+            trunk.start.resize(trunk.start.size() + 10);
+            info.resize(info.size() + 10);
+            uniforms.resize(uniforms.size() + 10);
         }
         return count++;
     }
 
     glm::vec4 oscillation {};
-    u32 push(FoliageModel &foliage, QTNode *id, const FoliageUniform &f){
+    u32 push(FoliageModel& foliage, QTNode* id, const FoliageUniform& f) {
         u32 pos = next();
         crown.counts[pos] = foliage.mesh[0].crown.count;
         crown.start[pos] = foliage.mesh[0].crown.begin;
@@ -96,8 +97,8 @@ struct RenderData
         return pos;
     }
     void cleanup(std::vector<u32> FoliageData::*member);
-    void updatePhysics(glm::vec4 reference, PhysicalWorld &p);
-    static std::function<void(btRigidBody *&body, btGeneric6DofSpring2Constraint *constraint)> removeTreeFromPhysics;
+    void updatePhysics(glm::vec4 reference, PhysicalWorld& p);
+    static std::function<void(btRigidBody*& body, btGeneric6DofSpring2Constraint* constraint)> removeTreeFromPhysics;
 };
 
 class FoliageDensityMap
@@ -110,6 +111,7 @@ public:
     void drawDebug();
 
     u32 texture {0};
+
 private:
     void upload();
     u32 textureId {0};
@@ -128,13 +130,13 @@ class Foliage
 {
 public:
     ~Foliage();
-    u32 textureAtlasID{0};
+    u32 textureAtlasID {0};
     VAO meshVAO;
 
-    Foliage(QuadTree &qt, PhysicalWorld &p) : QT(qt), physics(p), densityMap(qt.size, qt.nodes){}
-    bool load(const Yaml &config);
+    Foliage(QuadTree& qt, PhysicalWorld& p) : QT(qt), physics(p), densityMap(qt.size, qt.nodes) {}
+    bool load(const Yaml& config);
     void update(glm::vec4 reference);
-    RenderData& getRenderData(){
+    RenderData& getRenderData() {
         return treeBatchData;
     }
     RenderData treeBatchData;
@@ -144,13 +146,13 @@ private:
     std::vector<FoliageModel> trees;
     std::vector<FoliageModel> shrubs;
     std::vector<FoliageModel> plants;
-    QuadTree &QT;
-    PhysicalWorld &physics;
+    QuadTree& QT;
+    PhysicalWorld& physics;
     std::shared_ptr<Sampler2D> densitySampler;
     FoliageDensityMap densityMap;
     std::vector<std::string> prepareAtlas();
 
-    void plantTrees(FoliageData &data, QTNode &node, QuadTree &QT);
+    void plantTrees(FoliageData& data, QTNode& node, QuadTree& QT);
 
     // rnd
 };

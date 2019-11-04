@@ -8,5 +8,4 @@ class intended to be DIed almost everywere, in order to collect data needed for 
 class FrameData
 {
 public:
-
 };

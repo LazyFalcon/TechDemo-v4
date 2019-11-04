@@ -24,7 +24,6 @@ public:
         m_putCommandHere = callback;
     }
 
-
 private:
     std::shared_ptr<Input> m_input;
     commandCallback m_putCommandHere;
@@ -33,7 +32,7 @@ private:
 class AiSelfControl : public AiControl
 {
 public:
-    AiSelfControl(){}
+    AiSelfControl() {}
 
     void update() override {}
     void newCommandCallback(commandCallback&& callback) override {

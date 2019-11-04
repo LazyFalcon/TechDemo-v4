@@ -21,13 +21,13 @@ public:
     float cameraHeight {0.0};
     glm::vec4 invWavelength {0.670f, 0.570f, 0.475f, 0};
 
-
-    GeoTimePosition &geoTimePosition;
+    GeoTimePosition& geoTimePosition;
     glm::mat4 planetMatrix;
 
-    Atmosphere(const Yaml &sett, GeoTimePosition &geoTimePosition);
+    Atmosphere(const Yaml& sett, GeoTimePosition& geoTimePosition);
     ~Atmosphere();
     void update(glm::vec4 lightDirection);
+
 private:
     bool tweak {false};
 };

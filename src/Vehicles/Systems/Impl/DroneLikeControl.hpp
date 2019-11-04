@@ -10,7 +10,12 @@ class PhysicalWorld;
 class DroneLikeControl : public VehicleControlSystem
 {
 private:
-    enum State {Moving, Breaking, Steady};
+    enum State
+    {
+        Moving,
+        Breaking,
+        Steady
+    };
     State state {Steady};
     PhysicalWorld& m_physics;
     btVector3 m_virtualPosition {};
@@ -27,7 +32,6 @@ private:
     float m_prevYAngle {0.f};
     float m_prevZAngle {0.f};
 
-
     btVector3 m_targetPosition;
     btVector3 m_targetDirection;
     btVector3 m_lookDirection;
@@ -37,7 +41,7 @@ private:
     btVector3 m_previouslyappliedForce {};
     btVector3 m_previouslyappliedTorque {};
     void computeState();
-    btVector3 getMoveDirection(glm::vec4 control,  const btTransform&) const;
+    btVector3 getMoveDirection(glm::vec4 control, const btTransform&) const;
     float accelerationAccordingToState() const;
 
     void adjustTargetHeightIfNeeded(btVector3&);

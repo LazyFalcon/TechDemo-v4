@@ -1,6 +1,4 @@
-#include "core_pch.hpp"
 #include <glm/glm.hpp>
-
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -22,21 +20,20 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/wrap.hpp>
+#include "core_pch.hpp"
 
 #ifdef USE_BULLET
-#include <btBulletDynamicsCommon.h>
+#    include <btBulletDynamicsCommon.h>
 #endif
 
 #include <boost/core/noncopyable.hpp>
-
-#include "Types.hpp"
 #include "Constants.hpp"
 #include "DefaultResourcePaths.hpp"
 #include "TimeEvents.hpp"
+#include "Types.hpp"
 
 using namespace std::literals;
 
 namespace fs = boost::filesystem;
-
 
 uint frame(); // * returns frame number, should be defined elsewhere

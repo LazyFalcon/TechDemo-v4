@@ -3,5 +3,14 @@
 
 enum class PointerActions
 {
-    None, Hover, LmbOn, LmbOff, LmbHold, RmbOn, RmbOff, RmbHold, PostClickAnimation, ActionOutside
+    None,
+    Hover,
+    LmbOn,
+    LmbOff,
+    LmbHold,
+    RmbOn,
+    RmbOff,
+    RmbHold,
+    PostClickAnimation,
+    ActionOutside
 };

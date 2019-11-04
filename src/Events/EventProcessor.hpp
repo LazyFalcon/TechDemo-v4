@@ -9,9 +9,10 @@ class EventProcessor
 {
 private:
     static std::list<std::shared_ptr<Event>> listOfEvents;
-    App &app;
+    App& app;
+
 public:
-    EventProcessor(App &app) : app(app){}
-    static void push(std::shared_ptr<Event> &e);
+    EventProcessor(App& app) : app(app) {}
+    static void push(std::shared_ptr<Event>& e);
     void process();
 };

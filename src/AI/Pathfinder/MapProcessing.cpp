@@ -1,17 +1,19 @@
 #include "core.hpp"
+#include "MapProcessing.hpp"
 #include "Assets.hpp"
 #include "Context.hpp"
 #include "Environment.hpp"
 #include "ImageLoader.hpp"
-#include "MapProcessing.hpp"
 #include "RendererUtils.hpp"
 #include "Scene.hpp"
 
-void updateMinMax(ResultMap& inout){
+void updateMinMax(ResultMap& inout) {
     float min(10000), max(-10000);
-    for(auto&it : inout.heightmap){
-        if(it < min) min = it;
-        if(it > max) max = it;
+    for(auto& it : inout.heightmap) {
+        if(it < min)
+            min = it;
+        if(it > max)
+            max = it;
     }
 
     inout.min = min;
@@ -22,20 +24,21 @@ void updateMinMax(ResultMap& inout){
 float zFar = 150;
 float zNear = -150;
 
-void unprojectDepth(ResultMap& inout){
-    for(auto & z : inout.heightmap) z = (2*z-1) * (zNear - zFar)/2.f;
+void unprojectDepth(ResultMap& inout) {
+    for(auto& z : inout.heightmap) z = (2 * z - 1) * (zNear - zFar) / 2.f;
 }
 
 Texture texture;
 Texture textureColor;
 uint fbo;
 
-void pathifinderProcessAndSaveDepthMap(Scene& scene, Context& context, ResultMap& inout){
+void pathifinderProcessAndSaveDepthMap(Scene& scene, Context& context, ResultMap& inout) {
     int width(inout.width), height(inout.height);
     //* create texture
     gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
     textureColor = Texture(gl::TEXTURE_2D, gl::RGBA8, width, height, 1, gl::RGBA, gl::UNSIGNED_INT, gl::LINEAR, 0);
-    texture = Texture(gl::TEXTURE_2D, gl::DEPTH_COMPONENT32F, width, height, 1, gl::DEPTH_COMPONENT, gl::FLOAT, gl::LINEAR, 0);
+    texture = Texture(gl::TEXTURE_2D, gl::DEPTH_COMPONENT32F, width, height, 1, gl::DEPTH_COMPONENT, gl::FLOAT,
+                      gl::LINEAR, 0);
     // auto texture = Texture(gl::TEXTURE_2D, gl::DEPTH_COMPONENT32F, width, height, 1, gl::DEPTH_COMPONENT, gl::FLOAT, gl::LINEAR, 0);
 
     //* create framebuffer
@@ -72,8 +75,8 @@ void pathifinderProcessAndSaveDepthMap(Scene& scene, Context& context, ResultMap
     auto shader = assets::bindShader("PathfinderDepthGeneration");
     shader.uniform("uProjectionView", mat);
     auto obstacleTransform = shader.location("uModel");
-    for(auto obstacle : obstacles){
-        auto &mesh = obstacle->graphic.mesh;
+    for(auto obstacle : obstacles) {
+        auto& mesh = obstacle->graphic.mesh;
         shader.uniform(obstacleTransform, obstacle->physics.transform);
         gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, mesh.offset());
     }
@@ -82,7 +85,7 @@ void pathifinderProcessAndSaveDepthMap(Scene& scene, Context& context, ResultMap
     gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
 
     //* save texture
-    inout.heightmap.resize(width*height);
+    inout.heightmap.resize(width * height);
     gl::BindFramebuffer(gl::READ_FRAMEBUFFER, fbo);
     gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, texture.ID, 0);
     gl::ReadPixels(0, 0, width, height, gl::DEPTH_COMPONENT, gl::FLOAT, (void*)inout.heightmap.data());

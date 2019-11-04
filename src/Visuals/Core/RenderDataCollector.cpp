@@ -1,11 +1,11 @@
 #include "core.hpp"
-#include "camera-data.hpp"
+#include "RenderDataCollector.hpp"
 #include "Constants.hpp"
 #include "GraphicEngine.hpp"
 #include "LightSource.hpp"
 #include "ModelLoader.hpp"
-#include "RenderDataCollector.hpp"
 #include "Window.hpp"
+#include "camera-data.hpp"
 
 RenderDataCollector::tupleOfContainers RenderDataCollector::collection;
 CommandArray RenderDataCollector::enviro;
@@ -15,13 +15,13 @@ camera::Camera RenderDataCollector::cameraOfThisFrame;
 std::vector<LightSource*> RenderDataCollector::lights[10];
 
 GraphicEngine* RenderDataCollector::enginePtr;
-Details& RenderDataCollector::details(){
+Details& RenderDataCollector::details() {
     return *(enginePtr->details);
 }
 
-void RenderDataCollector::collectCamera(camera::Camera& camera){
+void RenderDataCollector::collectCamera(camera::Camera& camera) {
     cameraOfThisFrame = camera;
-    uniforms.uFovTan = (float)tan(camera.fov*0.5f);
+    uniforms.uFovTan = (float)tan(camera.fov * 0.5f);
     uniforms.uNear = camera.nearDistance;
     uniforms.uFar = camera.farDistance;
     uniforms.uView = camera.view;
@@ -31,11 +31,11 @@ void RenderDataCollector::collectCamera(camera::Camera& camera){
     uniforms.exposture = 1.f;
     uniforms.gamma = 2.2f;
 }
-void RenderDataCollector::collectWindow(Window& window){
+void RenderDataCollector::collectWindow(Window& window) {
     uniforms.uWindowSize = window.size;
     uniforms.uPixelSize = window.pixelSize;
 }
-void RenderDataCollector::collectTime(float lastFrame, u64 sinceStart){
+void RenderDataCollector::collectTime(float lastFrame, u64 sinceStart) {
     uniforms.lastFrameTime = lastFrame;
     uniforms.sinceStartTime = sinceStart;
 }

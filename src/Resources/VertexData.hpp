@@ -1,11 +1,13 @@
 #pragma once
 #include <type_traits>
 
-#define HAS_MEMBER(x)\
-    template<typename T, typename = void>\
-    struct has_##x : std::false_type { };\
-    template<typename T>\
-    struct has_##x<T, decltype(T::x, void())> : std::true_type { };
+#define HAS_MEMBER(x)                                          \
+    template<typename T, typename = void>                      \
+    struct has_##x : std::false_type                           \
+    {};                                                        \
+    template<typename T>                                       \
+    struct has_##x<T, decltype(T::x, void())> : std::true_type \
+    {};
 
 HAS_MEMBER(normal)
 HAS_MEMBER(tangent)

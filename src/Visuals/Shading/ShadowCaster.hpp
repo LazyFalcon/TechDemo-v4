@@ -21,14 +21,9 @@ private:
 
     void initShadowMapCascade();
     std::vector<Mesh> getTerrainToRender(SceneGraph& sg);
-    glm::mat4 fitShadowProjectionAroundBoundingBox(camera::FrustmCorners& corners,
-                                                   Sun& sun,
-                                                   camera::Camera& camera,
-                                                   float minZ = 50.f,
-                                                   float maxZ = 50.f);
-    void calculateShadowProjectionMatrices(std::vector<camera::FrustmCorners>& frustumSlices,
-                                           glm::vec4 light,
-                                           Sun& sun,
+    glm::mat4 fitShadowProjectionAroundBoundingBox(camera::FrustmCorners& corners, Sun& sun, camera::Camera& camera,
+                                                   float minZ = 50.f, float maxZ = 50.f);
+    void calculateShadowProjectionMatrices(std::vector<camera::FrustmCorners>& frustumSlices, glm::vec4 light, Sun& sun,
                                            camera::Camera& camera);
 
 public:

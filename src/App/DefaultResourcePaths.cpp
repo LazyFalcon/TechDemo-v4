@@ -8,7 +8,7 @@ std::string rootPath;
 std::string screenshotsPath;
 std::string shaderPath;
 
-void resolvePaths(std::string fullPath){
+void resolvePaths(std::string fullPath) {
     fs::path p(fullPath);
     auto gameRootDir = p.parent_path().parent_path().generic_string();
     // for(auto& i : gameRootDir) if(i == '\\') i='/';

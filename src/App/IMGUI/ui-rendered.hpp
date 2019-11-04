@@ -1,8 +1,7 @@
 #pragma once
-#include "ui-text.hpp"
-#include <vector>
 #include <tuple>
-
+#include <vector>
+#include "ui-text.hpp"
 
 /*
 DOC:
@@ -82,26 +81,21 @@ struct RenderedUIItems
     std::tuple<
         // these are render as opaque elements in depth-pre pass
         std::vector<RenderedUIItems::Background>, // this also needs to be sorted
-        std::vector<RenderedUIItems::ToBlur>, // this also needs to be sorted
-        std::vector<RenderedUIItems::Image>,
-        std::vector<RenderedUIItems::ColoredImage>,
+        std::vector<RenderedUIItems::ToBlur>,     // this also needs to be sorted
+        std::vector<RenderedUIItems::Image>, std::vector<RenderedUIItems::ColoredImage>,
         std::vector<RenderedUIItems::ColoredBox>,
 
         // these not
-        std::vector<RenderedUIItems::Line>,
-        std::vector<RenderedUIItems::LineStrip>,
-        std::vector<Text::Rendered>
-    > prepared;
+        std::vector<RenderedUIItems::Line>, std::vector<RenderedUIItems::LineStrip>, std::vector<Text::Rendered>>
+        prepared;
 
     template<typename T>
-    std::vector<T>& get(){
+    std::vector<T>& get() {
         return std::get<std::vector<T>>(prepared);
     }
     template<typename T>
-    void put(const T& t){
+    void put(const T& t) {
         std::get<std::vector<T>>(prepared).push_back(t);
     }
-    void reset(){
-
-    }
+    void reset() {}
 };

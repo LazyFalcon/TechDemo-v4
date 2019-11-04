@@ -2,7 +2,6 @@
 
 namespace camera
 {
-
 class CameraHUDInterface
 {
 public:

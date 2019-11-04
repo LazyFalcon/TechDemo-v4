@@ -15,17 +15,17 @@ struct QTPayload
 
 struct TerrainData
 {
-    void *rgShape;
-    float *data;
+    void* rgShape;
+    float* data;
     float min;
     float max;
     float heightOffset;
     u32 size;
-    float operator () (u32 x, u32 y) const {
-        return data[x + y*size];
+    float operator()(u32 x, u32 y) const {
+        return data[x + y * size];
     }
-    float& operator () (u32 x, u32 y){
-        return data[x + y*size];
+    float& operator()(u32 x, u32 y) {
+        return data[x + y * size];
     }
 };
 class GrassField;

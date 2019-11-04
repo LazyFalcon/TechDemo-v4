@@ -12,7 +12,6 @@
 #include "BaseGameObject.hpp"
 #include "GPUResources.hpp"
 
-
 namespace camera
 {
 class Camera;

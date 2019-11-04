@@ -2,7 +2,7 @@
 #include "Modules.hpp"
 #include "Logger.hpp"
 
-void Hull::update(float dt){
+void Hull::update(float dt) {
     btTransform btTr;
     vehicle.rgBody->getMotionState()->getWorldTransform(btTr);
     // btTransform btTr = vehicle.rgBody->getCenterOfMassTransform();

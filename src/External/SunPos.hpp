@@ -4,7 +4,6 @@
 
 namespace sunpos
 {
-
 struct Time
 {
     int year;
@@ -18,7 +17,7 @@ struct Time
 struct Location
 {
     double longitude; // E-W, W is negative
-    double latitude; // N-S,
+    double latitude;  // N-S,
 };
 
 struct SunCoordinates

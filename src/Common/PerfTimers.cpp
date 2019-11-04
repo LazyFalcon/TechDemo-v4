@@ -1,51 +1,46 @@
 #include "core.hpp"
 #include "gl_core_4_5.hpp"
 #include "PerfTimers.hpp"
-#include "Logger.hpp"
 #include <regex>
+#include "Logger.hpp"
 extern bool CLOG_SPECIAL_VALUE;
-void TimeRecord::update(timeType dt){
+void TimeRecord::update(timeType dt) {
     last = dt;
     max = std::max(max, dt);
     total += dt;
-    if(CLOG_SPECIAL_VALUE) captured = dt;
+    if(CLOG_SPECIAL_VALUE)
+        captured = dt;
     ++count;
 }
 // TODO: convert strings to ints
-CpuTimerScoped::CpuTimerScoped(const std::string &name) : name(name){
+CpuTimerScoped::CpuTimerScoped(const std::string& name) : name(name) {
     timer.start();
 }
-CpuTimerScoped::CpuTimerScoped(const std::string &name, i32 line) : name(name + " #" + toString(line)){
+CpuTimerScoped::CpuTimerScoped(const std::string& name, i32 line) : name(name + " #" + toString(line)) {
     timer.start();
 }
-CpuTimerScoped::~CpuTimerScoped(){
+CpuTimerScoped::~CpuTimerScoped() {
     timer.end();
-    if(printRecords) console.log(name, " executed in: ", timer.get()/1000.0, "ms");
-    if(saveRecords) cpuRecords[name].update(timer.get());
+    if(printRecords)
+        console.log(name, " executed in: ", timer.get() / 1000.0, "ms");
+    if(saveRecords)
+        cpuRecords[name].update(timer.get());
 }
-void CpuTimerScoped::between(i32 line){
+void CpuTimerScoped::between(i32 line) {
     timer.middle();
     console.log(name, line, " executed in: ", timer.getString(), "ms");
 }
-void CpuTimerScoped::writeToFile(){
+void CpuTimerScoped::writeToFile() {
     std::smatch m;
     std::regex re(R"(\b(.*) .*)");
-
 
     console.toFile("### CPU Measurements [ms]");
     console.toFile("|Name|Last|Max|Captured|Total|Count|Average|");
     console.toFile("|----|----|---|--------|-----|-----|-------|");
-    for(auto &record : cpuRecords){
-        console.toFile(
-             "|", record.first
-            ,"|", record.second.last/1000.0
-            ,"|", record.second.max/1000.0
-            ,"|", record.second.captured/1000.0
-            ,"|", record.second.total/1000.0
-            ,"|", record.second.count
-            ,"|", double(record.second.total)/record.second.count/1000.0
-            ,"|"
-        );
+    for(auto& record : cpuRecords) {
+        console.toFile("|", record.first, "|", record.second.last / 1000.0, "|", record.second.max / 1000.0, "|",
+                       record.second.captured / 1000.0, "|", record.second.total / 1000.0, "|", record.second.count,
+                       "|", double(record.second.total) / record.second.count / 1000.0, "|");
     }
 }
 
@@ -53,33 +48,33 @@ std::map<std::string, TimeRecord> CpuTimerScoped::cpuRecords;
 bool CpuTimerScoped::printRecords {false};
 bool CpuTimerScoped::saveRecords {true};
 
-GpuTimerScoped::GpuTimerScoped(const std::string &function){
-    if(not gpuRecords.count(function)){
-        gpuRecords[function] = std::make_pair(freeTimerIds.front(), TimeRecord{});
+GpuTimerScoped::GpuTimerScoped(const std::string& function) {
+    if(not gpuRecords.count(function)) {
+        gpuRecords[function] = std::make_pair(freeTimerIds.front(), TimeRecord {});
         freeTimerIds.pop();
     }
-    auto &timer = gpuRecords[function];
+    auto& timer = gpuRecords[function];
     u64 tmp;
     gl::GetQueryObjectui64v(timer.first, gl::QUERY_RESULT, &tmp);
 
-    timer.second.update(tmp/1000);
+    timer.second.update(tmp / 1000);
 
     gl::BeginQuery(gl::TIME_ELAPSED, timer.first);
 }
-GpuTimerScoped::~GpuTimerScoped(){
+GpuTimerScoped::~GpuTimerScoped() {
     gl::EndQuery(gl::TIME_ELAPSED);
 }
-void GpuTimerScoped::init(){
+void GpuTimerScoped::init() {
     u32 queryCount = 50;
     u32 queries[queryCount];
     gl::GenQueries(queryCount, queries);
-    for(u32 i = 0; i < queryCount; i++){
+    for(u32 i = 0; i < queryCount; i++) {
         gl::BeginQuery(gl::TIME_ELAPSED, queries[i]);
         gl::EndQuery(gl::TIME_ELAPSED);
         freeTimerIds.push(queries[i]);
     }
     int maxSize[4] = {0};
-    for(u32 i = 0; i < queryCount; i++){
+    for(u32 i = 0; i < queryCount; i++) {
         gl::BeginQuery(gl::TIME_ELAPSED, queries[i]);
         gl::GetIntegerv(gl::MAX_TEXTURE_SIZE, maxSize);
         gl::GetIntegerv(gl::MAX_TEXTURE_SIZE, maxSize);
@@ -89,54 +84,41 @@ void GpuTimerScoped::init(){
         gl::EndQuery(gl::TIME_ELAPSED);
     }
 }
-void GpuTimerScoped::print(){
+void GpuTimerScoped::print() {
     return;
     console.clog("### GPU Measurements");
     u64 totalLast = 0;
     u64 totalAvg = 0;
-    for(auto &it : gpuRecords){
+    for(auto& it : gpuRecords) {
         totalLast += it.second.second.last;
-        totalAvg += it.second.second.total/it.second.second.count;
-        console.clog(it.first, it.second.second.last/1000.f, "ms \t|", (it.second.second.total/it.second.second.count)/1000.f);
+        totalAvg += it.second.second.total / it.second.second.count;
+        console.clog(it.first, it.second.second.last / 1000.f, "ms \t|",
+                     (it.second.second.total / it.second.second.count) / 1000.f);
     }
-    console.clog("Total", totalLast/1000.f, "ms \t|", totalAvg/1000.f, "ms");
+    console.clog("Total", totalLast / 1000.f, "ms \t|", totalAvg / 1000.f, "ms");
     console.clog("---------------------------------------");
 }
-void GpuTimerScoped::writeToFile(){
+void GpuTimerScoped::writeToFile() {
     console.toFile("### GPU Measurements [ms]");
     console.toFile("|Name|Last|Max|Captured|Total|Count|Average|");
     console.toFile("|----|----|---|--------|-----|-----|-------|");
     TimeRecord sum {};
     double averageSum = 0;
-    for(auto &record : gpuRecords){
+    for(auto& record : gpuRecords) {
         sum.last += record.second.second.last;
         sum.max += record.second.second.max;
         sum.captured += record.second.second.captured;
         sum.total += record.second.second.total;
         sum.count = std::max(sum.count, record.second.second.count);
-        averageSum += double(record.second.second.total)/record.second.second.count/1000.0;
-        console.toFile(
-             "|", record.first
-            ,"|", record.second.second.last/1000.0
-            ,"|", record.second.second.max/1000.0
-            ,"|", record.second.second.captured/1000.0
-            ,"|", record.second.second.total/1000.0
-            ,"|", record.second.second.count
-            ,"|", double(record.second.second.total)/record.second.second.count/1000.0
-            ,"|"
-        );
+        averageSum += double(record.second.second.total) / record.second.second.count / 1000.0;
+        console.toFile("|", record.first, "|", record.second.second.last / 1000.0, "|",
+                       record.second.second.max / 1000.0, "|", record.second.second.captured / 1000.0, "|",
+                       record.second.second.total / 1000.0, "|", record.second.second.count, "|",
+                       double(record.second.second.total) / record.second.second.count / 1000.0, "|");
     }
-    console.toFile(
-         "|Sum"
-        ,"|", sum.last/1000.0
-        ,"|", sum.max/1000.0
-        ,"|", sum.captured/1000.0
-        ,"|", sum.total/1000.0
-        ,"|", sum.count
-        ,"|", averageSum
-        ,"|"
-    );
-    console.toFile("total/count", sum.total/sum.count/1000.0);
+    console.toFile("|Sum", "|", sum.last / 1000.0, "|", sum.max / 1000.0, "|", sum.captured / 1000.0, "|",
+                   sum.total / 1000.0, "|", sum.count, "|", averageSum, "|");
+    console.toFile("total/count", sum.total / sum.count / 1000.0);
 }
 
 std::map<std::string, std::pair<u32, TimeRecord>> GpuTimerScoped::gpuRecords;

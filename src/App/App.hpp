@@ -20,6 +20,7 @@ private:
     void initializeInputDispatcher();
     std::unique_ptr<DebugScreen> debugScreen;
     static App* self;
+
 public:
     std::unique_ptr<Window> window;
     std::unique_ptr<AudioLibrary> audio;
@@ -43,17 +44,17 @@ public:
     void setCommonCallbacks();
     bool loadResources();
     void run();
-    void exit(){
+    void exit() {
         quit = true;
     }
     void render();
     void finish();
     void setGameState(std::shared_ptr<GameState> gameState);
 
-    static void scrollCallback(GLFWwindow *w, double dx, double dy);
-    static void keyCallback(GLFWwindow *w, int key, int scancode, int action, int mods);
-    static void mouseButtonCallback(GLFWwindow *w, int button, int action, int mods);
+    static void scrollCallback(GLFWwindow* w, double dx, double dy);
+    static void keyCallback(GLFWwindow* w, int key, int scancode, int action, int mods);
+    static void mouseButtonCallback(GLFWwindow* w, int button, int action, int mods);
     static void cursorPosCallback(GLFWwindow* w, double xpos, double ypos);
-    static void exitCallback(GLFWwindow *w);
+    static void exitCallback(GLFWwindow* w);
     static void errorCallback(int errorCode, const char* description);
 };

@@ -9,55 +9,66 @@
 class Context
 {
 private:
-    Window &window;
+    Window& window;
     void resetTextures();
     void resetFbo();
     void resetBuffers();
     void resetShapes();
+
 public:
-    struct {
-        struct {
+    struct
+    {
+        struct
+        {
             Texture color;
             Texture normals;
             Texture depth;
         } gbuffer;
-        struct {
+        struct
+        {
             Texture color;
             Texture specular;
         } light;
 
-        struct {
+        struct
+        {
             Texture a;
             Texture b;
             Texture rg16a;
             Texture rg16b;
         } full;
-        struct {
+        struct
+        {
             Texture a;
             Texture b;
             Texture rg16a;
             Texture rg16b;
         } half;
-        struct {
+        struct
+        {
             Texture a;
             Texture b;
         } quarter;
-        struct {
+        struct
+        {
             Texture a;
             Texture b;
         } eight;
 
-        struct {
+        struct
+        {
             Texture cascade {};
             u32 size {4096};
             std::vector<glm::mat4> matrices;
         } shadows;
 
         Texture blurredScene;
-        struct {
+        struct
+        {
             Texture finalRenderedFrame;
             Texture full;
-            struct {
+            struct
+            {
                 Texture a;
                 Texture b;
                 Texture c;
@@ -68,7 +79,8 @@ public:
         Texture terrainTopdownView;
         Texture terrainTopdownViewNormals;
     } tex;
-    struct UBOs{
+    struct UBOs
+    {
         u32 matrices;
         u32 common;
         const u32 size = 256;
@@ -85,30 +97,31 @@ public:
     //     GLuint _18;
     // } fbo;
 
-    struct {
+    struct
+    {
         VAO vao;
         VBO point {};
         VBO quadCentered {}; // xyyv
-        VBO quadCorner {}; // xyuv
-        VBO screen {}; // xyuv
+        VBO quadCorner {};   // xyuv
+        VBO screen {};       // xyuv
         VBO cube {};
     } shape;
 
-    std::array<VBO,6> randomBuffers;
+    std::array<VBO, 6> randomBuffers;
     u32 randomBufferId {0};
-    VBO& getRandomBuffer(){
-        randomBufferId = (randomBufferId+1)%6;
+    VBO& getRandomBuffer() {
+        randomBufferId = (randomBufferId + 1) % 6;
         return randomBuffers[randomBufferId];
     }
-    VBO& getBuffer(){
-        randomBufferId = (randomBufferId+1)%6;
+    VBO& getBuffer() {
+        randomBufferId = (randomBufferId + 1) % 6;
         return randomBuffers[randomBufferId];
     }
     VAO defaultVAO;
     u32 currentFbo;
     FBO fbo;
 
-    Context(Window &window);
+    Context(Window& window);
     void reset();
 
     void beginFrame();
@@ -122,7 +135,7 @@ public:
     void setupFramebufferForLightingWithAddionalDepth();
     void setupFramebufferForLDRProcessing();
 
-    void bindTexture(const Texture &texture);
+    void bindTexture(const Texture& texture);
 
     void setupDefaultBuffer();
     void setupMainFrameBuffer();
@@ -134,6 +147,6 @@ public:
     void unbindFBO();
     void drawScreen();
 
-    bool _errors(const std::string &text, const std::string &file, int line, const std::string &fun);
+    bool _errors(const std::string& text, const std::string& file, int line, const std::string& fun);
 };
 #define errors() _errors("", __FILE__, __LINE__, __FUNCTION__)

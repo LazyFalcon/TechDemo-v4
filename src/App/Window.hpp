@@ -11,7 +11,7 @@ public:
     void hide();
     void show();
 
-    Window(App &app) : app(app), camFactory(*this){}
+    Window(App& app) : app(app), camFactory(*this) {}
     // Window() : camFactory(*this){}
     ~Window();
 
@@ -23,7 +23,7 @@ public:
     glm::vec2 pixelSize;
     glm::vec4 viewport;
     float aspect;
-    GLFWwindow *window;
-    App &app;
+    GLFWwindow* window;
+    App& app;
     camera::Factory camFactory;
 };

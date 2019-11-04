@@ -4,10 +4,11 @@
 
 class AI;
 class Atmosphere;
-namespace camera{
-    class Camera;
-    class Controller;
-    class Factory;
+namespace camera
+{
+class Camera;
+class Controller;
+class Factory;
 }
 class Environment;
 class Foliage;
@@ -28,7 +29,7 @@ struct SpawnPoint
 
 struct Scene : private boost::noncopyable
 {
-    Scene(PhysicalWorld &physics, camera::Factory& camFactory);
+    Scene(PhysicalWorld& physics, camera::Factory& camFactory);
     ~Scene();
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
@@ -50,20 +51,20 @@ struct Scene : private boost::noncopyable
     std::vector<std::shared_ptr<AI>> m_friendlyBots;
     std::vector<std::shared_ptr<AI>> m_hostileBots;
 
-    bool load(const std::string &name);
-    void update(float dt, camera::Camera &camera);
+    bool load(const std::string& name);
+    void update(float dt, camera::Camera& camera);
     void extractSpawnPoints(const Yaml& yaml);
     void extractCameras(const Yaml& yaml);
 
     template<typename T>
-    SampleResult sample(T position){
-        if(not graph) return {};
+    SampleResult sample(T position) {
+        if(not graph)
+            return {};
         return graph->sample(position);
     }
 
     glm::vec4 getSceneDimensions();
-    std::vector<std::shared_ptr<AI>>& getHostiles(){
+    std::vector<std::shared_ptr<AI>>& getHostiles() {
         return m_hostileBots;
     }
-
 };

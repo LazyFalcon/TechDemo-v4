@@ -8,10 +8,9 @@
 
 // };
 
-
-namespace color {
-
-uint32_t hexFromHSV(float h, float s, float v, float a=1.f);
+namespace color
+{
+uint32_t hexFromHSV(float h, float s, float v, float a = 1.f);
 
 enum
 {
@@ -32,7 +31,6 @@ enum
     chartreuse_yellow = 0xdfff00ff,
     mindaro = 0xe3f988ff,
     pear = 0xd1e231ff,
-
 
     hud = 0xff6400ff,
     // hud = 0x09b8f9ee,

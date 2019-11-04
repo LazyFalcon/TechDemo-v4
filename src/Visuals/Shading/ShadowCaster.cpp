@@ -1,20 +1,21 @@
 #include "core.hpp"
 #include "ShadowCaster.hpp"
-#include "Logger.hpp"
-#include "camera-data.hpp"
-#include "Context.hpp"
 #include "Assets.hpp"
 #include "BaseStructs.hpp"
+#include "Context.hpp"
+#include "Environment.hpp"
+#include "Logger.hpp"
+#include "PMK.hpp"
 #include "PerfTimers.hpp"
 #include "Scene.hpp"
-#include "Sun.hpp"
-#include "camera-frustum.hpp"
 #include "SceneGraph.hpp"
-#include "PMK.hpp"
-#include "Environment.hpp"
+#include "Sun.hpp"
+#include "camera-data.hpp"
+#include "camera-frustum.hpp"
 
-void ShadowCaster::prepareForDirectionalShadows(Scene &scene, camera::Camera &camera){
-    if(context.tex.shadows.cascade.ID == 0) initShadowMapCascade();
+void ShadowCaster::prepareForDirectionalShadows(Scene& scene, camera::Camera& camera) {
+    if(context.tex.shadows.cascade.ID == 0)
+        initShadowMapCascade();
 
     gl::BindVertexArray(0);
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
@@ -38,22 +39,22 @@ void ShadowCaster::prepareForDirectionalShadows(Scene &scene, camera::Camera &ca
     gl::ColorMask(gl::FALSE_, gl::FALSE_, gl::FALSE_, gl::FALSE_);
     gl::Disable(gl::CULL_FACE);
 
-
     auto cornersOfSplittedFrustum = camera.frustum.splitForCSM(numberOfFrustumSplits);
     calculateShadowProjectionMatrices(cornersOfSplittedFrustum, scene.sun->direction, *scene.sun, camera);
 
     context.errors();
 }
-void ShadowCaster::finishForDirectionalShadows(){
+void ShadowCaster::finishForDirectionalShadows() {
     gl::ColorMask(gl::TRUE_, gl::TRUE_, gl::TRUE_, gl::TRUE_);
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
     gl::BindTexture(gl::TEXTURE_2D, 0);
     gl::BindTexture(gl::TEXTURE_2D_ARRAY, 0);
     gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
 }
-void ShadowCaster::renderScene(Scene &scene, camera::Camera &camera){
+void ShadowCaster::renderScene(Scene& scene, camera::Camera& camera) {
     GPU_SCOPE_TIMER();
-    if(not scene.environment) return;
+    if(not scene.environment)
+        return;
 
     auto shader = assets::getShader("EnvironmentEntityShadow");
     shader.bind();
@@ -77,7 +78,7 @@ void ShadowCaster::renderScene(Scene &scene, camera::Camera &camera){
 
     context.errors();
 }
-void ShadowCaster::renderTerrain(Scene &scene, camera::Camera &camera){
+void ShadowCaster::renderTerrain(Scene& scene, camera::Camera& camera) {
     GPU_SCOPE_TIMER();
     auto chunksToRender = getTerrainToRender(*scene.graph);
 
@@ -88,23 +89,16 @@ void ShadowCaster::renderTerrain(Scene &scene, camera::Camera &camera){
 
     assets::getVao("Terrain").bind();
 
-    for(auto &it : chunksToRender){
-        it.render();
-    }
+    for(auto& it : chunksToRender) { it.render(); }
 
     gl::BindVertexArray(0);
     context.errors();
 }
 
-void ShadowCaster::initShadowMapCascade(){
-    context.tex.shadows.cascade = Texture(gl::TEXTURE_2D_ARRAY,
-                                        gl::DEPTH_COMPONENT32F,
-                                        context.tex.shadows.size,
-                                        context.tex.shadows.size,
-                                        numberOfFrustumSplits,
-                                        gl::DEPTH_COMPONENT,
-                                        gl::FLOAT,
-                                        gl::LINEAR, 0);
+void ShadowCaster::initShadowMapCascade() {
+    context.tex.shadows.cascade =
+        Texture(gl::TEXTURE_2D_ARRAY, gl::DEPTH_COMPONENT32F, context.tex.shadows.size, context.tex.shadows.size,
+                numberOfFrustumSplits, gl::DEPTH_COMPONENT, gl::FLOAT, gl::LINEAR, 0);
 
     gl::GenFramebuffers(1, &context.fbo.shadowmap);
     gl::BindFramebuffer(gl::FRAMEBUFFER, context.fbo.shadowmap);
@@ -116,45 +110,35 @@ void ShadowCaster::initShadowMapCascade(){
     context.errors();
 }
 
-std::vector<Mesh> ShadowCaster::getTerrainToRender(SceneGraph &sg){
+std::vector<Mesh> ShadowCaster::getTerrainToRender(SceneGraph& sg) {
     std::vector<Mesh> out;
 
     // TODO: przerobić tak by były renderowane te które mogą zasłonić
-    for(auto &it : sg.cells){
-        out.push_back(it.terrainMesh);
-    }
+    for(auto& it : sg.cells) { out.push_back(it.terrainMesh); }
 
     return out;
 }
 
-glm::mat4 ShadowCaster::fitShadowProjectionAroundBoundingBox(camera::FrustmCorners &corners, Sun &sun, camera::Camera &camera, float minZ, float maxZ){
+glm::mat4 ShadowCaster::fitShadowProjectionAroundBoundingBox(camera::FrustmCorners& corners, Sun& sun,
+                                                             camera::Camera& camera, float minZ, float maxZ) {
     glm::vec4 shadowCenter(0);
-    for(auto i=0; i<8; i++){
-        shadowCenter += corners.array[i];
-    }
+    for(auto i = 0; i < 8; i++) { shadowCenter += corners.array[i]; }
     shadowCenter /= shadowCenter.w;
     pmk::updateSunTransform(shadowCenter, camera.up);
     auto bbMin = glm::vec4(100000);
     auto bbMax = glm::vec4(-100000);
-    for(auto i=0; i<8; i++){
-        pmk::sunSpaceViewBox(bbMin, bbMax, corners.array[i]);
-    }
+    for(auto i = 0; i < 8; i++) { pmk::sunSpaceViewBox(bbMin, bbMax, corners.array[i]); }
 
     auto mat = glm::ortho(bbMin.x, bbMax.x, bbMin.y, bbMax.y, -bbMax.z, -bbMin.z) * sun.transform;
 
     return mat;
 }
-void ShadowCaster::calculateShadowProjectionMatrices(std::vector<camera::FrustmCorners> &frustumSlices, glm::vec4 light, Sun &sun, camera::Camera &camera){
+void ShadowCaster::calculateShadowProjectionMatrices(std::vector<camera::FrustmCorners>& frustumSlices, glm::vec4 light,
+                                                     Sun& sun, camera::Camera& camera) {
     context.tex.shadows.matrices.clear();
-    for(auto i=0; i<numberOfFrustumSplits; i++){
-        context.tex.shadows.matrices.push_back(fitShadowProjectionAroundBoundingBox(
-            frustumSlices[i],
-            sun,
-            camera
-        ));
+    for(auto i = 0; i < numberOfFrustumSplits; i++) {
+        context.tex.shadows.matrices.push_back(fitShadowProjectionAroundBoundingBox(frustumSlices[i], sun, camera));
     }
 }
 
-void ShadowCaster::updateShadows(){
-
-}
+void ShadowCaster::updateShadows() {}

@@ -11,7 +11,8 @@ public:
         bool fullscreen;
         glm::vec2 size;
         float gamma;
-        struct {
+        struct
+        {
             float fov;
             float inertia;
             float sensitivity;
@@ -31,8 +32,8 @@ public:
         int mouseSensitivity;
     } controls;
 
-    struct {
-
+    struct
+    {
     } misc;
 
     std::map<std::string, std::string> keybindings;

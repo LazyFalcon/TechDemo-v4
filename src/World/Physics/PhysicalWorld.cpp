@@ -1,22 +1,23 @@
 #include "core.hpp"
 #include "PhysicalWorld.hpp"
 #include "Logger.hpp"
-#include "Utils.hpp"
 #include "PerfTimers.hpp"
+#include "Utils.hpp"
 
-btCollisionShape* createCompoundShape(std::vector<ConvexMesh> &meshes, void *userPointer){
-    if(meshes.empty()) return nullptr;
-    if(meshes.size() == 1){
-        auto *collShape = new btConvexHullShape(meshes[0].data.data(), meshes[0].data.size()/3, 3*sizeof(double));
+btCollisionShape* createCompoundShape(std::vector<ConvexMesh>& meshes, void* userPointer) {
+    if(meshes.empty())
+        return nullptr;
+    if(meshes.size() == 1) {
+        auto* collShape = new btConvexHullShape(meshes[0].data.data(), meshes[0].data.size() / 3, 3 * sizeof(double));
         collShape->setUserPointer(userPointer);
         collShape->setUserIndex(-5);
         return collShape;
     }
 
-    auto *shape = new btCompoundShape();
+    auto* shape = new btCompoundShape();
 
-    for(auto &convex : meshes){
-        auto *collShape = new btConvexHullShape(convex.data.data(), convex.data.size()/3, 3*sizeof(double));
+    for(auto& convex : meshes) {
+        auto* collShape = new btConvexHullShape(convex.data.data(), convex.data.size() / 3, 3 * sizeof(double));
         collShape->setUserPointer(userPointer);
         collShape->setUserIndex(-6);
 
@@ -29,20 +30,18 @@ btCollisionShape* createCompoundShape(std::vector<ConvexMesh> &meshes, void *use
     return shape;
 }
 
-btCollisionShape* createCompoundShape(std::vector<std::pair<btCollisionShape*, btTransform>> &meshes, void *userPointer){
-    auto *shape = new btCompoundShape();
+btCollisionShape* createCompoundShape(std::vector<std::pair<btCollisionShape*, btTransform>>& meshes,
+                                      void* userPointer) {
+    auto* shape = new btCompoundShape();
     shape->setUserPointer(userPointer);
     shape->setUserIndex(-6);
 
-    for(auto &convex : meshes){
-        shape->addChildShape(convex.second, convex.first);
-    }
+    for(auto& convex : meshes) { shape->addChildShape(convex.second, convex.first); }
 
     return shape;
 }
 
-PhysicalWorld::PhysicalWorld(){
-
+PhysicalWorld::PhysicalWorld() {
     console.log("btScalar size:", sizeof(btScalar));
     // btVector3 worldMin(-2500.0,-2500.0,-500);
     // btVector3 worldMax(2500.0,2500.0,500);
@@ -53,7 +52,7 @@ PhysicalWorld::PhysicalWorld(){
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
     m_solver = new btSequentialImpulseConstraintSolver();
     m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
-    m_dynamicsWorld->setGravity(btVector3(0,0,-50));
+    m_dynamicsWorld->setGravity(btVector3(0, 0, -50));
     // m_dynamicsWorld->setGravity(btVector3(0,0,-50));
     // btContactSolverInfo& info = dynamicsWorld->getSolverInfo();
     // info.m_solverMode |= SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS;
@@ -64,19 +63,22 @@ PhysicalWorld::PhysicalWorld(){
     update(16);
 }
 
-btRigidBody* PhysicalWorld::createRigidBody(float mass, const btTransform& transform, btCollisionShape* shape, float inertiaScalling){
+btRigidBody* PhysicalWorld::createRigidBody(float mass, const btTransform& transform, btCollisionShape* shape,
+                                            float inertiaScalling) {
     return createRigidBodyWithMasks(mass, transform, shape, 2, COL_ALL_BUT_CULLING, inertiaScalling);
 }
 
 // * basically Actor should collide with everything, and everything with actor, and rays and particles
 // * masks and groups must match each other to have collision
 // * collision flag NO_CONTACT_RESPONSE (t->setCollisionFlags(t->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE)) will disable collision impulses but not calculations
-btRigidBody* PhysicalWorld::createRigidBodyWithMasks(float mass, const btTransform& transform, btCollisionShape* shape, short group, short collideWith, float inertiaScalling){
+btRigidBody* PhysicalWorld::createRigidBodyWithMasks(float mass, const btTransform& transform, btCollisionShape* shape,
+                                                     short group, short collideWith, float inertiaScalling) {
     //@ http://www.continuousphysics.com/Bullet/BulletFull/structbtRigidBody_1_1btRigidBodyConstructionInfo.html
     btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
-    btVector3 localInertia(0,0,0);
-    if(mass > 0.f) shape->calculateLocalInertia(mass, localInertia);
+    btVector3 localInertia(0, 0, 0);
+    if(mass > 0.f)
+        shape->calculateLocalInertia(mass, localInertia);
     localInertia *= inertiaScalling;
 
     btDefaultMotionState* motionState = new btDefaultMotionState(transform);
@@ -100,22 +102,22 @@ btRigidBody* PhysicalWorld::createRigidBodyWithMasks(float mass, const btTransfo
     return body;
 }
 
-void PhysicalWorld::removeBody(btRigidBody *body){
+void PhysicalWorld::removeBody(btRigidBody* body) {
     m_dynamicsWorld->removeRigidBody(body);
     // delete body->getUserPointer(); // niebezpieczne, co jesli user się powtarza?
     delete body->getMotionState();
     delete body;
 }
 
-void PhysicalWorld::update(float step){
+void PhysicalWorld::update(float step) {
     CPU_SCOPE_TIMER("Update world physics");
     // m_dynamicsWorld->stepSimulation(step); // necessary to get interpolated motion for rendering
-    m_dynamicsWorld->stepSimulation(1.f/60.f, 1, 1.0/60.0); // necessary to get interpolated motion for rendering
+    m_dynamicsWorld->stepSimulation(1.f / 60.f, 1, 1.0 / 60.0); // necessary to get interpolated motion for rendering
     // m_dynamicsWorld->stepSimulation(step, 10, 1.0/60.0/2);
 
     return;
     int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
-    for(u32 i=0; i<numManifolds; i++){
+    for(u32 i = 0; i < numManifolds; i++) {
         btPersistentManifold* contactManifold = m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
 
         btCollisionObject* obA = (btCollisionObject*)(contactManifold->getBody0());
@@ -126,9 +128,9 @@ void PhysicalWorld::update(float step){
         // deref(obB->getUserIndex())->processCollision();
 
         int numContacts = contactManifold->getNumContacts();
-        for(u32 j=0; j<numContacts; j++){
+        for(u32 j = 0; j < numContacts; j++) {
             btManifoldPoint& pt = contactManifold->getContactPoint(j);
-            if(pt.getDistance()<0.f){
+            if(pt.getDistance() < 0.f) {
                 float impulse = pt.m_appliedImpulse; // * impulse of contact force
                 const btVector3& ptA = pt.getPositionWorldOnA();
                 const btVector3& ptB = pt.getPositionWorldOnB();
@@ -138,12 +140,12 @@ void PhysicalWorld::update(float step){
     }
 }
 
-std::pair<SampleResult, btRigidBody*> PhysicalWorld::projectileCollision(btVector3 from, btVector3 to){
+std::pair<SampleResult, btRigidBody*> PhysicalWorld::projectileCollision(btVector3 from, btVector3 to) {
     std::pair<SampleResult, btRigidBody*> result;
 
-    btCollisionWorld::ClosestRayResultCallback closestResults(from,to);
-    m_dynamicsWorld->rayTest(from,to,closestResults);
-    if(closestResults.hasHit()){
+    btCollisionWorld::ClosestRayResultCallback closestResults(from, to);
+    m_dynamicsWorld->rayTest(from, to, closestResults);
+    if(closestResults.hasHit()) {
         result.first.succes = closestResults.m_collisionObject->getUserPointer() != nullptr;
         result.first.position = convert(closestResults.m_hitPointWorld, 1);
         result.first.normal = convert(closestResults.m_hitNormalWorld, 0);
@@ -157,13 +159,13 @@ std::pair<SampleResult, btRigidBody*> PhysicalWorld::projectileCollision(btVecto
     return result;
 }
 
-CloseHitResult PhysicalWorld::closesetHit(glm::vec4 from, glm::vec4 to){
+CloseHitResult PhysicalWorld::closesetHit(glm::vec4 from, glm::vec4 to) {
     CloseHitResult result {};
 
     btCollisionWorld::ClosestRayResultCallback closestResults(convert(from), convert(to));
     m_dynamicsWorld->rayTest(convert(from), convert(to), closestResults);
 
-    if(closestResults.hasHit()){
+    if(closestResults.hasHit()) {
         result.success = true;
         result.position = convert(closestResults.m_hitPointWorld, 1);
         result.normal = convert(closestResults.m_hitNormalWorld, 0);
@@ -177,7 +179,7 @@ CloseHitResult PhysicalWorld::closesetHit(glm::vec4 from, glm::vec4 to){
     return result;
 }
 
-std::vector<CloseHitResult> PhysicalWorld::raycast(glm::vec4 from, glm::vec4 to){
+std::vector<CloseHitResult> PhysicalWorld::raycast(glm::vec4 from, glm::vec4 to) {
     // std::vector<CloseHitResult> result;
 
     // btCollisionWorld::ClosestRayResultCallback closestResults(convert(from), convert(to));

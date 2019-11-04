@@ -4,7 +4,11 @@ using LayoutStrategy = std::function<glm::vec4(const glm::vec4&)>;
 
 enum Alignment
 {
-    RIGHT, LEFT, CENTER, UP, DOWN
+    RIGHT,
+    LEFT,
+    CENTER,
+    UP,
+    DOWN
 };
 
 /*
@@ -14,13 +18,14 @@ enum Alignment
 class even
 {
 public:
-    even(int elements) : elements(elements){}
+    even(int elements) : elements(elements) {}
     void precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis);
     glm::vec4 operator()(const glm::vec4&);
+
 private:
     float elements;
     std::vector<glm::vec4> m_generatedLayout;
-    int m_used{};
+    int m_used {};
 };
 
 /*
@@ -30,13 +35,14 @@ private:
 class notEven
 {
 public:
-    notEven(std::vector<float>&& parts) : parts(std::move(parts)){}
+    notEven(std::vector<float>&& parts) : parts(std::move(parts)) {}
     void precalculate(LayoutStrategy& feedback, glm::vec4 panelSize, float spacing, int indexOfAxis);
     glm::vec4 operator()(const glm::vec4&);
+
 private:
     std::vector<float> parts;
     std::vector<glm::vec4> m_generatedLayout;
-    int m_used{};
+    int m_used {};
 };
 
 /*
@@ -73,12 +79,12 @@ public:
     LayoutStrategy alignPolicy; // by default is is center
 
     void setBounds(glm::vec4 b);
-    void compile(){}
+    void compile() {}
 
     Layout& toUp(Alignment alignment = CENTER);
     Layout& toDown(Alignment alignment = CENTER);
     template<typename T>
-    Layout& toDown(T&& precalculator, Alignment alignment = CENTER){
+    Layout& toDown(T&& precalculator, Alignment alignment = CENTER) {
         toDown(alignment);
         precalculator.precalculate(feedback, m_free, m_spacing, 1);
         feedback = precalculator;
@@ -87,7 +93,7 @@ public:
     }
     Layout& toRight(Alignment alignment = CENTER);
     template<typename T>
-    Layout& toRight(T&& precalculator, Alignment alignment = CENTER){
+    Layout& toRight(T&& precalculator, Alignment alignment = CENTER) {
         toRight(alignment);
         precalculator.precalculate(feedback, m_free, m_spacing, 0);
 
@@ -104,7 +110,7 @@ public:
      <x>|               | <z>
         ------<y>-------
     */
-    Layout& padding(glm::vec4 p = {}){
+    Layout& padding(glm::vec4 p = {}) {
         m_padding = p;
         m_free[0] += p[0];
         m_free[1] += p[1];
@@ -113,7 +119,7 @@ public:
         m_bounds = m_free;
         return *this;
     }
-    Layout& spacing(float s){
+    Layout& spacing(float s) {
         m_spacing = s;
 
         return *this;
@@ -127,9 +133,10 @@ public:
 
     Layout& prepare(glm::vec4 evenSize, i32 count);
     Layout& prepare(const std::vector<glm::vec4>& requestedSizes);
-    glm::vec4 getSpaceLeft(){
+    glm::vec4 getSpaceLeft() {
         return m_free;
     }
+
 protected:
     glm::vec4 m_bounds;
     glm::vec4 m_free;

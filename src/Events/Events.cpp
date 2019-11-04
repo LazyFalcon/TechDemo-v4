@@ -1,10 +1,10 @@
 #include "core.hpp"
 #include "Events.hpp"
-#include "EventProcessor.hpp"
 #include "App.hpp"
-#include "Window.hpp"
+#include "EventProcessor.hpp"
 #include "PerfTimers.hpp"
+#include "Window.hpp"
 
-void addEvent(std::shared_ptr<Event> e){
+void addEvent(std::shared_ptr<Event> e) {
     EventProcessor::push(e);
 }

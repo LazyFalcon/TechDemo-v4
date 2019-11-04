@@ -1,21 +1,26 @@
 #include "core.hpp"
 #include "Assets.hpp"
-#include "GpuResources.hpp"
-#include "ResourceLoader.hpp"
 #include "BaseStructs.hpp"
-#include "font.hpp"
+#include "GpuResources.hpp"
 #include "Logger.hpp"
+#include "ResourceLoader.hpp"
+#include "font.hpp"
 
-namespace assets {
-
+namespace assets
+{
 template<typename A>
-struct UserID {
-    UserID(){}
-    UserID(u32 id, A &a)  :id(id), a(a){}
+struct UserID
+{
+    UserID() {}
+    UserID(u32 id, A& a) : id(id), a(a) {}
     u32 id {};
     A a {};
-    A& get(){ return a; };
-    const A& get() const { return a; };
+    A& get() {
+        return a;
+    };
+    const A& get() const {
+        return a;
+    };
 };
 
 std::unordered_map<std::string, ImageSet> imageSets;
@@ -36,116 +41,113 @@ std::unordered_map<std::string, VAO> vaos;
 std::unordered_map<std::string, UserID<Mesh>> meshes;
 
 // TODO: make them const
-Image getImage(const std::string &name){
+Image getImage(const std::string& name) {
     auto it = images.find(name);
-    if(it == images.end()) return {};
+    if(it == images.end())
+        return {};
     return it->second.get();
 }
-TextureArray& getAtlas(const std::string &name){
+TextureArray& getAtlas(const std::string& name) {
     return albedoArrays[name].get();
 }
-TextureArray& getAlbedoArray(const std::string &name){
+TextureArray& getAlbedoArray(const std::string& name) {
     return albedoArrays[name].get();
 }
-TextureArray& getNormalArray(const std::string &name){
+TextureArray& getNormalArray(const std::string& name) {
     return normalArrays[name].get();
 }
-TextureArray& getMetalic(const std::string &name){
+TextureArray& getMetalic(const std::string& name) {
     return metallicArrays[name].get();
 }
-TextureArray& getRoughnessArray(const std::string &name){
+TextureArray& getRoughnessArray(const std::string& name) {
     return roughnessArrays[name].get();
 }
-TextureArray& getCubeMap(const std::string &name){
+TextureArray& getCubeMap(const std::string& name) {
     return cubeMaps[name].get();
 }
-Shader& setShader(const std::string &name){
+Shader& setShader(const std::string& name) {
     return shaders[name];
 }
-Shader& getShader(const std::string &name) try {
-    return shaders.at(name);
-}
-catch(std::out_of_range& err){
+Shader& getShader(const std::string& name) try { return shaders.at(name); }
+catch(std::out_of_range& err) {
     console.error(name, "no in shaders:", err.what());
     throw;
 }
 
-Shader& bindShader(const std::string &name) try {
-    return shaders.at(name).bind();
-}
-catch(std::out_of_range& err){
+Shader& bindShader(const std::string& name) try { return shaders.at(name).bind(); }
+catch(std::out_of_range& err) {
     console.error(name, "no in shaders:", err.what());
     throw;
 }
 
-Font& getFont(const std::string &name){
+Font& getFont(const std::string& name) {
     return fonts[name];
 }
 
-std::string findArrayWithTextureName(const std::string &name){
-    for(auto &array : albedoArrays){
+std::string findArrayWithTextureName(const std::string& name) {
+    for(auto& array : albedoArrays) {
         for(auto tex : array.second.get().content)
-            if(tex == name) return array.first;
+            if(tex == name)
+                return array.first;
     }
     return "";
 }
 
-std::function<float(const std::string&)> layerSearch(TextureArray &array){
-    return [&](const std::string &name){
+std::function<float(const std::string&)> layerSearch(TextureArray& array) {
+    return [&](const std::string& name) {
         float i = 0.f;
-        for(const auto &it : array.content){
-            if(name == it) return i;
+        for(const auto& it : array.content) {
+            if(name == it)
+                return i;
             i += 1.f;
         }
         return 0.f;
     };
 }
 
-void relaseResources(u32 id){}
+void relaseResources(u32 id) {}
 
-void addImageSet(ImageSet &imageSet, const std::string &name){
+void addImageSet(ImageSet& imageSet, const std::string& name) {
     imageSets[name] = imageSet;
 }
-ImageSet& getImageSet(const std::string &name){
+ImageSet& getImageSet(const std::string& name) {
     return imageSets[name];
 }
-void addShader(Shader &shader, const std::string &name){
+void addShader(Shader& shader, const std::string& name) {
     shaders[name] = shader;
 }
 
-void addImage(u32 id, Image &image, const std::string &name){
+void addImage(u32 id, Image& image, const std::string& name) {
     images[name] = UserID<Image>(id, image);
 }
-void addAlbedoArray(u32 id, TextureArray &array, const std::string &name){
+void addAlbedoArray(u32 id, TextureArray& array, const std::string& name) {
     albedoArrays[name] = UserID<TextureArray>(id, array);
 }
-void addNormalArray(u32 id, TextureArray &array, const std::string &name){
+void addNormalArray(u32 id, TextureArray& array, const std::string& name) {
     normalArrays[name] = UserID<TextureArray>(id, array);
 }
-void addMetallicArray(u32 id, TextureArray &array, const std::string &name){
+void addMetallicArray(u32 id, TextureArray& array, const std::string& name) {
     metallicArrays[name] = UserID<TextureArray>(id, array);
 }
-void addRoughnessArray(u32 id, TextureArray &array, const std::string &name){
+void addRoughnessArray(u32 id, TextureArray& array, const std::string& name) {
     roughnessArrays[name] = UserID<TextureArray>(id, array);
 }
-void addCubeMap(u32 id, TextureArray &array, const std::string &name){
+void addCubeMap(u32 id, TextureArray& array, const std::string& name) {
     cubeMaps[name] = UserID<TextureArray>(id, array);
 }
 
-void addVao(VAO vao, const std::string &name){
+void addVao(VAO vao, const std::string& name) {
     vaos[name] = vao;
 }
-VAO& getVao(const std::string &name){
+VAO& getVao(const std::string& name) {
     return vaos[name];
 }
 
-void addMesh(Mesh mesh, const std::string &name){
+void addMesh(Mesh mesh, const std::string& name) {
     meshes[name] = UserID<Mesh>(0, mesh);
 }
-Mesh& getMesh(const std::string &name) try {
-    return meshes.at(name).get();
-}
-catch(std::out_of_range& err){
+Mesh& getMesh(const std::string& name) try { return meshes.at(name).get(); }
+catch(std::out_of_range& err) {
     console.error(name, "not in meshes:", err.what());
     throw;
 }

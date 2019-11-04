@@ -4,8 +4,8 @@
 class BaseGameObject
 {
 protected:
-    ~BaseGameObject(){ // * cannot be used as base pointer for storage, and I don't want to
-        if(m_poolObjectIdx){
+    ~BaseGameObject() { // * cannot be used as base pointer for storage, and I don't want to
+        if(m_poolObjectIdx) {
             m_idProvider.releaseGameObject(m_poolObjectIdx);
         }
     }
@@ -13,19 +13,19 @@ protected:
 
 public:
     static GameObjectIdProvider m_idProvider;
-    BaseGameObject() : m_poolObjectIdx(m_idProvider.allocateGameObject(this)){}
-    BaseGameObject(BaseGameObject&& toMove){
+    BaseGameObject() : m_poolObjectIdx(m_idProvider.allocateGameObject(this)) {}
+    BaseGameObject(BaseGameObject&& toMove) {
         m_poolObjectIdx = toMove.m_poolObjectIdx;
         toMove.m_poolObjectIdx = 0;
 
         m_idProvider.get(m_poolObjectIdx).updatePointer(this);
     }
 
-    int indexForBullet(){
+    int indexForBullet() {
         return m_poolObjectIdx;
     }
 
-    GameObjectPtr getHandle(){ // * indirect pointer to this object
+    GameObjectPtr getHandle() { // * indirect pointer to this object
         return GameObjectPtr(m_poolObjectIdx);
     }
 

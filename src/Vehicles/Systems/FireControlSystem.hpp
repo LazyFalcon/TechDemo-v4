@@ -13,8 +13,9 @@ private:
 
     glm::vec4 recalculate(const glm::vec4& pointInWS);
     void allocateNewLink();
+
 public:
-    FireControlSystem() : m_recalculatedTargetsForGuns(1, {0,0,0,1}){}
+    FireControlSystem() : m_recalculatedTargetsForGuns(1, {0, 0, 0, 1}) {}
     void updateTarget(const glm::vec4& pointInWS);
     const glm::vec4& getTarget(int i) const;
 
@@ -23,5 +24,4 @@ public:
     int idForGun(u64 parentHash);
 
     void recalculateForTargetMovement(const glm::vec4& position, const glm::vec4& velocity);
-
 };

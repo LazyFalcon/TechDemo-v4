@@ -2,7 +2,8 @@
 
 enum CommandType
 {
-    MoveTo, Attack
+    MoveTo,
+    Attack
 };
 
 struct AiCommand
@@ -12,7 +13,7 @@ struct AiCommand
     bool queue;
     void* payload;
     template<typename T>
-    T& get(){
+    T& get() {
         return *reinterpret_cast<T*>(payload);
     }
 };

@@ -1,9 +1,12 @@
 #pragma once
 #include "GPUResources.hpp" // FIX: really?
-#include "RenderDataCollector.hpp"
 #include "Logger.hpp"
+#include "RenderDataCollector.hpp"
 
-namespace camera{ class Camera; }
+namespace camera
+{
+class Camera;
+}
 class GraphicDataCollector;
 class Scene;
 class Track;
@@ -19,21 +22,19 @@ class GraphicComponent
 {
 public:
     std::vector<std::shared_ptr<GraphicDataCollector>> entitiesToDraw;
-    void toBeRendered(){
-        for(auto &it : entitiesToDraw){
-            it->toBeRendered();
-        }
+    void toBeRendered() {
+        for(auto& it : entitiesToDraw) { it->toBeRendered(); }
     }
 };
 
 class SkinnedMesh : public GraphicDataCollector
 {
 public:
-    SkinnedMesh(){}
+    SkinnedMesh() {}
     Mesh mesh;
     VAO vao;
     std::vector<glm::mat4> bones;
-    void toBeRendered(){
+    void toBeRendered() {
         RenderDataCollector::insert(this);
     }
 };
@@ -41,12 +42,12 @@ public:
 class ArmoredVehicleTracks : public GraphicDataCollector
 {
 public:
-    ArmoredVehicleTracks(Track &track) : track(track){}
-    Track &track;
+    ArmoredVehicleTracks(Track& track) : track(track) {}
+    Track& track;
     Mesh mesh;
     VAO vao;
     glm::mat4 baseTransform;
-    void toBeRendered(){
+    void toBeRendered() {
         RenderDataCollector::insert(this);
     }
 };

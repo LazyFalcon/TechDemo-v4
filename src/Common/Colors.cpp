@@ -1,6 +1,6 @@
 #include "core.hpp"
-#include <cmath>
 #include "Colors.hpp"
+#include <cmath>
 
 /*
 vec3 rgb2hsv(vec3 c)
@@ -25,22 +25,24 @@ vec3 hsv2rgb(vec3 c)
 // r,g,b values are from 0 to 1
 // h = [0,360], s = [0,1], v = [0,1]
 //        if s == 0, then h = -1 (undefined)
-namespace color {
+namespace color
+{
 struct Color
 {
-    union {
+    union
+    {
         u32 color;
 
-
     } rgba;
-
 };
 
 struct RGBA
 {
-    union {
+    union
+    {
         u32 rgba;
-        struct {
+        struct
+        {
             u8 a;
             u8 b;
             u8 g;
@@ -52,7 +54,8 @@ struct RGBA
 union TmpColor
 {
     u32 rgba;
-    struct {
+    struct
+    {
         u8 a;
         u8 b;
         u8 g;
@@ -60,58 +63,57 @@ union TmpColor
     };
 };
 
-uint32_t hexFromHSV(float h, float s, float v, float a){
+uint32_t hexFromHSV(float h, float s, float v, float a) {
     TmpColor color;
     color.rgba = 0;
-    color.a = a*0xff;
+    color.a = a * 0xff;
 
-    if(s == 0.f){
+    if(s == 0.f) {
         // achromatic (grey)
-        color.r = color.g = color.b = v*0xff;
+        color.r = color.g = color.b = v * 0xff;
         return color.rgba;
     }
-    h /= 60;            // sector 0 to 5
+    h /= 60; // sector 0 to 5
     int i = floor(h);
-    float f = h-i;            // factorial part of h
-    float p = v*(1 - s);
-    float q = v*(1 - s*f);
-    float t = v*(1 - s*(1-f));
+    float f = h - i; // factorial part of h
+    float p = v * (1 - s);
+    float q = v * (1 - s * f);
+    float t = v * (1 - s * (1 - f));
 
-    switch(i){
+    switch(i) {
         case 0:
-            color.r = v*0xff;
-            color.g = t*0xff;
-            color.b = p*0xff;
+            color.r = v * 0xff;
+            color.g = t * 0xff;
+            color.b = p * 0xff;
             break;
         case 1:
-            color.r = q*0xff;
-            color.g = v*0xff;
-            color.b = p*0xff;
+            color.r = q * 0xff;
+            color.g = v * 0xff;
+            color.b = p * 0xff;
             break;
         case 2:
-            color.r = p*0xff;
-            color.g = v*0xff;
-            color.b = t*0xff;
+            color.r = p * 0xff;
+            color.g = v * 0xff;
+            color.b = t * 0xff;
             break;
         case 3:
-            color.r = p*0xff;
-            color.g = q*0xff;
-            color.b = v*0xff;
+            color.r = p * 0xff;
+            color.g = q * 0xff;
+            color.b = v * 0xff;
             break;
         case 4:
-            color.r = t*0xff;
-            color.g = p*0xff;
-            color.b = v*0xff;
+            color.r = t * 0xff;
+            color.g = p * 0xff;
+            color.b = v * 0xff;
             break;
-        default:        // case 5:
-            color.r = v*0xff;
-            color.g = p*0xff;
-            color.b = q*0xff;
+        default: // case 5:
+            color.r = v * 0xff;
+            color.g = p * 0xff;
+            color.b = q * 0xff;
             break;
     }
     return color.rgba;
 }
-
 
 // void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v )
 // {

@@ -5,7 +5,13 @@
 */
 union Color
 {
-    struct {u8 r; u8 g; u8 b; u8 a;};
+    struct
+    {
+        u8 r;
+        u8 g;
+        u8 b;
+        u8 a;
+    };
     u32 rgba;
 };
 
@@ -19,10 +25,10 @@ struct Star
 class Starfield
 {
 public:
-    Starfield(){}
+    Starfield() {}
     void regenerate();
     void update();
-    VAO upload(std::vector<Star> &stars);
+    VAO upload(std::vector<Star>& stars);
 
     VAO starsOnGpu;
     u32 starCount {};

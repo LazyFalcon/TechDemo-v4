@@ -1,21 +1,20 @@
 #include "core.hpp"
-#include "ui-rendered.hpp"
 #include "ui.hpp"
 #include "Logger.hpp"
+#include "ui-rendered.hpp"
 
 Imgui::~Imgui() = default;
 
-Imgui::Imgui(int width, int height, const std::string& name):
-    m_width(width),
-    m_height(height),
-    m_renderedUIItems(std::make_unique<RenderedUIItems>()),
-    m_defaultPanel(this, &basicStyle, nullptr),
-    basicStyle(*m_renderedUIItems)
-{
+Imgui::Imgui(int width, int height, const std::string& name)
+    : m_width(width),
+      m_height(height),
+      m_renderedUIItems(std::make_unique<RenderedUIItems>()),
+      m_defaultPanel(this, &basicStyle, nullptr),
+      basicStyle(*m_renderedUIItems) {
     m_defaultPanel.width(m_width).height(m_height).layout().dummy();
 }
 
-void Imgui::restart(){
+void Imgui::restart() {
     pressedKey = "";
 
     m_renderedUIItems->reset();
@@ -27,20 +26,23 @@ void Imgui::restart(){
     m_defaultPanel.reset();
 }
 
-bool ItemActions::hover(const glm::vec4& poly, float depth){
-    bool hasHover = (mousePos.x>=poly.x and mousePos.x <=poly.x+poly.z) and (mousePos.y >=poly.y and mousePos.y <=poly.y+poly.w);
-    if(hasHover and depth >= cursorDepthInLastFrame){
+bool ItemActions::hover(const glm::vec4& poly, float depth) {
+    bool hasHover = (mousePos.x >= poly.x and mousePos.x <= poly.x + poly.z)
+                    and (mousePos.y >= poly.y and mousePos.y <= poly.y + poly.w);
+    if(hasHover and depth >= cursorDepthInLastFrame) {
         cursorDepthInThisFrame = depth;
         return true;
     }
     return false;
 }
-void ItemActions::reset(){
+void ItemActions::reset() {
     lmb.on = false;
-    if(lmb.off) lmb.position.reset();
+    if(lmb.off)
+        lmb.position.reset();
     lmb.off = false;
     rmb.on = false;
-    if(rmb.off) rmb.position.reset();
+    if(rmb.off)
+        rmb.position.reset();
     rmb.off = false;
 
     cursorDepthInLastFrame = cursorDepthInThisFrame;
@@ -50,19 +52,24 @@ void ItemActions::reset(){
 /*
     Action to be performed on item should have been pressed on 'on' and on 'out', otherwise it doesn't count
 */
-PointerActions ItemActions::getPointerAction(const glm::vec4& poly, float depth){
+PointerActions ItemActions::getPointerAction(const glm::vec4& poly, float depth) {
     auto out = PointerActions::None;
-    if(hover(poly, depth)) out = PointerActions::Hover;
+    if(hover(poly, depth))
+        out = PointerActions::Hover;
 
-    if(out == PointerActions::Hover and lmb.pressed(poly, depth)){
-        if(lmb.on) return PointerActions::LmbOn;
-        if(lmb.off) return PointerActions::LmbOff;
+    if(out == PointerActions::Hover and lmb.pressed(poly, depth)) {
+        if(lmb.on)
+            return PointerActions::LmbOn;
+        if(lmb.off)
+            return PointerActions::LmbOff;
         out = PointerActions::LmbHold;
     }
 
-    if(out == PointerActions::Hover and rmb.pressed(poly, depth)){
-        if(rmb.on) return PointerActions::RmbOn;
-        if(rmb.off) return PointerActions::RmbOff;
+    if(out == PointerActions::Hover and rmb.pressed(poly, depth)) {
+        if(rmb.on)
+            return PointerActions::RmbOn;
+        if(rmb.off)
+            return PointerActions::RmbOff;
         out = PointerActions::RmbHold;
     }
 

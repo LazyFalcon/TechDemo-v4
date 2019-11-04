@@ -1,25 +1,25 @@
 #include "core.hpp"
-#include "Context.hpp"
-#include "Assets.hpp"
 #include "VfxEffects.hpp"
-#include "Window.hpp"
-#include "camera-data.hpp"
+#include "Assets.hpp"
+#include "Color.hpp"
+#include "Context.hpp"
+#include "GPUResources.hpp"
+#include "PerfTimers.hpp"
+#include "PlasmaEffects.hpp"
 #include "RenderDataCollector.hpp"
 #include "RenderStructs.hpp"
-#include "GPUResources.hpp"
-#include "Color.hpp"
-#include "PlasmaEffects.hpp"
-#include "PerfTimers.hpp"
+#include "Window.hpp"
+#include "camera-data.hpp"
 // #include "Projectile.hpp"
 #include "Utils.hpp"
 // #include "ParticleProcessor.hpp"
 
 u32 plasmaRedColor = Color(238, 239, 192, 255);
 
-void VfxEffects::drawOpaque(camera::Camera &camera){
+void VfxEffects::drawOpaque(camera::Camera& camera) {
     GPU_SCOPE_TIMER();
 }
-void VfxEffects::drawGlare(camera::Camera &camera){
+void VfxEffects::drawGlare(camera::Camera& camera) {
     // GPU_SCOPE_TIMER();
     // RenderDataCollector::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
     // /// coś z OIT by się przydało, chociażby zmiana jasności w zależności od odległości, bo jeśli jasność sumować się może w nieskończoność to słabo trochę
@@ -37,7 +37,7 @@ void VfxEffects::drawGlare(camera::Camera &camera){
 
     // drawVolumetricLaserBeams(camera);
 }
-void VfxEffects::drawTransparent(camera::Camera &camera){
+void VfxEffects::drawTransparent(camera::Camera& camera) {
     // GPU_SCOPE_TIMER();
     // RenderDataCollector::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
     // /// coś z OIT by się przydało, chociażby zmiana jasności w zależności od odległości, bo jeśli jasność sumować się może w nieskończoność to słabo trochę
@@ -59,7 +59,7 @@ void VfxEffects::drawTransparent(camera::Camera &camera){
     // drawLines(camera);
     // drawSparks(camera);
 }
-void VfxEffects::drawLines(camera::Camera &camera){
+void VfxEffects::drawLines(camera::Camera& camera) {
     // auto &lines = RenderDataCollector::get<Line>();
     // if(lines.empty()) return;
 
@@ -81,7 +81,7 @@ void VfxEffects::drawLines(camera::Camera &camera){
     // context.errors();
 }
 
-void VfxEffects::drawVolumetricLaserBeams(camera::Camera &camera){
+void VfxEffects::drawVolumetricLaserBeams(camera::Camera& camera) {
     // auto &beams = RenderDataCollector::get<LaserBeam>();
     // if(beams.empty()) return;
 
@@ -117,7 +117,7 @@ void VfxEffects::drawVolumetricLaserBeams(camera::Camera &camera){
     // beams.clear();
     // context.errors();
 }
-void VfxEffects::drawPlasmaProjeciles(camera::Camera &camera){
+void VfxEffects::drawPlasmaProjeciles(camera::Camera& camera) {
     // auto &projectiles = RenderDataCollector::get<PlasmaProjectile>();
     // if(projectiles.empty()) return;
 
@@ -138,7 +138,7 @@ void VfxEffects::drawPlasmaProjeciles(camera::Camera &camera){
 
     // context.errors();
 }
-void VfxEffects::drawPlasmaFlashes(camera::Camera &camera){
+void VfxEffects::drawPlasmaFlashes(camera::Camera& camera) {
     // auto &plasma = RenderDataCollector::get<PlasmaFlashEvent>();
     // if(plasma.empty()) return;
     // auto shader = assets::getShader("PlasmaFlash").bind();
@@ -166,7 +166,7 @@ void VfxEffects::drawPlasmaFlashes(camera::Camera &camera){
 
     // context.errors();
 }
-void VfxEffects::drawSSDots(camera::Camera &camera){
+void VfxEffects::drawSSDots(camera::Camera& camera) {
     // auto &dots = RenderDataCollector::get<SSDot>();
     // if(dots.empty()) return;
     // gl::Disable(gl::DEPTH_TEST);
@@ -186,7 +186,7 @@ void VfxEffects::drawSSDots(camera::Camera &camera){
     // context.errors();
 }
 /// draws external container
-void VfxEffects::drawSparks(camera::Camera &camera){
+void VfxEffects::drawSparks(camera::Camera& camera) {
     // auto &sparks = RenderDataCollector::get<ParticleProcessor*>()[0]->get<Spark>();
     // if(sparks.empty()) return;
 

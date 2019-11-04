@@ -1,8 +1,8 @@
 ﻿#include "core.hpp"
-#include "Timer.hpp"
-#include "ui.hpp"
 #include "PerfCounter.hpp"
 #include "Colors.hpp"
+#include "Timer.hpp"
+#include "ui.hpp"
 
 u32 PerfCounter::allocatedTextureMemory;
 u32 PerfCounter::allocatedMeshMemory;
@@ -13,5 +13,4 @@ u32 PerfCounter::lightsOnScene;
 u32 PerfCounter::drawCalls;
 std::unordered_map<std::string, u32> PerfCounter::records;
 
-void showPerfCounter(UI::IMGUI &ui){
-}
+void showPerfCounter(UI::IMGUI& ui) {}

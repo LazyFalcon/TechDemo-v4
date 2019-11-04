@@ -6,21 +6,24 @@
 class Panel;
 class RenderedUIItems;
 
-struct ItemActions {
-    struct Action {
+struct ItemActions
+{
+    struct Action
+    {
         std::optional<glm::vec2> position;
         bool on;
         bool off;
         float layer;
         // checks against position from initial click
-        bool pressedOn(const glm::vec4& poly, float depth){
+        bool pressedOn(const glm::vec4& poly, float depth) {
             return on and pressed(poly, depth);
         }
-        bool pressedOff(const glm::vec4& poly, float depth){
+        bool pressedOff(const glm::vec4& poly, float depth) {
             return off and pressed(poly, depth);
         }
-        bool pressed(const glm::vec4& poly, float depth){
-            return position and depth == layer and (position->x>=poly.x and position->x <=poly.x+poly.z) and (position->y >=poly.y and position->y <=poly.y+poly.w);
+        bool pressed(const glm::vec4& poly, float depth) {
+            return position and depth == layer and (position->x >= poly.x and position->x <= poly.x + poly.z)
+                   and (position->y >= poly.y and position->y <= poly.y + poly.w);
         }
     } lmb, rmb;
 
@@ -34,22 +37,28 @@ struct ItemActions {
     PointerActions getPointerAction(const glm::vec4& poly, float depth);
     void reset();
 
-    void lmbOn(){
+    void lmbOn() {
         lmb.position = mousePos;
         lmb.on = true;
         lmb.layer = cursorDepthInLastFrame;
     }
-    void lmbOff(){ if(lmb.position){
-        if(lmb.position) lmb.off = true;
-    }}
-    void rmbOn(){
+    void lmbOff() {
+        if(lmb.position) {
+            if(lmb.position)
+                lmb.off = true;
+        }
+    }
+    void rmbOn() {
         rmb.position = mousePos;
         rmb.on = true;
         rmb.layer = cursorDepthInLastFrame;
     }
-    void rmbOff(){ if(rmb.position){
-        if(rmb.position) rmb.off = true;
-    }}
+    void rmbOff() {
+        if(rmb.position) {
+            if(rmb.position)
+                rmb.off = true;
+        }
+    }
 };
 
 // Main class of this miracle
@@ -59,6 +68,7 @@ private:
     int m_width, m_height;
     std::unique_ptr<RenderedUIItems> m_renderedUIItems;
     Panel m_defaultPanel;
+
 public:
     // handling mouse actions for proper actions
     ItemActions input, panelInput;
@@ -70,7 +80,7 @@ public:
     Imgui(int width, int height, const std::string& name = "default");
     ~Imgui();
 
-    Panel& panel(){ // returns active panel
+    Panel& panel() { // returns active panel
         return m_defaultPanel;
     }
 
@@ -78,19 +88,20 @@ public:
     // creates default, full screen panel
     void restart();
 
-    void getKey(const glm::vec4& box){}
+    void getKey(const glm::vec4& box) {}
     PointerActions getPointerAction(const glm::vec4& poly, float depth);
 
-    bool onKey(const std::string& key){
+    bool onKey(const std::string& key) {
         return pressedKey == key;
     }
     template<typename Func>
-    Imgui& onKey(const std::string& key, Func func){
-        if(pressedKey == key) func();
+    Imgui& onKey(const std::string& key, Func func) {
+        if(pressedKey == key)
+            func();
         return *this;
     }
 
-    RenderedUIItems& getToRender(){
+    RenderedUIItems& getToRender() {
         return *m_renderedUIItems;
     }
 };

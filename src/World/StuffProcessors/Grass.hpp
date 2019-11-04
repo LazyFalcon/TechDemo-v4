@@ -1,8 +1,8 @@
 #pragma once
+#include <queue>
+#include "GPUResources.hpp"
 #include "Logger.hpp"
 #include "QuadTree.hpp"
-#include "GPUResources.hpp"
-#include <queue>
 
 const u32 NO_OF_GRASS_PATCHES_IN_FIELD = 80u;
 // const u32 NO_OF_GRASS_PATCHES_IN_FIELD = 25u;
@@ -28,26 +28,26 @@ typedef std::array<SingleGrassPatch, NO_OF_GRASS_PATCHES_IN_FIELD> GrassPatchPos
 class GrassField
 {
 public:
-    GrassField(i32 fieldInChunkId, QTNode *owner) : lod(LOD_OUT_OF_VIEW), fieldInChunkId(fieldInChunkId), owner(owner) {
+    GrassField(i32 fieldInChunkId, QTNode* owner) : lod(LOD_OUT_OF_VIEW), fieldInChunkId(fieldInChunkId), owner(owner) {
         owner->payload.grassData->fields[fieldInChunkId] = this;
-        switch(fieldInChunkId){
-            case 0u : {
-                center = owner->center + owner->dimensions*glm::vec4(-0.25, 0.25, 0, 0);
+        switch(fieldInChunkId) {
+            case 0u: {
+                center = owner->center + owner->dimensions * glm::vec4(-0.25, 0.25, 0, 0);
                 break;
             }
-            case 1u : {
-                center = owner->center + owner->dimensions*glm::vec4(0.25, 0.25, 0, 0);
+            case 1u: {
+                center = owner->center + owner->dimensions * glm::vec4(0.25, 0.25, 0, 0);
                 break;
             }
-            case 2u : {
-                center = owner->center + owner->dimensions*glm::vec4(0.25, -0.25, 0, 0);
+            case 2u: {
+                center = owner->center + owner->dimensions * glm::vec4(0.25, -0.25, 0, 0);
                 break;
             }
-            case 3u : {
-                center = owner->center + owner->dimensions*glm::vec4(-0.25, -0.25, 0, 0);
+            case 3u: {
+                center = owner->center + owner->dimensions * glm::vec4(-0.25, -0.25, 0, 0);
                 break;
             }
-            default : console.error("bad field id received:"s, fieldInChunkId);
+            default: console.error("bad field id received:"s, fieldInChunkId);
         };
     }
     // TODO: why statics? refactor to use common object
@@ -61,43 +61,42 @@ public:
     glm::vec4 center;
     i32 lod;
     void remove();
-    bool updateLod(const glm::vec4 &eye, QuadTree &QT);
-    bool operator == (const GrassField &gf){
+    bool updateLod(const glm::vec4& eye, QuadTree& QT);
+    bool operator==(const GrassField& gf) {
         return &gf == this;
     }
+
 private:
     i32 fieldInChunkId;
-    QTNode *owner;
+    QTNode* owner;
     std::array<i32, 4> fieldIds {{-1, -1, -1, -1}}; // form lowest to highest level
 
-    void plantGrass(i32 lod, QuadTree &QT);
-
+    void plantGrass(i32 lod, QuadTree& QT);
 };
 
 class Grass
 {
 public:
-    Grass(QuadTree &qt) : QT(qt) {}
+    Grass(QuadTree& qt) : QT(qt) {}
     void initVBO();
 
     void update(glm::vec4 eyePos);
-    void loadData(ResourceLoader &loader, const Yaml &cfg);
+    void loadData(ResourceLoader& loader, const Yaml& cfg);
 
     Image texture;
     Mesh mesh {};
     VAO vao;
     u32 positionBuffer;
 
-    u32 getPatchCount(){
-        return std::min(GrassField::noOfpatchData, MAX_FIELD_COUNT)*NO_OF_GRASS_PATCHES_IN_FIELD;
+    u32 getPatchCount() {
+        return std::min(GrassField::noOfpatchData, MAX_FIELD_COUNT) * NO_OF_GRASS_PATCHES_IN_FIELD;
     }
 
 private:
     void updateBuffer();
     std::list<GrassField> grassFields;
 
-
     glm::vec4 eyePosition;
     std::shared_ptr<Sampler2D> densitySampler;
-    QuadTree &QT;
+    QuadTree& QT;
 };

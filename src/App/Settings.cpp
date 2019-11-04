@@ -2,7 +2,7 @@
 #include "Settings.hpp"
 #include "Yaml.hpp"
 
-void Settings::load(){
+void Settings::load() {
     Yaml yaml(dataPath + "Settings.yml");
 
     video.fullscreen = yaml["Video"]["Fullscreen"].boolean();
@@ -16,11 +16,10 @@ void Settings::load(){
     audio.voiceVolume = yaml["Audio"]["VoiceVolume"].number();
     controls.mouseSensitivity = yaml["Controls"]["MouseSensitivity"].number();
 
-    for(auto& it : yaml["Keybindings"])
-        keybindings[it.key()] = it.string();
+    for(auto& it : yaml["Keybindings"]) keybindings[it.key()] = it.string();
 }
 
-void Settings::save(){
+void Settings::save() {
     Yaml yaml;
 
     yaml["Video"]["Fullscreen"] = video.fullscreen;
@@ -35,8 +34,7 @@ void Settings::save(){
     yaml["Controls"]["MouseSensitivity"] = controls.mouseSensitivity;
 
     auto& keysRef = yaml["Keybindings"];
-    for(auto& it : keybindings)
-        keysRef.push(it.first, it.second);
+    for(auto& it : keybindings) keysRef.push(it.first, it.second);
 
     yaml.save(dataPath + "Settings.yml");
     yaml.print();

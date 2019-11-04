@@ -4,7 +4,14 @@
 struct Texture;
 struct Window;
 
-enum {FULL=1, HALF=2, QUARTER=4, HALF_WIDE=12, SHADOWMAP=22};
+enum
+{
+    FULL = 1,
+    HALF = 2,
+    QUARTER = 4,
+    HALF_WIDE = 12,
+    SHADOWMAP = 22
+};
 
 class FBO
 {
@@ -26,7 +33,7 @@ public:
     unsigned int _18;
     unsigned int currentFbo {0};
 
-    FBO(Window& window) : m_window(window){}
+    FBO(Window& window) : m_window(window) {}
 
     // select layer
     FBO& operator[](int);

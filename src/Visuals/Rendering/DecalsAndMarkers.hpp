@@ -5,8 +5,8 @@ struct Decal
     glm::mat4 transform;
     float layer;
 
-    void update(const glm::mat4 &tr){
-        decalList.push_back({tr*transform, layer});
+    void update(const glm::mat4& tr) {
+        decalList.push_back({tr * transform, layer});
 
         // if(/**Debug*/true) addDebugCube().mat(decalList.back().transform);
     }
@@ -22,7 +22,7 @@ struct Marker
     glm::vec4 baseUp;
     glm::vec4 baseoPsition;
 
-    void update(const glm::mat4 &tr){
+    void update(const glm::mat4& tr) {
         direction = tr * baseDirection;
         up = tr * baseUp;
         position = tr * baseoPsition;

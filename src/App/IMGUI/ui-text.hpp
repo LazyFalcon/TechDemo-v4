@@ -5,6 +5,7 @@ class Text
 {
 private:
     bool m_alreadyRendered {false};
+
 public:
     struct Rendered
     {
@@ -15,17 +16,21 @@ public:
         HexColor color;
     };
 
-    enum Formatting {
-        Left, Right, Centered, Justify
+    enum Formatting
+    {
+        Left,
+        Right,
+        Centered,
+        Justify
     };
 
     using RenderedText = std::vector<Rendered>;
 
-    void renderTo(RenderedText& container,  const std::string& text);
-    void renderTo(RenderedText& container,  const std::u16string& text);
+    void renderTo(RenderedText& container, const std::string& text);
+    void renderTo(RenderedText& container, const std::u16string& text);
 
-    float getLen(const std::string &text);
-    float getLen(const std::u16string &text);
+    float getLen(const std::string& text);
+    float getLen(const std::u16string& text);
 
     std::string font;
     u32 color;

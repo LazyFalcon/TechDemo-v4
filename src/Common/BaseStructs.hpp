@@ -20,18 +20,18 @@ struct ImageSet
     uint32_t ID;
     int w;
     int h;
-    std::map <std::string, Icon> set;
+    std::map<std::string, Icon> set;
 };
 
 struct ArrayData
 {
-    std::vector <unsigned char> data;
+    std::vector<unsigned char> data;
     int size;
-    float operator ()(int x, int y){
-        return data[x+y*size]/256.f;
+    float operator()(int x, int y) {
+        return data[x + y * size] / 256.f;
     }
-    float operator ()(glm::vec2 uv){
-        return data[(int)uv.x+(int)(uv.y*size)]/256.f;
+    float operator()(glm::vec2 uv) {
+        return data[(int)uv.x + (int)(uv.y * size)] / 256.f;
     }
 };
 
@@ -54,7 +54,7 @@ struct SampleResult
     glm::vec4 position;
     glm::vec4 normal;
     bool succes;
-    explicit  operator bool() const {
+    explicit operator bool() const {
         return succes;
     }
 };

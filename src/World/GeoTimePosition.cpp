@@ -1,12 +1,10 @@
 ﻿#include "core.hpp"
-#include "Sun.hpp"
-
 #include "GeoTimePosition.hpp"
 #include "Colors.hpp"
+#include "Sun.hpp"
 #include "Yaml.hpp"
 
-GeoTimePosition::GeoTimePosition(const Yaml &sett)
-{
+GeoTimePosition::GeoTimePosition(const Yaml& sett) {
     m_date = boost::posix_time::time_from_string(sett["DateTime"].string());
     latitude = sett["Latitude"].number();
     longitude = sett["Longitude"].number();
@@ -22,7 +20,6 @@ GeoTimePosition::GeoTimePosition(const Yaml &sett)
     minutes = time().minutes();
     seconds = time().seconds();
 
-    totalDaySeconds = seconds + minutes*60 + hours*60*60;
+    totalDaySeconds = seconds + minutes * 60 + hours * 60 * 60;
 }
-GeoTimePosition::~GeoTimePosition(){
-}
+GeoTimePosition::~GeoTimePosition() {}

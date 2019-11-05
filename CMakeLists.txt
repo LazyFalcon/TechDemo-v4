@@ -32,6 +32,7 @@ include_directories(C:/MinGW/lib/gcc/x86_64-w64-mingw32/8.2.0/include)
 HEADER_DIRECTORIES(header_list)
 include_directories(${header_list})
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
 # https://cliutils.gitlab.io/modern-cmake/

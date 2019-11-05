@@ -27,6 +27,7 @@
 #include "input-user-pointer.hpp"
 #include "input.hpp"
 
+
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window, InputUserPointer& inputUserPointer)
     : m_input(inputDispatcher.createNew("Playground")),
       m_physics(std::make_unique<PhysicalWorld>()),
@@ -42,8 +43,8 @@ Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& wind
 
     m_input->action("esc").on([] { event<ExitPlayground>(); });
     m_input->action("f12").on([this] { camera::active().printDebug(); });
-    m_input->action("+").on([this] { camera::active().input.zoom -= 1.5; });
-    m_input->action("-").on([this] { camera::active().input.zoom += 1.5; });
+    m_input->action("+").on([this] { camera::active().input.zoom = +1.5; });
+    m_input->action("-").on([this] { camera::active().input.zoom = -1.5; });
     m_input->action("scrollUp").on([=] {
         m_scene->freeCams.getController().input.worldPointToZoom = m_mouseSampler->position;
         camera::active().input.zoom = 1;

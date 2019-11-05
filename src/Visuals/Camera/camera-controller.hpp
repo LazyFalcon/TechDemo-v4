@@ -35,7 +35,7 @@ private:
     Mode superMode {Mode::World};
 
     glm::vec4 calculateEyePositionOffset(const glm::mat4& cameraRelativeMatrix) const;
-    void zoom();
+    void zoom(float dt);
     glm::quat computeTargetRotation(const glm::mat4& parentTransform, float dt);
     glm::vec4 computeTargetPosition(const glm::mat4& parentTransform, float dt);
     glm::quat getRotationBasis(const glm::mat4& parentTransform, float dt);

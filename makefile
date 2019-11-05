@@ -1,7 +1,7 @@
 DIRECTORIES = $(addprefix -I./,$(shell ls -d ./src/*/))
 DIRECTORIES_2 = $(addprefix -I./,$(shell ls -d ./src/*/*/))
 DIRECTORIES_3 = $(addprefix -I./,$(shell ls -d ./src/*/*/*/)) # todo: shouldn't be here, should be left for factories
-TARGET_NAME = TDv4_0_2
+TARGET_NAME = TechDemo
 
 DEFINES = \
 -DGLM_ENABLE_EXPERIMENTAL \
@@ -49,15 +49,19 @@ OBJS = $(TARGETS:%.cpp=$(OBJ_DIR)/%.o)
 DEP = $(OBJS:%.o=%.d)
 # include($(shell find . -type f -name \*.d))
 
+build: ./src/core_pch.hpp.gch $(BIN)/$(TARGET_NAME)
+	@echo "Done"
+
+run: ./src/core_pch.hpp.gch $(BIN)/$(TARGET_NAME)
+	@echo "Starting $(TARGET_NAME)"
+	@$(BIN)/$(TARGET_NAME).exe
+
+
 $(BIN)/$(TARGET_NAME): $(OBJS) ./obj/res.o
 	@mkdir -p ./bin
 	@echo "Linking: $@"
 	@$(LDX) $^ -o $@ $(LIBS)
 	@echo "Done"
-
-$(CORE_PCH):
-	@echo "Compiling PCH"
-	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) $(CORE_PCH_FILENAME)
 
 -include $(DEP)
 
@@ -69,16 +73,14 @@ $(OBJ_DIR)/%.o : %.cpp
 $(OBJ_DIR)/res.o: ./resource.rc ./icon.ico
 	windres ./resource.rc ./obj/res.o
 
-pch:
-	@echo "Compiling PCH"
+./src/core_pch.hpp.gch : ./src/core_pch.hpp
+	@echo "Creating PCH"
 	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) $(CORE_PCH_FILENAME)
 
 clean:
 	rm -rf $(OBJ_DIR)
 	rm $(BIN)/$(TARGET_NAME).exe
 
-run: $(BIN)/$(TARGET_NAME)
-	$(BIN)/$(TARGET_NAME).exe
 
 debug: $(BIN)/$(TARGET_NAME)
 	gdb $(BIN)/$(TARGET_NAME).exe -ex=run

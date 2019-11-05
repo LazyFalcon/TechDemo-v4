@@ -95,6 +95,7 @@ data/Settings.yml
 *.gch
 ShadersToReload.yml
 *.py
-snippets.cpp
-snippet.cpp
-duupa.cpp
+compile_commands.json
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake

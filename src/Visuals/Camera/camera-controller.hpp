@@ -3,6 +3,8 @@
 #include "camera-data.hpp"
 #include "camera-hud-interface.hpp"
 #include "camera-utils.hpp"
+#include "gradian.hpp"
+
 
 namespace camera
 {
@@ -15,14 +17,14 @@ class Controller : public Camera, public ControlInput, public CameraHUDInterface
 private:
     // angles are in camera space
     // in each frame target camera rotation is calculated from them
-    Utils::Limits<float, Utils::periodicAngle<float>> yaw; // y, around Z axis
-    Utils::Limits<float> pitch;                            // x, around X axis
-    Utils::Limits<float> roll;                             // z, around Y axis
+    Gradian yaw;   // y, around Z axis
+    Gradian pitch; // x, around X axis
+    Gradian roll;  // z, around Y axis
     // todo: fajniejsze byłoby cos takiego: Limits<AngleLimit(0, pi), Periodic()>
 
     Utils::ValueFollower<glm::vec4> origin;
     Utils::ValueFollower<glm::quat, Utils::quaternionSlerpFunction> rotation;
-    Utils::ValueFollower<Utils::Limits<float>> fovChange;
+    Utils::ValueFollower<Gradian, Utils::defaultMixFunction<float>> fovChange;
     Utils::ValueFollower<Utils::Limits<float>> offsetChange;
 
     enum class Mode

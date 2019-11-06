@@ -2,6 +2,7 @@
 #include "camera-controller.hpp"
 #include "Logger.hpp"
 
+
 namespace camera
 {
 std::list<Controller*> listOfControllers;
@@ -25,7 +26,7 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
       // fovLimited(Camera::fov, 30*toRad, 120*toRad),
       origin(parentMatrix[3], 0.6f, 0.5f),
       rotation(glm::quat_cast(parentMatrix * cameraRelativeMatrix), 0.5f, 0.5f),
-      fovChange(Utils::Limits<float>(85.f * toRad, 20.f * toRad, 90.f * toRad), 0.1f, 0.6f),
+      fovChange(Gradian(85.f * toRad, 20.f * toRad, 90.f * toRad), 0.1f, 0.6f),
       offsetChange(Utils::Limits<float>(15.f, 0.f, 20.f), 0.1f, 0.6f) {
     listOfControllers.push_back(this);
     if(not activeCamera)
@@ -37,8 +38,11 @@ Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRel
     Camera::fov = 85 * toRad;
     Camera::inertia = 1;
     Camera::smoothing = 1;
-
-    glm::extractEulerAngleXYZ(cameraRelativeMatrix, *pitch, *yaw, *roll);
+    float p, y, r;
+    glm::extractEulerAngleXYZ(cameraRelativeMatrix, p, y, r);
+    pitch = p;
+    yaw = y;
+    roll = r;
 
     offset = calculateEyePositionOffset(cameraRelativeMatrix);
     offsetScale = glm::length(offset) * glm::sign(glm::dot(at, offset));
@@ -62,7 +66,7 @@ Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
       origin(cameraWorldMatrix[3], 0.6f, 0.5f),
       rotation(glm::quat_cast(glm::mat4(1)), 0.5f, 0.5f),
       //   rotation(glm::quat_cast(cameraWorldMatrix), 0.5f, 0.5f),
-      fovChange(Utils::Limits<float>(85.f * toRad, 20.f * toRad, 90.f * toRad), 0.1f, 0.6f),
+      fovChange(Gradian(85.f * toRad, 20.f * toRad, 90.f * toRad), 0.1f, 0.6f),
       offsetChange(Utils::Limits<float>(0.f, 0.f, 20.f), 0.1f, 0.6f) {
     listOfControllers.push_back(this);
     if(not activeCamera)
@@ -166,7 +170,7 @@ void Controller::update(const glm::mat4& parentTransform, float dt) {
 void Controller::zoom(float dt) {
     if(input.zoom != 0.f) {
         if(setup.zoomMode == FOV) {
-            fovChange = fovChange.get() + input.zoom * 10.f * toRad;
+            fovChange = fovChange + input.zoom * 0.1f;
         }
         else {
             if(input.worldPointToZoom and setup.isFreecam) {
@@ -177,7 +181,7 @@ void Controller::zoom(float dt) {
                 offsetChange = offsetChange.get() + input.zoom * 2;
         }
     }
-    fov = fovChange.update(dt);
+    fov = fovChange.update(dt).asRad();
     Camera::changeFov(0); // todo: please update fov in better way
     offsetScale = offsetChange.update(dt);
 }

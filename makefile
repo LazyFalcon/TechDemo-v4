@@ -14,24 +14,31 @@ DEFINES = \
 CORE_PCH_FILENAME=./src/core_pch.hpp
 CORE_PCH=$(CORE_PCH_FILENAME).gch
 
-# CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
-CXX_FLAGS = -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
+CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
+# CXX_FLAGS = -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 # https://packages.msys2.org/base
-ADDITIONAL_FLAGS = \
--Werror=return-type \
--Werror=reorder \
--Wuninitialized \
--Winvalid-pch
-# -Wshadow
-# -Wmaybe-uninitialized \
-# -Wall
-# -Wunused-function \
-# -Wswitch-enum \
+EXTRA_CXX_FLAGS = -Werror=return-type
+EXTRA_CXX_FLAGS += -Werror=reorder
+EXTRA_CXX_FLAGS += -Wuninitialized
+EXTRA_CXX_FLAGS += -Winvalid-pch
+# EXTRA_CXX_FLAGS += -Wshadow
+# EXTRA_CXX_FLAGS += -Wmaybe-uninitialized
+# EXTRA_CXX_FLAGS += -Wal
+# EXTRA_CXX_FLAGS += -Wunused-function
+# EXTRA_CXX_FLAGS += -Wswitch-enum
 
-CXX = C:\msys64\mingw64\bin\g++.exe
-# CXX = C:\msys64\mingw64\bin\clang++.exe -stdlib=libstdc++
-LDX = C:\msys64\mingw64\bin\g++.exe
+ifeq ("$(clang)", "yes")
+	# echo "CLANG INCOMING!"
+	CXX = C:\msys64\mingw64\bin\clang++.exe -stdlib=libstdc++
+	LDX = C:\MinGW\bin\g++.exe
+else
+	# CXX = C:\msys64\mingw64\bin\g++.exe
+	CXX = C:\MinGW\bin\g++.exe
+	LDX = $(CXX)
+endif
+
+
 # LDX = C:\msys64\mingw64\bin\ld.exe
 
 FFMPEG = C:\ffmpeg\bin\ffmpeg.exe
@@ -68,14 +75,14 @@ $(BIN)/$(TARGET_NAME): $(OBJS) ./obj/res.o
 $(OBJ_DIR)/%.o : %.cpp
 	@echo "Compiling: $< "
 	@mkdir -p $(@D)
-	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) -MMD  -c $< -o $@
+	@$(CXX) $(CXX_FLAGS) $(EXTRA_CXX_FLAGS) -MMD  -c $< -o $@
 
 $(OBJ_DIR)/res.o: ./resource.rc ./icon.ico
 	windres ./resource.rc ./obj/res.o
 
 ./src/core_pch.hpp.gch : ./src/core_pch.hpp
 	@echo "Creating PCH"
-	@$(CXX) $(CXX_FLAGS) $(ADDITIONAL_FLAGS) $(CORE_PCH_FILENAME)
+	@$(CXX) $(CXX_FLAGS) $(EXTRA_CXX_FLAGS) $(CORE_PCH_FILENAME)
 
 clean:
 	rm -rf $(OBJ_DIR)

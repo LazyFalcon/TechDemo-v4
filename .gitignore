@@ -3,6 +3,7 @@ Thumbs.db
 ehthumbs.db
 .atom-build.json
 .vscode
+.clangd
 
 # Folder config file
 Desktop.ini
@@ -100,3 +101,4 @@ CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
 build
+compile_flags.txt

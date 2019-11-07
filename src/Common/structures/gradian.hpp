@@ -1,7 +1,6 @@
 #pragma once
 #include "Constants.hpp"
 
-
 float rad(float a) {
     return a * pi / 180.f;
 }
@@ -54,7 +53,20 @@ public:
         return m_delta;
     }
 
-    radian operator*() const {
+    void opertator += (float in) {
+        m_delta = limit(wrap(m_delta + in));
+    }
+    void opertator -= (float in) {
+        m_delta = limit(wrap(m_delta - in));
+    }
+    void opertator *= (float in) {
+        m_delta = limit(wrap(m_delta * in));
+    }
+    void opertator /= (float in) {
+        m_delta = limit(wrap(m_delta / in));
+    }
+
+    radian operator*() const { // ? what should be correct behaviour here?
         return asRad();
     }
 

@@ -81,7 +81,11 @@ Controller::Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize)
 
     setup.isFreecam = true;
 
-    glm::extractEulerAngleXYZ(cameraWorldMatrix, *pitch, *yaw, *roll);
+    float p, y, r;
+    glm::extractEulerAngleXYZ(cameraWorldMatrix, p, y, r);
+    pitch = p;
+    yaw = y;
+    roll = r;
 
     Camera::orientation = glm::toMat4(glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3));
     Camera::orientation[3] = origin.get();
@@ -170,7 +174,7 @@ void Controller::update(const glm::mat4& parentTransform, float dt) {
 void Controller::zoom(float dt) {
     if(input.zoom != 0.f) {
         if(setup.zoomMode == FOV) {
-            fovChange = fovChange + input.zoom * 0.1f;
+            fovChange += input.zoom * 0.1f;
         }
         else {
             if(input.worldPointToZoom and setup.isFreecam) {
@@ -222,10 +226,10 @@ glm::quat Controller::computeTargetRotation(const glm::mat4& parentTransform, fl
     glm::vec2 v(-input.pointer.vertical * cos(-roll) - input.pointer.horizontal * sin(-roll),
                 -input.pointer.vertical * sin(-roll) + input.pointer.horizontal * cos(-roll));
 
-    pitch = pitch - (v.x * 12.f * fov) / pi;
-    yaw = yaw - (v.y * 12.f * fov) / pi;
+    pitch -= (v.x * 12.f * fov) / pi;
+    yaw -= (v.y * 12.f * fov) / pi;
 
-    roll = roll + input.pointer.roll;
+    roll += input.pointer.roll;
     // auto out = glm::quat(glm::vec3(*yaw, *pitch, *roll));
     auto out = glm::angleAxis(*yaw, Z3) * glm::angleAxis(*pitch, X3);
     // todo: different order of application?

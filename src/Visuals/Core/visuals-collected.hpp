@@ -6,6 +6,7 @@
 #include "RenderStructs.hpp"
 #include "camera-data.hpp"
 
+
 class ArmoredVehicleTracks;
 namespace camera
 {
@@ -17,6 +18,8 @@ class LightSource;
 class SkinnedMesh;
 class Window;
 
+namespace visual
+{
 struct Uniforms
 {
     glm::mat4 uView;
@@ -35,39 +38,52 @@ struct Uniforms
     float gamma;
 };
 
-class RenderDataCollector
+struct MainLightParams
+{
+    glm::vec4 direction;
+    glm::vec4 color;
+    float colorTemperature;
+    float power;
+};
+
+class Collected
 {
 public:
     using tupleOfContainers = std::tuple<std::vector<SkinnedMesh*>, std::vector<ArmoredVehicleTracks*>,
                                          std::vector<SimpleModelPbr>, std::vector<PointLightSource>>;
 
-    static tupleOfContainers collection;
-    static CommandArray enviro;
-    static CommandArray foliage;
-    static Uniforms uniforms;
-    static std::vector<LightSource*>
+    tupleOfContainers collection;
+    CommandArray enviro;
+    CommandArray foliage;
+    Uniforms uniforms;
+    std::vector<LightSource*>
         lights[10]; // * lights collected by type, and relation to camera: index = type + isCameraInsideEnum
-    static std::vector<LightSource*> lightsCastingShadows;
+    std::vector<LightSource*> lightsCastingShadows;
 
-    static camera::Camera cameraOfThisFrame;
+    MainLightParams mainLightParams;
 
-    static void collectCamera(camera::Camera& camera);
-    static void collectWindow(Window& window);
-    static void collectTime(float lastFrame, u64 sinceStart);
+    camera::Camera cameraOfThisFrame;
 
-    static GraphicEngine* enginePtr;
-    static Details& details();
+    void collectCamera(camera::Camera& camera);
+    void collectWindow(Window& window);
+    void collectTime(float lastFrame, u64 sinceStart);
+
+    GraphicEngine* enginePtr;
+    Details& details();
 
     template<typename T>
-    static std::vector<T>& get() {
+    std::vector<T>& get() {
         return std::get<std::vector<T>>(collection);
     }
     template<typename T>
-    static void insert(const T& t) {
+    void insert(const T& t) {
         std::get<std::vector<T>>(collection).push_back(t);
     };
     template<typename T>
-    static void insert(T* t) {
+    void insert(T* t) {
         std::get<std::vector<T*>>(collection).push_back(t);
     };
 };
+
+extern Collected collected;
+}

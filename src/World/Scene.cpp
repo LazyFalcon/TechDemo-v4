@@ -17,6 +17,7 @@
 #include "camera-controller.hpp"
 #include "camera-data.hpp"
 #include "camera-factory.hpp"
+#include "visulas-collected.hpp"
 
 namespace graphic
 {
@@ -86,6 +87,7 @@ void Scene::update(float dt, camera::Camera& camera) {
         sun->update(*atmosphere);
     if(atmosphere)
         atmosphere->update(sun->direction);
+    storeMainLight();
 }
 
 void Scene::extractSpawnPoints(const Yaml& yaml) {
@@ -123,4 +125,13 @@ void Scene::extractCameras(const Yaml& yaml) {
 
 glm::vec4 Scene::getSceneDimensions() {
     return graph->getDimensions();
+}
+
+void Scene::storeMainLight() {
+    if(isDay()) {
+        visuals::collected.mainLight.direction = sun->direction;
+        visuals::collected.mainLight.color = sun->color;
+        visuals::collected.mainLight.colorTemperature = 6000.f;
+        visuals::collected.mainLight.power = sun->power;
+    }
 }

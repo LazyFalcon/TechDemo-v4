@@ -15,6 +15,7 @@ class Foliage;
 class FreeCamController;
 class GeoTimePosition;
 class Grass;
+class Moon;
 class PhysicalWorld;
 class Starfield;
 class Sun;
@@ -29,6 +30,7 @@ struct SpawnPoint
 
 struct Scene : private boost::noncopyable
 {
+public:
     Scene(PhysicalWorld& physics, camera::Factory& camFactory);
     ~Scene();
     Scene(const Scene&) = delete;
@@ -43,6 +45,7 @@ struct Scene : private boost::noncopyable
     std::unique_ptr<SceneGraph> graph;
     std::unique_ptr<Starfield> starfield;
     std::unique_ptr<Sun> sun;
+    std::unique_ptr<Moon> moon;
     std::unique_ptr<Terrain> terrain;
     std::vector<SpawnPoint> spawnPoints;
     camera::Factory& camFactory;
@@ -67,4 +70,11 @@ struct Scene : private boost::noncopyable
     std::vector<std::shared_ptr<AI>>& getHostiles() {
         return m_hostileBots;
     }
+
+    bool isDay() {
+        return true;
+    }
+
+private:
+    void storeMainLight();
 };

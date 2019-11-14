@@ -7,12 +7,7 @@
 #include "Window.hpp"
 #include "camera-data.hpp"
 
-RenderDataCollector::tupleOfContainers RenderDataCollector::collection;
-CommandArray RenderDataCollector::enviro;
-CommandArray RenderDataCollector::foliage;
-Uniforms RenderDataCollector::uniforms;
-camera::Camera RenderDataCollector::cameraOfThisFrame;
-std::vector<LightSource*> RenderDataCollector::lights[10];
+Collected collected;
 
 GraphicEngine* RenderDataCollector::enginePtr;
 Details& RenderDataCollector::details() {

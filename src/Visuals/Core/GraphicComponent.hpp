@@ -1,7 +1,8 @@
 #pragma once
 #include "GPUResources.hpp" // FIX: really?
 #include "Logger.hpp"
-#include "RenderDataCollector.hpp"
+#include "visuals-prepared-scene.hpp"
+
 
 namespace camera
 {
@@ -35,7 +36,7 @@ public:
     VAO vao;
     std::vector<glm::mat4> bones;
     void toBeRendered() {
-        RenderDataCollector::insert(this);
+        visuals::preparedScene.insert(this);
     }
 };
 
@@ -48,6 +49,6 @@ public:
     VAO vao;
     glm::mat4 baseTransform;
     void toBeRendered() {
-        RenderDataCollector::insert(this);
+        visuals::preparedScene.insert(this);
     }
 };

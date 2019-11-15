@@ -1,7 +1,6 @@
 #pragma once
 #include <typeindex>
 #include <typeinfo>
-#include "Details.hpp"
 #include "GPUResources.hpp"
 #include "RenderStructs.hpp"
 #include "camera-data.hpp"
@@ -46,7 +45,7 @@ struct MainLightParams
     float power;
 };
 
-class Collected
+class PreparedScene
 {
 public:
     using tupleOfContainers = std::tuple<std::vector<SkinnedMesh*>, std::vector<ArmoredVehicleTracks*>,
@@ -68,9 +67,6 @@ public:
     void collectWindow(Window& window);
     void collectTime(float lastFrame, u64 sinceStart);
 
-    GraphicEngine* enginePtr;
-    Details& details();
-
     template<typename T>
     std::vector<T>& get() {
         return std::get<std::vector<T>>(collection);
@@ -83,7 +79,12 @@ public:
     void insert(T* t) {
         std::get<std::vector<T*>>(collection).push_back(t);
     };
+
+    void insert(LightSource* t) {
+        lights[0].push_back(t);
+        lights[t.m_type + t.m_cameraInside].push_back(t);
+    };
 };
 
-extern Collected collected;
+extern PreparedScene preparedScene;
 }

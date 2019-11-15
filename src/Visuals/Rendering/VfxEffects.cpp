@@ -6,12 +6,14 @@
 #include "GPUResources.hpp"
 #include "PerfTimers.hpp"
 #include "PlasmaEffects.hpp"
-#include "RenderDataCollector.hpp"
 #include "RenderStructs.hpp"
 #include "Window.hpp"
 #include "camera-data.hpp"
+#include "visuals-prepared-scene.hpp"
+
 // #include "Projectile.hpp"
 #include "Utils.hpp"
+
 // #include "ParticleProcessor.hpp"
 
 u32 plasmaRedColor = Color(238, 239, 192, 255);
@@ -21,7 +23,7 @@ void VfxEffects::drawOpaque(camera::Camera& camera) {
 }
 void VfxEffects::drawGlare(camera::Camera& camera) {
     // GPU_SCOPE_TIMER();
-    // RenderDataCollector::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
+    // visuals::preparedScene.insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
     // /// coś z OIT by się przydało, chociażby zmiana jasności w zależności od odległości, bo jeśli jasność sumować się może w nieskończoność to słabo trochę
     // /// no tak, z kwadratem odległości maleje, ale jak to ładnie blendować żeby odległy bardzo jasny obiekt nie wpierdalał się na wierzch? za bardzo przynajmniej?
     // /// mamy dwa parametry: jasność(z koloru) i opacity(alfa), jeżu skomplikowane to będzie
@@ -39,7 +41,7 @@ void VfxEffects::drawGlare(camera::Camera& camera) {
 }
 void VfxEffects::drawTransparent(camera::Camera& camera) {
     // GPU_SCOPE_TIMER();
-    // RenderDataCollector::insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
+    // visuals::preparedScene.insert(SSDot{glm::vec2(0), 4.f, Color(50, 255, 20, 200)});
     // /// coś z OIT by się przydało, chociażby zmiana jasności w zależności od odległości, bo jeśli jasność sumować się może w nieskończoność to słabo trochę
     // /// no tak, z kwadratem odległości maleje, ale jak to ładnie blendować żeby odległy bardzo jasny obiekt nie wpierdalał się na wierzch? za bardzo przynajmniej?
     // /// mamy dwa parametry: jasność(z koloru) i opacity(alfa), jeżu skomplikowane to będzie
@@ -60,7 +62,7 @@ void VfxEffects::drawTransparent(camera::Camera& camera) {
     // drawSparks(camera);
 }
 void VfxEffects::drawLines(camera::Camera& camera) {
-    // auto &lines = RenderDataCollector::get<Line>();
+    // auto &lines = visuals::preparedScene.get<Line>();
     // if(lines.empty()) return;
 
     // auto shader = assets::getShader("Line").bind();
@@ -82,7 +84,7 @@ void VfxEffects::drawLines(camera::Camera& camera) {
 }
 
 void VfxEffects::drawVolumetricLaserBeams(camera::Camera& camera) {
-    // auto &beams = RenderDataCollector::get<LaserBeam>();
+    // auto &beams = visuals::preparedScene.get<LaserBeam>();
     // if(beams.empty()) return;
 
     // auto shader = assets::getShader("BeamRadiation").bind();
@@ -118,7 +120,7 @@ void VfxEffects::drawVolumetricLaserBeams(camera::Camera& camera) {
     // context.errors();
 }
 void VfxEffects::drawPlasmaProjeciles(camera::Camera& camera) {
-    // auto &projectiles = RenderDataCollector::get<PlasmaProjectile>();
+    // auto &projectiles = visuals::preparedScene.get<PlasmaProjectile>();
     // if(projectiles.empty()) return;
 
     // auto shader = assets::getShader("PlasmaProjectile").bind();
@@ -139,7 +141,7 @@ void VfxEffects::drawPlasmaProjeciles(camera::Camera& camera) {
     // context.errors();
 }
 void VfxEffects::drawPlasmaFlashes(camera::Camera& camera) {
-    // auto &plasma = RenderDataCollector::get<PlasmaFlashEvent>();
+    // auto &plasma = visuals::preparedScene.get<PlasmaFlashEvent>();
     // if(plasma.empty()) return;
     // auto shader = assets::getShader("PlasmaFlash").bind();
 
@@ -167,7 +169,7 @@ void VfxEffects::drawPlasmaFlashes(camera::Camera& camera) {
     // context.errors();
 }
 void VfxEffects::drawSSDots(camera::Camera& camera) {
-    // auto &dots = RenderDataCollector::get<SSDot>();
+    // auto &dots = visuals::preparedScene.get<SSDot>();
     // if(dots.empty()) return;
     // gl::Disable(gl::DEPTH_TEST);
     // auto shader = assets::getShader("SSDot").bind();
@@ -187,7 +189,7 @@ void VfxEffects::drawSSDots(camera::Camera& camera) {
 }
 /// draws external container
 void VfxEffects::drawSparks(camera::Camera& camera) {
-    // auto &sparks = RenderDataCollector::get<ParticleProcessor*>()[0]->get<Spark>();
+    // auto &sparks = visuals::preparedScene.get<ParticleProcessor*>()[0]->get<Spark>();
     // if(sparks.empty()) return;
 
     // gl::Enable(gl::DEPTH_TEST);

@@ -6,13 +6,13 @@
 #include "Context.hpp"
 #include "DecalsAndMarkers.hpp"
 #include "PerfTimers.hpp"
-#include "RenderDataCollector.hpp"
 #include "RendererUtils.hpp"
 #include "Scene.hpp"
 #include "Starfield.hpp"
 #include "Sun.hpp"
 #include "Window.hpp"
 #include "camera-data.hpp"
+#include "visuals-prepared-scene.hpp"
 
 std::vector<Decal> Decal::decalList;
 

@@ -4,8 +4,9 @@
 #include "BaseStructs.hpp"
 #include "Logger.hpp"
 #include "PerfTimers.hpp"
-#include "RenderDataCollector.hpp"
 #include "ResourceLoader.hpp"
+#include "visuals-prepared-scene.hpp"
+
 
 void messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message,
                      const void* userParam) {
@@ -440,7 +441,7 @@ void Context::endFrame() {
 void Context::uploadUniforms() {
     uint bindingPoint = 1;
     gl::BindBuffer(gl::UNIFORM_BUFFER, ubo.common);
-    gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(Uniforms), &RenderDataCollector::uniforms);
+    gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(Uniforms), &visuals::preparedScene.uniforms);
     gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
     gl::BindBufferRange(gl::UNIFORM_BUFFER, bindingPoint, ubo.common, 0,
                         sizeof(Uniforms)); // * bind ubo to binding point

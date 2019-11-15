@@ -4,8 +4,8 @@
 #include "Details.hpp"
 #include "IPathfinder.hpp"
 #include "Logger.hpp"
-#include "RenderDataCollector.hpp"
 #include "Vehicle.hpp"
+#include "visuals-prepared-scene.hpp"
 
 class AiProcessor
 {
@@ -51,7 +51,7 @@ public:
                 calculateNewPath();
         }
 
-        RenderDataCollector::details().drawWaypoints(m_path, 0xf0f010ff);
+        // visuals::preparedScene.details().drawWaypoints(m_path, 0xf0f010ff);
 
         float distanceToGo = m_waypointID->velocity * dt / 1000.f;
 

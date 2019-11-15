@@ -1,7 +1,8 @@
 #pragma once
 #include "Color.hpp"
 #include "Events.hpp"
-#include "RenderDataCollector.hpp"
+#include "visuals-prepared-scene.hpp"
+
 
 class PlasmaFlashEvent : public Event
 {
@@ -26,8 +27,8 @@ public:
         // else {
         //     sizeA *= 0.1;
         // }
-        // RenderDataCollector::insert(*this);
-        RenderDataCollector::insert(PointLightSource {position, Color(238, 239, 192, 255), 40.f, 0.5f});
+        // visuals::preparedScene.insert(*this);
+        visuals::preparedScene.insert(PointLightSource {position, Color(238, 239, 192, 255), 40.f, 0.5f});
         return false;
     }
 };

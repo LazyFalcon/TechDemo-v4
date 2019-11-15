@@ -1,5 +1,5 @@
 #include "core.hpp"
-#include "RenderDataCollector.hpp"
+#include "visuals-prepared-scene.hpp"
 #include "Constants.hpp"
 #include "GraphicEngine.hpp"
 #include "LightSource.hpp"
@@ -7,14 +7,11 @@
 #include "Window.hpp"
 #include "camera-data.hpp"
 
-Collected collected;
+namespace visuals
+{
+PreparedScene preparedScene;
 
-GraphicEngine* RenderDataCollector::enginePtr;
-Details& RenderDataCollector::details() {
-    return *(enginePtr->details);
-}
-
-void RenderDataCollector::collectCamera(camera::Camera& camera) {
+void PreparedScene::collectCamera(camera::Camera& camera) {
     cameraOfThisFrame = camera;
     uniforms.uFovTan = (float)tan(camera.fov * 0.5f);
     uniforms.uNear = camera.nearDistance;
@@ -26,11 +23,12 @@ void RenderDataCollector::collectCamera(camera::Camera& camera) {
     uniforms.exposture = 1.f;
     uniforms.gamma = 2.2f;
 }
-void RenderDataCollector::collectWindow(Window& window) {
+void PreparedScene::collectWindow(Window& window) {
     uniforms.uWindowSize = window.size;
     uniforms.uPixelSize = window.pixelSize;
 }
-void RenderDataCollector::collectTime(float lastFrame, u64 sinceStart) {
+void PreparedScene::collectTime(float lastFrame, u64 sinceStart) {
     uniforms.lastFrameTime = lastFrame;
     uniforms.sinceStartTime = sinceStart;
+}
 }

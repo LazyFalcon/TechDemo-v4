@@ -10,7 +10,6 @@
 #include "GraphicEngine.hpp"
 #include "Logger.hpp"
 #include "PerfTimers.hpp"
-#include "RenderDataCollector.hpp"
 #include "ResourceLoader.hpp"
 #include "Settings.hpp"
 #include "Timer.hpp"
@@ -21,6 +20,8 @@
 #include "input-user-pointer.hpp"
 #include "input.hpp"
 #include "ui.hpp"
+#include "visuals-prepared-scene.hpp"
+
 
 bool CLOG_SPECIAL_VALUE = false;
 bool CLOG_SPECIAL_VALUE_2 = false;
@@ -207,7 +208,7 @@ void App::run() try {
         // TODO: renderData.storeCameraForFrameRendering();
         userPointer->update(FrameTime::deltaf);
         if(camera::hasActive())
-            RenderDataCollector::collectCamera(camera::active());
+            visuals::preparedScene.collectCamera(camera::active());
 
         imgui->restart();
         inputDispatcher->setTime(FrameTime::miliseconds);

@@ -14,7 +14,6 @@
 #include "PhysicalWorld.hpp"
 #include "Player.hpp"
 #include "PlaygroundEvents.hpp"
-#include "RenderDataCollector.hpp"
 #include "RendererUtils.hpp"
 #include "Scene.hpp"
 #include "SceneRenderer.hpp"
@@ -26,6 +25,7 @@
 #include "input-dispatcher.hpp"
 #include "input-user-pointer.hpp"
 #include "input.hpp"
+#include "visuals-prepared-scene.hpp"
 
 
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window, InputUserPointer& inputUserPointer)
@@ -199,11 +199,15 @@ void Playground::updateWithHighPrecision(float dt) {
         m_scene->freeCams.focus();
     }
 
+    m_scene->updateWorld(dt, currentCamera);
+    m_scene->updateNonPlayableObjects(dt, currentCamera);
+    m_scene->updateWorld(dt, currentCamera);
+
     if(m_player)
         m_player->update(dt);
     for(auto& bot : m_scene->m_friendlyBots) { bot->update(dt); }
     for(auto& bot : m_scene->m_hostileBots) { bot->update(dt); }
-    m_scene->update(dt, currentCamera);
+    m_scene->collectObjectForRendering(dt, currentCamera);
 
     m_mouseSampler->samplePosition = m_inputUserPointer.screenPosition();
 }
@@ -243,9 +247,9 @@ void Playground::updateCamera(float dt) {
 
 void Playground::renderProcedure(GraphicEngine& renderer) {
     console_prefix("Rendering");
-    // RenderDataCollector::collectCamera(camera::active());
-    RenderDataCollector::collectWindow(m_window);
-    RenderDataCollector::collectTime(FrameTime::deltaf, FrameTime::miliseconds);
+    // visuals::preparedScene.collectCamera(camera::active());
+    visuals::preparedScene.collectWindow(m_window);
+    visuals::preparedScene.collectTime(FrameTime::deltaf, FrameTime::miliseconds);
 
     renderer.context->uploadUniforms();
 

@@ -8,10 +8,11 @@
 #include "Grass.hpp"
 #include "Logger.hpp"
 #include "PerfTimers.hpp"
-#include "RenderDataCollector.hpp"
 #include "Scene.hpp"
 #include "Sun.hpp"
 #include "camera-data.hpp"
+#include "visuals-prepared-scene.hpp"
+
 
 void SceneRenderer::renderSceneStuff(Scene& scene, camera::Camera& camera) {
     // GPU_SCOPE_TIMER();
@@ -175,7 +176,7 @@ void SceneRenderer::renderSkinned(camera::Camera& camera) {
     GPU_SCOPE_TIMER();
 
     auto shader = assets::bindShader("skinned-model-pbr");
-    auto& skinnedMeshes = RenderDataCollector::get<SkinnedMesh*>();
+    auto& skinnedMeshes = visuals::preparedScene.get<SkinnedMesh*>();
     int nr(0);
     console.clog("Number of skinned meshes:", skinnedMeshes.size());
     for(auto toRender : skinnedMeshes) {
@@ -233,7 +234,7 @@ void SceneRenderer::renderSkinnedShadows(Scene& scene, camera::Camera& camera) {
         lightDir = scene.sun->direction;
     auto shader = assets::getShader("ObjectShadow").bind();
 
-    auto& skinnedMeshes = RenderDataCollector::get<SkinnedMesh*>();
+    auto& skinnedMeshes = visuals::preparedScene.get<SkinnedMesh*>();
     for(auto toRender : skinnedMeshes) {
         auto& mesh = toRender->mesh;
         toRender->vao.bind();
@@ -265,19 +266,19 @@ void SceneRenderer::render_SimpleModelPbr(camera::Camera& camera) {
     shader.atlas("uMetallicMap", assets::getMetalic("Materials").id, 2);
 
     // TODO: in loop
-    context.ubo.update(RenderDataCollector::enviro.transforms.data(), RenderDataCollector::enviro.size);
+    context.ubo.update(visuals::preparedScene.enviro.transforms.data(), visuals::preparedScene.enviro.size);
     shader.ubo("uBones", context.ubo.matrices, 0, sizeof(glm::mat4) * context.ubo.size);
 
-    RenderDataCollector::enviro.vao.bind();
+    visuals::preparedScene.enviro.vao.bind();
 
     // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
-    console.clog("-> Visible objects:", RenderDataCollector::enviro.size);
+    console.clog("-> Visible objects:", visuals::preparedScene.enviro.size);
 
-    // gl::MultiDrawElementsIndirect(gl::TRIANGLES, gl::UNSIGNED_INT, RenderDataCollector::enviro.array.data(), RenderDataCollector::enviro.size, sizeof(DrawElementsIndirectCommand));
-    gl::MultiDrawElements(gl::TRIANGLES, RenderDataCollector::enviro.count.data(), gl::UNSIGNED_INT,
-                          RenderDataCollector::enviro.indices.data(), RenderDataCollector::enviro.size);
+    // gl::MultiDrawElementsIndirect(gl::TRIANGLES, gl::UNSIGNED_INT, visuals::preparedScene.enviro.array.data(), visuals::preparedScene.enviro.size, sizeof(DrawElementsIndirectCommand));
+    gl::MultiDrawElements(gl::TRIANGLES, visuals::preparedScene.enviro.count.data(), gl::UNSIGNED_INT,
+                          visuals::preparedScene.enviro.indices.data(), visuals::preparedScene.enviro.size);
 
-    RenderDataCollector::enviro.clear();
+    visuals::preparedScene.enviro.clear();
 
     // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
     gl::BindVertexArray(0);

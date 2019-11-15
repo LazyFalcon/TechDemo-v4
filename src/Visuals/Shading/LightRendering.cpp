@@ -9,9 +9,11 @@
 #include "Sun.hpp"
 #include "Window.hpp"
 #include "camera-data.hpp"
+
 // #include "GameSettings.hpp"
 #include "Color.hpp"
-#include "RenderDataCollector.hpp"
+#include "visuals-prepared-scene.hpp"
+
 
 namespace
 {
@@ -71,7 +73,7 @@ void LightRendering::renderPointLights(camera::Camera& camera) {
     GPU_SCOPE_TIMER();
     float lightScale = 1;
     // fillStencil(camera, scene, Textures::LightIntensity);
-    auto& pointLights = RenderDataCollector::lights[0];
+    auto& pointLights = visuals::preparedScene.lights[0];
     if(not pointLights.empty()) {
         // setupFBO_11(Textures::LightIntensity);
         gl::Enable(gl::BLEND);

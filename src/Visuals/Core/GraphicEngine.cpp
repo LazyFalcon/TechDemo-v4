@@ -5,13 +5,14 @@
 #include "Effects.hpp"
 #include "GBufferSampler.hpp"
 #include "LightRendering.hpp"
-#include "RenderDataCollector.hpp"
 #include "RendererUtils.hpp"
 #include "SceneRenderer.hpp"
 #include "ShadowCaster.hpp"
 #include "VfxEffects.hpp"
 #include "Window.hpp"
 #include "ui-renderer.hpp"
+#include "visuals-prepared-scene.hpp"
+
 
 GraphicEngine::GraphicEngine(Window& window)
     : window(window),
@@ -26,7 +27,6 @@ GraphicEngine::GraphicEngine(Window& window)
       uiRender(std::make_unique<UIRender>(window, *context)),
       vfxEffects(std::make_unique<VfxEffects>(window, *context)) {
     context->reset();
-    RenderDataCollector::enginePtr = this;
 }
 
 GraphicEngine::~GraphicEngine() {

@@ -1,6 +1,7 @@
 #pragma once
 #include "Constants.hpp"
 
+
 float rad(float a) {
     return a * pi / 180.f;
 }
@@ -53,16 +54,16 @@ public:
         return m_delta;
     }
 
-    void opertator += (float in) {
+    void operator+=(float in) {
         m_delta = limit(wrap(m_delta + in));
     }
-    void opertator -= (float in) {
+    void operator-=(float in) {
         m_delta = limit(wrap(m_delta - in));
     }
-    void opertator *= (float in) {
+    void operator*=(float in) {
         m_delta = limit(wrap(m_delta * in));
     }
-    void opertator /= (float in) {
+    void operator/=(float in) {
         m_delta = limit(wrap(m_delta / in));
     }
 

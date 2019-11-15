@@ -1,9 +1,10 @@
 #include "core.hpp"
 #include "LightSource.hpp"
 #include "PhysicalWorld.hpp"
-#include "RenderDataCollector.hpp"
 #include "Utils.hpp"
 #include "Yaml.hpp"
+#include "visuals-prepared-scene.hpp"
+
 
 LightSource::LightSource(const Yaml& yaml, PhysicalWorld& physics) {
     name = yaml["Name"].string();
@@ -81,8 +82,7 @@ void LightSource::actionWhenVisible() {
         return; // * to be sure that object will be inserted once per frame :)
     lastFrame = frame();
 
-    RenderDataCollector::lights[0].push_back(this);
-    // RenderDataCollector::lights[m_type+m_cameraInside].push_back(this);
+    visuals::preparedScene.insert(this);
 }
 
 void LightSource::readConfig(const Yaml& thing) {

@@ -35,6 +35,7 @@ bool Scene::load(const std::string& sceneName) {
     Yaml settings(resPath + "scenes/" + sceneName + "/SceneSettings.yml");
 
     geoTimePosition = std::make_unique<GeoTimePosition>(settings["GeoTime"]);
+    // ingameClock = std::make_unique<InGameClock>(geoTimePosition);
     sun = std::make_unique<Sun>(settings["Sun"], *geoTimePosition);
     starfield = std::make_unique<Starfield>();
     starfield->regenerate();
@@ -48,6 +49,7 @@ bool Scene::load(const std::string& sceneName) {
     environment = std::make_unique<Environment>(*graph, physics);
     environment->load(sceneName, sceneYaml);
 
+    // todo: loadTerrainCellsToGraph(sceneYaml);
     extractSpawnPoints(sceneYaml);
     extractCameras(sceneYaml);
     // terrain = std::make_unique<Terrain>(*quadTree);
@@ -71,23 +73,6 @@ bool Scene::load(const std::string& sceneName) {
     // graphic::renderTopViewOfTerrain(*this);
 
     return true;
-}
-
-void Scene::update(float dt, camera::Camera& camera) {
-    CPU_SCOPE_TIMER("Scene::update");
-    const camera::Frustum& frustum = camera.getFrustum();
-    // todo: const Frustum frustum(camera);
-    // if(geoTimePosition) geoTimePosition->update(dt*10);
-    if(graph)
-        graph->cullCells(frustum);
-    environment->update(dt);
-    // if(grass) grass->update(camera.position());
-    // if(foliage) foliage->update(camera.position());
-    if(sun and atmosphere)
-        sun->update(*atmosphere);
-    if(atmosphere)
-        atmosphere->update(sun->direction);
-    storeMainLight();
 }
 
 void Scene::extractSpawnPoints(const Yaml& yaml) {
@@ -125,6 +110,28 @@ void Scene::extractCameras(const Yaml& yaml) {
 
 glm::vec4 Scene::getSceneDimensions() {
     return graph->getDimensions();
+}
+
+void Scene::updateWorld(float dt) {
+    // todo: ingameClock->update(dt);
+    // todo: a jakby podawać obiektom ref do struktur które mają wypełnić danymi do renderowania? niezłe?
+    sun->update(*atmosphere);
+    atmosphere->update(sun->direction);
+    // todo: wind->update();
+    storeMainLight();
+}
+void Scene::updateNonPlayableObjects(float dt, camera::Camera& camera) {
+    environment->update(dt);
+    // todo: if(grass) grass->update(camera.position());
+    // todo: if(foliage) foliage->update(camera.position());
+
+    // todo: updateShadowCasters();
+}
+void Scene::updateLightsAndShadows(float dt, camera::Camera& camera) {}
+void Scene::collectObjectForRendering(float dt, camera::Camera& camera) {
+    CPU_SCOPE_TIMER("Scene::culling");
+    const camera::Frustum& frustum = camera.getFrustum();
+    graph->cullCells(frustum);
 }
 
 void Scene::storeMainLight() {

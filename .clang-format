@@ -113,6 +113,6 @@ IncludeCategories:
 # Comments are for developers, they should arrange them
 ReflowComments: false
 
-IncludeBlocks: Merge
+# IncludeBlocks: Merge
 IndentPPDirectives: AfterHash
 ---

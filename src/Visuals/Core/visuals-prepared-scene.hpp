@@ -2,9 +2,9 @@
 #include <typeindex>
 #include <typeinfo>
 #include "GPUResources.hpp"
+#include "LightSource.hpp"
 #include "RenderStructs.hpp"
 #include "camera-data.hpp"
-
 
 class ArmoredVehicleTracks;
 namespace camera
@@ -17,7 +17,7 @@ class LightSource;
 class SkinnedMesh;
 class Window;
 
-namespace visual
+namespace visuals
 {
 struct Uniforms
 {
@@ -82,7 +82,7 @@ public:
 
     void insert(LightSource* t) {
         lights[0].push_back(t);
-        lights[t.m_type + t.m_cameraInside].push_back(t);
+        lights[t->m_type + t->m_cameraInside].push_back(t);
     };
 };
 

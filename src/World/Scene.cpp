@@ -17,7 +17,7 @@
 #include "camera-controller.hpp"
 #include "camera-data.hpp"
 #include "camera-factory.hpp"
-#include "visulas-collected.hpp"
+#include "visuals-prepared-scene.hpp"
 
 namespace graphic
 {

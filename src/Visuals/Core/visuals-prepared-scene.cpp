@@ -2,7 +2,6 @@
 #include "visuals-prepared-scene.hpp"
 #include "Constants.hpp"
 #include "GraphicEngine.hpp"
-#include "LightSource.hpp"
 #include "ModelLoader.hpp"
 #include "Window.hpp"
 #include "camera-data.hpp"

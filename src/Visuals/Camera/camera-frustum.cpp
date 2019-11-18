@@ -13,38 +13,31 @@ bool Frustum::testAABB(glm::vec4 box) const {
     return true;
 }
 
-std::vector<FrustmCorners> Frustum::splitForCSM(u32 parts) {
+void Frustum::splitForCSM(u32 parts) {
     std::vector<FrustmCorners> out;
     splitDistances.clear();
 
-    std::vector<float> distances(parts + 1);
+    std::vector<float> distances(5);
+    float distance = zFar - zNear;
     distances[0] = 0;
+    distances[4] = distance;
     float l = 0.8;
     float j = 1;
-    float distance = zFar - zNear;
     auto splitVector = [&, this](glm::vec4 a, glm::vec4 b, float p) {
         return b + p / distance * glm::distance(a, b) * glm::normalize(a - b);
     };
-    auto splitFrustum = [&, this](float start, float end) {
-        out.push_back(corners);
-        auto& corner = out.back();
-        corner.m.farTopRight = splitVector(corner.m.farTopRight, corner.m.nearTopRight, end);
-        corner.m.farTopLeft = splitVector(corner.m.farTopLeft, corner.m.nearTopLeft, end);
-        corner.m.farBottomRight = splitVector(corner.m.farBottomRight, corner.m.nearBottomRight, end);
-        corner.m.farBottomLeft = splitVector(corner.m.farBottomLeft, corner.m.nearBottomLeft, end);
-        corner.m.farCenter = splitVector(corner.m.farCenter, corner.m.nearCenter, end);
-
-        corner.m.nearTopRight = splitVector(corner.m.farTopRight, corner.m.nearTopRight, start);
-        corner.m.nearTopLeft = splitVector(corner.m.farTopLeft, corner.m.nearTopLeft, start);
-        corner.m.nearBottomRight = splitVector(corner.m.farBottomRight, corner.m.nearBottomRight, start);
-        corner.m.nearBottomLeft = splitVector(corner.m.farBottomLeft, corner.m.nearBottomLeft, start);
-        corner.m.nearCenter = splitVector(corner.m.farCenter, corner.m.nearCenter, start);
+    auto splitFrustum = [&, this](float division, int sliceIndex) {
+        slices[sliceIndex].topRight = splitVector(slices[4].slice.TopRight, slices[0].slice.TopRight, division);
+        slices[sliceIndex].topLeft = splitVector(slices[4].slice.TopLeft, slices[0].slice.TopLeft, division);
+        slices[sliceIndex].bottomRight =
+            splitVector(slices[4].slice.BottomRight, slices[0].slice.BottomRight, division);
+        slices[sliceIndex].bottomLeft = splitVector(slices[4].slice.BottomLeft, slices[0].slice.BottomLeft, division);
     };
 
-    for(auto i = 0; i < parts; i++, j += 1) {
+    for(auto i = 1; i < 3; i++, j += 1) {
         auto far = zFar * 0.75f;
         distances[i + 1] = glm::mix(zNear + (j / parts) * (far - zNear), zNear * powf(far / zNear, j / parts), l);
-        splitFrustum(distances[i], distances[i + 1]);
+        splitFrustum(distances[i + 1]);
         splitDistances.push_back(distances[i + 1]);
     }
 

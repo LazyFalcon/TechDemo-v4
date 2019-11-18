@@ -45,7 +45,7 @@ public:
     std::unique_ptr<SceneGraph> graph;
     std::unique_ptr<Starfield> starfield;
     std::unique_ptr<Sun> sun;
-    std::unique_ptr<Moon> moon;
+    // std::unique_ptr<Moon> moon;
     std::unique_ptr<Terrain> terrain;
     std::vector<SpawnPoint> spawnPoints;
     camera::Factory& camFactory;
@@ -74,6 +74,11 @@ public:
     bool isDay() {
         return true;
     }
+
+    void updateWorld(float dt);
+    void updateNonPlayableObjects(float dt, camera::Camera& camera);
+    void updateLightsAndShadows(float dt, camera::Camera& camera);
+    void collectObjectForRendering(float dt, camera::Camera& camera);
 
 private:
     void storeMainLight();

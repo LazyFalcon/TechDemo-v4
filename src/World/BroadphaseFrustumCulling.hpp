@@ -36,8 +36,7 @@ public:
     std::vector<int> cellsInsideFrustum;
     short int collisionFilterMask;
 
-    DbvtBroadphaseFrustumCulling()
-        : collisionFilterMask(btBroadphaseProxy::AllFilter & ~btBroadphaseProxy::SensorTrigger) {}
+    CullingForShadowmap() : collisionFilterMask(btBroadphaseProxy::AllFilter & ~btBroadphaseProxy::SensorTrigger) {}
     bool Descent(const btDbvtNode* node) {
         return true;
     }

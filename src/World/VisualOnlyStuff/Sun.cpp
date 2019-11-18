@@ -12,14 +12,6 @@ Sun::Sun(const Yaml& sett, GeoTimePosition& geoTimePosition) : m_geoTimePosition
     tweak = sett["Tweak"].boolean();
 
     calcSunPosition();
-    pmk::sunSpaceViewBox = [this](glm::vec4& bbMin, glm::vec4& bbMax, glm::vec4 position) {
-        position = transform * position;
-        bbMin = pmk::min(position, bbMin);
-        bbMax = pmk::max(position, bbMax);
-    };
-    pmk::updateSunTransform = [this](glm::vec4 p, glm::vec4 cameraView) {
-        transform = glm::lookAt(p.xyz() - direction.xyz(), p.xyz(), Z3);
-    };
 }
 Sun::~Sun() {}
 

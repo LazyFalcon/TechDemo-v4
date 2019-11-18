@@ -51,47 +51,39 @@ void Camera::recalucuateFrustum() {
     frustum.zNear = nearDistance;
     frustum.zFar = farDistance;
 
-    frustum.corners.m.nearCenter = nearCenter;
-    frustum.corners.m.farCenter = farCenter;
-    frustum.corners.m.farTopRight = farCenter + up * farHeight + right * farWidth;
-    frustum.corners.m.farTopLeft = farCenter + up * farHeight - right * farHeight;
-    frustum.corners.m.farBottomRight = farCenter - up * farHeight + right * farWidth;
-    frustum.corners.m.farBottomLeft = farCenter - up * farHeight - right * farWidth;
+    // frustum.slices[0].slice.center = nearCenter;
+    // frustum.slices[4].slice.center = farCenter;
+    frustum.slices[4].slice.topRight = farCenter + up * farHeight + right * farWidth;
+    frustum.slices[4].slice.topLeft = farCenter + up * farHeight - right * farHeight;
+    frustum.slices[4].slice.bottomRight = farCenter - up * farHeight + right * farWidth;
+    frustum.slices[4].slice.bottomLeft = farCenter - up * farHeight - right * farWidth;
 
     farWidth = tan(fov * 0.5f) * nearDistance;
     farHeight = farWidth / aspectRatio;
-    frustum.corners.m.nearTopRight = nearCenter + up * farHeight + right * farWidth;
-    frustum.corners.m.nearTopLeft = nearCenter + up * farHeight - right * farWidth;
-    frustum.corners.m.nearBottomRight = nearCenter - up * farHeight + right * farWidth;
-    frustum.corners.m.nearBottomLeft = nearCenter - up * farHeight - right * farWidth;
+    frustum.slices[0].slice.topRight = nearCenter + up * farHeight + right * farWidth;
+    frustum.slices[0].slice.topLeft = nearCenter + up * farHeight - right * farWidth;
+    frustum.slices[0].slice.bottomRight = nearCenter - up * farHeight + right * farWidth;
+    frustum.slices[0].slice.bottomLeft = nearCenter - up * farHeight - right * farWidth;
 
-    frustum.planes.m.topPlane = plane(frustum.corners.m.farTopRight, frustum.corners.m.farTopLeft, orientation[3]);
+    frustum.planes.m.topPlane =
+        plane(frustum.slices[4].slice.topRight, frustum.slices[4].slice.topLeft, orientation[3]);
     frustum.planes.m.bottomPlane =
-        plane(frustum.corners.m.farBottomLeft, frustum.corners.m.farBottomRight, orientation[3]);
-    frustum.planes.m.leftPlane = plane(frustum.corners.m.farTopLeft, frustum.corners.m.farBottomLeft, orientation[3]);
+        plane(frustum.slices[4].slice.bottomLeft, frustum.slices[4].slice.bottomRight, orientation[3]);
+    frustum.planes.m.leftPlane =
+        plane(frustum.slices[4].slice.topLeft, frustum.slices[4].slice.bottomLeft, orientation[3]);
     frustum.planes.m.rightPlane =
-        plane(frustum.corners.m.farBottomRight, frustum.corners.m.farTopRight, orientation[3]);
+        plane(frustum.slices[4].slice.bottomRight, frustum.slices[4].slice.topRight, orientation[3]);
     frustum.planes.m.nearPlane = nearPlane;
     frustum.planes.m.farPlane = farPlane;
-
-    // frustum.planes.m.rightPlane = glm::vec4(PV[3]-PV[0], PV[7]-PV[4], PV[11]-PV[8], PV[15]-PV[12]);
-    // // Extract the LEFT clipping plane
-    // frustum.planes.m.leftPlane = glm::vec4(PV[3]+PV[0], PV[7]+PV[4], PV[11]+PV[8], PV[15]+PV[12]);
-    // // Extract the TOP clipping plane
-    // frustum.planes.m.topPlane = glm::vec4(PV[3]-PV[1], PV[7]-PV[5], PV[11]-PV[9], PV[15]-PV[13]);
-    // // Extract the BOTTOM clipping plane
-    // frustum.planes.m.bottomPlane = glm::vec4(PV[3]+PV[1], PV[7]+PV[5], PV[11]+PV[9], PV[15]+PV[13]);
-    // // Extract the FAR clipping plane
-    // frustum.planes.m.farPlane = glm::vec4(PV[3]-PV[2], PV[7]-PV[6], PV[11]-PV[10], PV[15]-PV[14]);
 
     frustum.vectors.m.forward = at;
     frustum.vectors.m.right = right;
     frustum.vectors.m.up = up;
 
-    frustum.cornerVectors = {glm::normalize(frustum.corners.m.farBottomLeft - orientation[3]),
-                             glm::normalize(frustum.corners.m.farTopLeft - orientation[3]),
-                             glm::normalize(frustum.corners.m.farBottomRight - orientation[3]),
-                             glm::normalize(frustum.corners.m.farTopRight - orientation[3]), at};
+    frustum.cornerVectors = {glm::normalize(frustum.slices[4].slice.BottomLeft - orientation[3]),
+                             glm::normalize(frustum.slices[4].slice.TopLeft - orientation[3]),
+                             glm::normalize(frustum.slices[4].slice.BottomRight - orientation[3]),
+                             glm::normalize(frustum.slices[4].slice.TopRight - orientation[3]), at};
 }
 
 float Camera::convertDepthToWorld(float depth) {

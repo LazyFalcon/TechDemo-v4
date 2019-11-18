@@ -4,22 +4,19 @@
 namespace camera
 {
 // todo: why not define only far corners? and get near corners from previous?
+
+struct Slice
+{
+    glm::vec4 topRight;
+    glm::vec4 topLeft;
+    glm::vec4 bottomRight;
+    glm::vec4 bottomLeft;
+};
+
 union FrustmCorners
 {
-    struct u
-    {
-        glm::vec4 farTopRight;
-        glm::vec4 farTopLeft;
-        glm::vec4 farBottomRight;
-        glm::vec4 farBottomLeft;
-        glm::vec4 nearTopRight;
-        glm::vec4 nearTopLeft;
-        glm::vec4 nearBottomRight;
-        glm::vec4 nearBottomLeft;
-        glm::vec4 nearCenter;
-        glm::vec4 farCenter;
-    } m;
-    std::array<glm::vec4, 10> array {};
+    std::array<Slice, 5> slice {};
+    std::array<glm::vec4, 4 * 5> point {};
 };
 
 union FrustumPlanes
@@ -63,7 +60,7 @@ public:
     std::vector<FrustmCorners> splitForCSM(u32 parts = 4);
     std::vector<float> splitDistances;
 
-    FrustmCorners corners {};
+    FrustmCorners slices {};
     FrustumPlanes planes {};
     std::array<glm::vec4, 5> cornerVectors;
     FrustumVectors vectors {};

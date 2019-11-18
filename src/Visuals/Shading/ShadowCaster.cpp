@@ -39,8 +39,8 @@ void ShadowCaster::prepareForDirectionalShadows(Scene& scene, camera::Camera& ca
     gl::ColorMask(gl::FALSE_, gl::FALSE_, gl::FALSE_, gl::FALSE_);
     gl::Disable(gl::CULL_FACE);
 
-    auto cornersOfSplittedFrustum = camera.frustum.splitForCSM(numberOfFrustumSplits);
-    calculateShadowProjectionMatrices(cornersOfSplittedFrustum, scene.sun->direction, *scene.sun, camera);
+    camera.frustum.splitForCSM(numberOfFrustumSplits);
+    calculateShadowProjectionMatrices(camera.frustum.slices, scene.sun->direction, *scene.sun, camera);
 
     context.errors();
 }
@@ -119,25 +119,38 @@ std::vector<Mesh> ShadowCaster::getTerrainToRender(SceneGraph& sg) {
     return out;
 }
 
-glm::mat4 ShadowCaster::fitShadowProjectionAroundBoundingBox(camera::FrustmCorners& corners, Sun& sun,
-                                                             camera::Camera& camera, float minZ, float maxZ) {
+void minMaxInLightSpace(glm::vec4& bbMin, glm::vec4& bbMax, glm::vec4 position, const glm::mat4& transform) {
+    position = transform * position;
+    bbMin = pmk::min(position, bbMin);
+    bbMax = pmk::max(position, bbMax);
+};
+
+glm::mat4 frustrumSliceProjectionViewMatrix(const camera::FrustmCorners& slices, int index, Sun& sun,
+                                            camera::Camera& camera, float minZ, float maxZ) {
     glm::vec4 shadowCenter(0);
-    for(auto i = 0; i < 8; i++) { shadowCenter += corners.array[i]; }
+    for(auto i = index * 4; i < index * 4 + 8; i++) { shadowCenter += slices.point[i]; }
     shadowCenter /= shadowCenter.w;
-    pmk::updateSunTransform(shadowCenter, camera.up);
+    auto transform = glm::lookAt(shadowCenter.xyz() - direction.xyz(), shadowCenter.xyz(), glm::vec3(0, 0, 1));
+
     auto bbMin = glm::vec4(100000);
     auto bbMax = glm::vec4(-100000);
-    for(auto i = 0; i < 8; i++) { pmk::sunSpaceViewBox(bbMin, bbMax, corners.array[i]); }
 
-    auto mat = glm::ortho(bbMin.x, bbMax.x, bbMin.y, bbMax.y, -bbMax.z, -bbMin.z) * sun.transform;
+    for(auto i = index * 4; i < index * 4 + 8; i++) { minMaxInLightSpace(bbMin, bbMax, slices.point[i], transform); }
 
-    return mat;
+    auto lightProjectionViewMatrix = glm::ortho(bbMin.x, bbMax.x, bbMin.y, bbMax.y, -bbMax.z, -bbMin.z) * sun.transform;
+
+    return lightProjectionViewMatrix;
 }
-void ShadowCaster::calculateShadowProjectionMatrices(std::vector<camera::FrustmCorners>& frustumSlices, glm::vec4 light,
-                                                     Sun& sun, camera::Camera& camera) {
+
+void ShadowCaster::calculateShadowProjectionMatrices(const camera::FrustmCorners& slices, glm::vec4 light, Sun& sun,
+                                                     camera::Camera& camera) {
     context.tex.shadows.matrices.clear();
+    std::array<glm::vec4, 20> transformedSlices;
+    std::transform(slices.point.begin(), slices.point.end(), transformedSlices.begin(),
+                   [&sun](const glm::vec4& in) { return sun.transform * in; });
+
     for(auto i = 0; i < numberOfFrustumSplits; i++) {
-        context.tex.shadows.matrices.push_back(fitShadowProjectionAroundBoundingBox(frustumSlices[i], sun, camera));
+        context.tex.shadows.matrices.push_back(frustrumSliceProjectionViewMatrix(slices, i, sun, camera));
     }
 }
 

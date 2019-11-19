@@ -11,7 +11,6 @@
 #include "Yaml.hpp"
 #include "visuals-prepared-scene.hpp"
 
-
 void EnviroEntity::update(float dt) {
     btTransform tr;
     physics.rgBody->getMotionState()->getWorldTransform(tr);
@@ -22,7 +21,7 @@ void EnviroEntity::actionWhenVisible() {
         return; // * to be sure that object will be inserted once per frame :)
     lastFrame = frame();
 
-    visuals::preparedScene.enviro.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
+    visuals::preparedScene.nonPlayableInsideFrustum.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
 }
 
 void Environment::load(const std::string& sceneName, const Yaml& yaml) {
@@ -45,7 +44,7 @@ void Environment::load(const std::string& sceneName, const Yaml& yaml) {
     if(yaml.has("LightSources"))
         for(auto& it : yaml["LightSources"]) loadLightSource(it);
     vao = modelLoader.build();
-    visuals::preparedScene.enviro.vao = vao;
+    visuals::preparedScene.nonPlayableInsideFrustum.vao = vao;
 }
 
 void Environment::loadObject(const Yaml& yaml, ModelLoader<VertexWithMaterialData>& modelLoader) {

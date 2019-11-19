@@ -13,7 +13,6 @@
 #include "camera-data.hpp"
 #include "visuals-prepared-scene.hpp"
 
-
 void SceneRenderer::renderSceneStuff(Scene& scene, camera::Camera& camera) {
     // GPU_SCOPE_TIMER();
     // ! not used anymore, scene is rendered via indirect draw call formed from renderData gloabal
@@ -266,19 +265,22 @@ void SceneRenderer::render_SimpleModelPbr(camera::Camera& camera) {
     shader.atlas("uMetallicMap", assets::getMetalic("Materials").id, 2);
 
     // TODO: in loop
-    context.ubo.update(visuals::preparedScene.enviro.transforms.data(), visuals::preparedScene.enviro.size);
+    context.ubo.update(visuals::preparedScene.nonPlayableInsideFrustum.transforms.data(),
+                       visuals::preparedScene.nonPlayableInsideFrustum.size);
     shader.ubo("uBones", context.ubo.matrices, 0, sizeof(glm::mat4) * context.ubo.size);
 
-    visuals::preparedScene.enviro.vao.bind();
+    visuals::preparedScene.nonPlayableInsideFrustum.vao.bind();
 
     // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
-    console.clog("-> Visible objects:", visuals::preparedScene.enviro.size);
+    console.clog("-> Visible objects:", visuals::preparedScene.nonPlayableInsideFrustum.size);
 
-    // gl::MultiDrawElementsIndirect(gl::TRIANGLES, gl::UNSIGNED_INT, visuals::preparedScene.enviro.array.data(), visuals::preparedScene.enviro.size, sizeof(DrawElementsIndirectCommand));
-    gl::MultiDrawElements(gl::TRIANGLES, visuals::preparedScene.enviro.count.data(), gl::UNSIGNED_INT,
-                          visuals::preparedScene.enviro.indices.data(), visuals::preparedScene.enviro.size);
+    // gl::MultiDrawElementsIndirect(gl::TRIANGLES, gl::UNSIGNED_INT, visuals::preparedScene.nonPlayableInsideFrustum.array.data(), visuals::preparedScene.nonPlayableInsideFrustum.size, sizeof(DrawElementsIndirectCommand));
+    gl::MultiDrawElements(gl::TRIANGLES, visuals::preparedScene.nonPlayableInsideFrustum.count.data(), gl::UNSIGNED_INT,
+                          visuals::preparedScene.nonPlayableInsideFrustum.indices.data(),
+                          visuals::preparedScene.nonPlayableInsideFrustum.size);
 
-    visuals::preparedScene.enviro.clear();
+    // todo: dont do this here
+    // visuals::preparedScene.nonPlayableInsideFrustum.clear();
 
     // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
     gl::BindVertexArray(0);

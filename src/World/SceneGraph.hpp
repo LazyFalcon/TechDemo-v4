@@ -102,7 +102,7 @@ private:
     Cell* findCellUnderPosition(const glm::vec4& pos);
     void initCellsToDefaults();
     void loadMap(const std::string& mapConfigDir);
-    void cullWithPhysicsEngine(const camera::Frustum& frustum);
+    void findObjectsInsideFrustum(const camera::Frustum& frustum);
     void loadCollider(ModelLoader<VertexWithMaterialData>& loader, const std::string& name);
     btRigidBody* createSimpleCollider(glm::vec4 pos, glm::vec3 dim);
 };

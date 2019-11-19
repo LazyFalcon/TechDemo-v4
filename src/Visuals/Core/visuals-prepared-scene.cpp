@@ -22,12 +22,19 @@ void PreparedScene::collectCamera(camera::Camera& camera) {
     uniforms.exposture = 1.f;
     uniforms.gamma = 2.2f;
 }
+
 void PreparedScene::collectWindow(Window& window) {
     uniforms.uWindowSize = window.size;
     uniforms.uPixelSize = window.pixelSize;
 }
+
 void PreparedScene::collectTime(float lastFrame, u64 sinceStart) {
     uniforms.lastFrameTime = lastFrame;
     uniforms.sinceStartTime = sinceStart;
+}
+
+void PreparedScene::clear() {
+    nonPlayableInsideFrustum.clear();
+    nonPlayableOutsideFrustum.clear();
 }
 }

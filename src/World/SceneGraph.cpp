@@ -93,8 +93,26 @@ Cell* SceneGraph::findCellUnderPosition(const glm::vec4& pos) {
     return &(cells[int(p.x) + int(p.y) * cellsInTheScene.x]);
 }
 
-void SceneGraph::cullWithPhysicsEngine(const camera::Frustum& frustum) {
-    CPU_SCOPE_TIMER("cullWithPhysicsEngine");
+void SceneGraph::findObjectsInsideFrustum(const camera::Frustum& frustum) {
+    CPU_SCOPE_TIMER("findObjectsInsideFrustum");
+    btDbvtBroadphase* dbvtBroadphase = physics.m_broadphase;
+    DbvtBroadphaseFrustumCulling culling;
+
+    btVector3 normals[] = {-convert(frustum.planes.m.rightPlane.xyz()), -convert(frustum.planes.m.leftPlane.xyz()),
+                           -convert(frustum.planes.m.topPlane.xyz()), -convert(frustum.planes.m.bottomPlane.xyz()),
+                           -convert(frustum.planes.m.farPlane.xyz())};
+    btScalar offsets[] = {-btScalar(frustum.planes.m.rightPlane.w), -btScalar(frustum.planes.m.leftPlane.w),
+                          -btScalar(frustum.planes.m.topPlane.w), -btScalar(frustum.planes.m.bottomPlane.w),
+                          -btScalar(frustum.planes.m.farPlane.w)};
+    bool cullFarPlane = false;
+    btDbvt::collideKDOP(dbvtBroadphase->m_sets[1].m_root, normals, offsets, cullFarPlane ? 5 : 4,
+                        culling); // with static
+    btDbvt::collideKDOP(dbvtBroadphase->m_sets[0].m_root, normals, offsets, cullFarPlane ? 5 : 4,
+                        culling); // with dynamic
+}
+
+void SceneGraph::findObjectsOutsideFrustumThatCastShadows(const camera::Frustum& frustum, glm::vec4 lightDirection) {
+    CPU_SCOPE_TIMER("findObjectsOutsideFrustumThatCastShadows");
     btDbvtBroadphase* dbvtBroadphase = physics.m_broadphase;
     DbvtBroadphaseFrustumCulling culling;
 
@@ -112,7 +130,7 @@ void SceneGraph::cullWithPhysicsEngine(const camera::Frustum& frustum) {
 }
 
 void SceneGraph::cullCells(const camera::Frustum& frustum) {
-    cullWithPhysicsEngine(frustum);
+    findObjectsInsideFrustum(frustum);
     // diffBetweenFrames();
     // setLodForVisible(frustum.eye);
 }

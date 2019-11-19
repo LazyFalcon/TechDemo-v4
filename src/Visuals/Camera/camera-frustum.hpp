@@ -15,8 +15,8 @@ struct Slice
 
 union FrustmCorners
 {
-    std::array<Slice, 5> slice {};
-    std::array<glm::vec4, 4 * 5> point {};
+    std::array<Slice, 5> slice;
+    std::array<glm::vec4, 4 * 5> point;
 };
 
 union FrustumPlanes

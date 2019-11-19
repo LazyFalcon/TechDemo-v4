@@ -52,7 +52,8 @@ public:
                                          std::vector<SimpleModelPbr>, std::vector<PointLightSource>>;
 
     tupleOfContainers collection;
-    CommandArray enviro;
+    CommandArray nonPlayableInsideFrustum;
+    CommandArray nonPlayableOutsideFrustum;
     CommandArray foliage;
     Uniforms uniforms;
     std::vector<LightSource*>
@@ -84,6 +85,8 @@ public:
         lights[0].push_back(t);
         lights[t->m_type + t->m_cameraInside].push_back(t);
     };
+
+    void clear();
 };
 
 extern PreparedScene preparedScene;

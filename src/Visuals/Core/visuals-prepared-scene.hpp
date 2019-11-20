@@ -60,7 +60,7 @@ public:
         lights[10]; // * lights collected by type, and relation to camera: index = type + isCameraInsideEnum
     std::vector<LightSource*> lightsCastingShadows;
 
-    MainLightParams mainLightParams;
+    MainLightParams mainLight;
 
     camera::Camera cameraOfThisFrame;
 

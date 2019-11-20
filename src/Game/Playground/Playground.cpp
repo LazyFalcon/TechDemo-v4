@@ -27,7 +27,6 @@
 #include "input.hpp"
 #include "visuals-prepared-scene.hpp"
 
-
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window, InputUserPointer& inputUserPointer)
     : m_input(inputDispatcher.createNew("Playground")),
       m_physics(std::make_unique<PhysicalWorld>()),
@@ -199,14 +198,14 @@ void Playground::updateWithHighPrecision(float dt) {
         m_scene->freeCams.focus();
     }
 
-    m_scene->updateWorld(dt, currentCamera);
+    m_scene->updateWorld(dt);
     m_scene->updateNonPlayableObjects(dt, currentCamera);
-    m_scene->updateWorld(dt, currentCamera);
 
     if(m_player)
         m_player->update(dt);
     for(auto& bot : m_scene->m_friendlyBots) { bot->update(dt); }
     for(auto& bot : m_scene->m_hostileBots) { bot->update(dt); }
+    m_scene->updateLightsAndShadows(dt, currentCamera);
     m_scene->collectObjectForRendering(dt, currentCamera);
 
     m_mouseSampler->samplePosition = m_inputUserPointer.screenPosition();

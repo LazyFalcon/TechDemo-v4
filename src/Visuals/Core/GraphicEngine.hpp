@@ -7,7 +7,10 @@ class GBufferSamplers;
 class LightRendering;
 class RendererUtils;
 class SceneRenderer;
-class ShadowCaster;
+namespace visuals
+{
+class CascadedShadowMapping;
+}
 class UIRender;
 class VfxEffects;
 class Window;
@@ -34,7 +37,7 @@ public:
     std::unique_ptr<GBufferSamplers> gBufferSamplers;
     std::unique_ptr<LightRendering> lightRendering;
     std::unique_ptr<SceneRenderer> sceneRenderer;
-    std::unique_ptr<ShadowCaster> shadowCaster;
+    std::unique_ptr<visuals::CascadedShadowMapping> csm;
     std::unique_ptr<UIRender> uiRender;
     std::unique_ptr<VfxEffects> vfxEffects;
 };

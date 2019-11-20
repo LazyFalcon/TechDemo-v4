@@ -136,9 +136,9 @@ void Scene::collectObjectForRendering(float dt, camera::Camera& camera) {
 
 void Scene::storeMainLight() {
     if(isDay()) {
-        visuals::collected.mainLight.direction = sun->direction;
-        visuals::collected.mainLight.color = sun->color;
-        visuals::collected.mainLight.colorTemperature = 6000.f;
-        visuals::collected.mainLight.power = sun->power;
+        visuals::preparedScene.mainLight.direction = sun->direction;
+        visuals::preparedScene.mainLight.color = sun->color;
+        visuals::preparedScene.mainLight.colorTemperature = 6000.f;
+        visuals::preparedScene.mainLight.power = sun->power;
     }
 }

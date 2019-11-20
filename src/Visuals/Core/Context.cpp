@@ -7,7 +7,6 @@
 #include "ResourceLoader.hpp"
 #include "visuals-prepared-scene.hpp"
 
-
 void messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message,
                      const void* userParam) {
     if(gl::DEBUG_TYPE_ERROR == type)
@@ -150,7 +149,7 @@ void Context::resetBuffers() {
     gl::GenBuffers(1, &ubo.common);
     gl::BindBuffer(gl::UNIFORM_BUFFER, ubo.common);
 
-    gl::BufferData(gl::UNIFORM_BUFFER, sizeof(Uniforms), nullptr, gl::STREAM_DRAW);
+    gl::BufferData(gl::UNIFORM_BUFFER, sizeof(visuals::Uniforms), nullptr, gl::STREAM_DRAW);
     // gl::BindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, ubo.common);
     gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
 }
@@ -441,10 +440,10 @@ void Context::endFrame() {
 void Context::uploadUniforms() {
     uint bindingPoint = 1;
     gl::BindBuffer(gl::UNIFORM_BUFFER, ubo.common);
-    gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(Uniforms), &visuals::preparedScene.uniforms);
+    gl::BufferSubData(gl::UNIFORM_BUFFER, 0, sizeof(visuals::Uniforms), &visuals::preparedScene.uniforms);
     gl::BindBuffer(gl::UNIFORM_BUFFER, 0);
     gl::BindBufferRange(gl::UNIFORM_BUFFER, bindingPoint, ubo.common, 0,
-                        sizeof(Uniforms)); // * bind ubo to binding point
+                        sizeof(visuals::Uniforms)); // * bind ubo to binding point
 }
 
 void Context::setupFramebufferForShadowMapGeneration() {}

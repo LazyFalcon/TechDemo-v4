@@ -81,6 +81,7 @@ public:
 
     void initAndLoadMap(const Yaml& yaml);
     void cullCells(const camera::Frustum& frstum);
+    void findObjectsOutsideFrustumThatCastShadows(const camera::Frustum& frustum, glm::vec4 lightDirection);
 
     void insertObject(GameObjectPtr obj, const glm::vec4& position);
     glm::vec4 getDimensions() {

@@ -2,7 +2,6 @@
 #include "camera-controller.hpp"
 #include "Logger.hpp"
 
-
 namespace camera
 {
 std::list<Controller*> listOfControllers;
@@ -174,7 +173,7 @@ void Controller::update(const glm::mat4& parentTransform, float dt) {
 void Controller::zoom(float dt) {
     if(input.zoom != 0.f) {
         if(setup.zoomMode == FOV) {
-            fovChange += input.zoom * 0.1f;
+            fovChange = fovChange.get() + input.zoom * 0.1f;
         }
         else {
             if(input.worldPointToZoom and setup.isFreecam) {

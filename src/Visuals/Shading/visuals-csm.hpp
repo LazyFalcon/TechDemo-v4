@@ -14,6 +14,7 @@ class Window;
 
 namespace visuals
 {
+class MainLightParams;
 class CascadedShadowMapping
 {
 private:
@@ -21,20 +22,20 @@ private:
     Context& context;
     const int m_numberOfSlices {4};
 
-    void initShadowMapCascade();
-    std::vector<Mesh> getTerrainToRender(SceneGraph& sg);
-    glm::mat4 fitShadowProjectionAroundBoundingBox(camera::FrustmCorners& corners, const MainLightParams& sun,
-                                                   camera::Camera& camera, float minZ = 50.f, float maxZ = 50.f);
-    void calculateShadowProjectionMatrices(std::vector<camera::FrustmCorners>& frustumSlices, glm::vec4 light, Sun& sun,
-                                           camera::Camera& camera);
+    void init();
+    void calculateShadowProjectionMatrices(const camera::FrustmCorners& slices, const MainLightParams& light);
+    void cleanup();
+
+    void renderNonPlayableObjects();
+    void renderTerrainFromHeightmap();
+    void renderBigFoliage();
+    void renderObjectsFromFrustum();
+    void renderObjectsOutsideFrustum();
 
 public:
     CascadedShadowMapping(Window& window, Context& context) : window(window), context(context) {}
-    void prepareForDirectionalShadows(Scene& scene, camera::Camera& camera);
-    void finishForDirectionalShadows();
-    void renderScene(Scene& scene, camera::Camera& camera);
-    void renderTerrain(Scene& scene, camera::Camera& camera);
-    void updateShadows();
+    void prepare(const MainLightParams& light, camera::Camera& camera);
+    void render(Scene& scene, camera::Camera& camera);
 };
 
 }

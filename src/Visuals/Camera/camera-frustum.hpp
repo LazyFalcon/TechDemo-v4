@@ -57,7 +57,8 @@ public:
     bool testSphere(glm::vec4 position, float radius) const;
     bool testAABB(glm::vec4 box) const;
     bool intersects(glm::vec4 position, glm::vec2 size) const;
-    std::vector<FrustmCorners> splitForCSM(u32 parts = 4);
+    void splitForCSM(int parts = 4);
+
     std::vector<float> splitDistances;
 
     FrustmCorners slices {};

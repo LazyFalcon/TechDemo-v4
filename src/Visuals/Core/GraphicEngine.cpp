@@ -7,12 +7,11 @@
 #include "LightRendering.hpp"
 #include "RendererUtils.hpp"
 #include "SceneRenderer.hpp"
-#include "ShadowCaster.hpp"
 #include "VfxEffects.hpp"
 #include "Window.hpp"
 #include "ui-renderer.hpp"
+#include "visuals-csm.hpp"
 #include "visuals-prepared-scene.hpp"
-
 
 GraphicEngine::GraphicEngine(Window& window)
     : window(window),
@@ -23,7 +22,7 @@ GraphicEngine::GraphicEngine(Window& window)
       gBufferSamplers(std::make_unique<GBufferSamplers>(window, *context)),
       lightRendering(std::make_unique<LightRendering>(window, *context)),
       sceneRenderer(std::make_unique<SceneRenderer>(window, *context)),
-      shadowCaster(std::make_unique<ShadowCaster>(window, *context)),
+      csm(std::make_unique<visuals::CascadedShadowMapping>(window, *context)),
       uiRender(std::make_unique<UIRender>(window, *context)),
       vfxEffects(std::make_unique<VfxEffects>(window, *context)) {
     context->reset();

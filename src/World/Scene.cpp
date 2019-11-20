@@ -113,6 +113,10 @@ glm::vec4 Scene::getSceneDimensions() {
 }
 
 void Scene::updateWorld(float dt) {
+    visuals::preparedScene.nonPlayableInsideFrustum.clear();
+    visuals::preparedScene.nonPlayableOutsideFrustum.clear();
+    visuals::preparedScene.foliage.clear();
+
     // todo: ingameClock->update(dt);
     // todo: a jakby podawać obiektom ref do struktur które mają wypełnić danymi do renderowania? niezłe?
     sun->update(*atmosphere);

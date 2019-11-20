@@ -1,20 +1,19 @@
 #pragma once
 #include "Constants.hpp"
 
-
-float rad(float a) {
+inline float rad(float a) {
     return a * pi / 180.f;
 }
 
-float grad(float a) {
+inline float grad(float a) {
     return a / (pi * 2.f);
 }
 
-float dec(float a) {
+inline float dec(float a) {
     return a * 180.f / pi;
 }
 
-float grad2dec(float a) {
+inline float grad2dec(float a) {
     return a * 2.f * 180.f;
 }
 

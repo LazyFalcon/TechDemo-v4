@@ -25,7 +25,9 @@
 #include "input-dispatcher.hpp"
 #include "input-user-pointer.hpp"
 #include "input.hpp"
+#include "visuals-csm.hpp"
 #include "visuals-prepared-scene.hpp"
+
 
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window, InputUserPointer& inputUserPointer)
     : m_input(inputDispatcher.createNew("Playground")),
@@ -250,6 +252,9 @@ void Playground::renderProcedure(GraphicEngine& renderer) {
     visuals::preparedScene.collectWindow(m_window);
     visuals::preparedScene.collectTime(FrameTime::deltaf, FrameTime::miliseconds);
 
+    renderer.csm->prepare(visuals::preparedScene.mainLight, visuals::preparedScene.cameraOfThisFrame);
+    renderer.csm->render();
+
     renderer.context->uploadUniforms();
 
     renderer.context->beginFrame();
@@ -265,8 +270,6 @@ void Playground::renderProcedure(GraphicEngine& renderer) {
     m_inputUserPointer.world.normal = m_mouseSampler->normal;
 
     renderer.effects->SSAO(camera::active());
-
-    // renderer.shadowCaster->updateShadows();
 
     renderer.context->setupFramebufferForLighting();
     renderer.lightRendering->lightPass(*m_scene, camera::active());

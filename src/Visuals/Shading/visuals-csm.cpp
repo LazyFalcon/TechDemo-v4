@@ -3,12 +3,9 @@
 #include "Assets.hpp"
 #include "BaseStructs.hpp"
 #include "Context.hpp"
-#include "Environment.hpp"
 #include "Logger.hpp"
 #include "PMK.hpp"
 #include "PerfTimers.hpp"
-#include "Scene.hpp"
-#include "SceneGraph.hpp"
 #include "camera-data.hpp"
 #include "camera-frustum.hpp"
 #include "visuals-prepared-scene.hpp"
@@ -104,10 +101,7 @@ void CascadedShadowMapping::cleanup() {
     gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
 }
 
-void CascadedShadowMapping::render(Scene& scene, camera::Camera& camera) {
-    if(not scene.environment)
-        return;
-
+void CascadedShadowMapping::render() {
     GPU_SCOPE_TIMER();
 
     // if(settings.heightmapPresent) renderTerrainFromHeightmap(); // otherwise terrain is rendered as regular dummy object
@@ -120,34 +114,30 @@ void CascadedShadowMapping::render(Scene& scene, camera::Camera& camera) {
 }
 void CascadedShadowMapping::renderTerrainFromHeightmap() {}
 void CascadedShadowMapping::renderNonPlayableObjects() {
-    // gl::Enable(gl::CULL_FACE);
+    gl::Enable(gl::CULL_FACE);
 
-    // auto shader = assets::bindShader("dummy-object-for-csm");
+    auto shader = assets::bindShader("csm-nonplayable-objects");
+    shader.uniform("uMatrices", context.tex.shadows.matrices);
 
-    // context.ubo.update(visuals::preparedScene.nonPlayableInsideFrustum.transforms.data(),
-    //                    visuals::preparedScene.nonPlayableInsideFrustum.size);
-    // shader.ubo("uBones", context.ubo.matrices, 0, sizeof(glm::mat4) * context.ubo.size);
+    context.ubo.update(visuals::preparedScene.nonPlayableInsideFrustum.transforms.data(),
+                       visuals::preparedScene.nonPlayableInsideFrustum.size);
+    shader.ubo("uBones", context.ubo.matrices, 0, sizeof(glm::mat4) * context.ubo.size);
 
-    // visuals::preparedScene.nonPlayableInsideFrustum.vao.bind();
+    visuals::preparedScene.nonPlayableInsideFrustum.vao.bind();
 
-    // gl::MultiDrawElements(gl::TRIANGLES, visuals::preparedScene.nonPlayableOutsideFrustum.count.data(),
-    //                       gl::UNSIGNED_INT, visuals::preparedScene.nonPlayableOutsideFrustum.indices.data(),
-    //                       visuals::preparedScene.nonPlayableOutsideFrustum.size);
+    gl::MultiDrawElements(gl::TRIANGLES, visuals::preparedScene.nonPlayableOutsideFrustum.count.data(),
+                          gl::UNSIGNED_INT, visuals::preparedScene.nonPlayableOutsideFrustum.indices.data(),
+                          visuals::preparedScene.nonPlayableOutsideFrustum.size);
 
-    // gl::MultiDrawElements(gl::TRIANGLES, visuals::preparedScene.nonPlayableInsideFrustum.count.data(), gl::UNSIGNED_INT,
-    //                       visuals::preparedScene.nonPlayableInsideFrustum.indices.data(),
-    //                       visuals::preparedScene.nonPlayableInsideFrustum.size);
+    gl::MultiDrawElements(gl::TRIANGLES, visuals::preparedScene.nonPlayableInsideFrustum.count.data(), gl::UNSIGNED_INT,
+                          visuals::preparedScene.nonPlayableInsideFrustum.indices.data(),
+                          visuals::preparedScene.nonPlayableInsideFrustum.size);
 
-    // // todo: move somewere else
-    // // visuals::preparedScene.nonPlayableInsideFrustum.clear();
-    // // visuals::preparedScene.nonPlayableOutsideFrustum.clear();
+    gl::BindVertexArray(0);
+    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+    gl::BindTexture(gl::TEXTURE_2D, 0);
 
-    // // if(Global::main.graphicOptions & WIREFRAME) gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
-    // gl::BindVertexArray(0);
-    // gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-    // gl::BindTexture(gl::TEXTURE_2D, 0);
-
-    // context.errors();
+    context.errors();
 }
 void CascadedShadowMapping::renderBigFoliage() {}
 void CascadedShadowMapping::renderObjectsFromFrustum() {}

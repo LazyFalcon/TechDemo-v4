@@ -6,10 +6,6 @@ class Camera;
 union FrustmCorners;
 }
 class Context;
-class Mesh;
-class Scene;
-class SceneGraph;
-class Sun;
 class Window;
 
 namespace visuals
@@ -35,7 +31,7 @@ private:
 public:
     CascadedShadowMapping(Window& window, Context& context) : window(window), context(context) {}
     void prepare(const MainLightParams& light, camera::Camera& camera);
-    void render(Scene& scene, camera::Camera& camera);
+    void render();
 };
 
 }

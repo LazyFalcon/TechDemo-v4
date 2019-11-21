@@ -13,6 +13,11 @@ void Cell::actionWhenVisible() {
     for(auto& it : objects) { it->actionWhenVisible(); }
 }
 
+void Cell::addToShadowmap() {
+    // console.clog("cell is visible");
+    for(auto& it : objects) { it->addToShadowmap(); }
+}
+
 const float manhattanLodDistances[4] = {15, 60, 100, 900};
 
 SceneGraph::SceneGraph(PhysicalWorld& physics) : cells(pow(4, NoOfLevels)), physics(physics) {
@@ -111,21 +116,57 @@ void SceneGraph::findObjectsInsideFrustum(const camera::Frustum& frustum) {
                         culling); // with dynamic
 }
 
+auto fitPlanesAroundFrustum(const std::array<glm::vec4, 5>& corners, glm::vec4 lightDirection) {
+    auto transformToLightSpace =
+        glm::lookAt(corners[0].xyz() - lightDirection.xyz(), corners[0].xyz(), glm::vec3(0, 0, 1));
+    std::array<glm::vec4, 5> cornersInLightSpace;
+    std::transform(corners.begin(), corners.end(), cornersInLightSpace.begin(),
+                   [&transformToLightSpace](const glm::vec4& in) { return transformToLightSpace * in; });
+
+    auto& eye = cornersInLightSpace[0];
+    int left(0), right(0), top(0), bottom(0);
+    for(int i = 0; i < 5; i++) {
+        if(cornersInLightSpace[i].x < cornersInLightSpace[left].x)
+            left = i;
+        if(cornersInLightSpace[i].x > cornersInLightSpace[right].x)
+            right = i;
+        if(cornersInLightSpace[i].y < cornersInLightSpace[bottom].y)
+            bottom = i;
+        if(cornersInLightSpace[i].y > cornersInLightSpace[top].y)
+            top = i;
+    }
+
+    std::array<glm::vec4, 5> planes;
+    auto& c = cornersInLightSpace;
+    glm::vec3 normalRight = glm::normalize(glm::cross(lightDirection.xyz(), glm::vec3(0, 0, 1)));
+    glm::vec3 normalUp = glm::cross(normalRight, lightDirection.xyz());
+    planes[0] = plane(normalRight, c[right]);
+    planes[1] = plane(-normalRight, c[left]);
+    planes[2] = plane(normalUp, c[top]);
+    planes[3] = plane(-normalUp, c[bottom]);
+    planes[3] = plane(glm::cross(glm::normalize(c[right].xyz() - c[left].xyz()), normalUp), (c[right] - c[left]) / 2.f);
+
+    return planes;
+}
+
 void SceneGraph::findObjectsOutsideFrustumThatCastShadows(const camera::Frustum& frustum, glm::vec4 lightDirection) {
     CPU_SCOPE_TIMER("findObjectsOutsideFrustumThatCastShadows");
     btDbvtBroadphase* dbvtBroadphase = physics.m_broadphase;
-    DbvtBroadphaseFrustumCulling culling;
+    CullingForShadowmap culling;
 
-    btVector3 normals[] = {-convert(frustum.planes.m.rightPlane.xyz()), -convert(frustum.planes.m.leftPlane.xyz()),
-                           -convert(frustum.planes.m.topPlane.xyz()), -convert(frustum.planes.m.bottomPlane.xyz()),
-                           -convert(frustum.planes.m.farPlane.xyz())};
-    btScalar offsets[] = {-btScalar(frustum.planes.m.rightPlane.w), -btScalar(frustum.planes.m.leftPlane.w),
-                          -btScalar(frustum.planes.m.topPlane.w), -btScalar(frustum.planes.m.bottomPlane.w),
-                          -btScalar(frustum.planes.m.farPlane.w)};
+    auto planes =
+        fitPlanesAroundFrustum({frustum.eye, frustum.slices.slice[4].topRight, frustum.slices.slice[4].topLeft,
+                                frustum.slices.slice[4].bottomRight, frustum.slices.slice[4].bottomLeft},
+                               lightDirection);
+
+    btVector3 normals[] = {-convert(planes[0].xyz()), -convert(planes[1].xyz()), -convert(planes[2].xyz()),
+                           -convert(planes[3].xyz()), -convert(planes[4].xyz())};
+    btScalar offsets[] = {-btScalar(planes[0].w), -btScalar(planes[1].w), -btScalar(planes[2].w),
+                          -btScalar(planes[3].w), -btScalar(planes[4].w)};
     bool cullFarPlane = false;
-    btDbvt::collideKDOP(dbvtBroadphase->m_sets[1].m_root, normals, offsets, cullFarPlane ? 5 : 4,
+    btDbvt::collideKDOP(dbvtBroadphase->m_sets[1].m_root, normals, offsets, 5,
                         culling); // with static
-    btDbvt::collideKDOP(dbvtBroadphase->m_sets[0].m_root, normals, offsets, cullFarPlane ? 5 : 4,
+    btDbvt::collideKDOP(dbvtBroadphase->m_sets[0].m_root, normals, offsets, 5,
                         culling); // with dynamic
 }
 

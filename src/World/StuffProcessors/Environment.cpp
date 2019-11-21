@@ -23,6 +23,13 @@ void EnviroEntity::actionWhenVisible() {
 
     visuals::preparedScene.nonPlayableInsideFrustum.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
 }
+void EnviroEntity::addToShadowmap() {
+    if(lastFrame == frame())
+        return; // * to be sure that object will be inserted once per frame :)
+    lastFrame = frame();
+
+    visuals::preparedScene.nonPlayableOutsideFrustum.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
+}
 
 void Environment::load(const std::string& sceneName, const Yaml& yaml) {
     CPU_SCOPE_TIMER("Environment::load");

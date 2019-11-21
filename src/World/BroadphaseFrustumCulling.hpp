@@ -49,7 +49,7 @@ public:
 
         if((proxy->m_collisionFilterGroup & collisionFilterMask) != 0) {
             if(co->getUserIndex())
-                deref(co->getUserIndex())->actionWhenVisible();
+                deref(co->getUserIndex())->addToShadowmap();
         }
     }
 };

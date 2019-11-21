@@ -37,6 +37,7 @@ public:
     }
 
     void actionWhenVisible() override;
+    void addToShadowmap() override;
     btRigidBody* getCollider() override {
         return cellBoxCollider;
     }

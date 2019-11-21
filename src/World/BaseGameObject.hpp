@@ -1,7 +1,6 @@
 #pragma once
 #include "BaseGameObjectUtils.hpp"
 
-
 class BaseGameObject
 {
 protected:
@@ -34,5 +33,6 @@ public:
     uint lastFrame {0};
     // todo: make one generic function that will perform basic checks(i.e. frame number) and will call this one
     virtual void actionWhenVisible() = 0;
+    virtual void addToShadowmap() = 0;
     virtual btRigidBody* getCollider() = 0;
 };

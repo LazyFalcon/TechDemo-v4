@@ -14,7 +14,6 @@
 #include "Color.hpp"
 #include "visuals-prepared-scene.hpp"
 
-
 namespace
 {
 int isCameraInside(const glm::vec4& position, LightSource& light) {
@@ -35,22 +34,21 @@ void LightRendering::renderSun(Sun& sun, camera::Camera& camera) {
     gl::Disable(gl::DEPTH_TEST);
     gl::Disable(gl::CULL_FACE);
     gl::DepthMask(gl::FALSE_);
-    auto shader = assets::bindShader("Sun+Ambient+Shadow");
+    auto shader = assets::bindShader("light-directional");
 
     shader.texture("uNormal", context.tex.gbuffer.normals, 0);
     shader.texture("uDepth", context.tex.gbuffer.depth, 1);
     shader.texture("uAlbedo", context.tex.gbuffer.color, 2);
     shader.cubeMap("uCubemap", assets::getCubeMap("SciFi").id, 3);
-    // shader.cubeMap("uCubemap", assets::getCubeMap("SciFi").id, 3);
 
-    // shader.atlas("uCSMCascades", context.tex.shadows.cascade.ID, 4);
-    // shader.uniform("uSplitDistances", camera.frustum.splitDistances);
+    shader.atlas("uCSMCascades", context.tex.shadows.cascade.ID, 4);
+    shader.uniform("uSplitDistances", camera.frustum.splitDistances);
 
     shader.uniform("uInvPV", camera.invPV);
     shader.uniform("uEye", camera.position().xyz());
     shader.uniform("uPixelSize", window.pixelSize);
-    // shader.uniform("uShadowMapSize", context.tex.shadows.size);
-    // shader.uniform("uCSMProjection", context.tex.shadows.matrices);
+    shader.uniform("uShadowMapSize", context.tex.shadows.size);
+    shader.uniform("uCSMProjection", context.tex.shadows.matrices);
 
     console.clog(camera.invPV[0], camera.invPV[1], camera.invPV[2], camera.invPV[3]);
     console.clog(camera.position().xyz());

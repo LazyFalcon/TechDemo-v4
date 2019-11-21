@@ -3,6 +3,7 @@
 #include "Assets.hpp"
 #include "BaseStructs.hpp"
 #include "Context.hpp"
+#include "GraphicComponent.hpp"
 #include "Logger.hpp"
 #include "PMK.hpp"
 #include "PerfTimers.hpp"
@@ -116,7 +117,7 @@ void CascadedShadowMapping::renderTerrainFromHeightmap() {}
 void CascadedShadowMapping::renderNonPlayableObjects() {
     gl::Enable(gl::CULL_FACE);
 
-    auto shader = assets::bindShader("csm-nonplayable-objects");
+    auto shader = assets::bindShader("simple-model-csm");
     shader.uniform("uMatrices", context.tex.shadows.matrices);
 
     context.ubo.update(visuals::preparedScene.nonPlayableInsideFrustum.transforms.data(),
@@ -140,6 +141,29 @@ void CascadedShadowMapping::renderNonPlayableObjects() {
     context.errors();
 }
 void CascadedShadowMapping::renderBigFoliage() {}
-void CascadedShadowMapping::renderObjectsFromFrustum() {}
+void CascadedShadowMapping::renderObjectsFromFrustum() {
+    auto shader = assets::bindShader("skinned-model-csm");
+    auto& skinnedMeshes = visuals::preparedScene.get<SkinnedMesh*>();
+    console.clog("Number of skinned meshes to shadow:", skinnedMeshes.size());
+    for(auto toRender : skinnedMeshes) {
+        auto& mesh = toRender->mesh;
+        toRender->vao.bind();
+
+        { // passing bones
+            GLuint UBOBindingIndex = 0;
+
+            context.ubo.update(toRender->bones);
+            console.clog(__PRETTY_FUNCTION__, toRender->bones.size());
+            for(auto& it : toRender->bones) { console.clog(">>", it[3]); }
+
+            // use buffer
+            shader.ubo("uBones", context.ubo.matrices, UBOBindingIndex, sizeof(glm::mat4) * 150);
+        }
+
+        shader.uniform("uMatrices", context.tex.shadows.matrices);
+
+        gl::DrawElements(gl::TRIANGLES, mesh.count, gl::UNSIGNED_INT, (void*)0);
+    }
+}
 void CascadedShadowMapping::renderObjectsOutsideFrustum() {}
 }

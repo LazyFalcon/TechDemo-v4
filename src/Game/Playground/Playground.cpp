@@ -254,12 +254,13 @@ void Playground::renderProcedure(GraphicEngine& renderer) {
     visuals::preparedScene.collectWindow(m_window);
     visuals::preparedScene.collectTime(FrameTime::deltaf, FrameTime::miliseconds);
 
-    renderer.csm->prepare(visuals::preparedScene.mainLight, camera::snapshot());
-    renderer.csm->render();
-
     renderer.context->uploadUniforms();
-
     renderer.context->beginFrame();
+
+    renderer.csm->prepare(visuals::preparedScene.mainLight, visuals::preparedScene.cameraOfThisFrame);
+    renderer.csm->render();
+    renderer.csm->finish();
+
     renderer.context->setupFramebufferForGBufferGeneration();
     // renderer.utils->drawBackground("nebula2");
     renderer.sceneRenderer->renderScene(*m_scene, camera::active());

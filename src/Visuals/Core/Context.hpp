@@ -5,7 +5,17 @@
 #include "GraphicMiscellaneous.hpp"
 #include "Texture.hpp"
 #include "Window.hpp"
+namespace debug
+{
+void rememberFbo();
+void rememberShader();
+void rememberTexture();
 
+void logFboChange(int id);
+void logShaderChange(int id);
+void logTargetChange(int id, int targetId);
+std::string printSetup();
+}
 class Context
 {
 private:
@@ -119,7 +129,7 @@ public:
     }
     VAO defaultVAO;
     u32 currentFbo;
-    FBO fbo;
+    FboHolder fbo;
 
     Context(Window& window);
     void reset();

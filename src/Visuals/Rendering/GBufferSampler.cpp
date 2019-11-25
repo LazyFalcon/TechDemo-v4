@@ -20,7 +20,7 @@ void GBufferSamplers::sampleGBuffer(camera::Camera& camera) {
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::BLEND);
     // position and depth
-    gl::BindFramebuffer(gl::READ_FRAMEBUFFER, context.fbo.full);
+    gl::BindFramebuffer(gl::READ_FRAMEBUFFER, context.fbo[FULL].id);
     gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, context.tex.gbuffer.depth.ID,
                              0);
     gl::DrawBuffers(0, &context.fbo.drawBuffers[0]);

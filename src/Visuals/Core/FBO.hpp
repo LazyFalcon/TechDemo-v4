@@ -2,46 +2,52 @@
 #include <array>
 
 struct Texture;
-struct Window;
-
+class FboHolder;
 enum
 {
-    FULL = 1,
-    HALF = 2,
-    QUARTER = 4,
-    HALF_WIDE = 12,
-    SHADOWMAP = 22
+    FULL,
+    BY2,
+    BY4,
+    BY8,
+    HALF_WIDE,
+    SHADOWMAP,
+    FBO_TYPES_COUNT
 };
 
 class FBO
 {
-private:
-    FBO& setLayer(unsigned int);
-
 public:
-    int attachedTextures {0};
-    bool hasColor {false};
-    std::array<float, 2> viewport {1, 1};
-    Window& m_window;
+    unsigned int id {};
+    FboHolder* state;
 
-    unsigned int drawBuffers[5];
-    unsigned int shadowmap;
-    unsigned int full;
-    unsigned int _12;
-    unsigned int _12_wide;
-    unsigned int _14;
-    unsigned int _18;
-    unsigned int currentFbo {0};
+    bool hasColor {true};
 
-    FBO(Window& window) : m_window(window) {}
-
-    // select layer
-    FBO& operator[](int);
-
-    // attach texture
+    void viewport(int x, int y, int z, int w);
     FBO& tex(Texture&);
-
-    // finalize and cleanup state
     FBO& operator()();
-    FBO& setupDefaults();
+
+private:
+    int m_attachedTextures {0};
+    glm::ivec4 m_viewport {0, 0, 1, 1};
+};
+
+class FboHolder
+{
+public:
+    bool colorDisabled;
+
+    FboHolder(glm::vec2 screenSize) : m_screenSize(screenSize) {
+        for(auto& it : m_fbos) { it.state = this; }
+    }
+    FBO& operator[](int i);
+    FBO& current() {
+        return *m_current;
+    }
+    unsigned int drawBuffers[5];
+
+private:
+    glm::vec2 m_screenSize;
+    std::array<FBO, FBO_TYPES_COUNT> m_fbos {};
+    unsigned int m_currentFboId {2222222};
+    FBO* m_current;
 };

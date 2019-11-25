@@ -13,7 +13,7 @@ void messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLs
         console.log("GL CALLBACK:", "type:", type, "severity:", severity, "message:", message);
 }
 
-Context::Context(Window& window) : window(window), fbo(window) {
+Context::Context(Window& window) : window(window), fbo(window.size) {
     gl::Enable(gl::DEBUG_OUTPUT);
     gl::DebugMessageCallback(messageCallback, 0);
 }
@@ -96,43 +96,36 @@ void Context::resetFbo() {
     fbo.drawBuffers[0] = gl::COLOR_ATTACHMENT0;
     fbo.drawBuffers[1] = gl::COLOR_ATTACHMENT1;
     fbo.drawBuffers[2] = gl::COLOR_ATTACHMENT2;
-
-    gl::GenFramebuffers(1, &fbo.full);
-    gl::BindFramebuffer(gl::FRAMEBUFFER, fbo.full);
-    gl::Viewport(0, 0, window.size.x, window.size.y);
-    gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, tex.gbuffer.color.ID, 0);
-    gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT1, gl::TEXTURE_2D, tex.gbuffer.normals.ID, 0);
-    gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, tex.gbuffer.depth.ID, 0);
-    gl::DrawBuffers(2, fbo.drawBuffers);
-    gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
-
-    gl::GenFramebuffers(1, &fbo._12);
-    gl::BindFramebuffer(gl::FRAMEBUFFER, fbo._12);
-    gl::Viewport(0, 0, window.size.x / 2.f, window.size.y / 2.f);
-    gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, tex.half.a.ID, 0);
-    gl::DrawBuffers(1, fbo.drawBuffers);
-    gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
-
-    // gl::GenFramebuffers(1, &fbo._12_wide);
-    //     gl::BindFramebuffer(gl::FRAMEBUFFER, fbo._12_wide);
-    //     gl::Viewport(0, 0, window.size.x, window.size.y/2.f);
-    //     gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, tex.half.wide.ID, 0);
-    //     gl::DrawBuffers(1, fbo.drawBuffers);
-    //     gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
-
-    gl::GenFramebuffers(1, &fbo._14);
-    gl::BindFramebuffer(gl::FRAMEBUFFER, fbo._14);
-    gl::Viewport(0, 0, window.size.x / 4.f, window.size.y / 4.f);
-    gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, tex.quarter.a.ID, 0);
-    gl::DrawBuffers(1, fbo.drawBuffers);
-    gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
-
-    gl::GenFramebuffers(1, &fbo._18);
-    gl::BindFramebuffer(gl::FRAMEBUFFER, fbo._18);
-    gl::Viewport(0, 0, window.size.x / 8.f, window.size.y / 8.f);
-    gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, tex.eight.a.ID, 0);
-    gl::DrawBuffers(1, fbo.drawBuffers);
-    gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+    {
+        gl::GenFramebuffers(1, &fbo[FULL].id);
+        auto& f = fbo[FULL];
+        f.viewport(0, 0, window.size.x, window.size.y);
+        f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
+    }
+    {
+        gl::GenFramebuffers(1, &fbo[BY2].id);
+        auto& f = fbo[BY2];
+        f.viewport(0, 0, window.size.x / 2.f, window.size.y / 2.f);
+        f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
+    }
+    {
+        gl::GenFramebuffers(1, &fbo[BY4].id);
+        auto& f = fbo[BY4];
+        f.viewport(0, 0, window.size.x / 4.f, window.size.y / 4.f);
+        f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
+    }
+    {
+        gl::GenFramebuffers(1, &fbo[BY8].id);
+        auto& f = fbo[BY8];
+        f.viewport(0, 0, window.size.x / 8.f, window.size.y / 8.f);
+        f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
+    }
+    {
+        gl::GenFramebuffers(1, &fbo[HALF_WIDE].id);
+        auto& f = fbo[HALF_WIDE];
+        f.viewport(0, 0, window.size.x, window.size.y / 2.f);
+        f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
+    }
 }
 void Context::resetBuffers() {
     console.log("--buffers");
@@ -338,12 +331,7 @@ void Context::setupDefaultBuffer() {
     errors();
 }
 void Context::setupMainFrameBuffer() {
-    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, tex.gbuffer.color.ID, 0);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT1, gl::TEXTURE_2D, tex.gbuffer.normals.ID, 0);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, tex.gbuffer.depth.ID, 0);
-    gl::DrawBuffers(2, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x, window.size.y);
+    fbo[FULL].tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
 
     gl::DepthRange(0.0f, 1.0f);
     gl::DepthFunc(gl::LEQUAL);
@@ -360,10 +348,7 @@ void Context::setupMainFrameBuffer() {
     errors();
 }
 void Context::setupMainFrameBuffer_onlyDiffuse() {
-    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, tex.gbuffer.color.ID, 0);
-    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x, window.size.y);
+    fbo[FULL].tex(tex.gbuffer.color)();
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::CULL_FACE);
     gl::Disable(gl::DEPTH_TEST);
@@ -371,11 +356,7 @@ void Context::setupMainFrameBuffer_onlyDiffuse() {
     errors();
 }
 void Context::setupMainFrameBuffer_onlyDiffuseAndDepth() {
-    gl::BindFramebuffer(gl::FRAMEBUFFER, fbo.full);
-    gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, tex.gbuffer.color.ID, 0);
-    gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, tex.gbuffer.depth.ID, 0);
-    gl::DrawBuffers(1, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x, window.size.y);
+    fbo[FULL].tex(tex.gbuffer.color).tex(tex.gbuffer.depth)();
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::CULL_FACE);
     gl::Disable(gl::DEPTH_TEST);
@@ -448,12 +429,7 @@ void Context::uploadUniforms() {
 
 void Context::setupFramebufferForShadowMapGeneration() {}
 void Context::setupFramebufferForGBufferGeneration() {
-    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, fbo.full);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, tex.gbuffer.color.ID, 0);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT1, gl::TEXTURE_2D, tex.gbuffer.normals.ID, 0);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, tex.gbuffer.depth.ID, 0);
-    gl::DrawBuffers(2, &fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, window.size.x, window.size.y);
+    fbo[FULL].tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
 
     gl::DepthRange(0.0f, 1.0f);
     gl::DepthFunc(gl::LEQUAL);
@@ -477,12 +453,12 @@ void Context::setupFramebufferForGBufferGeneration() {
     errors();
 }
 void Context::setupFramebufferForLighting() {
-    fbo[1].tex(tex.light.color).tex(tex.light.specular)();
+    fbo[FULL].tex(tex.light.color).tex(tex.light.specular)();
     gl::ClearColor(0.0, 0.0, 0.0, 0);
     gl::Clear(gl::COLOR_BUFFER_BIT);
 }
 void Context::setupFramebufferForLightingWithAddionalDepth() {
-    fbo[1].tex(tex.light.color).tex(tex.light.specular).tex(tex.gbuffer.depth);
+    fbo[FULL].tex(tex.light.color).tex(tex.light.specular).tex(tex.gbuffer.depth);
 }
 void Context::setupFramebufferForLDRProcessing() {
     // na razie pusty, potem przenieść na rgb10

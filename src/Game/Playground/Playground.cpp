@@ -28,7 +28,6 @@
 #include "visuals-csm.hpp"
 #include "visuals-prepared-scene.hpp"
 
-
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window, InputUserPointer& inputUserPointer)
     : m_input(inputDispatcher.createNew("Playground")),
       m_physics(std::make_unique<PhysicalWorld>()),
@@ -252,12 +251,13 @@ void Playground::renderProcedure(GraphicEngine& renderer) {
     visuals::preparedScene.collectWindow(m_window);
     visuals::preparedScene.collectTime(FrameTime::deltaf, FrameTime::miliseconds);
 
+    renderer.context->uploadUniforms();
+    renderer.context->beginFrame();
+
     renderer.csm->prepare(visuals::preparedScene.mainLight, visuals::preparedScene.cameraOfThisFrame);
     renderer.csm->render();
+    renderer.csm->finish();
 
-    renderer.context->uploadUniforms();
-
-    renderer.context->beginFrame();
     renderer.context->setupFramebufferForGBufferGeneration();
     // renderer.utils->drawBackground("nebula2");
     renderer.sceneRenderer->renderScene(*m_scene, camera::active());

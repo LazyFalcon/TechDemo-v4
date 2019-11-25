@@ -20,7 +20,6 @@ private:
 
     void init();
     void calculateShadowProjectionMatrices(const camera::FrustmCorners& slices, const MainLightParams& light);
-    void cleanup();
 
     void renderNonPlayableObjects();
     void renderTerrainFromHeightmap();
@@ -32,6 +31,7 @@ public:
     CascadedShadowMapping(Window& window, Context& context) : window(window), context(context) {}
     void prepare(const MainLightParams& light, camera::Camera& camera);
     void render();
+    void finish();
 };
 
 }

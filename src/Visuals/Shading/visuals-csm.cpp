@@ -18,12 +18,11 @@ void CascadedShadowMapping::init() {
         Texture(gl::TEXTURE_2D_ARRAY, gl::DEPTH_COMPONENT32F, context.tex.shadows.size, context.tex.shadows.size,
                 m_numberOfSlices, gl::DEPTH_COMPONENT, gl::FLOAT, gl::LINEAR, 0);
 
-    gl::GenFramebuffers(1, &context.fbo.shadowmap);
-    gl::BindFramebuffer(gl::FRAMEBUFFER, context.fbo.shadowmap);
-    gl::Viewport(0, 0, context.tex.shadows.size, context.tex.shadows.size);
-    gl::DrawBuffers(0, context.fbo.drawBuffers);
-    gl::Enable(gl::DEPTH_TEST);
-    gl::FramebufferTextureLayer(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, context.tex.shadows.cascade.ID, 0, 0);
+    gl::GenFramebuffers(1, &context.fbo[SHADOWMAP].id);
+    auto& f = context.fbo[SHADOWMAP];
+    f.viewport(0, 0, context.tex.shadows.size, context.tex.shadows.size);
+    f.tex(context.tex.shadows.cascade)();
+    f.hasColor = false;
     gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
     context.errors();
 }
@@ -37,10 +36,12 @@ void CascadedShadowMapping::prepare(const MainLightParams& light, camera::Camera
     gl::BindTexture(gl::TEXTURE_2D, 0);
     gl::BindTexture(gl::TEXTURE_2D_ARRAY, 0);
 
-    gl::BindFramebuffer(gl::FRAMEBUFFER, context.fbo.shadowmap);
-    gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, context.tex.shadows.cascade.ID, 0);
-    gl::DrawBuffers(0, &context.fbo.drawBuffers[0]);
-    gl::Viewport(0, 0, context.tex.shadows.size, context.tex.shadows.size);
+    context.fbo[SHADOWMAP].tex(context.tex.shadows.cascade)();
+
+    // gl::BindFramebuffer(gl::FRAMEBUFFER, context.fbo.shadowmap);
+    // gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, context.tex.shadows.cascade.ID, 0);
+    // gl::DrawBuffers(0, &context.fbo.drawBuffers[0]);
+    // gl::Viewport(0, 0, context.tex.shadows.size, context.tex.shadows.size);
     gl::ClearDepth(1);
     gl::Clear(gl::DEPTH_BUFFER_BIT);
 
@@ -51,7 +52,7 @@ void CascadedShadowMapping::prepare(const MainLightParams& light, camera::Camera
     gl::DepthFunc(gl::LEQUAL);
     gl::DepthRange(0.0f, 1.0f);
 
-    gl::ColorMask(gl::FALSE_, gl::FALSE_, gl::FALSE_, gl::FALSE_);
+    // gl::ColorMask(gl::FALSE_, gl::FALSE_, gl::FALSE_, gl::FALSE_);
     gl::Disable(gl::CULL_FACE);
 
     camera.frustum.splitForCSM(m_numberOfSlices);
@@ -94,8 +95,8 @@ void CascadedShadowMapping::calculateShadowProjectionMatrices(const camera::Frus
     }
 }
 
-void CascadedShadowMapping::cleanup() {
-    gl::ColorMask(gl::TRUE_, gl::TRUE_, gl::TRUE_, gl::TRUE_);
+void CascadedShadowMapping::finish() {
+    // gl::ColorMask(gl::TRUE_, gl::TRUE_, gl::TRUE_, gl::TRUE_);
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
     gl::BindTexture(gl::TEXTURE_2D, 0);
     gl::BindTexture(gl::TEXTURE_2D_ARRAY, 0);

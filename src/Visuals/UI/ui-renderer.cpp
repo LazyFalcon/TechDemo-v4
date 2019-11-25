@@ -13,7 +13,7 @@ void UIRender::blurBackgroundEven(RenderedUIItems& ui) {
 
     // first pass
 
-    m_context.fbo[2].tex(m_context.tex.half.a)();
+    m_context.fbo[BY2].tex(m_context.tex.half.a)();
 
     auto shader = assets::bindShader("blur-horizontal");
     shader.uniform("pxViewSize", m_window.size * 0.5f);
@@ -24,7 +24,7 @@ void UIRender::blurBackgroundEven(RenderedUIItems& ui) {
         gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
     }
 
-    m_context.fbo[2].tex(m_context.tex.half.b)();
+    m_context.fbo[BY2].tex(m_context.tex.half.b)();
 
     shader = assets::bindShader("blur-vertical");
     shader.uniform("pxViewSize", m_window.size * 0.5f);
@@ -36,7 +36,7 @@ void UIRender::blurBackgroundEven(RenderedUIItems& ui) {
     }
 
     shader = assets::bindShader("copy-rect");
-    m_context.fbo[1].tex(m_context.tex.full.a)();
+    m_context.fbo[FULL].tex(m_context.tex.full.a)();
 
     shader.uniform("pxViewSize", m_window.size);
     shader.texture("uTexture", m_context.tex.half.b, 0);
@@ -50,7 +50,7 @@ void UIRender::blurBackgroundEven(RenderedUIItems& ui) {
 }
 
 void UIRender::depthPrepass(RenderedUIItems& ui) {
-    m_context.fbo[1].tex(m_context.tex.gbuffer.depth)();
+    m_context.fbo[FULL].tex(m_context.tex.gbuffer.depth)();
     gl::ClearDepth(1);
     gl::Clear(gl::DEPTH_BUFFER_BIT);
 
@@ -193,14 +193,14 @@ void UIRender::render(RenderedUIItems& ui) {
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::DEPTH_TEST);
 
-    m_context.fbo[1].tex(m_context.tex.full.a).tex(m_context.tex.gbuffer.depth)();
+    m_context.fbo[FULL].tex(m_context.tex.full.a).tex(m_context.tex.gbuffer.depth)();
 
     gl::ClearColor(0.f, 0.f, 0.f, 0.f);
     gl::Clear(gl::COLOR_BUFFER_BIT);
 
     blurBackgroundEven(ui);
 
-    m_context.fbo[1].tex(m_context.tex.full.a).tex(m_context.tex.gbuffer.depth)();
+    m_context.fbo[FULL].tex(m_context.tex.full.a).tex(m_context.tex.gbuffer.depth)();
 
     gl::Enable(gl::BLEND);
     gl::BlendFunc(gl::ONE, gl::ONE_MINUS_SRC_ALPHA);
@@ -214,7 +214,7 @@ void UIRender::render(RenderedUIItems& ui) {
     // render the rest with depth test
     render(ui.get<Text::Rendered>());
 
-    m_context.fbo[1].tex(m_context.tex.gbuffer.color)();
+    m_context.fbo[FULL].tex(m_context.tex.gbuffer.color)();
 
     gl::Disable(gl::DEPTH_TEST);
     gl::Enable(gl::BLEND);

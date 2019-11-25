@@ -28,7 +28,6 @@
 #include "visuals-csm.hpp"
 #include "visuals-prepared-scene.hpp"
 
-
 Playground::Playground(Imgui& ui, InputDispatcher& inputDispatcher, Window& window, InputUserPointer& inputUserPointer)
     : m_input(inputDispatcher.createNew("Playground")),
       m_physics(std::make_unique<PhysicalWorld>()),
@@ -184,6 +183,9 @@ Playground::~Playground() {
 }
 void Playground::update(float dt) {
     console_prefix("Update");
+
+    camera::makeSnapshot();
+
     if(m_player)
         m_player->updateGraphic(dt);
     updateCamera(dt);
@@ -252,7 +254,7 @@ void Playground::renderProcedure(GraphicEngine& renderer) {
     visuals::preparedScene.collectWindow(m_window);
     visuals::preparedScene.collectTime(FrameTime::deltaf, FrameTime::miliseconds);
 
-    renderer.csm->prepare(visuals::preparedScene.mainLight, visuals::preparedScene.cameraOfThisFrame);
+    renderer.csm->prepare(visuals::preparedScene.mainLight, camera::snapshot());
     renderer.csm->render();
 
     renderer.context->uploadUniforms();

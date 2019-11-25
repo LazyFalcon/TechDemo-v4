@@ -5,12 +5,14 @@
 #include "camera-utils.hpp"
 #include "gradian.hpp"
 
-
 namespace camera
 {
 class Controller;
 Controller& active();
 bool hasActive();
+
+Controller& snapshot();
+void makeSnapshot();
 
 class Controller : public Camera, public ControlInput, public CameraHUDInterface
 {
@@ -49,11 +51,14 @@ private:
     void recalculateEulersForLocalReference();
 
 public:
+    Controller();
     Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize);
     Controller(const glm::mat4& cameraWorldMatrix, glm::vec2 windowSize);
     // Controller(const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize) : Controller(cameraRelativeMatrix, cameraRelativeMatrix, windowSize){}
     virtual ~Controller();
     void printDebug();
+
+    Controller clone();
 
     void focusOn();
     bool hasFocus() const;

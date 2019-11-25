@@ -6,15 +6,38 @@ namespace camera
 {
 std::list<Controller*> listOfControllers;
 Controller* activeCamera;
+Controller cameraSnapshot;
 // todo: stack of previously active cameras?
 
 Controller& active() {
     return *activeCamera;
 }
+Controller& snapshot() {
+    return cameraSnapshot;
+}
+void makeSnapshot() {
+    if(activeCamera)
+        cameraSnapshot = activeCamera->clone();
+}
 
 bool hasActive() {
     return activeCamera != nullptr;
 }
+Controller Controller::clone() {
+    return *this;
+}
+
+Controller::Controller()
+    : yaw(0),
+      pitch(0),
+      roll(0),
+      // pitch(0, -pi/3, pi/3),
+      // roll(0, -pi/2, pi/2),
+      // fovLimited(Camera::fov, 30*toRad, 120*toRad),
+      origin(glm::vec4(1), 0.6f, 0.5f),
+      rotation(glm::quat(0, 0, 1, 0), 0.5f, 0.5f),
+      fovChange(Gradian(85.f * toRad, 20.f * toRad, 90.f * toRad), 0.1f, 0.6f),
+      offsetChange(Utils::Limits<float>(15.f, 0.f, 20.f), 0.1f, 0.6f) {}
 
 Controller::Controller(const glm::mat4& parentMatrix, const glm::mat4& cameraRelativeMatrix, glm::vec2 windowSize)
     : yaw(0),

@@ -5,17 +5,19 @@
 #include "GraphicMiscellaneous.hpp"
 #include "Texture.hpp"
 #include "Window.hpp"
+
 namespace debug
 {
-void rememberFbo();
-void rememberShader();
-void rememberTexture();
+void rememberFbo(std::string_view name, int id);
+void rememberShader(std::string_view name, int id);
+void rememberTexture(std::string_view name, int id);
 
 void logFboChange(int id);
 void logShaderChange(int id);
 void logTargetChange(int id, int targetId);
 std::string printSetup();
 }
+
 class Context
 {
 private:

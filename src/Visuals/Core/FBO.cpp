@@ -6,11 +6,11 @@
 #include "Texture.hpp"
 
 FBO& FboHolder::operator[](int i) {
-    if(m_fbos[i].id == m_currentFboId and m_fbos[i].id != 0) {
-        m_currentFboId = m_fbos[i].id;
+    if(i == m_currentFboId and m_fbos[i].id != 0) {
+        m_currentFboId = i;
         gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, m_fbos[i].id);
 
-        debug::logFboChange(m_currentFboId);
+        debug::logFboChange(m_fbos[i].id);
     }
     m_current = &m_fbos[i];
     return m_fbos[i];

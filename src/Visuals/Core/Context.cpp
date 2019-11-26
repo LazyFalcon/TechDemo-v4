@@ -7,10 +7,61 @@
 #include "ResourceLoader.hpp"
 #include "visuals-prepared-scene.hpp"
 
+namespace debug
+{
+struct CurrentState
+{
+    std::map<int, std::string> nameMapping;
+
+    std::vector<std::string> records;
+    int fbo;
+    int shader;
+    std::vector<int> targets;
+    std::string getName(int id) {
+        auto it = nameMapping.find(id);
+        if(it != nameMapping.end())
+            return it->second;
+        return std::to_string(id);
+    }
+    std::string print() {
+        std::string targetsToPrint;
+        for(auto it : targets) targetsToPrint += " " + getName(it);
+        return "Shader: " + getName(shader) + "FBO: " + getName(fbo) + "targets:" + targetsToPrint;
+    }
+};
+
+CurrentState currentState;
+
+void rememberFbo(std::string_view name, int id) {
+    currentState.nameMapping[id] = name;
+}
+void rememberShader(std::string_view name, int id) {
+    currentState.nameMapping[id] = name;
+    console.log(printSetup());
+}
+void rememberTexture(std::string_view name, int id) {
+    currentState.nameMapping[id] = name;
+}
+
+void logFboChange(int id) {
+    currentState.fbo = id;
+    currentState.targets.resize(0);
+}
+void logShaderChange(int id) {
+    currentState.shader = id;
+}
+void logTargetChange(int id, int targetId) {}
+std::string printSetup() {
+    return currentState.print();
+}
+}
+
 void messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message,
                      const void* userParam) {
-    if(gl::DEBUG_TYPE_ERROR == type)
+    if(gl::DEBUG_TYPE_ERROR == type) {
         console.log("GL CALLBACK:", "type:", type, "severity:", severity, "message:", message);
+        console.log("GL state:", debug::printSetup());
+    }
 }
 
 Context::Context(Window& window) : window(window), fbo(window.size) {
@@ -101,30 +152,35 @@ void Context::resetFbo() {
         auto& f = fbo[FULL];
         f.viewport(0, 0, window.size.x, window.size.y);
         f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
+        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
     }
     {
         gl::GenFramebuffers(1, &fbo[BY2].id);
         auto& f = fbo[BY2];
         f.viewport(0, 0, window.size.x / 2.f, window.size.y / 2.f);
-        f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
+        f.tex(tex.half.a)();
+        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
     }
     {
         gl::GenFramebuffers(1, &fbo[BY4].id);
         auto& f = fbo[BY4];
         f.viewport(0, 0, window.size.x / 4.f, window.size.y / 4.f);
-        f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
+        f.tex(tex.quarter.a)();
+        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
     }
     {
         gl::GenFramebuffers(1, &fbo[BY8].id);
         auto& f = fbo[BY8];
         f.viewport(0, 0, window.size.x / 8.f, window.size.y / 8.f);
-        f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
+        f.tex(tex.eight.a)();
+        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
     }
     {
         gl::GenFramebuffers(1, &fbo[HALF_WIDE].id);
         auto& f = fbo[HALF_WIDE];
         f.viewport(0, 0, window.size.x, window.size.y / 2.f);
-        f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
+        f.tex(tex.ldr.half.wide)();
+        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
     }
 }
 void Context::resetBuffers() {

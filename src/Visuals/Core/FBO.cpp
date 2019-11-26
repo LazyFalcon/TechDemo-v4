@@ -6,7 +6,7 @@
 #include "Texture.hpp"
 
 FBO& FboHolder::operator[](int i) {
-    if(i == m_currentFboId and m_fbos[i].id != 0) {
+    if(i != m_currentFboId and m_fbos[i].id != 0) {
         m_currentFboId = i;
         gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, m_fbos[i].id);
 

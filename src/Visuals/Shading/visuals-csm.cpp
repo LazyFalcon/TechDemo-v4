@@ -23,6 +23,9 @@ void CascadedShadowMapping::init() {
     f.viewport(0, 0, context.tex.shadows.size, context.tex.shadows.size);
     f.tex(context.tex.shadows.cascade)();
     f.hasColor = false;
+
+    debug::rememberFbo("shadowmap", f);
+
     gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
     context.errors();
 }

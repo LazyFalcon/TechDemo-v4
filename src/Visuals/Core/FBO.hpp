@@ -11,7 +11,7 @@ enum
     BY8,
     HALF_WIDE,
     SHADOWMAP,
-    FBO_TYPES_COUNT
+    FBO_TYPES_END
 };
 
 class FBO
@@ -47,7 +47,7 @@ public:
 
 private:
     glm::vec2 m_screenSize;
-    std::array<FBO, FBO_TYPES_COUNT> m_fbos {};
-    unsigned int m_currentFboId {2222222};
+    std::array<FBO, FBO_TYPES_END> m_fbos {};
+    unsigned int m_currentFboId {FBO_TYPES_END};
     FBO* m_current;
 };

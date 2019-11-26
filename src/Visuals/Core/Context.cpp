@@ -96,6 +96,8 @@ void Context::resetTextures() {
     tex.gbuffer.depth = Texture(gl::TEXTURE_2D, gl::DEPTH_COMPONENT32F, window.size.x, window.size.y, 1,
                                 gl::DEPTH_COMPONENT, gl::FLOAT, gl::LINEAR, 0);
 
+    debug::rememberTexture("gbuffer depth", tex.gbuffer.depth.ID);
+
     tex.light.color =
         Texture(gl::TEXTURE_2D, gl::RGBA16F, window.size.x, window.size.y, 1, gl::RGBA, gl::HALF_FLOAT, gl::LINEAR, 4);
     tex.light.specular =
@@ -153,6 +155,7 @@ void Context::resetFbo() {
         f.viewport(0, 0, window.size.x, window.size.y);
         f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
         gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+        debug::rememberFbo("Full", f);
     }
     {
         gl::GenFramebuffers(1, &fbo[BY2].id);
@@ -160,6 +163,7 @@ void Context::resetFbo() {
         f.viewport(0, 0, window.size.x / 2.f, window.size.y / 2.f);
         f.tex(tex.half.a)();
         gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+        debug::rememberFbo("1/2", f);
     }
     {
         gl::GenFramebuffers(1, &fbo[BY4].id);
@@ -167,6 +171,7 @@ void Context::resetFbo() {
         f.viewport(0, 0, window.size.x / 4.f, window.size.y / 4.f);
         f.tex(tex.quarter.a)();
         gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+        debug::rememberFbo("1/4", f);
     }
     {
         gl::GenFramebuffers(1, &fbo[BY8].id);
@@ -174,6 +179,7 @@ void Context::resetFbo() {
         f.viewport(0, 0, window.size.x / 8.f, window.size.y / 8.f);
         f.tex(tex.eight.a)();
         gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+        debug::rememberFbo("1/8", f);
     }
     {
         gl::GenFramebuffers(1, &fbo[HALF_WIDE].id);
@@ -181,6 +187,7 @@ void Context::resetFbo() {
         f.viewport(0, 0, window.size.x, window.size.y / 2.f);
         f.tex(tex.ldr.half.wide)();
         gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+        debug::rememberFbo("1/2 wide", f);
     }
 }
 void Context::resetBuffers() {

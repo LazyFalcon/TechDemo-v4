@@ -11,11 +11,11 @@ FBO& FboHolder::operator[](int i) {
         gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, m_fbos[i].id);
 
         debug::logFboChange(m_fbos[i].id);
-        console.log("changed", "i:", i, ", m_currentFboId:", m_currentFboId, ", m_fbos[i].id:", m_fbos[i].id);
+        // console.log("changed", "i:", i, ", m_currentFboId:", m_currentFboId, ", m_fbos[i].id:", m_fbos[i].id);
     }
     else
-        console.log("i:", i, ", m_currentFboId:", m_currentFboId, ", m_fbos[i].id:", m_fbos[i].id);
-    m_current = &m_fbos[i];
+        // console.log("i:", i, ", m_currentFboId:", m_currentFboId, ", m_fbos[i].id:", m_fbos[i].id);
+        m_current = &m_fbos[i];
     return m_fbos[i];
 }
 

@@ -14,18 +14,19 @@
 namespace visuals
 {
 void CascadedShadowMapping::init() {
+    console.log("CascadedShadowMapping::init()");
     context.tex.shadows.cascade =
         Texture(gl::TEXTURE_2D_ARRAY, gl::DEPTH_COMPONENT32F, context.tex.shadows.size, context.tex.shadows.size,
                 m_numberOfSlices, gl::DEPTH_COMPONENT, gl::FLOAT, gl::LINEAR, 0);
 
     gl::GenFramebuffers(1, &context.fbo[SHADOWMAP].id);
     auto& f = context.fbo[SHADOWMAP];
+    f.hasColor = false;
     f.viewport(0, 0, context.tex.shadows.size, context.tex.shadows.size);
     f.tex(context.tex.shadows.cascade)();
-    f.hasColor = false;
 
     debug::rememberFbo("shadowmap", f.id);
-    context.fbo.unbind();
+    // context.fbo.unbind();
     context.errors();
 }
 

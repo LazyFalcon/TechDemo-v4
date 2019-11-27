@@ -24,6 +24,8 @@ public:
 
     void viewport(int x, int y, int z, int w);
     FBO& tex(Texture&);
+    FBO& tex(Texture&, int);
+    FBO& tex(int, int);
     FBO& operator()();
 
 private:
@@ -43,11 +45,21 @@ public:
     FBO& current() {
         return *m_current;
     }
+    void unbind();
     unsigned int drawBuffers[5];
+    FBO& tex(Texture& t) {
+        return m_current->tex(t);
+    }
+    FBO& tex(Texture& t, int i) {
+        return m_current->tex(t, i);
+    }
+    FBO& tex(int t, int i) {
+        return m_current->tex(t, i);
+    }
 
 private:
     glm::vec2 m_screenSize;
     std::array<FBO, FBO_TYPES_END> m_fbos {};
     unsigned int m_currentFboId {FBO_TYPES_END};
-    FBO* m_current;
+    FBO* m_current {nullptr};
 };

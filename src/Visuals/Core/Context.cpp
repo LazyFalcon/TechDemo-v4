@@ -26,7 +26,7 @@ struct CurrentState
     std::string print() {
         std::string targetsToPrint;
         for(auto it : targets) targetsToPrint += " " + getName(it);
-        return "Shader: " + getName(shader) + "FBO: " + getName(fbo) + "targets:" + targetsToPrint;
+        return "Shader: " + getName(shader) + ", FBO: " + getName(fbo) + ", targets:" + targetsToPrint;
     }
 };
 
@@ -154,7 +154,7 @@ void Context::resetFbo() {
         auto& f = fbo[FULL];
         f.viewport(0, 0, window.size.x, window.size.y);
         f.tex(tex.gbuffer.color).tex(tex.gbuffer.normals).tex(tex.gbuffer.depth)();
-        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+        fbo.unbind();
         debug::rememberFbo("Full", f.id);
     }
     {
@@ -162,7 +162,7 @@ void Context::resetFbo() {
         auto& f = fbo[BY2];
         f.viewport(0, 0, window.size.x / 2.f, window.size.y / 2.f);
         f.tex(tex.half.a)();
-        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+        fbo.unbind();
         debug::rememberFbo("1/2", f.id);
     }
     {
@@ -170,7 +170,7 @@ void Context::resetFbo() {
         auto& f = fbo[BY4];
         f.viewport(0, 0, window.size.x / 4.f, window.size.y / 4.f);
         f.tex(tex.quarter.a)();
-        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+        fbo.unbind();
         debug::rememberFbo("1/4", f.id);
     }
     {
@@ -178,7 +178,7 @@ void Context::resetFbo() {
         auto& f = fbo[BY8];
         f.viewport(0, 0, window.size.x / 8.f, window.size.y / 8.f);
         f.tex(tex.eight.a)();
-        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+        fbo.unbind();
         debug::rememberFbo("1/8", f.id);
     }
     {
@@ -186,7 +186,7 @@ void Context::resetFbo() {
         auto& f = fbo[HALF_WIDE];
         f.viewport(0, 0, window.size.x, window.size.y / 2.f);
         f.tex(tex.ldr.half.wide)();
-        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+        fbo.unbind();
         debug::rememberFbo("1/2 wide", f.id);
     }
 }
@@ -428,7 +428,7 @@ void Context::setupMainFrameBuffer_onlyDiffuseAndDepth() {
 }
 
 void Context::unbindFBO() {
-    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
+    fbo.unbind();
     currentFbo = 0xffffff;
 }
 
@@ -463,8 +463,7 @@ void Context::beginFrame() {
 void Context::endFrame() {
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
     gl::DisableVertexAttribArray(0);
-    gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
-    gl::BindFramebuffer(gl::READ_FRAMEBUFFER, 0);
+    fbo.unbind();
 
     gl::Disable(gl::DEPTH_TEST);
     gl::Disable(gl::BLEND);

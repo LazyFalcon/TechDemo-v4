@@ -24,9 +24,8 @@ void CascadedShadowMapping::init() {
     f.tex(context.tex.shadows.cascade)();
     f.hasColor = false;
 
-    debug::rememberFbo("shadowmap", f);
-
-    gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+    debug::rememberFbo("shadowmap", f.id);
+    context.fbo.unbind();
     context.errors();
 }
 
@@ -103,7 +102,7 @@ void CascadedShadowMapping::finish() {
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
     gl::BindTexture(gl::TEXTURE_2D, 0);
     gl::BindTexture(gl::TEXTURE_2D_ARRAY, 0);
-    gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+    context.fbo.unbind();
 }
 
 void CascadedShadowMapping::render() {

@@ -80,7 +80,7 @@ const Texture& RendererUtils::bilateralAOBlur(const Texture& source, float kerne
 
         context.drawScreen();
     }
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.full.rg16a.ID, 0);
+    context.fbo.tex(context.tex.full.rg16a, 0);
     {
         auto shader = assets::getShader("BilateralBlurHorizontal");
         shader.bind();

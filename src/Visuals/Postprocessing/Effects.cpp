@@ -21,7 +21,7 @@ void Effects::scattering(Scene& scene, camera::Camera& camera) {
     if(not scene.atmosphere || not scene.sun)
         return;
 
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.full.a.ID, 0);
+    context.fbo.tex(context.tex.full.a, 0);
 
     auto& atmosphere = *scene.atmosphere;
     auto& sun = *scene.sun;
@@ -70,7 +70,7 @@ void Effects::scatteringShadowed(Scene& scene, camera::Camera& camera) {
     if(not scene.atmosphere || not scene.sun)
         return;
 
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.full.a.ID, 0);
+    context.fbo.tex(context.tex.full.a, 0);
 
     auto& atmosphere = *scene.atmosphere;
     auto& sun = *scene.sun;
@@ -304,7 +304,7 @@ void Effects::FXAA() {
     gl::DepthMask(gl::FALSE_);
     gl::Disable(gl::BLEND);
 
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, context.tex.full.a.ID, 0);
+    context.fbo.tex(context.tex.full.a, 0);
 
     auto shader = assets::getShader("FXAA");
     shader.bind();
@@ -360,7 +360,7 @@ void Effects::bloom() {
     gl::Disable(gl::BLEND);
 
     auto brightParts = utils.extractBrightParts(context.tex.gbuffer.color);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, 0, 0);
+    context.fbo.tex(0, 0);
     brightParts.genMipmaps();
 
     auto blur12 = utils.blur12(brightParts, BlurOptions::Symmetrical);
@@ -385,7 +385,7 @@ void Effects::bloomSpecular() {
     gl::Disable(gl::BLEND);
 
     auto brightParts = utils.extractBrightParts(context.tex.light.specular);
-    gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, 0, 0);
+    context.fbo.tex(0, 0);
     brightParts.genMipmaps();
 
     auto blur12 = utils.blur12(brightParts, BlurOptions::Symmetrical);

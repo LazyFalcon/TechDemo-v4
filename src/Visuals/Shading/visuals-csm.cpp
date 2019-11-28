@@ -19,6 +19,7 @@ void CascadedShadowMapping::init() {
         Texture(gl::TEXTURE_2D_ARRAY, gl::DEPTH_COMPONENT32F, context.tex.shadows.size, context.tex.shadows.size,
                 m_numberOfSlices, gl::DEPTH_COMPONENT, gl::FLOAT, gl::LINEAR, 0);
 
+    debug::rememberTexture("cascade shadowmap", context.tex.shadows.cascade.ID);
     gl::GenFramebuffers(1, &context.fbo[SHADOWMAP].id);
     auto& f = context.fbo[SHADOWMAP];
     f.hasColor = false;

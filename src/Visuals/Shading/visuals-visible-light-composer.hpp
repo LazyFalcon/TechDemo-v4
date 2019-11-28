@@ -1,4 +1,6 @@
 #pragma once
+#include "core.hpp"
+#include "LightSource.hpp"
 #include "visuals-shadow-pool.hpp"
 
 template<typename T>
@@ -19,40 +21,6 @@ private:
     Vec m_lights;
     Vec m_recentlyRemoved;
 
-public:
-    void processVisibleShadows(Vec& lights) {
-        std::sort(lights.begin(), lights.end());
-        auto [added, removed] = diffContainers(lights, m_lights);
-
-        // m_recentlyRemoved.insert(removed);
-
-        // no caching for now. In future remove only when there is a need for new resources
-        freeResources(removed);
-        auto needed = calcNeededResources(added);
-        if(needed > m_shadowPool.avaliableResources())
-            removeLeastImportant(added, needed - m_shadowPool.avaliableResources());
-        auto successfullyAllocated = allocateResources(added);
-
-        m_lights.insert(successfullyAllocated.begin(), successfullyAllocated.end(), m_lights.back());
-
-        std::sort(m_lights.begin(), m_lights.end());
-        auto needRefresh = whichLightNeedsRerender(m_lights);
-
-        renderShadows(needRefresh);
-
-        // x znaleźć nowe
-        // x posortować po odległości/priorytecie(tak dajemy światłom priorytet, jak bardzo wązne są ich cienie)
-        // x przeliczyć zapotrzebowanie na tekstury i sprawdzić ilu światłom da się przydzielić
-        // przydzielić i przeliczyć macierze projekcji dla świateł(czy to nie powinno być robione w świetle?)
-
-        // kazde światło trzeba przetestować, dynamiczne obiekty sprawdzamy zawsze, to powinno być tanie.
-        // statyczne tylko jeśli światło się poruszyło, albo jest nowe
-        // jesli ma dynamiczne obiekty lub się poruszyło to trzeba je przerenderować
-        // update listy obiektów robi się gdzies indziej, najlepiej przy updatowaniu świateł. -> te które zostały wybrane przez frustum i mają cienie i są odpowiednio blisko są updatowane i
-
-        // na razie bez keszowania(potrzebna jakaś flaga że światło zostało zmodyfikowane): znaleźć światłom obiekty których dotykają, przy pomocy ghost obiektów i bulleta
-        // renderujemy każde światło osobno
-    }
     void freeResources(const Vec& toCleanup) {
         for(auto it : toCleanup) {
             m_shadowPool.release(it.assignedTexture, it.assignedTextureSize);
@@ -110,5 +78,71 @@ public:
     void renderShadows() {
         // obiekty sceny będą z jednej kolejki, co z obiektami dynamicznymi(to samo vao) i pojazdami i drzewami?
         // pojazdy to jest w sumie tylko geometria, więc to da się przygotować
+        for(auto it : m_lights) {
+            auto toRender = prepareRenderCommandForLight(it);
+            if(toRender.skinned) {}
+            if(toRender.dummy) {}
+            if(toRender.terrain) {}
+            if(toRender.foliage) {}
+        }
+    }
+
+    struct RenderCommand
+    {
+        RenderCommand() : id(s_id++) {}
+        static uint s_id;
+        uint id;
+        std::optional<> skinned;
+        std::optional<> dummy;
+        std::optional<> terrain;
+        std::optional<> foliage;
+    };
+
+    auto prepareRenderCommandForLight(Light* light) {
+        RenderCommand renderCommand; // here goes dummy objects, vehicles and
+        for(auto it : objectsCastingShadows) { it->addItselfToRenderCommand(renderCommand); }
+        return renderCommand;
+    }
+
+public:
+    void processVisibleShadows(Vec& lights) {
+        std::sort(lights.begin(), lights.end());
+        auto [added, removed] = diffContainers(lights, m_lights);
+
+        // m_recentlyRemoved.insert(removed);
+
+        // no caching for now. In future remove only when there is a need for new resources
+        freeResources(removed);
+        auto needed = calcNeededResources(added);
+        if(needed > m_shadowPool.avaliableResources())
+            removeLeastImportant(added, needed - m_shadowPool.avaliableResources());
+        auto successfullyAllocated = allocateResources(added);
+
+        m_lights.insert(successfullyAllocated.begin(), successfullyAllocated.end(), m_lights.back());
+
+        std::sort(m_lights.begin(), m_lights.end());
+        auto needRefresh = whichLightNeedsRerender(m_lights);
+
+        renderShadows(needRefresh);
+
+        // x znaleźć nowe
+        // x posortować po odległości/priorytecie(tak dajemy światłom priorytet, jak bardzo wązne są ich cienie)
+        // x przeliczyć zapotrzebowanie na tekstury i sprawdzić ilu światłom da się przydzielić
+        // przydzielić i przeliczyć macierze projekcji dla świateł(czy to nie powinno być robione w świetle?)
+
+        // kazde światło trzeba przetestować, dynamiczne obiekty sprawdzamy zawsze, to powinno być tanie.
+        // statyczne tylko jeśli światło się poruszyło, albo jest nowe
+        // jesli ma dynamiczne obiekty lub się poruszyło to trzeba je przerenderować
+        // update listy obiektów robi się gdzies indziej, najlepiej przy updatowaniu świateł. -> te które zostały wybrane przez frustum i mają cienie i są odpowiednio blisko są updatowane i
+
+        // na razie bez keszowania(potrzebna jakaś flaga że światło zostało zmodyfikowane): znaleźć światłom obiekty których dotykają, przy pomocy ghost obiektów i bulleta
+        // renderujemy każde światło osobno
+    }
+    void processVisibleLights(Vec& lights) {
+        Vec& lightsCastingShadows;
+        for(auto it : lights) {
+            if(not it->castShadows)
+                continue;
+        }
     }
 };

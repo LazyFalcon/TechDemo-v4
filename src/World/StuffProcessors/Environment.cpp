@@ -24,8 +24,9 @@ void EnviroEntity::actionWhenVisible() {
     visuals::preparedScene.nonPlayableInsideFrustum.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
 }
 void EnviroEntity::addToShadowmap() {
-    if(lastFrame == frame())
-        return; // * to be sure that object will be inserted once per frame :)
+    if(lastFrame
+       == frame()) // todo: zamiast lastFrame to last render command, i zpushować to do implementacji parenta if(alreadyAdded(command.id)) return
+        return;    // * to be sure that object will be inserted once per frame :)
     lastFrame = frame();
 
     visuals::preparedScene.nonPlayableOutsideFrustum.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);

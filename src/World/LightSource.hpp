@@ -99,9 +99,9 @@ struct LightSource : public BaseGameObject
     bool isShadowCaster {false};
     LightType m_type;
     CameraRelation m_cameraInside {CameraOutside};
-    bool castShadows {false};
     std::string name;
-
+    bool castShadows {false};
+    std::vector<GameObjectPtr> objectsCastingShadows;
     btRigidBody* lightProxy {nullptr};
     btCollisionShape* lightShape {nullptr};
 

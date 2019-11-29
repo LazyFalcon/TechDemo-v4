@@ -15,6 +15,7 @@ namespace visuals
 {
 void CascadedShadowMapping::init() {
     console.log("CascadedShadowMapping::init()");
+    context.fbo.unbind();
     context.tex.shadows.cascade =
         Texture(gl::TEXTURE_2D_ARRAY, gl::DEPTH_COMPONENT32F, context.tex.shadows.size, context.tex.shadows.size,
                 m_numberOfSlices, gl::DEPTH_COMPONENT, gl::FLOAT, gl::LINEAR, 0);
@@ -27,7 +28,6 @@ void CascadedShadowMapping::init() {
     f.tex(context.tex.shadows.cascade)();
 
     debug::rememberFbo("shadowmap", f.id);
-    // context.fbo.unbind();
     context.errors();
 }
 

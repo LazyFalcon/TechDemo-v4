@@ -30,7 +30,11 @@ void FBO::viewport(int x, int y, int z, int w) {
 }
 
 FBO& FBO::tex(Texture& texture) {
-    if(texture.format == gl::DEPTH_COMPONENT) {
+    if(texture.format == gl::DEPTH_COMPONENT and texture.type == gl::TEXTURE_2D_ARRAY) {
+        debug::logTargetChange(texture.ID, gl::DEPTH_ATTACHMENT);
+        gl::FramebufferTexture(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, texture.ID, 0);
+    }
+    else if(texture.format == gl::DEPTH_COMPONENT) {
         debug::logTargetChange(texture.ID, gl::DEPTH_ATTACHMENT);
         gl::FramebufferTexture2D(gl::DRAW_FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::TEXTURE_2D, texture.ID, 0);
     }

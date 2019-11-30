@@ -63,9 +63,8 @@ vec3 samplePrefilteredEnviroMap(vec3 N, float roughness){
 }
 
 @import: GGX
-
-// const float bias = -0.00006;
-float calcShadow(in vec3 P, in vec2 uv, in float depth, in vec3 N, in int cascade){
+const float maxShadow = 0.4;
+float calcShadow(in vec3 P, in vec2 uv, in float depth, in vec3 N, in int cascade, in float nDotL){
     float bias = 0.1 + depth/1000;
     vec3 positionCorrected = P + N*bias;
 
@@ -94,17 +93,17 @@ float calcShadow(in vec3 P, in vec2 uv, in float depth, in vec3 N, in int cascad
     // vec4 UVC = vec4(UVCoords, cascade, positionLS.z + bias - (1-nDotL)*0.004);
     vec4 UVC = vec4(UVCoords, cascade, positionLS.z);
     factor += texture(uCSMCascades, UVC);
-    factor = 0.4 + (factor / 1.0);
+    factor = maxShadow + (factor / 1.0);
 
     return factor > 0.98 ? 1.0 : factor;
 }
 
 float CombineCSM(in vec3 P, in vec2 uv, in float nDotL, in vec3 N){
-    if(nDotL < 0.0) return 0;
+    if(nDotL < 0.0) return maxShadow;
     float depth = distance(P, uEye.xyz);
     for(int i=0; i<4; i++){
         if(depth < uSplitDistances[i]){
-            return calcShadow(P, uv, depth, N, i);
+            return calcShadow(P, uv, depth, N, i, nDotL);
         }
     }
     return 1.0;
@@ -113,6 +112,8 @@ float CombineCSM(in vec3 P, in vec2 uv, in float nDotL, in vec3 N){
 vec3 colorFromCsm(in vec3 P){
     float depth = distance(P, uEye.xyz);
     for(int i=0; i<4; i++){
+        // return vec3(depth/1500);
+        // if(depth < 57){
         if(depth < uSplitDistances[i]){
             if(i==0) return vec3(1,0,0);
             if(i==1) return vec3(1,1,0);
@@ -145,8 +146,11 @@ void main(void){
     vec3 diffusePart = 1*light.color*OrenNayar(L, V, N, roughness, 1)*lightPowerScale + irradiance*exp(-0.1*lightPowerScale); /// *ks?
 
     float shadow = pow(CombineCSM(P, uv, dot(N, L), N), 2);
+    // float shadow = CombineCSM(P, uv, dot(N, L), N);
 
     outLight = vec4(diffusePart*(1-kS)*shadow*0.1, 1);
+    // outLight = vec4(shadow);
+    // outLight = vec4(colorFromCsm(P), 1);
     // outLight = normal*0.5+0.5;
     outSpecular = vec4(specular*shadow*kS*0, 1);
     // outSpecular = vec4(reflect(-V, N) *0.5 + 0.5, 1);

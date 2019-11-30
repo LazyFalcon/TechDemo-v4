@@ -263,23 +263,23 @@ void Playground::renderProcedure(GraphicEngine& renderer) {
 
     renderer.context->setupFramebufferForGBufferGeneration();
     // renderer.utils->drawBackground("nebula2");
-    renderer.sceneRenderer->renderScene(*m_scene, camera::active());
+    renderer.sceneRenderer->renderScene(*m_scene, visuals::preparedScene.cameraOfThisFrame);
 
     renderer.details->executeAtEndOfFrame();
 
-    renderer.gBufferSamplers->sampleGBuffer(camera::active());
+    renderer.gBufferSamplers->sampleGBuffer(visuals::preparedScene.cameraOfThisFrame);
 
     m_inputUserPointer.world.position = m_mouseSampler->position;
     m_inputUserPointer.world.normal = m_mouseSampler->normal;
 
-    renderer.effects->SSAO(camera::active());
+    renderer.effects->SSAO(visuals::preparedScene.cameraOfThisFrame);
 
     renderer.context->setupFramebufferForLighting();
-    renderer.lightRendering->lightPass(*m_scene, camera::active());
-    renderer.lightRendering->compose(camera::active());
+    renderer.lightRendering->lightPass(*m_scene, visuals::preparedScene.cameraOfThisFrame);
+    renderer.lightRendering->compose(visuals::preparedScene.cameraOfThisFrame);
 
     // renderer.effects->scattering(*m_scene, CameraController::active());
-    renderer.effects->sky(*m_scene, camera::active());
+    renderer.effects->sky(*m_scene, visuals::preparedScene.cameraOfThisFrame);
 
     renderer.context->setupFramebufferForLDRProcessing();
     renderer.effects->toneMapping();

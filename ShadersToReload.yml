@@ -1,10 +1,2 @@
+- light-directional
 - ComposeLightAndGBuffer
-- SSAO
-- Sun+Ambient+Shadow
-- simple-model-pbr
-- ToneMapping
-- LightSource_POINT
-- FilmGrain
-- Sky
-- Scattering
-- ChromaticDistortion

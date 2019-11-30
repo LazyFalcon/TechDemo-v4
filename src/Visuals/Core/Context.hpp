@@ -70,7 +70,7 @@ public:
         struct
         {
             Texture cascade {};
-            u32 size {2048};
+            u32 size {4096};
             std::vector<glm::mat4> matrices;
         } shadows;
 

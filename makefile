@@ -14,8 +14,8 @@ DEFINES = \
 CORE_PCH_FILENAME=./src/core_pch.hpp
 CORE_PCH=$(CORE_PCH_FILENAME).gch
 
-CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
-# CXX_FLAGS = -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
+# CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
+CXX_FLAGS = -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 # https://packages.msys2.org/base
 EXTRA_CXX_FLAGS = -Werror=return-type
@@ -31,10 +31,11 @@ EXTRA_CXX_FLAGS += -Winvalid-pch
 ifeq ("$(clang)", "yes")
 	# echo "CLANG INCOMING!"
 	CXX = C:\msys64\mingw64\bin\clang++.exe -stdlib=libstdc++
-	LDX = C:\MinGW\bin\g++.exe
+	LDX = C:\msys64\mingw64\bin\clang++.exe -stdlib=libstdc++
+	# LDX = C:\MinGW\bin\g++.exe
 else
-	# CXX = C:\msys64\mingw64\bin\g++.exe
-	CXX = C:\MinGW\bin\g++.exe
+	CXX = C:\msys64\mingw64\bin\g++.exe
+	# CXX = C:\MinGW\bin\g++.exe
 	LDX = $(CXX)
 endif
 

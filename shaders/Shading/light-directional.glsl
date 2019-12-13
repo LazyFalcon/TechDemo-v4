@@ -63,7 +63,7 @@ vec3 samplePrefilteredEnviroMap(vec3 N, float roughness){
 }
 
 @import: GGX
-const float maxShadow = 0.4;
+const float maxShadow = 0.2;
 float calcShadow(in vec3 P, in vec2 uv, in float depth, in vec3 N, in int cascade, in float nDotL){
     float bias = 0.1 + depth/1000;
     vec3 positionCorrected = P + N*bias;
@@ -99,7 +99,7 @@ float calcShadow(in vec3 P, in vec2 uv, in float depth, in vec3 N, in int cascad
 }
 
 float CombineCSM(in vec3 P, in vec2 uv, in float nDotL, in vec3 N){
-    if(nDotL < 0.0) return maxShadow;
+    if(nDotL < 0.2) return maxShadow;
     float depth = distance(P, uEye.xyz);
     for(int i=0; i<4; i++){
         if(depth < uSplitDistances[i]){
@@ -109,7 +109,8 @@ float CombineCSM(in vec3 P, in vec2 uv, in float nDotL, in vec3 N){
     return 1.0;
 }
 
-vec3 colorFromCsm(in vec3 P){
+vec3 colorFromCsm(in vec3 P, in float nDotL){
+    return vec3(nDotL);
     float depth = distance(P, uEye.xyz);
     for(int i=0; i<4; i++){
         // return vec3(depth/1500);
@@ -138,21 +139,22 @@ void main(void){
 
     vec3 V = normalize(uEye - P);
     vec3 L = -normalize(light.direction);
-    L = normalize(vec3(0.3, 0.3, 1));
+    // L = normalize(vec3(0.3, 0.3, -1));
     vec3 kS;
 
+    float shadow = CombineCSM(P, uv, dot(N, L), N);
     vec3 specular = calculateSpecular(V, N, L, roughness, metallic, albedo.rgb, kS)*lightPowerScale + sampleEnviroMap(N.xzy, V.xzy, roughness)*exp(-0.1*lightPowerScale)*Fresnel_Schlick(clamp(dot(N,V), 0.0, 1.0), albedo.rgb);
     vec3 irradiance = samplePrefilteredEnviroMap(-N.yzx, 7);
-    vec3 diffusePart = 1*light.color*OrenNayar(L, V, N, roughness, 1)*lightPowerScale + irradiance*exp(-0.1*lightPowerScale); /// *ks?
+    vec3 diffusePart = 1*light.color*max(OrenNayar(L, V, N, roughness, 1), shadow)*lightPowerScale + irradiance*exp(-0.1*lightPowerScale); /// *ks?
 
-    float shadow = pow(CombineCSM(P, uv, dot(N, L), N), 2);
-    // float shadow = CombineCSM(P, uv, dot(N, L), N);
+    // float shadow = pow(CombineCSM(P, uv, dot(N, L), N), 2);
 
-    outLight = vec4(diffusePart*(1-kS)*shadow*0.1, 1);
-    // outLight = vec4(shadow);
-    // outLight = vec4(colorFromCsm(P), 1);
+    outLight = vec4(diffusePart*(1-kS)*0.1, 1);
+    // outLight = vec4(diffusePart*(1-kS)*shadow*0.1, 1);
+    // outLight = vec4(dot(N, L));
+    // outLight = vec4(colorFromCsm(P, dot(N, L)), 1);
     // outLight = normal*0.5+0.5;
-    outSpecular = vec4(specular*shadow*kS*0, 1);
+    outSpecular = vec4(specular*shadow*kS*0.1, 1);
     // outSpecular = vec4(reflect(-V, N) *0.5 + 0.5, 1);
     // outSpecular = vec4(uv.x+uv.y>1? sampleEnviroMap(N.xzy, V.xzy, 0) : N.xzy*0.5+0.5, 1);
     // outSpecular = vec4(N.xzy, 1);

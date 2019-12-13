@@ -1,9 +1,9 @@
 #pragma once
-#include "BaseGameObject.hpp"
 #include "BaseStructs.hpp"
 #include "GPUResources.hpp"
 #include "LightSource.hpp"
 #include "SceneGraph.hpp"
+#include "base-of-game-object.hpp"
 
 class btCollisionShape;
 class btRgBody;
@@ -18,12 +18,13 @@ namespace projectiles
 class Projectile;
 }
 
-class EnviroEntity : public BaseGameObject
+class EnviroEntity : public BaseOfGameObject
 {
 public:
-    EnviroEntity() = default;
-    EnviroEntity(const std::string& name) : name(name) {}
-    std::string name;
+    EnviroEntity() : BaseOfGameObject(GameType::Dummy) {}
+    EnviroEntity(const std::string& name) : BaseOfGameObject(GameType::Dummy) {
+        BaseOfGameObject::name = name;
+    }
     struct
     {
         Mesh mesh;

@@ -1,7 +1,7 @@
 #pragma once
-#include "BaseGameObject.hpp"
 #include "Foliage.hpp"
 #include "GPUResources.hpp"
+#include "base-of-game-object.hpp"
 
 static const i32 NoOfLevels = 5;
 namespace camera
@@ -17,9 +17,10 @@ template<typename VertexFormat>
 class ModelLoader;
 class Yaml;
 
-class Cell : public BaseGameObject
+class Cell : public BaseOfGameObject
 {
 public:
+    Cell() : BaseOfGameObject(GameType::Cell) {}
     glm::vec4 position;
     glm::vec4 size;
 
@@ -29,7 +30,7 @@ public:
     bool hasTerrain {false};
     Mesh terrainMesh {};
     btRigidBody* cellBoxCollider {nullptr};
-    std::vector<GameObjectPtr> objects;
+    std::vector<ObjectHandle> objects;
 
     SampleResult sample(glm::vec2 position) {
         // allhitRaycast i porownanie pointerow
@@ -84,7 +85,7 @@ public:
     void cullCells(const camera::Frustum& frstum);
     void findObjectsOutsideFrustumThatCastShadows(const camera::Frustum& frustum, glm::vec4 lightDirection);
 
-    void insertObject(GameObjectPtr obj, const glm::vec4& position);
+    void insertObject(ObjectHandle obj, const glm::vec4& position);
     glm::vec4 getDimensions() {
         return size;
     }

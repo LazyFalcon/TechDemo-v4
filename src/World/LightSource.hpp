@@ -9,8 +9,8 @@
  *  only face culling
  */
 #pragma once
-#include "BaseGameObject.hpp"
 #include "GPUResources.hpp"
+#include "base-of-game-object.hpp"
 
 namespace camera
 {
@@ -21,7 +21,7 @@ class PhysicalWorld;
 class Yaml;
 
 // * https://docs.blender.org/manual/en/dev/render/blender_render/lighting/lights/attenuation.html
-struct LightSource : public BaseGameObject
+struct LightSource : public BaseOfGameObject
 {
     enum LightType
     {
@@ -101,11 +101,11 @@ struct LightSource : public BaseGameObject
     CameraRelation m_cameraInside {CameraOutside};
     std::string name;
     bool castShadows {false};
-    std::vector<GameObjectPtr> objectsCastingShadows;
+    std::vector<ObjectHandle> objectsCastingShadows;
     btRigidBody* lightProxy {nullptr};
     btCollisionShape* lightShape {nullptr};
 
-    LightSource() {}
+    LightSource() : BaseOfGameObject(GameType::LightSource) {}
     LightSource(const Yaml&, PhysicalWorld& physics);
     LightSource& setType(const std::string& type);
     LightSource& setTransform(glm::vec4 position, glm::quat quaternion);

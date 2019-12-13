@@ -59,7 +59,7 @@ void SceneGraph::initCellsToDefaults() {
 
             // SceneObject object {Type::TerrainChunk, SceneObject::nextID(), &cells[i], i};
 
-            cells[i].cellBoxCollider->setUserIndex(cells[i].indexForBullet());
+            cells[i].setRef(cells[i].cellBoxCollider);
             i++;
         }
 }
@@ -76,7 +76,7 @@ btRigidBody* SceneGraph::createSimpleCollider(glm::vec4 pos, glm::vec3 dim) {
     return body;
 }
 
-void SceneGraph::insertObject(GameObjectPtr object, const glm::vec4& position) {
+void SceneGraph::insertObject(ObjectHandle object, const glm::vec4& position) {
     if(object->getCollider())
         return; // * no need to track it now, bullet will do it better
     console.log("Inserting object to cell");
@@ -166,6 +166,8 @@ void SceneGraph::findObjectsOutsideFrustumThatCastShadows(const camera::Frustum&
     bool cullFarPlane = false;
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[1].m_root, normals, offsets, 5,
                         culling); // with static
+    // btDbvt::collideKDOP(physics.m_cullingClusters->m_sets[1].m_root, normals, offsets, 5,
+    //                     culling); // with static
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[0].m_root, normals, offsets, 5,
                         culling); // with dynamic
 }

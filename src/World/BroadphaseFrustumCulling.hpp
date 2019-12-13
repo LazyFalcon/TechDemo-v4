@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "BaseGameObject.hpp"
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
+#include "base-of-game-object.hpp"
 
 class DbvtBroadphaseFrustumCulling : public btDbvt::ICollide
 {
@@ -24,7 +24,7 @@ public:
 
         if((proxy->m_collisionFilterGroup & collisionFilterMask) != 0) {
             if(co->getUserIndex())
-                deref(co->getUserIndex())->actionWhenVisible();
+                utils::deref(co->getUserIndex())->actionWhenVisible();
         }
     }
 };
@@ -49,7 +49,7 @@ public:
 
         if((proxy->m_collisionFilterGroup & collisionFilterMask) != 0) {
             if(co->getUserIndex())
-                deref(co->getUserIndex())->addToShadowmap();
+                utils::deref(co->getUserIndex())->addToShadowmap();
         }
     }
 };

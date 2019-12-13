@@ -5,8 +5,7 @@
 #include "Yaml.hpp"
 #include "visuals-prepared-scene.hpp"
 
-
-LightSource::LightSource(const Yaml& yaml, PhysicalWorld& physics) {
+LightSource::LightSource(const Yaml& yaml, PhysicalWorld& physics) : BaseOfGameObject(GameType::LightSource) {
     name = yaml["Name"].string();
     setType(yaml["Type"].string());
     readConfig(yaml);
@@ -111,7 +110,7 @@ void LightSource::createCollider(PhysicalWorld& physics) {
         lightShape = new btSphereShape(m_falloff.distance);
         btTransform tr = convert(m_transform);
         lightProxy = physics.createRigidBodyWithMasks(0.f, tr, lightShape, COL_FOR_CULLING, COL_NOTHING);
-        lightProxy->setUserIndex(indexForBullet());
+        setRef(lightProxy);
     }
 }
 

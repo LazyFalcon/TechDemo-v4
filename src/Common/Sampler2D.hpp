@@ -9,8 +9,8 @@ public:
     virtual glm::vec4 operator()(float x, float y) = 0;
     virtual glm::vec4 operator()(u32 x, u32 y) = 0;
 
-    u32 width;
-    u32 height;
+    u32 width {};
+    u32 height {};
 };
 // TODO: dodac lambdę przetwarzajc output :D
 class Sampler2D
@@ -31,8 +31,8 @@ public:
     glm::vec4 operator()(float x, float y);
 
 private:
-    u32 width;
-    u32 height;
+    u32 width {};
+    u32 height {};
     std::unique_ptr<ISampler> data;
 };
 
@@ -60,6 +60,6 @@ public:
 
         return transformOutput();
     }
-    glm::vec2 size;
+    glm::vec2 size {};
     std::vector<SampleType> data;
 };

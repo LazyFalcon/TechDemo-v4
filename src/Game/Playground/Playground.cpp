@@ -280,7 +280,7 @@ void Playground::renderProcedure(GraphicEngine& renderer) {
 
     // renderer.effects->scattering(*m_scene, CameraController::active());
     renderer.effects->sky(*m_scene, visuals::preparedScene.cameraOfThisFrame);
-
+    // todo: a gdyby te efekty były obiektami a nie funkcjami? czy nie byłoby łatwiej zarządzać stanami
     renderer.context->setupFramebufferForLDRProcessing();
     renderer.effects->toneMapping();
     renderer.effects->FXAA();

@@ -1,7 +1,8 @@
 #pragma once
-#include "BaseGameObject.hpp"
 #include "BaseStructs.hpp"
 #include "CloseHitResult.hpp"
+#include "base-of-game-object.hpp"
+
 
 struct ConvexMesh
 {

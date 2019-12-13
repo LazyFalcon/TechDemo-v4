@@ -24,7 +24,9 @@ private:
     void freeResources(const Vec& toCleanup) {
         for(auto it : toCleanup) {
             m_shadowPool.release(it.assignedTexture, it.assignedTextureSize);
-            m_lights.erase(it);
+            m_lights.erase(
+                std::remove_if(m_lights.begin(), m_lights.end(), [it](auto lightPtr) { return lightPtr == it; }));
+            it.assignedTexture = INVALID_TEXTURE;
         }
     }
 
@@ -33,30 +35,48 @@ private:
         for(auto it : added) { count += it->assignedTextureSize; }
         return count;
     }
-    void removeLeastImportant(Vec& added, int resourcesToFree) {
-        // random for now :D
-        Vec removedSingleTextures;
-        Vec result;
+    // void removeLeastImportant(Vec& added, int resourcesToFree) {
+    //     // random for now :D
+    //     Vec removedSingleTextures;
+    //     Vec result;
 
-        added.erase(std::remove_if(added.begin(), added.end(), [result, removedSingleTextures](const Light* l) {
-            if(resourcesToFree > 0) {
-                resourcesToFree -= l->assignedTextureSize;
-                if(l->assignedTextureSize == 1)
-                    removedSingleTextures.intert(l);
-                return true;
+    //     added.erase(std::remove_if(added.begin(), added.end(), [result, removedSingleTextures](const Light* l) {
+    //         if(resourcesToFree > 0) {
+    //             resourcesToFree -= l->assignedTextureSize;
+    //             if(l->assignedTextureSize == 1)
+    //                 removedSingleTextures.intert(l);
+    //             return true;
+    //         }
+    //         else
+    //             return false;
+    //     })) if(removedSingleTextures.size() > 0 and result < 0) {
+    //         added.insert(removedSingleTextures.begin(),
+    //                      removedSingleTextures.begin() + std::min(removedSingleTextures.size(), -result));
+    //     }
+    // }
+
+    Vec selectToCastShadows(Vec& all, std::pair<uint, uint> available) const {
+        Vec result;
+        for(auto it : all) {
+            if(not it->needsShadow)
+                continue;
+
+            if(it->assignedTextureSize == 1 and available.first > 0) {
+                available.first--;
+                result.push_back(it);
             }
-            else
-                return false;
-        })) if(removedSingleTextures.size() > 0 and result < 0) {
-            added.insert(removedSingleTextures.begin(),
-                         removedSingleTextures.begin() + std::min(removedSingleTextures.size(), -result));
+            else if(it->assignedTextureSize == 6 and available.second > 0) {
+                available.second--;
+                result.push_back(it);
+            }
+            else if(available.first == 0 and available.second == 0)
+                break;
         }
+        return result;
     }
     Vec allocateResources(const Vec& toAdd) {
         Vec withSucces;
         for(auto it : toAdd) {
-            if(not it->needsShadow)
-                continue;
             auto result = m_shadowPool.allocate(it->assignedTextureSize);
             if(not result) {
                 continue;
@@ -65,6 +85,7 @@ private:
             it->needsUpdate = true;
             withSucces.insert(it);
         }
+        return withSucces;
     }
 
     Vec whichLightNeedsRefresh(const Vec& lights) const {
@@ -106,21 +127,21 @@ private:
 
 public:
     void processVisibleShadows(Vec& lights) {
-        std::sort(lights.begin(), lights.end());
+        std::sort(lights.begin(), lights.end()); // by pointer value
         auto [added, removed] = diffContainers(lights, m_lights);
 
         // m_recentlyRemoved.insert(removed);
 
         // no caching for now. In future remove only when there is a need for new resources
         freeResources(removed);
-        auto needed = calcNeededResources(added);
-        if(needed > m_shadowPool.avaliableResources())
-            removeLeastImportant(added, needed - m_shadowPool.avaliableResources());
+        added = selectToCastShadows(added, m_shadowPool.avaliableResources());
         auto successfullyAllocated = allocateResources(added);
 
         m_lights.insert(successfullyAllocated.begin(), successfullyAllocated.end(), m_lights.back());
 
         std::sort(m_lights.begin(), m_lights.end());
+        // for now recalculate each light,
+        // later check if light moved or achanged any params, of if it has dynamic object in view
         auto needRefresh = whichLightNeedsRerender(m_lights);
 
         renderShadows(needRefresh);

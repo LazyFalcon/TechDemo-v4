@@ -39,6 +39,9 @@ public:
     PhysicalWorld& physics;
     std::unique_ptr<Atmosphere> atmosphere;
     std::unique_ptr<Environment> environment;
+    // std::unique_ptr<InteractiveObjectPool> ; // rzeczy do podnoszenia
+    // std::unique_ptr<LightSources> ; // światła
+    // std::unique_ptr<NonPlayableObjects> ; // teren, rzeczy których nie da się w rzaden sposób ruszyć
     std::unique_ptr<Foliage> foliage;
     std::unique_ptr<GeoTimePosition> geoTimePosition;
     std::unique_ptr<Grass> grass;

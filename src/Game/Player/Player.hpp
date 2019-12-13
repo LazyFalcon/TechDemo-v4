@@ -2,6 +2,7 @@
 #include "Actor.hpp"
 #include "Utils.hpp"
 #include "Vehicle.hpp"
+#include "base-of-game-object.hpp"
 
 class Cannon;
 class Imgui;
@@ -9,7 +10,7 @@ class Input;
 class InputDispatcher;
 class InputUserPointer;
 
-class Player : public Actor
+class Player : public BaseOfGameObject, public Actor
 {
 private:
     std::shared_ptr<Input> m_input;
@@ -45,5 +46,10 @@ public:
     }
     Vehicle& eq() {
         return m_vehicle;
+    }
+    void actionWhenVisible() override {}
+    void addToShadowmap() override {}
+    btRigidBody* getCollider() override {
+        return nullptr;
     }
 };

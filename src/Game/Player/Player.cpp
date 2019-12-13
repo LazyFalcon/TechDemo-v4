@@ -6,7 +6,10 @@
 #include "ui.hpp"
 
 Player::Player(InputDispatcher& inputDispatcher, Vehicle& vehicle, InputUserPointer& userPointer)
-    : m_input(inputDispatcher.createNew("Player")), m_vehicle(vehicle), m_userPointer(userPointer) {
+    : BaseOfGameObject(GameType::Actor),
+      m_input(inputDispatcher.createNew("Player")),
+      m_vehicle(vehicle),
+      m_userPointer(userPointer) {
     initInputContext();
 };
 Player::~Player() {}

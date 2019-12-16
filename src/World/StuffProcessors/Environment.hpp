@@ -53,7 +53,7 @@ public:
     void update(float dt);
     void actionWhenVisible() override;
     void addToShadowmap() override;
-    btRigidBody* getCollider() {
+    btRigidBody* getCollider() override {
         return physics.rgBody;
     }
 };

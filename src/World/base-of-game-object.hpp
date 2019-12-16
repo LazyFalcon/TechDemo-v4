@@ -1,5 +1,4 @@
 #pragma once
-#include "object-id.hpp"
 
 #define BIT(x) (1 << (x))
 enum BulletCollisionMasks
@@ -22,14 +21,34 @@ enum class GameType
     Cell
 };
 class BaseOfGameObject;
+
+namespace utils
+{
+void releaseIndex(int);
+int acquireIndex();
+void updatePointer(int, BaseOfGameObject*);
+BaseOfGameObject* deref(int);
+BaseOfGameObject* deref(const btRigidBody*);
+void setRef(int, btRigidBody*);
+}
+
 class ObjectHandle
 {
 private:
-    int m_globalIndex;
+    int m_globalIndex {0};
 
 public:
     ObjectHandle() = default;
     ObjectHandle(int i) : m_globalIndex(i) {}
+    ObjectHandle(const ObjectHandle& handle) {
+        m_globalIndex = handle.m_globalIndex;
+    }
+    ObjectHandle& operator=(const ObjectHandle& handle) {
+        m_globalIndex = handle.m_globalIndex;
+        return *this;
+    }
+    ObjectHandle& operator=(ObjectHandle&& parent) = delete;
+    ObjectHandle(ObjectHandle&& parent) = delete;
 
     BaseOfGameObject& operator*() {
         return *(utils::deref(m_globalIndex));
@@ -39,12 +58,37 @@ public:
     }
 };
 
-class BaseOfGameObject : public ObjectId
+class BaseOfGameObject
 {
+protected:
+    int m_globalIndex {0};
+
 public:
-    BaseOfGameObject(GameType type) : type(type) {}
+    BaseOfGameObject(GameType type) : m_globalIndex(utils::acquireIndex()), type(type) {
+        utils::updatePointer(m_globalIndex, this);
+    }
+    virtual ~BaseOfGameObject() = default;
+    BaseOfGameObject(const BaseOfGameObject&) = delete;
+    BaseOfGameObject& operator=(const BaseOfGameObject&) = delete;
+    BaseOfGameObject& operator=(BaseOfGameObject&& parent) {
+        m_globalIndex = parent.m_globalIndex;
+        utils::updatePointer(m_globalIndex, this);
+        return *this;
+    }
+    BaseOfGameObject(BaseOfGameObject&& parent) {
+        m_globalIndex = parent.m_globalIndex;
+        utils::updatePointer(m_globalIndex, this);
+    }
     std::string name;
     GameType type;
+
+    int getId() const {
+        return m_globalIndex;
+    }
+
+    void setRef(btRigidBody* b) {
+        utils::setRef(m_globalIndex, b);
+    }
 
     // * Interfaces to implement
     uint lastFrame {0};
@@ -54,6 +98,6 @@ public:
     virtual btRigidBody* getCollider() = 0;
 
     ObjectHandle createHandle() {
-        return ObjectHandle(ObjectId::getId());
+        return ObjectHandle(getId());
     }
 };

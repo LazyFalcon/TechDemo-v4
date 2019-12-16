@@ -80,7 +80,7 @@ void Environment::loadObject(const Yaml& yaml, ModelLoader<VertexWithMaterialDat
 
     entity.update(0.01f);
 
-    graph.insertObject(entity.getHandle(), entity.physics.position);
+    graph.insertObject(entity.createHandle(), entity.physics.position);
 }
 
 void Environment::loadVisualPart(ModelLoader<VertexWithMaterialData>& modelLoader, EnviroEntity& e, const Yaml& yaml) {
@@ -130,14 +130,14 @@ bool Environment::loadPhysicalPart(ModelLoader<VertexWithMaterialData>& modelLoa
     else if(yaml["Shape"] == "SPHERE")
         createSimpleSphereCollider(entity, yaml["Mass"].number());
 
-    return true;
+    return entity.physics.rgBody != nullptr;
 }
 
 void Environment::loadLightSource(const Yaml& thing) {
     auto& l = m_lights.emplace_back(thing, physics);
     // auto collider = l->getCollider();
 
-    graph.insertObject(l.getHandle(), l.m_position);
+    graph.insertObject(l.createHandle(), l.m_position);
 }
 
 void Environment::update(float dt) {

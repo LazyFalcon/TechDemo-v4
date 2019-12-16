@@ -47,6 +47,8 @@ void SceneGraph::initCellsToDefaults() {
     console.log("cellSize:", cellSize);
     console.log("cellsInTheScene:", cellsInTheScene);
     int i = 0;
+    // todo: do we need to create collider for each cell? wouldn't be better to create them when something has to be inserted?
+    // todo: do it when game will be running again
     for(int x = 0; x < cellsInTheScene.x; x++)
         for(int y = 0; y < cellsInTheScene.y; y++) {
             glm::vec4 position = min + glm::vec4(cellSize.x * (0.5f + x), cellSize.y * (0.5f + y), center.z, 0);

@@ -15,7 +15,8 @@ CORE_PCH_FILENAME=./src/core_pch.hpp
 CORE_PCH=$(CORE_PCH_FILENAME).gch
 
 # CXX_FLAGS = -isystem C:\MinGW\include -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
-CXX_FLAGS = -std=c++17 -ftime-report -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
+CXX_FLAGS = -std=c++17 -O2 -msse2 -mfpmath=sse -g -pipe -I. -I./src $(DIRECTORIES) $(DIRECTORIES_2) $(DIRECTORIES_3) $(DEFINES)
+# CXX_FLAGS += -ftime-report
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 # https://packages.msys2.org/base
 EXTRA_CXX_FLAGS = -Werror=return-type
@@ -39,6 +40,7 @@ else
 	LDX = $(CXX)
 endif
 
+GDB = C:\msys64\usr\bin\gdb.exe
 
 # LDX = C:\msys64\mingw64\bin\ld.exe
 
@@ -91,7 +93,7 @@ clean:
 
 
 debug: $(BIN)/$(TARGET_NAME)
-	gdb $(BIN)/$(TARGET_NAME).exe -ex=run
+	$(GDB) $(BIN)/$(TARGET_NAME).exe -ex=run
 
 format:
 	find src/ -iname *.hpp -o -iname *.cpp | xargs clang-format -i

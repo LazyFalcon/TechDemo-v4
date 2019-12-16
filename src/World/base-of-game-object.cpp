@@ -1,12 +1,12 @@
 #include "core.hpp"
-#include "object-id.hpp"
 #include "base-of-game-object.hpp"
+#include "Logger.hpp"
 
 namespace utils
 {
 struct Id
 {
-    void* pointee {nullptr};
+    BaseOfGameObject* pointee {nullptr};
 };
 
 struct IdContainer
@@ -16,7 +16,7 @@ struct IdContainer
     std::vector<Id> ids;
 
     IdContainer() {
-        int capacity = 10000;
+        int capacity = 50000;
         ids.resize(capacity);
         freeIndices.reserve(capacity);
         for(int i = capacity - 1; i > 0; --i) { freeIndices.push_back(i); }
@@ -34,10 +34,11 @@ int acquireIndex() {
     int i = idContainer.freeIndices.back();
     if(not idContainer.freeIndices.empty())
         idContainer.freeIndices.pop_back();
+
     return i;
 }
-void updatePointer(int i, ObjectId* ptr) {
-    idContainer.ids[i].pointee = (void*)ptr;
+void updatePointer(int i, BaseOfGameObject* ptr) {
+    idContainer.ids[i].pointee = ptr;
 }
 BaseOfGameObject* deref(int i) {
     return (BaseOfGameObject*)idContainer.ids[i].pointee;

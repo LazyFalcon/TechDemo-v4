@@ -100,7 +100,7 @@ void LightSource::readConfig(const Yaml& thing) {
 
     m_energy = thing["Power"].number();
     m_color = thing["Color"].vec4();
-    isShadowCaster = thing["Shadows"].boolean();
+    isCastingShadows = thing["Shadows"].boolean();
     setTransform(glm::mat4(thing["Position"]["X"].vec30(), thing["Position"]["Y"].vec30(),
                            thing["Position"]["Z"].vec30(), thing["Position"]["W"].vec31()));
 }

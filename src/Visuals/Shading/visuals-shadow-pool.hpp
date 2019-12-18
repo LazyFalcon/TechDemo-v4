@@ -1,5 +1,6 @@
 #pragma once
 #include "core.hpp"
+#include "Texture.hpp"
 
 const uint INVALID_TEXTURE = 16985;
 
@@ -16,9 +17,7 @@ private:
 public:
     uint textureWithShadows;
 
-    ShadowPool() : m_size({7, 6}), m_numberOfCubemaps(3), m_parts(16), m_singleTextureSize(1024) {
-        for(uint i = 0; i < m_parts * m_parts; i++) { m_freeIndexes.push_back(i); }
-    }
+    ShadowPool() : m_size({7, 6}), m_numberOfCubemaps(3), m_singleTextureSize(1024) {}
 
     void initTexture() {
         m_texture = Texture(gl::TEXTURE_2D, gl::DEPTH_COMPONENT32F, m_size[0] * m_singleTextureSize,

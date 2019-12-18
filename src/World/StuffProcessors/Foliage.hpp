@@ -68,7 +68,7 @@ struct RenderData
     } trunk;
     std::vector<FoliagePhysics> info; // never zero
     std::vector<FoliageUniform> uniforms;
-    std::vector<u32> shadowCasters;
+    std::vector<u32> ShadowRenderers;
     glm::vec4 bbMin, bbMax;
     u32 count {0};
     u32 next() {

@@ -29,7 +29,7 @@ public:
     }
 
 private:
-    std::vector<u8> data;
+    std::vector<u8> data {};
 };
 
 Sampler2D::Sampler2D(const std::string& filename, u32 s) {

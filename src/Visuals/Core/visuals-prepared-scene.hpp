@@ -84,6 +84,8 @@ public:
     void insert(LightSource* t) {
         lights[0].push_back(t);
         lights[t->m_type + t->m_cameraInside].push_back(t);
+        if(t->isCastingShadows)
+            lightsCastingShadows.push_back(t);
     };
 
     void clear();

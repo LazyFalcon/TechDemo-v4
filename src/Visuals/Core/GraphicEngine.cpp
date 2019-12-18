@@ -12,6 +12,7 @@
 #include "ui-renderer.hpp"
 #include "visuals-csm.hpp"
 #include "visuals-prepared-scene.hpp"
+#include "visuals-shadow-renderer.hpp"
 
 GraphicEngine::GraphicEngine(Window& window)
     : window(window),
@@ -23,6 +24,7 @@ GraphicEngine::GraphicEngine(Window& window)
       lightRendering(std::make_unique<LightRendering>(window, *context)),
       sceneRenderer(std::make_unique<SceneRenderer>(window, *context)),
       csm(std::make_unique<visuals::CascadedShadowMapping>(window, *context)),
+      shadowRenderer(std::make_unique<ShadowRenderer>(*context)),
       uiRender(std::make_unique<UIRender>(window, *context)),
       vfxEffects(std::make_unique<VfxEffects>(window, *context)) {
     context->reset();

@@ -13,6 +13,7 @@ class CascadedShadowMapping;
 }
 class UIRender;
 class VfxEffects;
+class ShadowRenderer;
 class Window;
 
 class GraphicEngine
@@ -38,6 +39,7 @@ public:
     std::unique_ptr<LightRendering> lightRendering;
     std::unique_ptr<SceneRenderer> sceneRenderer;
     std::unique_ptr<visuals::CascadedShadowMapping> csm;
+    std::unique_ptr<ShadowRenderer> shadowRenderer;
     std::unique_ptr<UIRender> uiRender;
     std::unique_ptr<VfxEffects> vfxEffects;
 };

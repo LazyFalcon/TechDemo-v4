@@ -96,12 +96,17 @@ struct LightSource : public BaseOfGameObject
     glm::vec3 m_scale {};
     float m_energy {};
     float m_cosAngle {};
-    bool isShadowCaster {false};
+    float temperature;
+    bool isCastingShadows {false};
+    struct
+    {
+        std::vector<ObjectHandle> objectsCastingShadows;
+        uint texture;
+        uint textureCount;
+
+    } shadow;
     LightType m_type;
     CameraRelation m_cameraInside {CameraOutside};
-    std::string name;
-    bool castShadows {false};
-    std::vector<ObjectHandle> objectsCastingShadows;
     btRigidBody* lightProxy {nullptr};
     btCollisionShape* lightShape {nullptr};
 

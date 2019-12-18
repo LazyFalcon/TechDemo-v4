@@ -129,7 +129,7 @@ void Scene::updateNonPlayableObjects(float dt, camera::Camera& camera) {
     // todo: if(grass) grass->update(camera.position());
     // todo: if(foliage) foliage->update(camera.position());
 
-    // todo: updateShadowCasters();
+    // todo: updateShadowRenderers();
 }
 void Scene::updateLightsAndShadows(float dt, camera::Camera& camera) {}
 void Scene::collectObjectForRendering(float dt, camera::Camera& camera) {

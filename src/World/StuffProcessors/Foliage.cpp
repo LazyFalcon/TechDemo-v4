@@ -348,10 +348,10 @@ void RenderData::updatePhysics(glm::vec4 reference, PhysicalWorld& p) {
         }
     };
     u32 physicalTrees(0);
-    shadowCasters.clear();
+    ShadowRenderers.clear();
 
     const float distanceTreshold = -50.f;
-    const float shadowCasterTreshold = 190.f;
+    const float ShadowRendererTreshold = 190.f;
     glm::vec4 shadowCenter(0);
     std::vector<glm::vec4> points;
 
@@ -362,8 +362,8 @@ void RenderData::updatePhysics(glm::vec4 reference, PhysicalWorld& p) {
 
         glm::vec4 position = glm::column(uniforms[i].transform, 3);
         float distance = glm::distance(reference, position);
-        if(distance < shadowCasterTreshold) {
-            shadowCasters.push_back(i);
+        if(distance < ShadowRendererTreshold) {
+            ShadowRenderers.push_back(i);
             points.push_back(position);
             shadowCenter += position;
         }

@@ -43,10 +43,24 @@ void updatePointer(int i, BaseOfGameObject* ptr) {
 BaseOfGameObject* deref(int i) {
     return (BaseOfGameObject*)idContainer.ids[i].pointee;
 }
+// TODO: object 0 szhould be dummy.
 BaseOfGameObject* deref(const btRigidBody* rgBody) {
     return (BaseOfGameObject*)idContainer.ids[rgBody->getUserIndex()].pointee;
 }
 void setRef(int i, btRigidBody* rgBody) {
     return rgBody->setUserIndex(i);
 }
+}
+
+void BaseOfGameObject::addItselfToShadowCastingList(RenderCommand& command) {
+    if(command.id == lastRenderCommand)
+        return;
+    lastRenderCommand = command.id;
+    addToShadowCastingList(command);
+}
+void BaseOfGameObject::addItselfToSceneVisibleList(PreparedScene& visibleList) {
+    if(lastFrame == frame())
+        return;
+    lastFrame = frame();
+    addToSceneVisibleList(visibleList);
 }

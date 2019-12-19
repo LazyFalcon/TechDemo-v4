@@ -5,6 +5,7 @@
 #include "visuals-shadow-pool.hpp"
 
 ShadowRenderer::ShadowRenderer(Context& context) : context(context), m_shadowPool(std::make_unique<ShadowPool>) {}
+ShadowRenderer::~ShadowRenderer() {}
 
 void ShadowRenderer::freeResources(const Vec& toCleanup) {
     for(auto it : toCleanup) {
@@ -14,16 +15,8 @@ void ShadowRenderer::freeResources(const Vec& toCleanup) {
         it.shadow.texture = INVALID_TEXTURE;
     }
 }
-void ShadowRenderer::freeResources(const Vec& toCleanup) {
-    for(auto it : toCleanup) {
-        m_shadowPool.release(it->shadow.texture, it->shadow.textureCount);
-        m_lights.erase(
-            std::remove_if(m_lights.begin(), m_lights.end(), [it](auto lightPtr) { return lightPtr == it; }));
-        it.shadow.texture = INVALID_TEXTURE;
-    }
-}
 
-Vec ShadowRenderer::allocateResources(const Vec& toAdd) {
+ShadowRenderer::Vec ShadowRenderer::allocateResources(const Vec& toAdd) {
     Vec withSucces;
     for(auto it : toAdd) {
         auto result = m_shadowPool->allocate(it->shadow.textureCount);
@@ -45,7 +38,7 @@ void ShadowRenderer::processVisibleShadows(Vec& lights) {
 
     // no caching for now. In future remove only when there is a need for new resources
     freeResources(removed);
-    added = selectToCastShadows(added, m_shadowPool->avaliableResources());
+    sortByImportance(added);
     auto successfullyAllocated = allocateResources(added);
 
     m_lights.insert(successfullyAllocated.begin(), successfullyAllocated.end(), m_lights.back());

@@ -3,15 +3,8 @@
 #include "Logger.hpp"
 #include "visuals-prepared-scene.hpp"
 
-
-namespace camera
+namespace model
 {
-class Camera;
-}
-class GraphicDataCollector;
-class Scene;
-class Track;
-
 class GraphicDataCollector
 {
 public:
@@ -23,32 +16,32 @@ class GraphicComponent
 {
 public:
     std::vector<std::shared_ptr<GraphicDataCollector>> entitiesToDraw;
-    void toBeRendered() {
-        for(auto& it : entitiesToDraw) { it->toBeRendered(); }
+    void toBeRendered(RenderCommand& into) {
+        for(auto& it : entitiesToDraw) { it->toBeRendered(into); }
     }
 };
-
-class SkinnedMesh : public GraphicDataCollector
+// ? make movable?
+class Skinned : public GraphicDataCollector
 {
 public:
-    SkinnedMesh() {}
     Mesh mesh;
     VAO vao;
     std::vector<glm::mat4> bones;
-    void toBeRendered() {
-        visuals::preparedScene.insert(this);
+    // ? leave this to user
+    void toBeRendered(RenderCommand& into) {
+        into.skinned.push_back(this);
     }
 };
 
-class ArmoredVehicleTracks : public GraphicDataCollector
+class TrackLink : public GraphicDataCollector
 {
 public:
-    ArmoredVehicleTracks(Track& track) : track(track) {}
-    Track& track;
     Mesh mesh;
     VAO vao;
     glm::mat4 baseTransform;
-    void toBeRendered() {
-        visuals::preparedScene.insert(this);
+    std::vector<glm::vec2> links;
+    void toBeRendered(RenderCommand& into) {
+        into.trackLinks.push_back(this);
     }
 };
+}

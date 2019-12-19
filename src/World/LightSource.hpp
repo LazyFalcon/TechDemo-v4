@@ -103,7 +103,7 @@ struct LightSource : public BaseOfGameObject
         std::vector<ObjectHandle> objectsCastingShadows;
         uint texture;
         uint textureCount;
-
+        bool needsUpdate;
     } shadow;
     LightType m_type;
     CameraRelation m_cameraInside {CameraOutside};

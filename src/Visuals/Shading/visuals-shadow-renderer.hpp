@@ -13,8 +13,6 @@ private:
     Vec m_lights;
     Vec m_recentlyRemoved;
 
-    ShadowRenderer(Context& context);
-
     template<typename T>
     auto diffContainers(std::vector<T*>& newData, std::vector<T*>& current) const {
         std::vector<T*> added, removed;
@@ -29,40 +27,27 @@ private:
 
     void freeResources(const Vec& toCleanup);
 
-    uint calcNeededResources(const Vec& added) {
-        uint count = 0;
-        for(auto it : added) { count += it->shadow.textureCount; }
-        return count;
-    }
+    void sortByImportance(Vec& added) {}
     Vec allocateResources(const Vec& toAdd);
 
     Vec whichLightNeedsRefresh(const Vec& lights) const {
         Vec result;
         for(auto it : lights) {
-            it->needsUpdate = false;
+            it->shadow.needsUpdate = false;
             result.push_back(it);
         }
     }
 
     void renderShadows();
 
-    struct RenderCommand
-    {
-        RenderCommand() : id(s_id++) {}
-        static uint s_id;
-        uint id;
-        std::optional<> skinned;
-        std::optional<> dummy;
-        std::optional<> terrain;
-        std::optional<> foliage;
-    };
-
-    auto prepareRenderCommandForLight(Light* light) {
+    auto prepareRenderCommandForLight(LightSource* light) {
         RenderCommand renderCommand; // here goes dummy objects, vehicles and
-        for(auto it : objectsCastingShadows) { it->addItselfToRenderCommand(renderCommand); }
+        for(auto it : light->shadow.objectsCastingShadows) { it->addItselfToRenderCommand(renderCommand); }
         return renderCommand;
     }
 
 public:
+    ShadowRenderer(Context& context);
+    ~ShadowRenderer();
     void processVisibleShadows(Vec& lights);
 };

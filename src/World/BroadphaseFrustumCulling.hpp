@@ -22,6 +22,7 @@ public:
         btBroadphaseProxy* proxy = static_cast<btBroadphaseProxy*>(leaf->data);
         btCollisionObject* co = static_cast<btCollisionObject*>(proxy->m_clientObject);
 
+        // todo: save to array of vectors, by type
         if((proxy->m_collisionFilterGroup & collisionFilterMask) != 0) {
             if(co->getUserIndex())
                 utils::deref(co->getUserIndex())->actionWhenVisible();

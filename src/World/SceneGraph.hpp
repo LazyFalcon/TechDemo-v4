@@ -69,7 +69,7 @@ public:
     glm::vec2 cellSize;
     glm::vec2 cellsInTheScene;
 
-    Cell root;
+    Cell* root;
     std::vector<Cell> cells;
 
     SceneGraph(PhysicalWorld& physics);

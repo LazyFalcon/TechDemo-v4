@@ -45,7 +45,7 @@ public:
 
     PhysicalWorld& physics;
     VehicleControl control {};
-    GraphicComponent graphics; // ? make vehicle more avare of its parts? or just make it list of models
+    std::list<std::shared_ptr<model::GraphicDataCollector>> graphicsParts;
     // * Trzeba gdzieś tu wrzucić dane które będą służyć do komunikacji z modułami, w obie strony
     VehicleSharedData shared;
 

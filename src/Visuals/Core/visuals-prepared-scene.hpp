@@ -5,7 +5,6 @@
 #include "LightSource.hpp"
 #include "RenderStructs.hpp"
 #include "camera-data.hpp"
-#include "render-command.hpp"
 
 class ArmoredVehicleTracks;
 namespace camera

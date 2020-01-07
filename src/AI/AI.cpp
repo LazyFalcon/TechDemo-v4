@@ -26,5 +26,5 @@ void AI::update(float dt) {
 void AI::updateGraphic(float dt) {
     m_vehicle.updateMarkers();
     m_vehicle.drawBBOXesOfChildren();
-    m_vehicle.graphics.toBeRendered();
+    // m_vehicle.graphics.toBeRendered();
 }

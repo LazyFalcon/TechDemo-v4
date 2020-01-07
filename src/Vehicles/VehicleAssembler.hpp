@@ -13,7 +13,10 @@ template<typename VertexFormat>
 class ModelLoader;
 class PhysicalWorld;
 class Player;
-class SkinnedMesh;
+namespace model
+{
+class Skinned;
+}
 struct VertexWithMaterialDataAndBones;
 
 class VehicleAssembler
@@ -26,7 +29,7 @@ private:
     ModuleFactory m_moduleFactory;
     camera::Factory& m_camFactory;
 
-    std::shared_ptr<SkinnedMesh> m_skinnedMesh;
+    std::shared_ptr<model::Skinned> m_skinnedMesh;
     uint m_boneMatrixIndex {};
     uint m_compoundIndex {};
     Yaml m_config;

@@ -1,6 +1,9 @@
 #include "core.hpp"
 #include "base-of-game-object.hpp"
+#include "GraphicComponent.hpp"
 #include "Logger.hpp"
+#include "visuals-prepared-scene.hpp"
+
 
 namespace utils
 {
@@ -52,13 +55,13 @@ void setRef(int i, btRigidBody* rgBody) {
 }
 }
 
-void BaseOfGameObject::addItselfToShadowCastingList(RenderCommand& command) {
+void BaseOfGameObject::addItselfToShadowCastingList(model::Collection& command) {
     if(command.id == lastRenderCommand)
         return;
     lastRenderCommand = command.id;
     addToShadowCastingList(command);
 }
-void BaseOfGameObject::addItselfToSceneVisibleList(PreparedScene& visibleList) {
+void BaseOfGameObject::addItselfToSceneVisibleList(visuals::PreparedScene& visibleList) {
     if(lastFrame == frame())
         return;
     lastFrame = frame();

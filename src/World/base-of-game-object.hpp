@@ -10,6 +10,16 @@ enum BulletCollisionMasks
 };
 #undef BIT
 
+namespace model
+{
+class Collection;
+}
+
+namespace visuals
+{
+class PreparedScene;
+}
+
 enum class GameType
 {
     Actor,
@@ -95,10 +105,10 @@ public:
     uint lastFrame {0};
     uint lastRenderCommand {2 << 15};
 
-    void addItselfToShadowCastingList(RenderCommand&);
-    virtual void addToShadowCastingList(RenderCommand&) = 0;
-    void addItselfToSceneVisibleList();
-    virtual void addToSceneVisibleList() = 0;
+    void addItselfToShadowCastingList(model::Collection&);
+    virtual void addToShadowCastingList(model::Collection&) = 0;
+    void addItselfToSceneVisibleList(visuals::PreparedScene&);
+    virtual void addToSceneVisibleList(visuals::PreparedScene&) = 0;
     // todo: make one generic function that will perform basic checks(i.e. frame number) and will call this one
     virtual void actionWhenVisible() = 0;
     virtual void addToShadowmap() = 0;

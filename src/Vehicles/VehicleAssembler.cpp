@@ -91,7 +91,7 @@ void VehicleAssembler::openModelFile() {
 void VehicleAssembler::initializeVehicle(const glm::mat4& onPosition) {
     m_vehicle->fireControlUnit = std::make_unique<FireControlSystem>();
     m_vehicle->compound = new btCompoundShape();
-    m_skinnedMesh = std::make_shared<SkinnedMesh>();
+    m_skinnedMesh = std::make_shared<model::Skinned>();
     m_skinnedMesh->mesh = m_modelLoader->beginMesh();
 }
 
@@ -111,7 +111,7 @@ void VehicleAssembler::finishAssembly(const glm::mat4& onPosition) {
     m_modelLoader->endMesh(m_skinnedMesh->mesh);
     m_skinnedMesh->vao = m_modelLoader->build();
     m_vehicle->compound->recalculateLocalAabb();
-    m_vehicle->graphics.entitiesToDraw.push_back(std::move(m_skinnedMesh));
+    m_vehicle->graphicsParts.push_back(std::move(m_skinnedMesh));
 
     // m_vehicle->modulesToUpdateInsidePhysicsStep.push_back(m_vehicle->driveSystem);
     m_physics.m_dynamicsWorld->addAction(m_vehicle.get());

@@ -112,14 +112,14 @@ void SceneGraph::findObjectsInsideFrustum(const camera::Frustum& frustum) {
                           -btScalar(frustum.planes.m.topPlane.w), -btScalar(frustum.planes.m.bottomPlane.w),
                           -btScalar(frustum.planes.m.farPlane.w)};
 
-    std::array < std::vector<uint>, ile tych typów jest ? > listsOfObjects;
+    // std::array < std::vector<uint>, ile tych typów jest ? > listsOfObjects;
     bool cullFarPlane = false;
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[1].m_root, normals, offsets, cullFarPlane ? 5 : 4,
                         culling); // with static
     btDbvt::collideKDOP(dbvtBroadphase->m_sets[0].m_root, normals, offsets, cullFarPlane ? 5 : 4,
                         culling); // with dynamic
 
-    addTolistOfVisibleObjects(listsOfObjects);
+    // addTolistOfVisibleObjects(listsOfObjects);
 }
 
 auto fitPlanesAroundFrustum(const std::array<glm::vec4, 5>& corners, glm::vec4 lightDirection) {

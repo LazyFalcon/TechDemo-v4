@@ -37,8 +37,8 @@ public:
         return {};
     }
 
-    void actionWhenVisible() override;
-    void addToShadowmap() override;
+    void addToShadowCastingList(model::Collection&) override;
+    void addToSceneVisibleList(visuals::PreparedScene&) override;
     btRigidBody* getCollider() override {
         return cellBoxCollider;
     }

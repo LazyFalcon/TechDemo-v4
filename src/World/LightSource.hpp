@@ -139,8 +139,8 @@ struct LightSource : public BaseOfGameObject
 
     void cameraInside(const glm::vec4& eye, float scale = 1.f);
     bool cull(const camera::Frustum& frustum);
-    void actionWhenVisible() override;
-    void addToShadowmap() override {}
+    void addToShadowCastingList(model::Collection&) override {}
+    void addToSceneVisibleList(visuals::PreparedScene&) override;
     void update(float dt);
 
     btRigidBody* getCollider() override {

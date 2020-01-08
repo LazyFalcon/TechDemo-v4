@@ -36,15 +36,16 @@ private:
             it->shadow.needsUpdate = false;
             result.push_back(it);
         }
+        return result;
     }
 
     void renderShadows();
 
-    auto prepareRenderCommandForLight(LightSource* light) {
-        RenderCommand renderCommand; // here goes dummy objects, vehicles and
-        for(auto it : light->shadow.objectsCastingShadows) { it->addItselfToRenderCommand(renderCommand); }
-        return renderCommand;
-    }
+    // auto prepareRenderCommandForLight(LightSource* light) {
+    //     RenderCommand renderCommand; // here goes dummy objects, vehicles and
+    //     for(auto it : light->shadow.objectsCastingShadows) { it->addItselfToRenderCommand(renderCommand); }
+    //     return renderCommand;
+    // }
 
 public:
     ShadowRenderer(Context& context);

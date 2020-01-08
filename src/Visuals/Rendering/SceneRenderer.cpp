@@ -175,7 +175,7 @@ void SceneRenderer::renderSkinned(camera::Camera& camera) {
     GPU_SCOPE_TIMER();
 
     auto shader = assets::bindShader("skinned-model-pbr");
-    auto& skinnedMeshes = visuals::preparedScene.get<SkinnedMesh*>();
+    auto& skinnedMeshes = visuals::preparedScene.get<model::Skinned*>();
     int nr(0);
     console.clog("Number of skinned meshes:", skinnedMeshes.size());
     for(auto toRender : skinnedMeshes) {

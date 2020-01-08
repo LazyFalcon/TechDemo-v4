@@ -8,14 +8,15 @@
 #include "Utils.hpp"
 #include "Yaml.hpp"
 
-void Cell::actionWhenVisible() {
+void Cell::addToSceneVisibleList(visuals::PreparedScene& preparedScene) {
     // console.clog("cell is visible");
-    for(auto& it : objects) { it->actionWhenVisible(); }
+    for(auto& it : objects) { it->addItselfToSceneVisibleList(preparedScene); }
 }
 
-void Cell::addToShadowmap() {
+void Cell::addToShadowCastingList(model::Collection& collection) {
     // console.clog("cell is visible");
-    for(auto& it : objects) { it->addToShadowmap(); }
+    // tu powinno się trochę więcej dziać, np. dodać całą skeszowaną paczkę, zamiast pojedynczo
+    for(auto& it : objects) { it->addItselfToShadowCastingList(collection); }
 }
 
 const float manhattanLodDistances[4] = {15, 60, 100, 900};

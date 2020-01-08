@@ -24,8 +24,9 @@ public:
 
         // todo: save to array of vectors, by type
         if((proxy->m_collisionFilterGroup & collisionFilterMask) != 0) {
-            if(co->getUserIndex())
-                utils::deref(co->getUserIndex())->actionWhenVisible();
+            // if(co->getUserIndex())
+            // zebrać do kolekcji per typ
+            // utils::deref(co->getUserIndex())->actionWhenVisible();
         }
     }
 };
@@ -49,8 +50,9 @@ public:
         btCollisionObject* co = static_cast<btCollisionObject*>(proxy->m_clientObject);
 
         if((proxy->m_collisionFilterGroup & collisionFilterMask) != 0) {
-            if(co->getUserIndex())
-                utils::deref(co->getUserIndex())->addToShadowmap();
+            // if(co->getUserIndex())
+            // zebrać do kolekcji per typ
+            // utils::deref(co->getUserIndex())->addToShadowmap();
         }
     }
 };

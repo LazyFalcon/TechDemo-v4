@@ -51,8 +51,8 @@ public:
     };
     void printStatus() {};
     void update(float dt);
-    void actionWhenVisible() override;
-    void addToShadowmap() override;
+    void addToShadowCastingList(model::Collection&) override;
+    void addToSceneVisibleList(visuals::PreparedScene&) override;
     btRigidBody* getCollider() override {
         return physics.rgBody;
     }

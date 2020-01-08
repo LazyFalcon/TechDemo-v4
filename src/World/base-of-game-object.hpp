@@ -90,10 +90,10 @@ public:
         m_globalIndex = parent.m_globalIndex;
         utils::updatePointer(m_globalIndex, this);
     }
-    std::string name;
+    std::string name; // todo: remove from here? virtual name getter instead?
     GameType type;
 
-    int getId() const {
+    int id() const {
         return m_globalIndex;
     }
 
@@ -105,16 +105,20 @@ public:
     uint lastFrame {0};
     uint lastRenderCommand {2 << 15};
 
+    // todo: rename: addToShadowCastingList
     void addItselfToShadowCastingList(model::Collection&);
-    virtual void addToShadowCastingList(model::Collection&) = 0;
     void addItselfToSceneVisibleList(visuals::PreparedScene&);
-    virtual void addToSceneVisibleList(visuals::PreparedScene&) = 0;
     // todo: make one generic function that will perform basic checks(i.e. frame number) and will call this one
-    virtual void actionWhenVisible() = 0;
-    virtual void addToShadowmap() = 0;
+    // virtual void actionWhenVisible() = 0;
+    // virtual void addToShadowmap() = 0;
     virtual btRigidBody* getCollider() = 0;
 
     ObjectHandle createHandle() {
-        return ObjectHandle(getId());
+        return ObjectHandle(id());
     }
+
+protected:
+    // todo: rename: addToShadowCastingListImpl
+    virtual void addToShadowCastingList(model::Collection&) = 0;
+    virtual void addToSceneVisibleList(visuals::PreparedScene&) = 0;
 };

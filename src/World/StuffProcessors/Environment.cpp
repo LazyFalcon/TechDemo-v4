@@ -16,20 +16,12 @@ void EnviroEntity::update(float dt) {
     physics.rgBody->getMotionState()->getWorldTransform(tr);
     physics.transform = convert(tr);
 }
-void EnviroEntity::actionWhenVisible() {
-    if(lastFrame == frame())
-        return; // * to be sure that object will be inserted once per frame :)
-    lastFrame = frame();
 
-    visuals::preparedScene.nonPlayableInsideFrustum.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
+void EnviroEntity::addToShadowCastingList(model::Collection& collection) {
+    collection.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
 }
-void EnviroEntity::addToShadowmap() {
-    if(lastFrame
-       == frame()) // todo: zamiast lastFrame to last render command, i zpushować to do implementacji parenta if(alreadyAdded(command.id)) return
-        return;    // * to be sure that object will be inserted once per frame :)
-    lastFrame = frame();
-
-    visuals::preparedScene.nonPlayableOutsideFrustum.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
+void EnviroEntity::addToSceneVisibleList(visuals::PreparedScene& preparedScene) {
+    preparedScene.nonPlayableOutsideFrustum.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
 }
 
 void Environment::load(const std::string& sceneName, const Yaml& yaml) {

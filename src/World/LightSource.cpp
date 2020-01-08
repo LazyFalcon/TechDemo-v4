@@ -76,12 +76,12 @@ bool LightSource::cull(const camera::Frustum& frustum) {
     return true;
 }
 
-void LightSource::actionWhenVisible() {
+void LightSource::addToSceneVisibleList(visuals::PreparedScene& preparedScene) {
     if(lastFrame == frame())
         return; // * to be sure that object will be inserted once per frame :)
     lastFrame = frame();
 
-    visuals::preparedScene.insert(this);
+    preparedScene.insert(this);
 }
 
 void LightSource::readConfig(const Yaml& thing) {

@@ -21,7 +21,7 @@ public:
 
     void initTexture() {
         m_texture = Texture(gl::TEXTURE_2D, gl::DEPTH_COMPONENT32F, m_size[0] * m_singleTextureSize,
-                            m_size[1] * m_singleTextureSize, gl::DEPTH_COMPONENT, gl::FLOAT, gl::LINEAR, 0);
+                            m_size[1] * m_singleTextureSize, 0, gl::DEPTH_COMPONENT, gl::FLOAT, gl::LINEAR, 0);
 
         for(uint i = 0; i < m_numberOfCubemaps; ++i) { m_freeCubes.push_back(i); }
         for(uint i = m_numberOfCubemaps; i < m_size[0]; ++i) {

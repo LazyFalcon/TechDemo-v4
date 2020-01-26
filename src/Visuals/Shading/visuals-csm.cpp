@@ -148,7 +148,7 @@ void CascadedShadowMapping::renderNonPlayableObjects() {
 void CascadedShadowMapping::renderBigFoliage() {}
 void CascadedShadowMapping::renderObjectsFromFrustum() {
     auto shader = assets::bindShader("skinned-model-csm");
-    auto& skinnedMeshes = visuals::preparedScene.get<SkinnedMesh*>();
+    auto& skinnedMeshes = visuals::preparedScene.get<model::Skinned*>();
     console.clog("Number of skinned meshes to shadow:", skinnedMeshes.size());
     for(auto toRender : skinnedMeshes) {
         auto& mesh = toRender->mesh;

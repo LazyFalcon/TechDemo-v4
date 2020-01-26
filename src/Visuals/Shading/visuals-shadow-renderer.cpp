@@ -4,7 +4,7 @@
 #include "LightSource.hpp"
 #include "visuals-shadow-pool.hpp"
 
-ShadowRenderer::ShadowRenderer(Context& context) : context(context), m_shadowPool(std::make_unique<ShadowPool>) {}
+ShadowRenderer::ShadowRenderer(Context& context) : context(context), m_shadowPool(std::make_unique<ShadowPool>()) {}
 ShadowRenderer::~ShadowRenderer() {}
 
 void ShadowRenderer::freeResources(const Vec& toCleanup) {
@@ -12,7 +12,7 @@ void ShadowRenderer::freeResources(const Vec& toCleanup) {
         m_shadowPool->release(it->shadow.texture, it->shadow.textureCount);
         m_lights.erase(
             std::remove_if(m_lights.begin(), m_lights.end(), [it](auto lightPtr) { return lightPtr == it; }));
-        it.shadow.texture = INVALID_TEXTURE;
+        it->shadow.texture = INVALID_TEXTURE;
     }
 }
 
@@ -24,8 +24,8 @@ ShadowRenderer::Vec ShadowRenderer::allocateResources(const Vec& toAdd) {
             continue;
         }
         it->shadow.texture = *result;
-        it->needsUpdate = true;
-        withSucces.insert(it);
+        it->shadow.needsUpdate = true;
+        withSucces.push_back(it);
     }
     return withSucces;
 }
@@ -41,14 +41,14 @@ void ShadowRenderer::processVisibleShadows(Vec& lights) {
     sortByImportance(added);
     auto successfullyAllocated = allocateResources(added);
 
-    m_lights.insert(successfullyAllocated.begin(), successfullyAllocated.end(), m_lights.back());
+    m_lights.insert(successfullyAllocated.begin(), successfullyAllocated.end(), m_lights.end());
 
     std::sort(m_lights.begin(), m_lights.end());
     // for now recalculate each light,
     // later check if light moved or achanged any params, of if it has dynamic object in view
-    auto needRefresh = whichLightNeedsRerender(m_lights);
+    auto needRefresh = whichLightNeedsRefresh(m_lights);
 
-    renderShadows(needRefresh);
+    // renderShadows(needRefresh);
 
     // x znaleźć nowe
     // x posortować po odległości/priorytecie(tak dajemy światłom priorytet, jak bardzo wązne są ich cienie)

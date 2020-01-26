@@ -26,7 +26,7 @@ public:
     std::vector<model::Skinned*> skinned;
     std::vector<model::TrackLink*> trackLinks;
     // std::vector<ArmoredVehicleTracks*> tracks;
-    // CommandArray dummy;
+    CommandArray dummy;
     // CommandArray terrain;
     // CommandArray foliage;
 };

@@ -1,6 +1,7 @@
 #include "core.hpp"
 #include "Environment.hpp"
 #include "GPUResources.hpp"
+#include "GraphicComponent.hpp"
 #include "LightSource.hpp"
 #include "Logger.hpp"
 #include "ModelLoader.hpp"
@@ -18,7 +19,7 @@ void EnviroEntity::update(float dt) {
 }
 
 void EnviroEntity::addToShadowCastingList(model::Collection& collection) {
-    collection.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
+    collection.dummy.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);
 }
 void EnviroEntity::addToSceneVisibleList(visuals::PreparedScene& preparedScene) {
     preparedScene.nonPlayableOutsideFrustum.push(graphic.mesh.count, graphic.mesh.offset(), physics.transform);

@@ -14,7 +14,10 @@ class Camera;
 class Details;
 class GraphicEngine;
 class LightSource;
-class SkinnedMesh;
+namespace model
+{
+class Skinned;
+}
 class Window;
 
 namespace visuals
@@ -48,7 +51,7 @@ struct MainLightParams
 class PreparedScene
 {
 public:
-    using tupleOfContainers = std::tuple<std::vector<SkinnedMesh*>, std::vector<ArmoredVehicleTracks*>,
+    using tupleOfContainers = std::tuple<std::vector<model::Skinned*>, std::vector<ArmoredVehicleTracks*>,
                                          std::vector<SimpleModelPbr>, std::vector<PointLightSource>>;
 
     tupleOfContainers collection;

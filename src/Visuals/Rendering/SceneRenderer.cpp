@@ -233,7 +233,7 @@ void SceneRenderer::renderSkinnedShadows(Scene& scene, camera::Camera& camera) {
         lightDir = scene.sun->direction;
     auto shader = assets::getShader("ObjectShadow").bind();
 
-    auto& skinnedMeshes = visuals::preparedScene.get<SkinnedMesh*>();
+    auto& skinnedMeshes = visuals::preparedScene.get<model::Skinned*>();
     for(auto toRender : skinnedMeshes) {
         auto& mesh = toRender->mesh;
         toRender->vao.bind();
